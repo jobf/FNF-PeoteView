@@ -77,7 +77,7 @@ class BasicState extends State {
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		Sys.println(inst.time);
+		logo2.x = (inst.time * 0.45) % (1280 + (logo2.w * 2)) - logo2.w;
 
 		buffGP.update();
 		buffUI.update();
@@ -89,6 +89,11 @@ class BasicState extends State {
 		if (keyCode == KeyCode.RETURN)
 		{
 			inst.play();
+		}
+
+		if (keyCode == KeyCode.SPACE)
+		{
+			inst.pause();
 		}
 
 		if (keyCode == KeyCode.A)

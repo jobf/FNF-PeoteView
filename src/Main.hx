@@ -27,6 +27,7 @@ class Main extends Application
 	
 	public function startSample(window:Window)
 	{
+		GC.enable(false);
 		Screen.init(window);
 	}
 	

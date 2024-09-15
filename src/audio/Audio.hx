@@ -57,14 +57,21 @@ class Audio
 	var speed(get, set):Float;
 
 	/**
-	 * The internal audio length.
-	 */
-	private var _length:Float = -1;
-
-	/**
 	 * The internal audio volume.
 	 */
 	private var _volume:Float = 1;
+
+	/**
+	 * The internal audio time.
+	 * This is used for interpolation with audio time for smoother audio playback time.
+	 * However, it only works if you get the time variable.
+	 */
+	private var _time:Float = 0;
+
+	/**
+	 * The internal audio length.
+	 */
+	private var _length:Float = -1;
 
 	/**
 	 * The raw miniaudio engine pointer.
@@ -297,7 +304,14 @@ class Audio
 	 */
 	function get_time():Float
 	{
-		return MiniAudio.getTime(sound) * 1000;
+		if (playing) {
+			var audioTime:Float = MiniAudio.getTimeInMS(sound);
+			var halfSpeed:Float = speed * 0.462;
+
+			_time = _time + halfSpeed * (audioTime - _time);
+		}
+
+		return _time;
 	}
 
 	/**
@@ -312,8 +326,8 @@ class Audio
 			newTime = 0;
 		}
 
-		MiniAudio.setTime(sound, newTime / 1000);
-		return newTime;
+		MiniAudio.setTime(sound, newTime * 0.001);
+		return _time = newTime;
 	}
 
 	/**

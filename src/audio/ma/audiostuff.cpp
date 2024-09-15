@@ -221,21 +221,28 @@ float getPitch(ma_sound *sound)
     return ma_sound_get_pitch(sound);
 }
 
-float getTime(ma_sound *sound)
+double getTimeInSeconds(ma_sound *sound)
 {
-    float time = -1;
+    double time = -1;
     ma_sound_get_cursor_in_seconds(sound, &time);
     return time;
 }
 
-float getLength(ma_sound *sound)
+double getTimeInMS(ma_sound *sound)
 {
-    float time = -1;
+    double time = -1;
+    ma_sound_get_cursor_in_milliseconds(sound, &time);
+    return time;
+}
+
+double getLength(ma_sound *sound)
+{
+    double time = -1;
     ma_sound_get_length_in_seconds(sound, &time);
     return time;
 }
 
-void setTime(ma_sound *sound, float timeInSec)
+void setTime(ma_sound *sound, double timeInSec)
 {
     ma_result result;
     ma_uint64 lengthInPCMFrames;
@@ -250,7 +257,7 @@ void setTime(ma_sound *sound, float timeInSec)
         return;
     }
 
-    float timePCM = 0;
+    double timePCM = 0;
 
     result = ma_data_source_get_data_format(sound->pDataSource, NULL, NULL, &sampleRate, NULL, 0);
     if (result != MA_SUCCESS)

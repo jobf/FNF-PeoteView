@@ -56,7 +56,8 @@ extern class MiniAudio
 	@:native("isDone") public static function isDone(sound:RawPointer<MASound>):Bool;
 	@:native("setPitch") public static function setPitch(sound:RawPointer<MASound>, vol:Float):Void;
 	@:native("getPitch") public static function getPitch(sound:RawPointer<MASound>):Float;
-	@:native("getTime") public static function getTime(sound:RawPointer<MASound>):Float;
+	@:native("getTimeInSeconds") public static function getTimeInSeconds(sound:RawPointer<MASound>):Float;
+	@:native("getTimeInMS") public static function getTimeInMS(sound:RawPointer<MASound>):Float;
 	@:native("getLength") public static function getLength(sound:RawPointer<MASound>):Float;
 	@:native("setTime") public static function setTime(sound:RawPointer<MASound>, timeInSec:Float):Void;
 	@:native("setLooping") public static function setLooping(sound:RawPointer<MASound>, shouldLoop:Bool):Void;
