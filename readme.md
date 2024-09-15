@@ -1,6 +1,6 @@
 # Welcome!
 
-FNF' in Peote-View, otherwise known as "Funkin' View" is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public), and offers ultra-performance gameplay and an incredibly flexible codebase aiming to become the new standard of FNF modding.
+FNF' in Peote-View, otherwise known as "Funkin' View" is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public), offers ultra-performant gameplay and an incredibly flexible codebase, and is currently aiming to become the new standard of FNF modding.
 
 This quite literally started development, so expect this repository to be very active!
 
