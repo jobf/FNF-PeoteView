@@ -191,44 +191,44 @@ int pauseSound(ma_sound *sound)
     return 0;
 }
 
-inline void setVolume(ma_sound *sound, float vol)
+void setVolume(ma_sound *sound, float vol)
 {
     ma_sound_set_volume(sound, vol);
 }
 
-inline float getVolume(ma_sound *sound)
+float getVolume(ma_sound *sound)
 {
     return ma_sound_get_volume(sound);
 }
 
-inline bool isPlaying(ma_sound *sound)
+bool isPlaying(ma_sound *sound)
 {
     return ma_sound_is_playing(sound);
 }
 
-inline bool finished(ma_sound *sound)
+bool finished(ma_sound *sound)
 {
     return ma_sound_at_end(sound);
 }
 
-inline void setPitch(ma_sound *sound, float pitch)
+void setPitch(ma_sound *sound, float pitch)
 {
     ma_sound_set_pitch(sound, pitch);
 }
 
-inline float getPitch(ma_sound *sound)
+float getPitch(ma_sound *sound)
 {
     return ma_sound_get_pitch(sound);
 }
 
-inline float getTime(ma_sound *sound)
+float getTime(ma_sound *sound)
 {
     float time = -1;
     ma_sound_get_cursor_in_seconds(sound, &time);
     return time;
 }
 
-inline float getLength(ma_sound *sound)
+float getLength(ma_sound *sound)
 {
     float time = -1;
     ma_sound_get_length_in_seconds(sound, &time);
@@ -263,12 +263,12 @@ void setTime(ma_sound *sound, float timeInSec)
     ma_sound_seek_to_pcm_frame(sound, lengthInPCMFrames);
 }
 
-inline void setLooping(ma_sound *sound, bool shouldLoop)
+void setLooping(ma_sound *sound, bool shouldLoop)
 {
     ma_sound_set_looping(sound, shouldLoop);
 }
 
-inline bool getLooping(ma_sound *sound)
+bool getLooping(ma_sound *sound)
 {
     return ma_sound_is_looping(sound);
 }
