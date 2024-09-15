@@ -8,7 +8,7 @@ This quite literally started development, so expect this repository to be very a
 
 - SomeGuyWhoLikesCoding
 
-(AKA SomeGuyWhoLikesFNF, VeryExcited, 0x1DFA7D, SomethingIsItchy, FelixTheCat, or simply Jeremiah):
+(AKA SomeGuyWhoLikesFNF, VeryExcited, 0x1DFA7D, [SomethingIsItchy](https://somethingisitchy.itch.io), [FelixTheCat](https://gamejolt.com/@SomeGuyWhoLikesFNF), or simply Jeremiah):
 
 : Owner, Maintainer, and Programmer
 
