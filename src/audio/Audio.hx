@@ -310,8 +310,10 @@ class Audio
 
 			_time = _time + halfSpeed * (audioTime - _time);
 
-			if (audioTime - _time < 15) {
-				_time -= (audioTime - _time) * halfSpeed;
+			if (audioTime - _time > 0) {
+				var delay:Float = (audioTime - _time) * halfSpeed;
+				Sys.println(delay);
+				_time -= delay;
 			}
 		}
 
