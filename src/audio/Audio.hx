@@ -306,9 +306,13 @@ class Audio
 	{
 		if (playing) {
 			var audioTime:Float = MiniAudio.getTimeInMS(sound);
-			var halfSpeed:Float = speed * 0.462;
+			var halfSpeed:Float = speed * 0.435;
 
 			_time = _time + halfSpeed * (audioTime - _time);
+
+			if (audioTime - _time < 15) {
+				_time -= (audioTime - _time) * halfSpeed;
+			}
 		}
 
 		return _time;
