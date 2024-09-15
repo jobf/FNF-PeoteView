@@ -55,6 +55,11 @@ class Sprite implements Element
 	@color var c:Color = 0xffffffff;
 
 	/**
+	 * The texture slot of this sprite.
+	 */
+	@texSlot var slot:Int;
+
+	/**
 	 * Constructs a sprite.
 	 */
 	function new(x:Float = 0, y:Float = 0, z:Int = 0) {

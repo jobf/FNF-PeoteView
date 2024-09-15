@@ -5,8 +5,6 @@ import haxe.CallStack;
 import lime.app.Application;
 import lime.ui.Window;
 
-import haxe.macro.Compiler;
-
 
 class Main extends Application
 {

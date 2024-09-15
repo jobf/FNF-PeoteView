@@ -47,7 +47,7 @@ class BasicState extends State {
 		dispGP.addProgram(prgmGP);
 		dispUI.addProgram(prgmUI);
 
-		TextureSystem.createTexture("tex0", "assets/test0.png");
+		TextureSystem.createMultiTexture("tex0", ["assets/test0.png", "assets/test1.png", "assets/test2.png", "assets/test3.png", "assets/suzanneRGB.png"]);
 		TextureSystem.setTexture(prgmGP, "tex0", "custom");
 
 		logo = new Sprite(50, 50);
@@ -57,13 +57,13 @@ class BasicState extends State {
 
 		logo2 = new Sprite(200, 50);
 		logo2.c = 0x0000ffff;
-		buffUI.addElement(logo2);
+		buffGP.addElement(logo2);
 
 		logo3 = new Sprite(400, 150);
 		logo3.c = 0x00ff00ff;
 		logo3.w = 150;
 		logo3.h = 160;
-		buffUI.addElement(logo3);
+		buffGP.addElement(logo3);
 
 		inst = new Audio("assets/silver-doom.ogg");
 	}
@@ -101,6 +101,21 @@ class BasicState extends State {
 		if (keyCode == KeyCode.BACKSPACE)
 		{
 			inst.stop();
+		}
+
+		if (keyCode == KeyCode.NUMBER_1)
+		{
+			logo.slot++;
+		}
+
+		if (keyCode == KeyCode.NUMBER_2)
+		{
+			logo2.slot++;
+		}
+
+		if (keyCode == KeyCode.NUMBER_3)
+		{
+			logo3.slot++;
 		}
 	}
 }
