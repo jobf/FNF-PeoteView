@@ -6,8 +6,9 @@ import peote.view.*;
 /**
  * GAME
  */
-import audio.*;
-import audio.ma.*;
+import music.*;
+import music.internal.*;
+import music.internal.ma.*;
 import menus.*;
 import system.*;
 import system.internal.*;

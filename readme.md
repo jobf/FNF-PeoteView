@@ -16,7 +16,7 @@ This quite literally started development, so expect this repository to be very a
 
 (AKA JF)
 
-: Helped me learn how peote-view works
+: Helped me learn how peote-view works, and wrote the atlas sprite.
 
 - Semmi
 

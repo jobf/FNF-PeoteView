@@ -41,8 +41,8 @@ class BasicState extends State {
 		prgmGP = new Program(buffGP);
 		prgmUI = new Program(buffUI);
 
-		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
-		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
+		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0xFF000044);
+		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x0FF00F44);
 
 		Screen.view.addDisplay(dispGP);
 		Screen.view.addDisplay(dispUI);
@@ -60,24 +60,26 @@ class BasicState extends State {
 
 		logo2 = new Sprite(200, 50);
 		logo2.c = 0x0000ffff;
-		buffGP.addElement(logo2);
+		buffUI.addElement(logo2);
 
 		logo3 = new Sprite(400, 150);
 		logo3.c = 0x00ff00ff;
 		logo3.w = 150;
 		logo3.h = 160;
-		buffGP.addElement(logo3);
+		buffUI.addElement(logo3);
 
-		inst = new Audio("assets/silver-doom.ogg");
+		inst = new Audio("assets/silver-doom.opus");
 	}
 
 	var time:Float = 0;
 	override function updateState(deltaTime:Int) {
+		inst.update();
+
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = (inst.time * 0.45) % (1280 + (logo2.w * 2)) - logo2.w;
+		logo2.x = (inst.time * 2.0) % (1280 - logo2.w);
 
 		buffGP.update();
 		buffUI.update();
@@ -104,6 +106,19 @@ class BasicState extends State {
 		if (keyCode == KeyCode.D)
 		{
 			inst.time += 1000;
+		}
+
+		if (keyCode == KeyCode.B)
+		{
+			inst.time = 1000000;
+		}
+
+		if (keyCode == KeyCode.MINUS) {
+			inst.speed -= 0.1;
+		}
+
+		if (keyCode == KeyCode.PLUS) {
+			inst.speed += 0.1;
 		}
 
 		if (keyCode == KeyCode.BACKSPACE)
