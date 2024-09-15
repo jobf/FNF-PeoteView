@@ -18544,7 +18544,7 @@ Timing
             newTimeCounter = (newTime.tv_sec * 1000000000) + newTime.tv_nsec;
             oldTimeCounter = pTimer->counter;
 
-            return (newTimeCounter - oldTimeCounter) * 0.001000000.0;
+            return (newTimeCounter - oldTimeCounter) * 0.000001;
         }
     #else
         static void ma_timer_init(ma_timer* pTimer)
@@ -18566,7 +18566,7 @@ Timing
             newTimeCounter = (newTime.tv_sec * 1000000) + newTime.tv_usec;
             oldTimeCounter = pTimer->counter;
 
-            return (newTimeCounter - oldTimeCounter) * 0.001000.0;
+            return (newTimeCounter - oldTimeCounter) * 0.000001;
         }
     #endif
 #endif
@@ -22419,7 +22419,7 @@ static ma_result ma_device_init_internal__wasapi(ma_context* pContext, ma_device
         when we initialized the client.
         */
         if (usingProcessLoopback) {
-            bufferSizeInFrames = (ma_uint32)((periodDurationInMicroseconds * pData->periodsOut) * pData->sampleRateOut * 0.001000);
+            bufferSizeInFrames = (ma_uint32)((periodDurationInMicroseconds * pData->periodsOut) * pData->sampleRateOut * 0.000001);
         }
 
         pData->periodSizeInFramesOut = bufferSizeInFrames / pData->periodsOut;
