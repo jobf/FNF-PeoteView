@@ -1,4 +1,4 @@
-package audio.ma;
+package audio;
 
 import cpp.ConstCharStar;
 import cpp.RawPointer;
@@ -49,11 +49,11 @@ extern class MiniAudio
 	@:native("startSound") public static function startSound(sound:RawPointer<MASound>):Int;
 	@:native("stopSound") public static function stopSound(sound:RawPointer<MASound>):Int;
 	@:native("pauseSound") public static function pauseSound(sound:RawPointer<MASound>):Int;
-	@:native("disposeSound") public static function disposeSound(sound:RawPointer<MASound>):Void;
+	@:native("destroySound") public static function destroySound(sound:RawPointer<MASound>):Void;
 	@:native("setVolume") public static function setVolume(sound:RawPointer<MASound>, vol:Float):Void;
 	@:native("getVolume") public static function getVolume(sound:RawPointer<MASound>):Float;
 	@:native("isPlaying") public static function isPlaying(sound:RawPointer<MASound>):Bool;
-	@:native("finished") public static function finished(sound:RawPointer<MASound>):Bool;
+	@:native("isDone") public static function isDone(sound:RawPointer<MASound>):Bool;
 	@:native("setPitch") public static function setPitch(sound:RawPointer<MASound>, vol:Float):Void;
 	@:native("getPitch") public static function getPitch(sound:RawPointer<MASound>):Float;
 	@:native("getTime") public static function getTime(sound:RawPointer<MASound>):Float;

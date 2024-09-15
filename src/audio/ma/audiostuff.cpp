@@ -147,7 +147,7 @@ ma_sound *loadSound(ma_engine *engine, const char *path, ma_sound_group *group =
     return sound;
 }
 
-void disposeSound(ma_sound *sound)
+void destroySound(ma_sound *sound)
 {
     ma_sound_uninit(sound);
     free(sound);
@@ -206,7 +206,7 @@ bool isPlaying(ma_sound *sound)
     return ma_sound_is_playing(sound);
 }
 
-bool finished(ma_sound *sound)
+bool isDone(ma_sound *sound)
 {
     return ma_sound_at_end(sound);
 }

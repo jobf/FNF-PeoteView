@@ -1,7 +1,7 @@
-# Notice
+# Danger!
 
-If you edit any of these files except for `MiniAudio.hx` and `MiniAudioBuild.xml`, delete your hxcpp cache and your export folder, and recompile.
+DO NOT TOUCH ANY OF THIS STUFF!
 
-Please do so if that's the case.
+We are warning you here that you should NEVER edit this.
 
-During recompilation, do NOT touch anything.
+If you do, you won't expect the game to compile fine again.

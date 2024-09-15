@@ -65,7 +65,7 @@ class BasicState extends State {
 		logo3.h = 160;
 		buffUI.addElement(logo3);
 
-		inst = new Audio("assets/bopeebo.ogg");
+		inst = new Audio("assets/silver-doom.ogg");
 	}
 
 	var time:Float = 0;
