@@ -90,12 +90,12 @@ class Conductor
 			var leftover:Float = _stepTracker - _stepPos;
 
 			/**
-			 * This is here just in case you miss a couple beats.
+			 * This is here just in case you miss a couple steps.
 			 */
 			if (leftover > 1) {
 				var leftoverCounter:Float = 0;
 				while (++leftoverCounter < leftover) {
-					onStep.dispatch(_stepPos - (leftover - leftoverCounter));
+					onStep.dispatch(_stepPos + leftoverCounter);
 				}
 			}
 
@@ -114,7 +114,7 @@ class Conductor
 			if (leftover > 1) {
 				var leftoverCounter:Float = 0;
 				while (++leftoverCounter < leftover) {
-					onBeat.dispatch(_beatPos - (leftover - leftoverCounter));
+					onBeat.dispatch(_beatPos + leftoverCounter);
 				}
 			}
 
@@ -133,7 +133,7 @@ class Conductor
 			if (leftover > 1) {
 				var leftoverCounter:Float = 0;
 				while (++leftoverCounter < leftover) {
-					onMeasure.dispatch(_measurePos - (leftover - leftoverCounter));
+					onMeasure.dispatch(_measurePos + leftoverCounter);
 				}
 			}
 
