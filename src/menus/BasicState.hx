@@ -90,7 +90,9 @@ class BasicState extends State {
 		});*/
 		conductor.onBeat.add(function(beat) {
 			//Sys.println('Beat $beat');
-			conductor.beatSound.play();
+			if (beat % 4 != 0) {
+				conductor.beatSound.play();
+			}
 		});
 		conductor.onMeasure.add(function(measure) {
 			//Sys.println('Measure $measure');
