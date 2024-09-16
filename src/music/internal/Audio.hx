@@ -151,16 +151,16 @@ class Audio
 	function update() {
 		if (playing) {
 			var audioTime:Float = MiniAudio.getTimeInMS(sound);
-			var halfSpeed:Float = speed * 0.435;
+			var halfSpeed:Float = speed * 0.25;
 
 			if (enableInterpolation) {
-				_time = _time + halfSpeed * (audioTime - _time);
-	
 				if (audioTime - _time > 0) {
-					var delay:Float = Math.round((audioTime - _time) * (halfSpeed * 0.5)) + ((audioTime - _time) * 0.125);
+					var delay:Float = (audioTime - _time) * 0.75;
 					Sys.println(delay);
 					_time += delay;
 				}
+
+				_time = _time + halfSpeed * (audioTime - _time);
 			} else {
 				_time = audioTime;
 			}

@@ -79,7 +79,7 @@ class BasicState extends State {
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = (inst.time * 2.0) % (1280 - logo2.w);
+		logo2.x = (inst.time * 0.4) % (1280 - logo2.w);
 
 		buffGP.update();
 		buffUI.update();
