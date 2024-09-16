@@ -220,11 +220,6 @@ class Audio
 	 */
 	function play()
 	{
-		if (stopped) {
-			stopped = false;
-			_time = 0;
-		}
-
 		if (MiniAudio.startSound(sound) != 0)
 			trace("CAN'T PLAY SOUND");
 	}
@@ -242,8 +237,8 @@ class Audio
 	 */
 	function stop()
 	{
-		stopped = true;
 		MiniAudio.stopSound(sound);
+		time = 0;
 	}
 
 	/**

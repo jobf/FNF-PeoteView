@@ -79,12 +79,12 @@ class BasicState extends State {
 		/*conductor.onStep.add(function(step) {
 			Sys.println('Step $step');
 		});*/
-		conductor.onBeat.add(function(beat) {
+		/*conductor.onBeat.add(function(beat) {
 			Sys.println('Beat $beat');
 		});
 		conductor.onMeasure.add(function(measure) {
 			Sys.println('Measure $measure');
-		});
+		});*/
 	}
 
 	var time:Float = 0;
