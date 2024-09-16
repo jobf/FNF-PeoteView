@@ -32,6 +32,11 @@ class BasicState extends State {
 	 */
 	var inst:Audio;
 
+	/**
+	 * The conductor.
+	 */
+	var conductor:Conductor;
+
 	override function new() {
 		super();
 
@@ -69,6 +74,17 @@ class BasicState extends State {
 		buffUI.addElement(logo3);
 
 		inst = new Audio("assets/silver-doom.opus");
+
+		conductor = new Conductor(172);
+		/*conductor.onStep.add(function(step) {
+			Sys.println('Step $step');
+		});*/
+		conductor.onBeat.add(function(beat) {
+			Sys.println('Beat $beat');
+		});
+		conductor.onMeasure.add(function(measure) {
+			Sys.println('Measure $measure');
+		});
 	}
 
 	var time:Float = 0;
@@ -79,10 +95,12 @@ class BasicState extends State {
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = (inst.time * 0.4) % (1280 - logo2.w);
+		logo2.x = inst.time % (1280 - logo2.w);
 
 		buffGP.update();
 		buffUI.update();
+
+		conductor.time = inst.time;
 	}
 
 	override function onKeyDown(keyCode, keyModifier) {

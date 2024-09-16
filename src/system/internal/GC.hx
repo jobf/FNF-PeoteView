@@ -1,6 +1,6 @@
 package system.internal;
 
-typedef GCBackend = #if cpp cpp.vm.Gc; #elseif hl hl.Gc; #else Int #end
+typedef GCBackend = #if cpp cpp.vm.Gc; #else Int #end
 
 /**
  * The GC class abstracting over its target-specific gc implementations.
@@ -16,7 +16,7 @@ abstract GC(GCBackend) {
 	 * @param inEnable 
 	 */
 	static function enable(inEnable:Bool) {
-		#if (cpp || hl)
+		#if cpp
 		GCBackend.enable(inEnable);
 		#end
 	}
@@ -27,8 +27,6 @@ abstract GC(GCBackend) {
 	static function run() {
 		#if cpp
 		GCBackend.run(true);
-		#elseif hl
-		GCBackend.major();
 		#end
 	}
 }
