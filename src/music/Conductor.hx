@@ -26,6 +26,16 @@ class Conductor
 	var onMeasure:Event<Float->Void> = new Event<Float->Void>();
 
 	/**
+	 * The conductor's beat sound.
+	 */
+	var beatSound:Sound;
+
+	/**
+	 * The conductor's measure sound.
+	 */
+	var measureSound:Sound;
+
+	/**
 	 * The conductor's crochet.
 	 */
 	var crochet(default, null):Float;
@@ -253,5 +263,8 @@ class Conductor
 	function new(initialBpm:Float = 100):Void
 	{
 		bpm = initialBpm;
+
+		beatSound = new Sound("assets/conductor/beat.wav");
+		measureSound = new Sound("assets/conductor/measure.wav");
 	}
 }

@@ -37,6 +37,15 @@ class BasicState extends State {
 	 */
 	var conductor:Conductor;
 
+	/**
+	 * The bpm changes.
+	 */
+	var bpmChanges:Array<Array<Float>> = [
+		[11162.79069767442, 344],
+		[22325.58139534884, 688]
+	];
+	var bpmChangePosition:Int = 0;
+
 	override function new() {
 		super();
 
@@ -79,12 +88,14 @@ class BasicState extends State {
 		/*conductor.onStep.add(function(step) {
 			Sys.println('Step $step');
 		});*/
-		/*conductor.onBeat.add(function(beat) {
-			Sys.println('Beat $beat');
+		conductor.onBeat.add(function(beat) {
+			//Sys.println('Beat $beat');
+			conductor.beatSound.play();
 		});
 		conductor.onMeasure.add(function(measure) {
-			Sys.println('Measure $measure');
-		});*/
+			//Sys.println('Measure $measure');
+			conductor.measureSound.play();
+		});
 	}
 
 	var time:Float = 0;
@@ -101,6 +112,17 @@ class BasicState extends State {
 		buffUI.update();
 
 		conductor.time = inst.time;
+
+		/**
+		 * This bpm change logic does not preserve position to go back to the previous bpm.
+		 */
+		if (bpmChangePosition < bpmChanges.length) {
+			var bpmChange = bpmChanges[bpmChangePosition];
+			if (conductor.time > bpmChange[0]) {
+				conductor.changeBpmAt(bpmChange[0], bpmChange[1]);
+				++bpmChangePosition;
+			}
+		}
 	}
 
 	override function onKeyDown(keyCode, keyModifier) {
@@ -114,6 +136,11 @@ class BasicState extends State {
 		if (keyCode == KeyCode.SPACE)
 		{
 			inst.pause();
+		}
+
+		if (keyCode == KeyCode.M)
+		{
+			inst.volume = inst.volume == 0 ? 1 : 0;
 		}
 
 		if (keyCode == KeyCode.A)
