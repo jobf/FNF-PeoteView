@@ -1,83 +1,85 @@
 package elements;
 
 import haxe.Int64;
-import cpp.UInt16;
-import cpp.UInt8;
 
 /**
  * The internal chart note.
- * This is a helper abstract for the bytes of the chart, which wraps Int64.
-*/
+ * Written by SomeGuyWhoLikesFnf, fixed and tweaked by chris (Dimensionscape)
+ */
 #if !debug
 @:noDebug
 #end
 @:publicFields
-abstract ChartNote(Int64) from Int64 to Int64 {
+abstract ChartNote(Int64) {
 	/**
-	* The note position.
-	*/
+	 * The position's bit mask.
+	 */
+	static var POSITION_MASK:Int64 = Int64.sub(Int64.shl(Int64.make(0, 1), 41), Int64.make(0, 1));
+
+	/**
+	 * Construct a chart note.
+	 */
+	inline function new(position:Int64, duration:Int, index:Int, type:Int, lane:Int) {
+		this = (position << 23) | (duration << 13) | (index << 9) | (type << 5) | lane;
+	}
+
+	/**
+	 * The position. 41 bits so it fits the 100 microsecond granularity.
+	 */
 	var position(get, never):Int64;
 
 	/**
-	* The getter for the note position.
-	*/
+	 * The duration. 13 bits. 3.2ms granularity.
+	 */
+	var duration(get, never):Int;
+
+	/**
+	 * The index. 4 bits.
+	 */
+	var index(get, never):Int;
+
+	/**
+	 * The type. 4 bits.
+	 */
+	var type(get, never):Int;
+
+	/**
+	 * The lane. 2 bits.
+	 */
+	var lane(get, never):Int;
+
+	/**
+	 * Get the position.
+	 */
 	inline function get_position():Int64 {
-		return this & ((Int64.ofInt(2) << 40) - 1);
+		return (this >> 23) & POSITION_MASK; // Mask 41 bits
 	}
 
 	/**
-	* The note duration.
-	*/
-	var duration(get, never):UInt16;
-
-	/**
-	* The getter for the note duration.
-	*/
-	inline function get_duration():UInt16 {
-		return Int64.toInt(this >> 40) & 0xFFFF;
+	 * Get the duration.
+	 */
+	inline function get_duration():Int {
+		return Int64.toInt((this >> 13) & 0x1FFF); // Mask 13 bits
 	}
 
 	/**
-	* The note index.
-	*/
-	var index(get, never):UInt8;
-
-	/**
-	* The getter for the note index.
-	*/
-	inline function get_index():UInt8 {
-		return Int64.toInt(this >> 56) & 0xF;
+	 * Get the index.
+	 */
+	inline function get_index():Int {
+		return Int64.toInt((this >> 9) & 0xF); // Mask 4 bits
 	}
 
 	/**
-	* The note type.
-	*/
-	var type(get, never):UInt8;
-
-	/**
-	* The getter for the note type.
-	*/
-	inline function get_type():UInt8 {
-		return Int64.toInt(this >> 60) & 0xF;
+	 * Get the type.
+	 */
+	inline function get_type():Int {
+		return Int64.toInt((this >> 5) & 0xF); // Mask 4 bits
 	}
 
 	/**
-	* The note lane.
-	*/
-	var lane(get, never):UInt8;
-
-	/**
-	* The getter for the note lane.
-	*/
-	inline function get_lane():UInt8 {
-		return Int64.toInt(this >> 62) & 0x3;
-	}
-
-	inline function new(position:Int64, duration:UInt16, index:UInt8, type:UInt8, lane:UInt8) {
-		this = position |
-			(duration << 40) |
-			(index << 56) |
-			(type << 60) |
-		(lane << 62);
+	 * Get the lane.
+	 */
+	inline function get_lane():Int {
+		return Int64.toInt(this & 0x3); // Get the last 2 bits for lane
 	}
 }
