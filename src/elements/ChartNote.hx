@@ -20,7 +20,7 @@ abstract ChartNote(Int64) {
 	 * Construct a chart note.
 	 */
 	inline function new(position:Int64, duration:Int, index:Int, type:Int, lane:Int) {
-		this = (position << 23) | (duration << 13) | (index << 9) | (type << 5) | lane;
+		this = (position << 23) | (duration << 10) | (index << 6) | (type << 2) | lane;
 	}
 
 	/**
@@ -59,27 +59,27 @@ abstract ChartNote(Int64) {
 	 * Get the duration.
 	 */
 	inline function get_duration():Int {
-		return Int64.toInt((this >> 13) & 0x1FFF); // Mask 13 bits
+		return (this.low >> 10) & 0x1FFF; // Mask 13 bits
 	}
 
 	/**
 	 * Get the index.
 	 */
 	inline function get_index():Int {
-		return Int64.toInt((this >> 9) & 0xF); // Mask 4 bits
+		return (this.low >> 6) & 0xF; // Mask 4 bits
 	}
 
 	/**
 	 * Get the type.
 	 */
 	inline function get_type():Int {
-		return Int64.toInt((this >> 5) & 0xF); // Mask 4 bits
+		return (this.low >> 2) & 0xF; // Mask 4 bits
 	}
 
 	/**
 	 * Get the lane.
 	 */
 	inline function get_lane():Int {
-		return Int64.toInt(this & 0x3); // Get the last 2 bits for lane
+		return this.low & 0x3; // Get the last 2 bits for lane
 	}
 }

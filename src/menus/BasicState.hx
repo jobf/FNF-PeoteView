@@ -105,7 +105,7 @@ class BasicState extends State {
 			conductor.measureSound.play();
 		});
 
-		chartNote = new ChartNote(haxe.Int64.parseString("219902325551"), 400, 15, 14, 3);
+		chartNote = new ChartNote(haxe.Int64.parseString("219902325551"), 2681, 15, 14, 3);
 		trace('Position: ' + chartNote.position);
 		trace('Duration: ' + chartNote.duration);
 		trace('Index: ' + chartNote.index);
