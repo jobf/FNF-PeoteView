@@ -4,6 +4,9 @@ package music;
  * The sound.
  * This is used for short sounds, and this abstracts over the internal audio class.
  */
+#if !debug
+@:noDebug
+#end
 @:publicFields
 class Sound {
     /**
@@ -23,10 +26,7 @@ class Sound {
      * Play the sound.
      */
     function play() {
-        if (audio.time != 0) {
-            audio.time = 0;
-        }
-
+        audio.stop();
         audio.play();
     }
 

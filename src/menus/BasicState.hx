@@ -40,11 +40,17 @@ class BasicState extends State {
 	/**
 	 * The bpm changes.
 	 */
-	var bpmChanges:Array<Array<Float>> = [
-		[11162.79069767442, 344],
-		[22325.58139534884, 688]
-	];
 	var bpmChangePosition:Int = 0;
+	var bpmChanges:Array<Array<Float>> = [
+		//[9846.153846153846, 1560]
+	];
+
+	/**
+	 * The chart.
+	 /
+	var chart:Chart;*/
+
+	var chartNote:ChartNote;
 
 	override function new() {
 		super();
@@ -82,9 +88,9 @@ class BasicState extends State {
 		logo3.h = 160;
 		buffUI.addElement(logo3);
 
-		inst = new Audio("assets/silver-doom.opus");
+		inst = new Audio("assets/mixed,together.wav");
 
-		conductor = new Conductor(172);
+		conductor = new Conductor(195);
 		/*conductor.onStep.add(function(step) {
 			Sys.println('Step $step');
 		});*/
@@ -98,17 +104,25 @@ class BasicState extends State {
 			//Sys.println('Measure $measure');
 			conductor.measureSound.play();
 		});
+
+		chartNote = new ChartNote(6, 400, 6, 4, 3);
+		trace('Position: ' + chartNote.position);
+		trace('Duration: ' + chartNote.duration);
+		trace('Index: ' + chartNote.index);
+		trace('Type: ' + chartNote.type);
+		trace('Lane: ' + chartNote.lane);
 	}
 
 	var time:Float = 0;
 	override function updateState(deltaTime:Int) {
-		inst.update();
+		inst.update(deltaTime);
+		//Sys.println(inst.time);
 
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = inst.time % (1280 - logo2.w);
+		logo2.x = (inst.time * 1.5) % (1280 - logo2.w);
 
 		buffGP.update();
 		buffUI.update();
@@ -130,62 +144,52 @@ class BasicState extends State {
 	override function onKeyDown(keyCode, keyModifier) {
 		//trace(keyCode);
 
-		if (keyCode == KeyCode.RETURN)
-		{
-			inst.play();
-		}
+		switch (keyCode) {
+			case KeyCode.RETURN:
+				inst.play();
 
-		if (keyCode == KeyCode.SPACE)
-		{
-			inst.pause();
-		}
+			case KeyCode.SPACE:
+				inst.pause();
 
-		if (keyCode == KeyCode.M)
-		{
-			inst.volume = inst.volume == 0 ? 1 : 0;
-		}
+			case KeyCode.M:
+				inst.volume = inst.volume == 0.1 ? 1 : 0.1;
 
-		if (keyCode == KeyCode.A)
-		{
-			inst.time -= 1000;
-		}
+			case KeyCode.B:
+				inst.time = 1000000;
 
-		if (keyCode == KeyCode.D)
-		{
-			inst.time += 1000;
-		}
+			case KeyCode.S:
+				inst.speed = inst.speed == 0.0001 ? 1 : 0.0001;
 
-		if (keyCode == KeyCode.B)
-		{
-			inst.time = 1000000;
-		}
+			case KeyCode.A:
+				inst.time -= 1000;
 
-		if (keyCode == KeyCode.MINUS) {
-			inst.speed -= 0.1;
-		}
+			case KeyCode.D:
+				inst.time += 1000;
 
-		if (keyCode == KeyCode.PLUS) {
-			inst.speed += 0.1;
-		}
+			case KeyCode.MINUS:
+				inst.speed -= 0.2;
 
-		if (keyCode == KeyCode.BACKSPACE)
-		{
-			inst.stop();
-		}
+			case KeyCode.PLUS:
+				// For some reason, you can't add the song's pitch. That's fucking weak. At least I'm not planning to add 
+				var speed:Float = inst.speed + 0.2;
+				inst.speed = speed;
 
-		if (keyCode == KeyCode.NUMBER_1)
-		{
-			logo.slot++;
-		}
+			case KeyCode.C:
+				inst.speed = 2;
 
-		if (keyCode == KeyCode.NUMBER_2)
-		{
-			logo2.slot++;
-		}
+			case KeyCode.BACKSPACE:
+				inst.stop();
 
-		if (keyCode == KeyCode.NUMBER_3)
-		{
-			logo3.slot++;
+			case KeyCode.NUMBER_1:
+				logo.slot++;
+
+			case KeyCode.NUMBER_2:
+				logo2.slot++;
+
+			case KeyCode.NUMBER_3:
+				logo3.slot++;
+
+			default:
 		}
 	}
 }

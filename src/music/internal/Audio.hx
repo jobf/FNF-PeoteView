@@ -129,14 +129,14 @@ class Audio
 		if (StringTools.endsWith(filePath, ".ogg"))
 		{
 			var vorb = VorbisFile.fromFile(filePath);
-			_length = vorb.timeTotal() * 1000;
+			_length = vorb.timeTotal() * 1000.0;
 			vorb.clear();
 			vorb = null;
 			trace("THIS IS OGG");
 		}
 		else
 		{
-			_length = MiniAudio.getLength(sound) * 1000;
+			_length = MiniAudio.getLength(sound) * 1000.0;
 			trace("THIS IS OTHER");
 		}
 		MiniAudio.setTime(sound, 0);
@@ -148,22 +148,11 @@ class Audio
 	 * Update the audio.
 	 * This makes the interpolation work.
 	 */
-	function update() {
+	function update(deltaTime:Int) {
 		if (playing) {
 			var audioTime:Float = MiniAudio.getTimeInMS(sound);
-			var halfSpeed:Float = speed * 0.2;
 
-			if (enableInterpolation) {
-				if (audioTime - _time > 0) {
-					var delay:Float = (audioTime - _time) * 0.2;
-					//Sys.println(delay);
-					_time += delay;
-				}
-
-				_time = _time + halfSpeed * (audioTime - _time);
-			} else {
-				_time = audioTime;
-			}
+			_time = audioTime;
 		}
 	}
 
@@ -376,10 +365,6 @@ class Audio
 	 */
 	function set_speed(newSpeed:Float):Float
 	{
-		if (newSpeed < 0.1) {
-			newSpeed = 0.1;
-		}
-
 		MiniAudio.setPitch(sound, newSpeed);
 		return newSpeed;
 	}

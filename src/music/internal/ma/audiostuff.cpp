@@ -191,12 +191,12 @@ int pauseSound(ma_sound *sound)
     return 0;
 }
 
-void setVolume(ma_sound *sound, float vol)
+void setVolume(ma_sound *sound, double vol)
 {
     ma_sound_set_volume(sound, vol);
 }
 
-float getVolume(ma_sound *sound)
+double getVolume(ma_sound *sound)
 {
     return ma_sound_get_volume(sound);
 }
@@ -211,12 +211,12 @@ bool isDone(ma_sound *sound)
     return ma_sound_at_end(sound);
 }
 
-void setPitch(ma_sound *sound, float pitch)
+void setPitch(ma_sound *sound, double pitch)
 {
     ma_sound_set_pitch(sound, pitch);
 }
 
-float getPitch(ma_sound *sound)
+double getPitch(ma_sound *sound)
 {
     return ma_sound_get_pitch(sound);
 }

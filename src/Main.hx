@@ -12,6 +12,8 @@ class Main extends Application
 {
 	override function onWindowCreate():Void
 	{
+		Application.current.window.opacity = 0.75;
+
 		switch (window.context.type)
 		{
 			case WEBGL, OPENGL, OPENGLES:
