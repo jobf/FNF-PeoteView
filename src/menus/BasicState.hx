@@ -150,34 +150,34 @@ class BasicState extends State {
 		//trace(keyCode);
 
 		switch (keyCode) {
-			case KeyCode.RETURN:
+			case RETURN:
 				inst.play();
 
-			case KeyCode.SPACE:
+			case SPACE:
 				inst.pause();
 
-			case KeyCode.M:
+			case M:
 				inst.volume = inst.volume == 0.1 ? 1 : 0.1;
 
-			case KeyCode.B:
+			case B:
 				inst.time = 1000000;
 
-			case KeyCode.A:
+			case A:
 				inst.time -= 1000;
 
-			case KeyCode.D:
+			case D:
 				inst.time += 1000;
 
-			case KeyCode.BACKSPACE:
+			case BACKSPACE:
 				inst.stop();
 
-			case KeyCode.NUMBER_1:
+			case NUMBER_1:
 				logo.slot++;
 
-			case KeyCode.NUMBER_2:
+			case NUMBER_2:
 				logo2.slot++;
 
-			case KeyCode.NUMBER_3:
+			case NUMBER_3:
 				logo3.slot++;
 
 			default:
