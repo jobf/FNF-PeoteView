@@ -1,4 +1,4 @@
-package system;
+package system.internal;
 
 import lime.ui.Window;
 

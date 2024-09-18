@@ -10,7 +10,7 @@ import haxe.Int64;
 @:noDebug
 #end
 @:publicFields
-abstract ChartNote(Int64) {
+abstract ChartNote(Int64) from Int64 {
 	/**
 	 * The position's bit mask.
 	 */
@@ -59,27 +59,27 @@ abstract ChartNote(Int64) {
 	 * Get the duration.
 	 */
 	inline function get_duration():Int {
-		return (this.low >> 10) & 0x1FFF; // Mask 13 bits
+		return ((this.low:Int) >> 10) & 0x1FFF; // Mask 13 bits
 	}
 
 	/**
 	 * Get the index.
 	 */
 	inline function get_index():Int {
-		return (this.low >> 6) & 0xF; // Mask 4 bits
+		return ((this.low:Int) >> 6) & 0xF; // Mask 4 bits
 	}
 
 	/**
 	 * Get the type.
 	 */
 	inline function get_type():Int {
-		return (this.low >> 2) & 0xF; // Mask 4 bits
+		return ((this.low:Int) >> 2) & 0xF; // Mask 4 bits
 	}
 
 	/**
 	 * Get the lane.
 	 */
 	inline function get_lane():Int {
-		return this.low & 0x3; // Get the last 2 bits for lane
+		return (this.low:Int) & 0x3; // Get the last 2 bits for lane
 	}
 }

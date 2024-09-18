@@ -47,9 +47,12 @@ class BasicState extends State {
 
 	/**
 	 * The chart.
-	 /
-	var chart:Chart;*/
+	 */
+	var chart:Chart;
 
+	/**
+	 * The chart note.
+	 */
 	var chartNote:ChartNote;
 
 	override function new() {
@@ -97,15 +100,17 @@ class BasicState extends State {
 		conductor.onBeat.add(function(beat) {
 			//Sys.println('Beat $beat');
 			if (beat % 4 != 0) {
-				conductor.beatSound.play();
+				Audio.playSound("assets/conductor/beat.wav");
 			}
 		});
 		conductor.onMeasure.add(function(measure) {
 			//Sys.println('Measure $measure');
-			conductor.measureSound.play();
+			Audio.playSound("assets/conductor/measure.wav");
 		});
 
-		chartNote = new ChartNote(haxe.Int64.parseString("219902325551"), 2681, 15, 14, 3);
+		chart = new Chart("assets/songs/test");
+
+		chartNote = new ChartNote(haxe.Int64.parseString("2199023255551"), 2681, 15, 14, 3);
 		trace('Position: ' + chartNote.position);
 		trace('Duration: ' + chartNote.duration);
 		trace('Index: ' + chartNote.index);
@@ -157,25 +162,11 @@ class BasicState extends State {
 			case KeyCode.B:
 				inst.time = 1000000;
 
-			case KeyCode.S:
-				inst.speed = inst.speed == 0.0001 ? 1 : 0.0001;
-
 			case KeyCode.A:
 				inst.time -= 1000;
 
 			case KeyCode.D:
 				inst.time += 1000;
-
-			case KeyCode.MINUS:
-				inst.speed -= 0.2;
-
-			case KeyCode.PLUS:
-				// For some reason, you can't add the song's pitch. That's fucking weak. At least I'm not planning to add 
-				var speed:Float = inst.speed + 0.2;
-				inst.speed = speed;
-
-			case KeyCode.C:
-				inst.speed = 2;
 
 			case KeyCode.BACKSPACE:
 				inst.stop();

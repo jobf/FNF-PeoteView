@@ -1,0 +1,18 @@
+Title: Test
+Artist: Kawai Sprite
+Genre: Light Pop
+Speed: 1.6
+BPM: 150
+Characters:
+dad
+role enemy
+pos -700 300
+cam 0 45
+gf
+role other
+pos -100 300
+cam 0 45
+bf
+role player
+pos 200 300
+cam 0 45

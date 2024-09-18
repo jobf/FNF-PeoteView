@@ -8,6 +8,7 @@ import peote.view.*;
  */
 import elements.*;
 import music.*;
+import music.chart.*;
 import music.internal.*;
 import music.internal.ma.*;
 import menus.*;

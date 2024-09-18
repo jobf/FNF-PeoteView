@@ -63,11 +63,6 @@ class Audio
 	var length(get, never):Float;
 
 	/**
-	 * The audio's speed.
-	 */
-	var speed(get, set):Float;
-
-	/**
 	 * The internal audio volume.
 	 */
 	private var _volume:Float = 1;
@@ -132,12 +127,10 @@ class Audio
 			_length = vorb.timeTotal() * 1000.0;
 			vorb.clear();
 			vorb = null;
-			trace("THIS IS OGG");
 		}
 		else
 		{
 			_length = MiniAudio.getLength(sound) * 1000.0;
-			trace("THIS IS OTHER");
 		}
 		MiniAudio.setTime(sound, 0);
 
@@ -168,6 +161,28 @@ class Audio
 		}
 		sound = null;
 		addedSounds.remove(this);
+	}
+
+	/**
+	 * The sound tracks.
+	 * @param path 
+	 */
+	private static var sounds:Array<Audio> = [];
+
+	/**
+	 * Play a sound and add it to the sound track.
+	 * @param path 
+	 */
+	inline static function playSound(path:String):Audio {
+		if (sounds.length == 4) {
+			sounds.pop();
+		}
+
+		var newSnd:Audio = new Audio(path);
+		sounds.push(newSnd);
+		newSnd.play();
+
+		return newSnd;
 	}
 
 	/**
@@ -347,26 +362,6 @@ class Audio
 
 		MiniAudio.setTime(sound, newTime * 0.001);
 		return newTime;
-	}
-
-	/**
-	 * The getter for the audio's speed.
-	 * @return Float
-	 */
-	function get_speed():Float
-	{
-		return MiniAudio.getPitch(sound);
-	}
-
-	/**
-	 * The setter for the audio's speed.
-	 * @param newSpeed 
-	 * @return Float
-	 */
-	function set_speed(newSpeed:Float):Float
-	{
-		MiniAudio.setPitch(sound, newSpeed);
-		return newSpeed;
 	}
 
 	/**
