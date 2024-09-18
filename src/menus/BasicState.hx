@@ -93,7 +93,7 @@ class BasicState extends State {
 
 		inst = new Audio("assets/silver-doom.opus");
 
-		conductor = new Conductor(195);
+		conductor = new Conductor(172);
 		/*conductor.onStep.add(function(step) {
 			Sys.println('Step $step');
 		});*/
