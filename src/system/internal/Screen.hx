@@ -3,26 +3,26 @@ package system.internal;
 import lime.ui.Window;
 
 /**
- * The screen.
- */
+	The screen.
+**/
 #if !debug
 @:noDebug
 #end
 @:publicFields
 class Screen extends Display {
 	/**
-	 * The initial state.
-	 */
+		The initial state.
+	**/
 	inline private static var initState:Class<State> = BasicState;
 
 	/**
-	 * The view of the screen.
-	 */
+		The view of the screen.
+	**/
 	static var view:PeoteView;
 
 	/**
-	 * Initialize the screen.
-	 */
+		Initialize the screen.
+	**/
 	static function init(window:Window) {
 		view = new PeoteView(window);
 
@@ -30,9 +30,9 @@ class Screen extends Display {
 	}
 
 	/**
-	 * Switch the state.
-	 * @param name
-	 */
+		Switch the state.
+		@param name
+	**/
 	static function switchState(name:Dynamic) {
 		// todo, add a 'dispose' function to State where you can clear the buffers and remove programs from the Display
 		// or you can have Display on the State and then remove that from peote-view during 'dispose'
@@ -40,8 +40,8 @@ class Screen extends Display {
 		State.current = null;
 
 		/**
-		 * Free up memory from the old buffer.
-		 */
+			Free up memory from the old buffer.
+		**/
 		if (State.useGC)
 		{
 			GC.run();

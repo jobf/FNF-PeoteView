@@ -1,45 +1,35 @@
 package music.chart;
 
 /**
- * The song's genre.
- * This is an abstract over string.
+	The song's genre.
+	This is an abstract over string.
  */
 #if !debug
 @:noDebug
 #end
 enum abstract SongGenre(String) from String {
-	/**
-	 * Classical.
-	 */
+	// Classical.
 	var CLASSICAL:SongGenre = "Classical";
 
-	/**
-	 * Metal genres.
-	 */
+	// Metal genres.
 	var DULL_METAL:SongGenre = "Dull Metal";
 	var CLASSIC_METAL:SongGenre = "Classic Metal";
 	var LIGHT_METAL:SongGenre = "Light Metal";
 	var ALT_METAL:SongGenre = "Alternative Metal";
 	var HEAVY_METAL:SongGenre = "Heavy Metal";
 
-	/**
-	 * Rock genres.
-	 */
+	// Rock genres.
 	var DULL_ROCK:SongGenre = "Dull Rock";
 	var CLASSIC_ROCK:SongGenre = "Classic Rock";
 	var LIGHT_ROCK:SongGenre = "Light Rock";
 	var ALT_ROCK:SongGenre = "Alternative Rock";
 	var HEAVY_ROCK:SongGenre = "Heavy Rock";
 
-	/**
-	 * Pop genres.
-	 */
+	// Pop genres.
 	var LIGHT_POP:SongGenre = "Light Pop";
 	var HEAVY_POP:SongGenre = "Heavy Pop";
 
-	/**
-	 * EDM genres.
-	 */
+	// EDM genres.
 	var HOUSE:SongGenre = "House";
 	var TECHNO:SongGenre = "Techno";
 	var AMBIENT:SongGenre = "Ambient";
@@ -54,16 +44,13 @@ enum abstract SongGenre(String) from String {
 	var DUTCH_HOUSE:SongGenre = "Dutch House";
 	var DARK_AMBIENT:SongGenre = "Dark Ambient";
 
-	/**
-	 * Retro genres.
-	 */
+	// Retro genres.
 	var RETRO_NINTENDO:SongGenre = "Retro (Nintendo)";
 	var RETRO_SEGA:SongGenre = "Retro (Sega)";
 	var RETRO_OTHER:SongGenre = "Retro (Other)";
 
-	/**
-	 * Other genres.
-	 */
+	// Other genres.
+	var ANCIENT:SongGenre = "Ancient";
 	var BREAKCORE:SongGenre = "Breakcore";
 	var SPEEDCORE:SongGenre = "Speedcore";
 	var EXTRATONE:SongGenre = "Extratone";

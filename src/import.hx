@@ -1,11 +1,7 @@
-/**
- * ENGINE
- */
+// ENGINE
 import peote.view.*;
 
-/**
- * GAME
- */
+// GAME
 import elements.*;
 import music.*;
 import music.chart.*;

@@ -1,39 +1,39 @@
 package music.chart;
 
 /**
- * The chart header.
- */
+    The chart header.
+**/
 #if !debug
 @:noDebug
 #end
 typedef ChartHeader = {
 	/**
-	 * The song's title.
-	 */
-	var songTitle:String;
+	    The song's title.
+	**/
+	var title:String;
 
 	/**
-	 * The song's artist.
-	 */
-	var songArtist:String;
+	    The song's artist.
+	**/
+	var artist:String;
 
 	/**
-	 * The song's genre.
-	 */
-	var songGenre:SongGenre;
+	    The song's genre.
+	**/
+	var genre:SongGenre;
 
     /**
-     * The song's beats per minute.
-     */
-    var songBpm:Float;
+        The song's beats per minute.
+    **/
+    var bpm:Float;
 
     /**
-     * The song's speed.
-     */
-    var songSpeed:Float;
+        The song's speed.
+    **/
+    var speed:Float;
 
     /**
-     * The song's characters.
-     */
-    var songCharacters:Array<SongCharacter>;
+        The song's characters.
+    **/
+    var characters:Array<SongCharacter>;
 }

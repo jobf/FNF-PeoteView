@@ -1,3 +1,4 @@
+#if !doc_gen
 package menus;
 
 import lime.ui.KeyCode;
@@ -184,3 +185,4 @@ class BasicState extends State {
 		}
 	}
 }
+#end

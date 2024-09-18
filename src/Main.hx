@@ -1,3 +1,4 @@
+#if !doc_gen
 package;
 
 import haxe.CallStack;
@@ -91,3 +92,4 @@ class Main extends Application
 	// override function onWindowRestore():Void { trace("onWindowRestore"); }
 	
 }
+#end
