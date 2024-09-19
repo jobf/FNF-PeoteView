@@ -46,6 +46,11 @@ class Conductor
 	var bpm(default, set):Float = 100;
 
 	/**
+		Whenever the conductor's active.
+	**/
+	var active:Bool;
+
+	/**
 		Change the conductor's beats per minute.
 	**/
 	inline function changeBpmAt(position:Float, newBpm:Float):Void
@@ -85,61 +90,67 @@ class Conductor
 		_beatTracker = Math.ffloor(_stepTracker / steps);
 		_measureTracker = Math.ffloor(_beatTracker / beats);
 
-		if (_stepPos != _stepTracker)
-		{
-			var leftover:Float = _stepTracker - _stepPos;
+		if (active) {
+			if (_stepPos != _stepTracker)
+			{
+				var leftover:Float = _stepTracker - _stepPos;
 
-			/**
-				This is here just in case you miss a couple steps.
-			**/
-			if (leftover > 1) {
-				var leftoverCounter:Float = 0;
-				while (++leftoverCounter < leftover) {
-					onStep.dispatch(_stepPos + leftoverCounter);
+				/**
+					This is here just in case you miss a couple steps.
+				**/
+				if (leftover > 1) {
+					var leftoverCounter:Float = 0;
+					while (++leftoverCounter < leftover) {
+						onStep.dispatch(_stepPos + leftoverCounter);
+					}
 				}
+
+				_stepPos = _stepTracker;
+
+				onStep.dispatch(_stepPos);
 			}
 
+			if (_beatPos != _beatTracker)
+			{
+				var leftover:Float = _beatTracker - _beatPos;
+
+				/**
+					This is here just in case you miss a couple beats.
+				**/
+				if (leftover > 1) {
+					var leftoverCounter:Float = 0;
+					while (++leftoverCounter < leftover) {
+						onBeat.dispatch(_beatPos + leftoverCounter);
+					}
+				}
+
+				_beatPos = _beatTracker;
+
+				onBeat.dispatch(_beatPos);
+			}
+
+			if (_measurePos != _measureTracker)
+			{
+				var leftover:Float = _measureTracker - _measurePos;
+
+				/**
+					This is here just in case you miss a couple measures.
+				**/
+				if (leftover > 1) {
+					var leftoverCounter:Float = 0;
+					while (++leftoverCounter < leftover) {
+						onMeasure.dispatch(_measurePos + leftoverCounter);
+					}
+				}
+
+				_measurePos = _measureTracker;
+
+				onMeasure.dispatch(_measurePos);
+			}
+		} else {
 			_stepPos = _stepTracker;
-
-			onStep.dispatch(_stepPos);
-		}
-
-		if (_beatPos != _beatTracker)
-		{
-			var leftover:Float = _beatTracker - _beatPos;
-
-			/**
-				This is here just in case you miss a couple beats.
-			**/
-			if (leftover > 1) {
-				var leftoverCounter:Float = 0;
-				while (++leftoverCounter < leftover) {
-					onBeat.dispatch(_beatPos + leftoverCounter);
-				}
-			}
-
 			_beatPos = _beatTracker;
-
-			onBeat.dispatch(_beatPos);
-		}
-
-		if (_measurePos != _measureTracker)
-		{
-			var leftover:Float = _measureTracker - _measurePos;
-
-			/**
-				This is here just in case you miss a couple measures.
-			**/
-			if (leftover > 1) {
-				var leftoverCounter:Float = 0;
-				while (++leftoverCounter < leftover) {
-					onMeasure.dispatch(_measurePos + leftoverCounter);
-				}
-			}
-
 			_measurePos = _measureTracker;
-
-			onMeasure.dispatch(_measurePos);
 		}
 
 		return value;
@@ -253,5 +264,6 @@ class Conductor
 	function new(initialBpm:Float = 100):Void
 	{
 		bpm = initialBpm;
+		active = true;
 	}
 }

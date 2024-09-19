@@ -2,7 +2,7 @@ Title: Test
 Artist: Kawai Sprite
 Genre: Light Pop
 Speed: 1.6
-BPM: 150
+BPM: 172
 Characters:
 dad
 role enemy

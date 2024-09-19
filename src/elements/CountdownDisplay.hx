@@ -47,12 +47,17 @@ class CountdownDisplay {
 	var sprite:Sprite;
 
 	/**
+		The countdown display's underlying chart.
+	**/
+	var selectedChart:Chart;
+
+	/**
 		Constructs a countdown display from chart.
 		@param chart The chart you want the countdown display to input the chart onto.
 		@param fromDisplay The underlying display that is required to add the underlying program.
 		@param fromProgram The underlying program that is required to get added onto the underlying display.
 	**/
-	function new(chart:Chart, fromDisplay:Display) {
+	function new(fromConductor:Conductor, fromChart:Chart, fromDisplay:Display) {
 		buffer = new Buffer<Sprite>(1, 0, true);
 		program = new Program(buffer);
 
@@ -69,30 +74,36 @@ class CountdownDisplay {
 		sprite.h = Math.floor(sprite.h / 3);
 		sprite.screenCenter();
 
-		trace(sprite.x, sprite.y);
+		buffer.addElement(sprite);
+		sprite.c.setFloatAlpha(0);
+		buffer.updateElement(sprite);
 
-		conductor = new Conductor(chart.header.bpm);
+		selectedChart = fromChart;
 
-		conductor.onBeat.add(function(beat) {
-			if (beat == 1 && buffer.getElement(0) == null) {
-				buffer.addElement(sprite);
-			}
+		conductor = fromConductor;
 
-			if (beat == 4) {
-				onFinish.dispatch(chart.header.title);
+		conductor.onBeat.add(onCountdownTick);
+		conductor.active = false;
+		conductor.time = -conductor.crochet * 5;
+		conductor.active = true;
+	}
 
-				if (buffer.getElement(0) != null) {
-					buffer.removeElement(sprite);
-				}
+	function onCountdownTick(beat:Float) {
+		if (beat == -4) {
+			return;
+		}
 
-				stopped = true;
-				return;
-			}
+		if (beat == 0) {
+			onFinish.dispatch(selectedChart.header.title);
+			sprite.c.setFloatAlpha(0);
 
-			sprite.slot = Math.floor(beat) - 1;
-			buffer.updateElement(sprite);
-			//sprite.c.aF = 1;
-		});
+			stopped = true;
+			conductor.onBeat.remove(onCountdownTick);
+			return;
+		}
+
+		sprite.slot = Math.floor(beat) - 1;
+		sprite.c.setFloatAlpha(1);
 	}
 
 	/**
@@ -102,7 +113,9 @@ class CountdownDisplay {
 	inline function update(deltaTime:Int) {
 		if (!stopped) {
 			conductor.time += deltaTime;
-			//sprite.c.aF -= conductor.crochet * 0.1;
+
+			sprite.c.setFloatAlpha(Math.max(sprite.c.aF - (conductor.crochet * 0.0012), 0));
+			buffer.updateElement(sprite);
 		}
 	}
 

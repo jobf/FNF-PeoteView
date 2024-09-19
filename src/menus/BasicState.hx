@@ -81,9 +81,9 @@ class BasicState extends State {
 		logo3.h = Math.floor(logo3.h / 5);
 		buffUI.addElement(logo3);
 
-		inst = new Audio("assets/silver-doom.opus");
+		chart = new Chart("assets/songs/test");
 
-		conductor = new Conductor(172);
+		conductor = new Conductor(chart.header.bpm);
 		/*conductor.onStep.add(function(step) {
 			Sys.println('Step $step');
 		});*/
@@ -98,17 +98,23 @@ class BasicState extends State {
 			Audio.playSound("assets/conductor/measure.wav");
 		});
 
-		chart = new Chart("assets/songs/test");
-
-		countdownDisp = new CountdownDisplay(chart, dispUI);
+		countdownDisp = new CountdownDisplay(conductor, chart, dispUI);
 		countdownDisp.onFinish.add((songTitle:String) -> {
+			inst = new Audio("assets/silver-doom.opus");
 			inst.play();
 		});
 	}
 
 	var time:Float = 0;
 	override function updateState(deltaTime:Int) {
-		inst.update(deltaTime);
+		var musicTime:Float = 0;
+
+		if (inst != null) {
+			inst.update(deltaTime);
+			musicTime = inst.time;
+			conductor.time = musicTime;
+		}
+
 		countdownDisp.update(deltaTime);
 		//Sys.println(inst.time);
 
@@ -116,12 +122,11 @@ class BasicState extends State {
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = (inst.time * 1.5) % (Screen.view.width - (logo2.w / 5));
+		logo2.x = (musicTime * 1.5) % (Screen.view.width - (logo2.w / 5));
 
 		buffGP.update();
 		buffUI.update();
 
-		conductor.time = inst.time;
 
 		// This bpm change logic does not preserve position to go back to the previous bpm.
 		if (bpmChangePosition < bpmChanges.length) {
