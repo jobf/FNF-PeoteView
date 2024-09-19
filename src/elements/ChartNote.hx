@@ -4,7 +4,7 @@ import haxe.Int64;
 
 /**
 	The internal chart note.
-	Written by SomeGuyWhoLikesFnf, fixed and tweaked by chris (Dimensionscape)
+	Written by SomeGuyWhoLovesCoding, fixed and tweaked by Dimensionscape.
 **/
 #if !debug
 @:noDebug

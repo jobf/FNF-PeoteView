@@ -6,7 +6,7 @@ import lime.app.Event;
 	The countdown display.
 	This is a helper class for the gameplay state.
 	Inspired from defective engine's countdown class.
-	**KEEP M
+	NOTE: You should only use this if necessary to do so. This uses a program per sprite, which uses multitexture.
 **/
 #if !debug
 @:noDebug
@@ -97,6 +97,7 @@ class CountdownDisplay {
 
 	/**
 		Updates the countdown display.
+		@param deltaTime The delta time.
 	**/
 	inline function update(deltaTime:Int) {
 		if (!stopped) {
