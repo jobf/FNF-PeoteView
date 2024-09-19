@@ -51,8 +51,8 @@ class BasicState extends State {
 		prgmGP = new Program(buffGP);
 		prgmUI = new Program(buffUI);
 
-		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
-		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
+		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x33000000);
+		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x33000000);
 
 		Screen.view.addDisplay(dispGP);
 		Screen.view.addDisplay(dispUI);
@@ -62,20 +62,23 @@ class BasicState extends State {
 
 		TextureSystem.createMultiTexture("tex0", ["assets/test0.png", "assets/test1.png", "assets/test2.png", "assets/test3.png", "assets/suzanneRGBA.png"]);
 		TextureSystem.setTexture(prgmGP, "tex0", "custom");
+		TextureSystem.setTexture(prgmUI, "tex0", "custom");
 
 		logo = new Sprite(50, 50);
-		logo.w = 400;
-		logo.h = 300;
+		logo.setSizeToTexture(TextureSystem.getTexture("tex0"));
+		logo.h = Math.floor(logo.h / 5);
 		buffGP.addElement(logo);
 
 		logo2 = new Sprite(200, 50);
+		logo2.setSizeToTexture(TextureSystem.getTexture("tex0"));
+		logo2.h = Math.floor(logo2.h / 5);
 		logo2.c = 0x0000ffff;
 		buffUI.addElement(logo2);
 
 		logo3 = new Sprite(400, 150);
 		logo3.c = 0x00ff00ff;
-		logo3.w = 150;
-		logo3.h = 160;
+		logo3.setSizeToTexture(TextureSystem.getTexture("tex0"));
+		logo3.h = Math.floor(logo3.h / 5);
 		buffUI.addElement(logo3);
 
 		inst = new Audio("assets/silver-doom.opus");

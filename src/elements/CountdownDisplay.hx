@@ -66,24 +66,32 @@ class CountdownDisplay {
 		sprite = new Sprite();
 
 		sprite.setSizeToTexture(TextureSystem.getTexture("tex1"));
-		trace(sprite.w, sprite.h);
-		sprite.w = Math.floor(sprite.w / 3);
+		sprite.h = Math.floor(sprite.h / 3);
 		sprite.screenCenter();
 
 		trace(sprite.x, sprite.y);
 
-		buffer.addElement(sprite);
-
 		conductor = new Conductor(chart.header.bpm);
 
 		conductor.onBeat.add(function(beat) {
-			if (beat == 4) {
-				onFinish.dispatch(chart.header.title);
+			if (beat == 1 && buffer.getElement(0) == null) {
+				buffer.addElement(sprite);
 			}
 
-			sprite.slot = Math.floor(beat);
+			if (beat == 4) {
+				onFinish.dispatch(chart.header.title);
+
+				if (buffer.getElement(0) != null) {
+					buffer.removeElement(sprite);
+				}
+
+				stopped = true;
+				return;
+			}
+
+			sprite.slot = Math.floor(beat) - 1;
 			buffer.updateElement(sprite);
-			sprite.c.alpha = 0xFF;
+			//sprite.c.aF = 1;
 		});
 	}
 
@@ -93,7 +101,7 @@ class CountdownDisplay {
 	inline function update(deltaTime:Int) {
 		if (!stopped) {
 			conductor.time += deltaTime;
-			sprite.c.aF -= conductor.crochet * 0.1;
+			//sprite.c.aF -= conductor.crochet * 0.1;
 		}
 	}
 

@@ -76,7 +76,9 @@ class TextureSystem {
 
 			texturesToPush.push(textureData);
 
-			totalTextureWidth += Math.floor(textureData.width / paths.length);
+			if (totalTextureWidth < textureData.width) {
+				totalTextureWidth = textureData.width;
+			}
 
 			if (totalTextureHeight < textureData.height) {
 				totalTextureHeight = textureData.height;
@@ -84,9 +86,10 @@ class TextureSystem {
 		}
 
 		var texture = new Texture(totalTextureWidth, totalTextureHeight, null, {
-			slotsX: texturesToPush.length,
-			slotsY: 1,
-			powerOfTwo: false
+			slotsX: 1,
+			slotsY: texturesToPush.length,
+			powerOfTwo: false,
+			smoothShrink: true
 		});
 
 		for (i in 0...texturesToPush.length) {
