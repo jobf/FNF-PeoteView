@@ -36,6 +36,13 @@ class BasicState extends State {
 		//[9846.153846153846, 1560]
 	];
 
+	// The countdown event stuff.
+	var countdownEventPosition:Int = 0;
+	var countdownEvents:Array<Float> = [
+		12,
+		20
+	];
+
 	// The chart.
 	var chart:Chart;
 
@@ -51,7 +58,7 @@ class BasicState extends State {
 		prgmGP = new Program(buffGP);
 		prgmUI = new Program(buffUI);
 
-		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
+		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0xFF00FF7F);
 		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
 
 		Screen.view.addDisplay(dispGP);
@@ -87,36 +94,66 @@ class BasicState extends State {
 		/*conductor.onStep.add(function(step) {
 			Sys.println('Step $step');
 		});*/
+
 		conductor.onBeat.add(function(beat) {
 			//Sys.println('Beat $beat');
 			if (beat % 4 != 0) {
 				Audio.playSound("assets/conductor/beat.wav");
 			}
 		});
+
 		conductor.onMeasure.add(function(measure) {
 			//Sys.println('Measure $measure');
 			Audio.playSound("assets/conductor/measure.wav");
 		});
 
+		conductor.active = false;
+		conductor.time = -conductor.crochet * 5;
+		conductor.active = true;
+
 		countdownDisp = new CountdownDisplay(conductor, chart, dispUI);
 		countdownDisp.onFinish.add((songTitle:String) -> {
+			if (inst != null) {
+				return;
+			}
+
 			inst = new Audio("assets/silver-doom.opus");
 			inst.play();
 		});
 	}
 
 	var time:Float = 0;
-	override function updateState(deltaTime:Int) {
+	override function update(deltaTime:Int) {
+		if (bpmChangePosition < bpmChanges.length) {
+			var bpmChange = bpmChanges[bpmChangePosition];
+			if (conductor.time > bpmChange[0]) {
+				conductor.changeBpmAt(bpmChange[0], bpmChange[1]);
+				++bpmChangePosition;
+			}
+		}
+
+		// This must run before setting the music time.
+
+		if (countdownEventPosition < countdownEvents.length) {
+			var beatOffset = countdownEvents[countdownEventPosition];
+			if (@:privateAccess conductor._beatTracker > beatOffset) {
+				countdownDisp.active = true;
+				countdownDisp.beatOffset = beatOffset + 4;
+				++countdownEventPosition;
+			}
+		}
+
 		var musicTime:Float = 0;
 
 		if (inst != null) {
 			inst.update(deltaTime);
 			musicTime = inst.time;
 			conductor.time = musicTime;
+		} else {
+			musicTime = conductor.time += deltaTime;
 		}
 
 		countdownDisp.update(deltaTime);
-		//Sys.println(inst.time);
 
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
@@ -126,16 +163,6 @@ class BasicState extends State {
 
 		buffGP.update();
 		buffUI.update();
-
-
-		// This bpm change logic does not preserve position to go back to the previous bpm.
-		if (bpmChangePosition < bpmChanges.length) {
-			var bpmChange = bpmChanges[bpmChangePosition];
-			if (conductor.time > bpmChange[0]) {
-				conductor.changeBpmAt(bpmChange[0], bpmChange[1]);
-				++bpmChangePosition;
-			}
-		}
 	}
 
 	override function onKeyDown(keyCode, keyModifier) {
@@ -143,7 +170,7 @@ class BasicState extends State {
 
 		switch (keyCode) {
 			case RETURN:
-				if (countdownDisp.stopped) {
+				if (!countdownDisp.active) {
 					inst.play();
 				}
 

@@ -43,7 +43,7 @@ class Main extends Application
 	}
 
 	override function update(deltaTime:Int):Void {
-		State.current.updateState(deltaTime);
+		State.current.update(deltaTime);
 	}
 
 	// override function render(context:lime.graphics.RenderContext):Void {}

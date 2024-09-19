@@ -136,6 +136,7 @@ class Audio
 	/**
 		Update the audio.
 		This makes the interpolation work.
+		@param deltaTime The time since the last frame.
 	**/
 	function update(deltaTime:Int) {
 		if (playing) {
@@ -160,22 +161,11 @@ class Audio
 	}
 
 	/**
-		The sound tracks.
-		@param path 
-	**/
-	private static var sounds:Array<Audio> = [];
-
-	/**
 		Play a sound and add it to the sound track.
 		@param path 
 	**/
 	inline static function playSound(path:String):Audio {
-		if (sounds.length == 4) {
-			sounds.pop();
-		}
-
 		var newSnd:Audio = new Audio(path);
-		sounds.push(newSnd);
 		newSnd.play();
 
 		return newSnd;
