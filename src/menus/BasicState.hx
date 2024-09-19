@@ -15,14 +15,10 @@ class BasicState extends State {
 	var logo3:Sprite;
 
 	// The gameplay camera.
-	var dispGP:Display;
-	var prgmGP:Program;
-	var buffGP:Buffer<Sprite>;
+	var gpCam:Camera;
 
 	// The interface camera.
-	var dispUI:Display;
-	var prgmUI:Program;
-	var buffUI:Buffer<Sprite>;
+	var uiCam:Camera;
 
 	// The sound.
 	var inst:Audio;
@@ -55,41 +51,29 @@ class BasicState extends State {
 	override function new() {
 		super();
 
-		buffGP = new Buffer<Sprite>(100, 100, true);
-		buffUI = new Buffer<Sprite>(100, 100, true);
+		gpCam = new Camera(0, 0, Screen.view.width, Screen.view.height, 0xFF00FF7F);
+		uiCam = new Camera(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
 
-		prgmGP = new Program(buffGP);
-		prgmUI = new Program(buffUI);
-
-		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0xFF00FF7F);
-		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
-
-		Screen.view.addDisplay(dispGP);
-		Screen.view.addDisplay(dispUI);
-
-		dispGP.addProgram(prgmGP);
-		dispUI.addProgram(prgmUI);
-
-		TextureSystem.createMultiTexture("tex0", ["assets/test0.png", "assets/test1.png", "assets/test2.png", "assets/test3.png", "assets/suzanneRGBA.png"]);
-		TextureSystem.setTexture(prgmGP, "tex0", "custom");
-		TextureSystem.setTexture(prgmUI, "tex0", "custom");
+		TextureSystem.createMultiTexture("testMultiTex", ["assets/test0.png", "assets/test1.png", "assets/test2.png", "assets/test3.png", "assets/suzanneRGBA.png"]);
+		gpCam.setTexture("testMultiTex", "custom");
+		uiCam.setTexture("testMultiTex", "custom");
 
 		logo = new Sprite(50, 50);
-		logo.setSizeToTexture(TextureSystem.getTexture("tex0"));
+		logo.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
 		logo.w = Math.floor(logo.w / 5);
-		buffGP.addElement(logo);
+		gpCam.add(logo);
 
 		logo2 = new Sprite(200, 50);
-		logo2.setSizeToTexture(TextureSystem.getTexture("tex0"));
+		logo2.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
 		logo2.w = Math.floor(logo2.w / 5);
 		logo2.c = 0x0000ffff;
-		buffUI.addElement(logo2);
+		uiCam.add(logo2);
 
 		logo3 = new Sprite(400, 150);
 		logo3.c = 0x00ff00ff;
-		logo3.setSizeToTexture(TextureSystem.getTexture("tex0"));
+		logo3.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
 		logo3.w = Math.floor(logo3.w / 5);
-		buffUI.addElement(logo3);
+		uiCam.add(logo3);
 
 		chart = new Chart("assets/songs/test");
 
@@ -123,7 +107,7 @@ class BasicState extends State {
 		conductor.time = -conductor.crochet * 5;
 		conductor.active = true;
 
-		countdownDisp = new CountdownDisplay(chart, dispUI);
+		countdownDisp = new CountdownDisplay(chart, uiCam);
 	}
 
 	var time:Float = 0;
@@ -164,8 +148,9 @@ class BasicState extends State {
 
 		logo2.x = (Math.abs(musicTime) * 1.5) % (Screen.view.width - (logo2.w / 5));
 
-		buffGP.update();
-		buffUI.update();
+		uiCam.r += 0.25;
+		gpCam.update();
+		uiCam.update();
 	}
 
 	override function onKeyDown(keyCode, keyModifier) {

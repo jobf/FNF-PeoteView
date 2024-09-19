@@ -9,12 +9,12 @@ class Sprite implements Element
 	/**
 		The sprite's x position.
 	**/
-	@posX var x:Float;
+	@posX @formula("x + (w * 0.5)") var x:Float;
 
 	/**
 		The sprite's y position.
 	**/
-	@posY var y:Float;
+	@posY @formula("y + (h * 0.5)") var y:Float;
 
 	/**
 		The sprite's z position.
@@ -39,12 +39,12 @@ class Sprite implements Element
 	/**
 		The pivot x of the sprite.
 	**/
-	@pivotX var px:Int;
+	@pivotX @formula("w * 0.5") var px:Int;
 
 	/**
 		The pivot y of the sprite.
 	**/
-	@pivotY var py:Int;
+	@pivotY @formula("h * 0.5") var py:Int;
 
 	/**
 		The color (in RGBA format) of the sprite.

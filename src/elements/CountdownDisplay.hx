@@ -42,22 +42,22 @@ class CountdownDisplay {
 	/**
 		Constructs a countdown display from chart.
 		@param chart The chart you want the countdown display to input the chart onto.
-		@param fromDisplay The underlying display that is required to add the underlying program.
+		@param fromCamera The underlying camera that is required to add the underlying program.
 	**/
-	function new(fromChart:Chart, fromDisplay:Display) {
+	function new(fromChart:Chart, fromCamera:Camera) {
 		buffer = new Buffer<Sprite>(1, 0, true);
 		program = new Program(buffer);
 
-		if (!fromDisplay.hasProgram(program)) {
-			fromDisplay.addProgram(program);
+		if (!fromCamera.hasProgram(program)) {
+			fromCamera.addProgram(program);
 		}
 
-		TextureSystem.createMultiTexture("tex1", ["assets/countdown/ready.png", "assets/countdown/set.png", "assets/countdown/go.png"]);
-		TextureSystem.setTexture(program, "tex1", "custom");
+		TextureSystem.createMultiTexture("cdTex", ["assets/countdown/ready.png", "assets/countdown/set.png", "assets/countdown/go.png"]);
+		TextureSystem.setTexture(program, "cdTex", "custom");
 
 		sprite = new Sprite();
 
-		sprite.setSizeToTexture(TextureSystem.getTexture("tex1"));
+		sprite.setSizeToTexture(TextureSystem.getTexture("cdTex"));
 		sprite.w = Math.floor(sprite.w / 3);
 		sprite.screenCenter();
 
