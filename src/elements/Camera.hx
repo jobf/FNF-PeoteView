@@ -191,7 +191,7 @@ class Camera {
 		} else {
 			bufferAbove.updateElement(element);
 		}
-		buffer.update();
+		buffer.updateElement(sprite);
 	}
 
 	/**
