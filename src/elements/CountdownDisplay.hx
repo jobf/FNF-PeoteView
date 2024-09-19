@@ -95,14 +95,13 @@ class CountdownDisplay {
 
 		if (beat == 0) {
 			onFinish.dispatch(selectedChart.header.title);
-			sprite.c.setFloatAlpha(0);
 
 			stopped = true;
 			conductor.onBeat.remove(onCountdownTick);
 			return;
 		}
 
-		sprite.slot = Math.floor(beat) - 1;
+		sprite.slot = Math.floor(beat) + 3;
 		sprite.c.setFloatAlpha(1);
 	}
 
@@ -114,8 +113,10 @@ class CountdownDisplay {
 		if (!stopped) {
 			conductor.time += deltaTime;
 
-			sprite.c.setFloatAlpha(Math.max(sprite.c.aF - (conductor.crochet * 0.004), 0));
-			buffer.updateElement(sprite);
+			if (sprite.c.aF != 0) {
+				sprite.c.setFloatAlpha(Math.max(sprite.c.aF - (conductor.crochet * (deltaTime * 0.000012)), 0));
+				buffer.updateElement(sprite);
+			}
 		}
 	}
 
