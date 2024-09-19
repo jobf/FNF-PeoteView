@@ -53,6 +53,7 @@ class Sprite implements Element
 
 	/**
 		The texture slot of this sprite.
+		This is used for multitexture.
 	**/
 	@texSlot var slot:Int;
 

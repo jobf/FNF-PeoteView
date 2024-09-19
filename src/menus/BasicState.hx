@@ -51,8 +51,8 @@ class BasicState extends State {
 		prgmGP = new Program(buffGP);
 		prgmUI = new Program(buffUI);
 
-		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x33000000);
-		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x33000000);
+		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
+		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
 
 		Screen.view.addDisplay(dispGP);
 		Screen.view.addDisplay(dispUI);
