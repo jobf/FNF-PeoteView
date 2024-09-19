@@ -36,11 +36,11 @@ class TextureSystem {
 
 	/**
 		Create a texture and put it in the texture pool.
+		This only accepts a single texture slot.
 		@param name The texture's name.
 		@param path The texture path.
-		@param slot The texture's slot.
 	**/
-	static function createTexture(name:String, path:String, slot:Int = 0) {
+	static function createTexture(name:String, path:String) {
 		if (pool.exists(name)) {
 			return;
 		}
@@ -48,8 +48,12 @@ class TextureSystem {
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
 
-		var texture = new Texture(textureData.width, textureData.height, 1, {format: textureData.format});
-		texture.setData(textureData, slot);
+		var texture = new Texture(textureData.width, textureData.height, 1, {
+			format: textureData.format,
+			powerOfTwo: false,
+			smoothShrink: true
+		});
+		texture.setData(textureData);
 
 		pool[name] = texture;
 	}
