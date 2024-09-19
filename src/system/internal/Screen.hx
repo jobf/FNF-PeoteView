@@ -22,6 +22,7 @@ class Screen extends Display {
 
 	/**
 		Initialize the screen.
+		@param window The window to initialize the screen on.
 	**/
 	static function init(window:Window) {
 		view = new PeoteView(window);
@@ -31,7 +32,7 @@ class Screen extends Display {
 
 	/**
 		Switch the state.
-		@param name
+		@param name The state's name.
 	**/
 	static function switchState(name:Dynamic) {
 		// todo, add a 'dispose' function to State where you can clear the buffers and remove programs from the Display

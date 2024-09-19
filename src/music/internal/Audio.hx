@@ -1,9 +1,5 @@
 package music.internal;
 
-import music.internal.MiniAudio.MAResMan;
-import music.internal.MiniAudio.MAGroup;
-import music.internal.MiniAudio.MAEngine;
-import music.internal.MiniAudio.MASound;
 import lime.media.vorbis.VorbisFile;
 import cpp.RawPointer;
 import lime.app.Application;

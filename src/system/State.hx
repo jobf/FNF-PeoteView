@@ -27,7 +27,7 @@ class State {
 
 	/**
 		Updates the state.
-		@param deltaTime 
+		@param deltaTime The delta time.
 	**/
 	function updateState(deltaTime:Int) {
 		// todo ?
@@ -35,15 +35,15 @@ class State {
 
 	/**
 		Override this to add your code to your own state.
-		@param keyCode 
-		@param modifier 
+		@param keyCode The keycode.
+		@param modifier The key modifier.
 	**/
 	function onKeyDown(keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier) {}
 
 	/**
 		Override this to add your code to your own state.
-		@param keyCode 
-		@param modifier 
+		@param keyCode The keycode.
+		@param modifier The key modifier.
 	**/
 	function onKeyUp(keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier) {}
 }

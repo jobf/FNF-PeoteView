@@ -18,6 +18,11 @@ abstract ChartNote(Int64) from Int64 {
 
 	/**
 		Construct a chart note.
+		@param position The note's position.
+		@param duration The note's duration.
+		@param index The note's index.
+		@param type The note's type.
+		@param lane The note's lane.
 	**/
 	inline function new(position:Int64, duration:Int, index:Int, type:Int, lane:Int) {
 		this = (position << 23) | (duration << 10) | (index << 6) | (type << 2) | lane;

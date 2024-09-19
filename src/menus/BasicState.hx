@@ -4,8 +4,8 @@ package menus;
 import lime.ui.KeyCode;
 
 /**
- * The basic state.
- */
+	The basic state.
+**/
 #if !debug
 @:noDebug
 #end
@@ -14,47 +14,33 @@ class BasicState extends State {
 	var logo2:Sprite;
 	var logo3:Sprite;
 
-	/**
-	 * The gameplay camera.
-	 */
+	// The gameplay camera.
 	var dispGP:Display;
 	var prgmGP:Program;
 	var buffGP:Buffer<Sprite>;
 
-	/**
-	 * The interface camera.
-	 */
+	// The interface camera.
 	var dispUI:Display;
 	var prgmUI:Program;
 	var buffUI:Buffer<Sprite>;
 
-	/**
-	 * The sounds.
-	 */
+	// The sound.
 	var inst:Audio;
 
-	/**
-	 * The conductor.
-	 */
+	// The conductor.
 	var conductor:Conductor;
 
-	/**
-	 * The bpm changes.
-	 */
+	// The bpm change stuff.
 	var bpmChangePosition:Int = 0;
 	var bpmChanges:Array<Array<Float>> = [
 		//[9846.153846153846, 1560]
 	];
 
-	/**
-	 * The chart.
-	 */
+	// The chart.
 	var chart:Chart;
 
-	/**
-	 * The chart note.
-	 */
-	var chartNote:ChartNote;
+	// The countdown display.
+	var countdownDisp:CountdownDisplay;
 
 	override function new() {
 		super();
@@ -65,8 +51,8 @@ class BasicState extends State {
 		prgmGP = new Program(buffGP);
 		prgmUI = new Program(buffUI);
 
-		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0xFF000044);
-		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x0FF00F44);
+		dispGP = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
+		dispUI = new Display(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
 
 		Screen.view.addDisplay(dispGP);
 		Screen.view.addDisplay(dispUI);
@@ -111,33 +97,30 @@ class BasicState extends State {
 
 		chart = new Chart("assets/songs/test");
 
-		chartNote = new ChartNote(haxe.Int64.parseString("2199023255551"), 2681, 15, 14, 3);
-		trace('Position: ' + chartNote.position);
-		trace('Duration: ' + chartNote.duration);
-		trace('Index: ' + chartNote.index);
-		trace('Type: ' + chartNote.type);
-		trace('Lane: ' + chartNote.lane);
+		countdownDisp = new CountdownDisplay(chart, dispUI);
+		countdownDisp.onFinish.add((songTitle:String) -> {
+			inst.play();
+		});
 	}
 
 	var time:Float = 0;
 	override function updateState(deltaTime:Int) {
 		inst.update(deltaTime);
+		countdownDisp.update(deltaTime);
 		//Sys.println(inst.time);
 
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = (inst.time * 1.5) % (1280 - logo2.w);
+		logo2.x = (inst.time * 1.5) % (Screen.view.width - logo2.w);
 
 		buffGP.update();
 		buffUI.update();
 
 		conductor.time = inst.time;
 
-		/**
-		 * This bpm change logic does not preserve position to go back to the previous bpm.
-		 */
+		// This bpm change logic does not preserve position to go back to the previous bpm.
 		if (bpmChangePosition < bpmChanges.length) {
 			var bpmChange = bpmChanges[bpmChangePosition];
 			if (conductor.time > bpmChange[0]) {

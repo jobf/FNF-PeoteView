@@ -58,10 +58,50 @@ class Sprite implements Element
 
 	/**
 		Constructs a sprite.
+		@param x The sprite's x.
+		@param y The sprite's y.
+		@param z The sprite's z index.
 	**/
 	function new(x:Float = 0, y:Float = 0, z:Int = 0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	/**
+		Screen center the sprite at a specific axis.
+		@param axis The axis you want to center the sprite to.
+	**/
+	function screenCenter(axis:Axis = XY, widthDiv:Float = 1, heightDiv:Float = 1) {
+		switch (axis) {
+			case X:
+				x = (Screen.view.width - (w / widthDiv)) * 0.5;
+			case Y:
+				y = (Screen.view.height - (h / heightDiv)) * 0.5;
+			default:
+				x = (Screen.view.width - (w * widthDiv)) * 0.5;
+				y = (Screen.view.height - (h / heightDiv)) * 0.5;
+		}
+	}
+
+	/**
+		Sets the sprite's size to the texture's size at a specific axis.
+		This is useful for multitexture.
+		@param texture 
+	**/
+	function setSizeToTexture(texture:Texture, axis:Axis = XY) {
+		if (texture == null) {
+			return;
+		}
+
+		switch (axis) {
+			case X:
+				w = texture.width;
+			case Y:
+				h = texture.height;
+			default:
+				w = texture.width;
+				h = texture.height;
+		}
 	}
 }

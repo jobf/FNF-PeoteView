@@ -25,7 +25,7 @@ class Chart {
 
 	/**
 		Constructs a chart.
-		@param path 
+		@param path The path to the chart folder.
 	**/
 	function new(path:String) {
 		header = ChartSystem.parseHeader('$path/header.txt');

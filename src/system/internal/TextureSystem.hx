@@ -25,9 +25,9 @@ class TextureSystem {
 
 	/**
 		Set the program's texture to the texture and key.
-		@param prgm 
-		@param name 
-		@param tex 
+		@param prgm The program to set its texture to.
+		@param name The texture's key.
+		@param tex The texture's new name.
 	**/
 
 	inline static function setTexture(prgm:Program, name:String, tex:String) {
@@ -36,9 +36,9 @@ class TextureSystem {
 
 	/**
 		Create a texture and put it in the texture pool.
-		@param name 
-		@param path 
-		@param slot 
+		@param name The texture's name.
+		@param path The texture path.
+		@param slot The texture's slot.
 	**/
 	static function createTexture(name:String, path:String, slot:Int = 0) {
 		if (pool.exists(name)) {
@@ -56,8 +56,9 @@ class TextureSystem {
 
 	/**
 		Create a multitexture and put it in the texture pool.
-		@param name 
-		@param paths 
+		You should despise this function's code as it's just flat out intruiging to deal with.
+		@param name The multitexture's name.
+		@param paths The texture paths.
 	**/
 	static function createMultiTexture(name:String, paths:Array<String>) {
 		if (pool.exists(name)) {
@@ -75,14 +76,18 @@ class TextureSystem {
 
 			texturesToPush.push(textureData);
 
-			totalTextureWidth += textureData.width;
+			totalTextureWidth += Math.floor(textureData.width / paths.length);
 
 			if (totalTextureHeight < textureData.height) {
 				totalTextureHeight = textureData.height;
 			}
 		}
 
-		var texture = new Texture(totalTextureWidth, totalTextureHeight, texturesToPush.length);
+		var texture = new Texture(totalTextureWidth, totalTextureHeight, null, {
+			slotsX: texturesToPush.length,
+			slotsY: 1,
+			powerOfTwo: false
+		});
 
 		for (i in 0...texturesToPush.length) {
 			texture.setData(texturesToPush[i], i);
