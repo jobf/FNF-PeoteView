@@ -116,7 +116,7 @@ class BasicState extends State {
 		time += deltaTime / 500;
 		logo3.x = Math.sin(time) * 300 + 300;
 
-		logo2.x = (inst.time * 1.5) % (Screen.view.width - logo2.w);
+		logo2.x = (inst.time * 1.5) % (Screen.view.width - (logo2.w / 5));
 
 		buffGP.update();
 		buffUI.update();
@@ -138,7 +138,9 @@ class BasicState extends State {
 
 		switch (keyCode) {
 			case RETURN:
-				inst.play();
+				if (countdownDisp.stopped) {
+					inst.play();
+				}
 
 			case SPACE:
 				inst.pause();

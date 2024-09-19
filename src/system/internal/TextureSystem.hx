@@ -51,6 +51,7 @@ class TextureSystem {
 		var texture = new Texture(textureData.width, textureData.height, 1, {
 			format: textureData.format,
 			powerOfTwo: false,
+			smoothExpand: true,
 			smoothShrink: true
 		});
 		texture.setData(textureData);
@@ -93,6 +94,7 @@ class TextureSystem {
 			slotsX: 1,
 			slotsY: texturesToPush.length,
 			powerOfTwo: false,
+			smoothExpand: true,
 			smoothShrink: true
 		});
 

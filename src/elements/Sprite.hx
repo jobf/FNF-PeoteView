@@ -58,6 +58,14 @@ class Sprite implements Element
 	@texSlot var slot:Int;
 
 	/**
+		The sprite's options.
+		@param texRepeatX Whenever the texture should repeat horizontally.
+		@param texRepeatY Whenever the texture should repeat vertically.
+		@param blend Whenever your sprite's texture should appear with crispy edges or not.
+	**/
+	var OPTIONS = {texRepeatX: false, texRepeatY: false, blend: true};
+
+	/**
 		Constructs a sprite.
 		@param x The sprite's x.
 		@param y The sprite's y.
