@@ -91,8 +91,8 @@ class TextureSystem {
 		}
 
 		var texture = new Texture(totalTextureWidth, totalTextureHeight, null, {
-			slotsX: 1,
-			slotsY: texturesToPush.length,
+			slotsX: texturesToPush.length,
+			slotsY: 1,
 			powerOfTwo: false,
 			smoothExpand: true,
 			smoothShrink: true

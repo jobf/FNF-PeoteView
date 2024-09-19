@@ -1,13 +1,15 @@
 package music.chart;
 
 /**
-	The song's genre.
-	This is an abstract over string.
+	The song's charater.
+	This is a structure containing info of the field character.
 **/
 #if !debug
 @:noDebug
 #end
-typedef SongCharacter = {
+@:publicFields
+@:structInit
+class SongCharacter {
 	/**
 		The character's name.
 	**/

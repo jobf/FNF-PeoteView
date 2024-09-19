@@ -29,8 +29,6 @@ class Chart {
 	**/
 	function new(path:String) {
 		header = ChartSystem.parseHeader('$path/header.txt');
-		trace(header);
-
 		//bytes = ChartSystem._file_contents_chart('$path/chart.bin');
 	}
 }

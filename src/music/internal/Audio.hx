@@ -96,8 +96,8 @@ class Audio
 
 	/**
 		Construct an audio track.
-		@param filePath 
-		@param grouped 
+		@param filePath The audio's file path.
+		@param grouped Whenever your audio should be grouped.
 	**/
 	function new(filePath:String, grouped:Bool = false)
 	{

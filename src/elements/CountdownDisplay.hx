@@ -1,7 +1,5 @@
 package elements;
 
-import lime.app.Event;
-
 /**
 	The countdown display.
 	This is a helper class for the gameplay state.
@@ -13,21 +11,6 @@ import lime.app.Event;
 #end
 @:publicFields
 class CountdownDisplay {
-	/**
-		The underlying conductor for this countdown display.
-	**/
-	private var conductor(default, null):Conductor;
-
-	/**
-		The finish callback.
-	**/
-	var onFinish:Event<String->Void> = new Event<String->Void>();
-
-	/**
-		Whenever the countdown's active.
-	**/
-	var active:Bool = true;
-
 	/**
 		The countdown display's program.
 		This is here to render the textures.
@@ -52,12 +35,16 @@ class CountdownDisplay {
 	var selectedChart:Chart;
 
 	/**
+		The countdown display's sound suffix.
+	**/
+	var suffix:String = "";
+
+	/**
 		Constructs a countdown display from chart.
 		@param chart The chart you want the countdown display to input the chart onto.
 		@param fromDisplay The underlying display that is required to add the underlying program.
-		@param fromProgram The underlying program that is required to get added onto the underlying display.
 	**/
-	function new(fromConductor:Conductor, fromChart:Chart, fromDisplay:Display) {
+	function new(fromChart:Chart, fromDisplay:Display) {
 		buffer = new Buffer<Sprite>(1, 0, true);
 		program = new Program(buffer);
 
@@ -71,7 +58,7 @@ class CountdownDisplay {
 		sprite = new Sprite();
 
 		sprite.setSizeToTexture(TextureSystem.getTexture("tex1"));
-		sprite.h = Math.floor(sprite.h / 3);
+		sprite.w = Math.floor(sprite.w / 3);
 		sprite.screenCenter();
 
 		buffer.addElement(sprite);
@@ -79,45 +66,20 @@ class CountdownDisplay {
 		buffer.updateElement(sprite);
 
 		selectedChart = fromChart;
-
-		conductor = fromConductor;
-
-		conductor.onBeat.add(onCountdownTick);
 	}
 
 	/**
-		The countdown's beat offset,
-	**/
-	var beatOffset:Float = 0;
-
-	/**
 		Ticks the countdown.
-		@param beat The conductor's current beat.
+		@param id The countdown's tick index.
 	**/
-	function onCountdownTick(beat:Float) {
-		beat -= Math.ffloor(beatOffset);
-		trace(beat);
+	function countdownTick(id:Int) {
+		Audio.playSound('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
 
-		if (!active) {
-			return;
+		if (id != 0) {
+			sprite.slot = id - 1;
+			sprite.c.setFloatAlpha(1);
+			buffer.updateElement(sprite);
 		}
-
-		if (beat != 0) {
-			Audio.playSound('assets/countdown/${-beat - 1}.wav');
-		}
-
-		if (beat == -4) {
-			return;
-		}
-
-		if (beat == 0) {
-			onFinish.dispatch(selectedChart.header.title);
-			active = false;
-			return;
-		}
-
-		sprite.slot = Math.floor(beat) + 3;
-		sprite.c.setFloatAlpha(1);
 	}
 
 	/**
@@ -125,15 +87,14 @@ class CountdownDisplay {
 		@param deltaTime The time since the last frame.
 	**/
 	inline function update(deltaTime:Int) {
-		if (active && sprite.c.aF != 0) {
-			var multVal = deltaTime * 0.000012;
-			var alphaDecrease = Math.min(conductor.crochet * multVal, multVal * 250);
-			var alphaBoundCheck = sprite.c.aF - alphaDecrease;
+		if (sprite.c.aF != 0) {
+			var multVal = deltaTime * 0.0015;
+			var alphaBoundCheck = sprite.c.aF - multVal;
 
 			if (alphaBoundCheck < 0) {
 				sprite.c.aF = 0;
 			} else {
-				sprite.c.aF -= alphaDecrease;
+				sprite.c.aF -= multVal;
 			}
 
 			buffer.updateElement(sprite);
@@ -147,8 +108,6 @@ class CountdownDisplay {
 		buffer = null;
 		program = null;
 		sprite = null;
-		conductor = null;
-		onFinish = null;
 
 		if (State.useGC) {
 			GC.run();
