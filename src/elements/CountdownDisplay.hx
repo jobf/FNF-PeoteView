@@ -114,7 +114,7 @@ class CountdownDisplay {
 		if (!stopped) {
 			conductor.time += deltaTime;
 
-			sprite.c.setFloatAlpha(Math.max(sprite.c.aF - (conductor.crochet * 0.0012), 0));
+			sprite.c.setFloatAlpha(Math.max(sprite.c.aF - (conductor.crochet * 0.004), 0));
 			buffer.updateElement(sprite);
 		}
 	}
