@@ -1,0 +1,1 @@
+You want all the images at the same width and height for the perfect screen centering effect.

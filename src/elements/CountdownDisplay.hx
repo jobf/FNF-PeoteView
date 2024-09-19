@@ -24,9 +24,9 @@ class CountdownDisplay {
 	var onFinish:Event<String->Void> = new Event<String->Void>();
 
 	/**
-		Whenever this countdown display has stopped.
+		Whenever the countdown's active.
 	**/
-	var stopped:Bool;
+	var active:Bool = true;
 
 	/**
 		The countdown display's program.
@@ -83,21 +83,36 @@ class CountdownDisplay {
 		conductor = fromConductor;
 
 		conductor.onBeat.add(onCountdownTick);
-		conductor.active = false;
-		conductor.time = -conductor.crochet * 5;
-		conductor.active = true;
 	}
 
+	/**
+		The countdown's beat offset,
+	**/
+	var beatOffset:Float = 0;
+
+	/**
+		Ticks the countdown.
+		@param beat The conductor's current beat.
+	**/
 	function onCountdownTick(beat:Float) {
+		beat -= Math.ffloor(beatOffset);
+		trace(beat);
+
+		if (!active) {
+			return;
+		}
+
+		if (beat != 0) {
+			Audio.playSound('assets/countdown/${-beat - 1}.wav');
+		}
+
 		if (beat == -4) {
 			return;
 		}
 
 		if (beat == 0) {
 			onFinish.dispatch(selectedChart.header.title);
-
-			stopped = true;
-			conductor.onBeat.remove(onCountdownTick);
+			active = false;
 			return;
 		}
 
@@ -106,17 +121,22 @@ class CountdownDisplay {
 	}
 
 	/**
-		Updates the countdown display.
-		@param deltaTime The delta time.
+		Updates the countdown.
+		@param deltaTime The time since the last frame.
 	**/
 	inline function update(deltaTime:Int) {
-		if (!stopped) {
-			conductor.time += deltaTime;
+		if (active && sprite.c.aF != 0) {
+			var multVal = deltaTime * 0.000012;
+			var alphaDecrease = Math.min(conductor.crochet * multVal, multVal * 250);
+			var alphaBoundCheck = sprite.c.aF - alphaDecrease;
 
-			if (sprite.c.aF != 0) {
-				sprite.c.setFloatAlpha(Math.max(sprite.c.aF - (conductor.crochet * (deltaTime * 0.000012)), 0));
-				buffer.updateElement(sprite);
+			if (alphaBoundCheck < 0) {
+				sprite.c.aF = 0;
+			} else {
+				sprite.c.aF -= alphaDecrease;
 			}
+
+			buffer.updateElement(sprite);
 		}
 	}
 
@@ -124,7 +144,14 @@ class CountdownDisplay {
 		Disposes the countdown display.
 	**/
 	function dispose() {
+		buffer = null;
+		program = null;
+		sprite = null;
 		conductor = null;
 		onFinish = null;
+
+		if (State.useGC) {
+			GC.run();
+		}
 	}
 }
