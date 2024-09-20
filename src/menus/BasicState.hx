@@ -144,11 +144,10 @@ class BasicState extends State {
 
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
-		logo3.x = Math.sin(time) * 300 + 300;
 
 		logo2.x = (Math.abs(musicTime) * 1.5) % (Screen.view.width - (logo2.w / 5));
 
-		uiCam.r += 0.25;
+		//uiCam.r = Math.sin(time) * 20;
 		gpCam.update();
 		uiCam.update();
 	}
@@ -190,6 +189,18 @@ class BasicState extends State {
 
 			case NUMBER_3:
 				logo3.slot++;
+
+			case NUMBER_6:
+				gpCam.scrollX = gpCam.scrollX == 100 ? 0 : 100;
+
+			case NUMBER_7:
+				gpCam.scrollY = gpCam.scrollY == 100 ? 0 : 100;
+
+			case NUMBER_8:
+				uiCam.scrollX = uiCam.scrollX == 100 ? 0 : 100;
+
+			case NUMBER_9:
+				uiCam.scrollY = uiCam.scrollY == 100 ? 0 : 100;
 
 			default:
 		}

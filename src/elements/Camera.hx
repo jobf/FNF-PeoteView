@@ -6,6 +6,12 @@ package elements;
 @:publicFields
 class Camera {
 	/**
+		Whenever you want to use render-to-texture with the camera rendering system.
+		If toggled, may consume more cpu and imply black borders.
+	**/
+	static var renderToTexture:Bool = false;
+
+	/**
 		The camera's x.
 	**/
 	var x(get, set):Int;
@@ -90,14 +96,71 @@ class Camera {
 		Get the camera's angle.
 	**/
 	inline function get_r():Float {
-		return sprite.r;
+		return renderToTexture ? sprite.r : 0; // TODO: Implement rotation if render-to-texture is off
 	}
 
 	/**
 		Set the camera's angle to a value.
 	**/
 	inline function set_r(value:Float):Float {
-		return sprite.r = value;
+		return (renderToTexture ? sprite.r : sprite.r) = value; // TODO: Implement rotation if render-to-texture is off
+	}
+
+	/**
+		The camera's scroll x.
+	**/
+	var scrollX(get, set):Float;
+
+	/**
+		Get the camera's scroll x.
+	**/
+	inline function get_scrollX():Float {
+		return screen.xOffset;
+	}
+
+	/**
+		Set the camera's scroll x to a value.
+	**/
+	inline function set_scrollX(value:Float):Float {
+		return screen.xOffset = value;
+	}
+
+	/**
+		The camera's scroll y.
+	**/
+	var scrollY(get, set):Float;
+
+	/**
+		Get the camera's scroll y.
+	**/
+	inline function get_scrollY():Float {
+		return screen.yOffset;
+	}
+
+	/**
+		Set the camera's scroll y to a value.
+	**/
+	inline function set_scrollY(value:Float):Float {
+		return screen.yOffset = value;
+	}
+
+	/**
+		The camera's zoom.
+	**/
+	var zoom(get, set):Float;
+
+	/**
+		Get the camera's zoom.
+	**/
+	inline function get_zoom():Float {
+		return screen.zoom;
+	}
+
+	/**
+		Set the camera's zoom to a value.
+	**/
+	inline function set_zoom(value:Float):Float {
+		return screen.zoom = value;
 	}
 
 	/**
@@ -133,12 +196,12 @@ class Camera {
 	/**
 		The camera's second buffer, used to store sprites in the camera.
 	**/
-	private var bufferAbove(default, null):Buffer<Sprite>;
+	private var buffer2(default, null):Buffer<Sprite>;
 
 	/**
 		The camera's second program, used to render the camera itself.
 	**/
-	private var programAbove(default, null):Program;
+	private var program2(default, null):Program;
 
 	/**
 		Constructs a camera.
@@ -150,27 +213,35 @@ class Camera {
 	**/
 	function new(x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0, color:Color = 0x00000000) {
 		screen = new Display(x, y, width, height, color);
-		frame = new Display(x, y, width, height, color);
+
+		if (renderToTexture) {
+			frame = new Display(x, y, width, height, color);
+		}
 
 		Screen.view.addDisplay(screen);
-		Screen.view.addFramebufferDisplay(frame);
 
-		texture = new Texture(width, height);
-		frame.setFramebuffer(texture);
+		if (renderToTexture) {
+			Screen.view.addFramebufferDisplay(frame);
+			texture = new Texture(width, height);
+			frame.setFramebuffer(texture);
 
-		buffer = new Buffer<Sprite>(1, 0, true);
-		program = new Program(buffer);
-		screen.addProgram(program);
-		program.addTexture(texture, "fb");
+			buffer = new Buffer<Sprite>(1, 0, true);
+			program = new Program(buffer);
+			screen.addProgram(program);
+			program.addTexture(texture, "fb");
+		}
 
-		sprite = new Sprite();
-		sprite.w = screen.width;
-		sprite.h = screen.height;
-		buffer.addElement(sprite);
+		buffer2 = new Buffer<Sprite>(1, 1, true);
+		program2 = new Program(buffer2);
 
-		bufferAbove = new Buffer<Sprite>(1, 1, true);
-		programAbove = new Program(bufferAbove);
-		screen.addProgram(programAbove);
+		if (renderToTexture) {
+			sprite = new Sprite();
+			sprite.w = screen.width;
+			sprite.h = screen.height;
+			buffer2.addElement(sprite);
+		}
+
+		(renderToTexture ? frame : screen).addProgram(program2);
 	}
 
 	/**
@@ -178,7 +249,7 @@ class Camera {
 		@param element The sprite to add.
 	**/
 	inline function add(element:Sprite) {
-		bufferAbove.addElement(element);
+		buffer2.addElement(element);
 	}
 
 	/**
@@ -187,11 +258,14 @@ class Camera {
 	**/
 	inline function update(?element:Sprite) {
 		if (element == null) {
-			bufferAbove.update();
+			buffer2.update();
 		} else {
-			bufferAbove.updateElement(element);
+			buffer2.updateElement(element);
 		}
-		buffer.updateElement(sprite);
+
+		if (renderToTexture && buffer != null) {
+			buffer.updateElement(sprite);
+		}
 	}
 
 	/**
@@ -199,7 +273,7 @@ class Camera {
 		@param element The sprite to remove.
 	**/
 	inline function remove(element:Sprite) {
-		bufferAbove.removeElement(element);
+		buffer2.removeElement(element);
 	}
 
 	/**
@@ -215,8 +289,8 @@ class Camera {
 		buffer = null;
 		program = null;
 		sprite = null;
-		bufferAbove = null;
-		bufferAbove = null;
+		buffer2 = null;
+		program2 = null;
 
 		if (State.useGC) {
 			GC.run();
@@ -229,7 +303,7 @@ class Camera {
 		@param texValue The texture's value.
 	**/
 	inline function setTexture(texKey:String, texValue:String) {
-		programAbove.setTexture(TextureSystem.getTexture(texKey), texValue);
+		program2.setTexture(TextureSystem.getTexture(texKey), texValue);
 	}
 
 	/**
