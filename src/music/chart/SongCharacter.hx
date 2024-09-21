@@ -1,7 +1,7 @@
 package music.chart;
 
 /**
-	The song's charater.
+	The song charater.
 	This is a structure containing info of the field character.
 **/
 #if !debug
@@ -39,4 +39,11 @@ class SongCharacter {
 		The character's camera y.
 	**/
 	var camY:Float;
+
+	/**
+		Returns a string representation of the song character.
+	**/
+	function toString() {
+		return '{ name : $name, role : $role, x : $x, y : $y, camX : $camX, camY : $camY }';
+	}
 }

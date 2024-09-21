@@ -10,9 +10,14 @@ package music.chart;
 @:publicFields
 enum abstract SongGenre(String) from String {
 	/**
-		The classical genre.
+		Classical.
 	**/
 	var CLASSICAL = "Classical";
+
+	/**
+		Orchestra.
+	**/
+	var ORCHESTRA = "Orchestra";
 
 	/**
 		Dull metal.
@@ -145,19 +150,39 @@ enum abstract SongGenre(String) from String {
 	var FUNK = "Funk";
 
 	/**
-		Retro Nintendo.
+		Nintendo.
 	**/
-	var RETRO_NINTENDO = "Retro (Nintendo)";
+	var NINTENDO = "Nintendo";
 
 	/**
-		Retro Sega.
+		Sega.
 	**/
-	var RETRO_SEGA = "Retro (Sega)";
+	var SEGA = "Sega";
+
+	/**
+		Online Sequencer.
+	**/
+	var ONLINE_SEQUENCER = "Online Sequencer";
+
+	/**
+		Cartoon Network.
+	**/
+	var CARTOON_NETWORK = "Cartoon Network";
+
+	/**
+		Jelly Jamm. (https://en.wikipedia.org/wiki/Jelly_Jamm)
+	**/
+	var JELLY_JAMM = "Jelly Jamm";
+
+	/**
+		Qumi qumi. (https://en.wikipedia.org/wiki/Qumi-Qumi)
+	**/
+	var QUMI_QUMI = "Qumi Qumi";
 
 	/**
 		Retro.
 	**/
-	var RETRO_OTHER = "Retro (Other)";
+	var RETRO = "Retro";
 
 	/**
 		Ancient.

@@ -21,9 +21,9 @@ class ChartHeader {
 	var artist:String;
 
 	/**
-		The song's genre.
+		The song's genres throughout the song.
 	**/
-	var genre:SongGenre;
+	var genres:Array<SongGenre>;
 
 	/**
 		The song's beats per minute.
@@ -39,4 +39,11 @@ class ChartHeader {
 		The song's characters.
 	**/
 	var characters:Array<SongCharacter>;
+
+	/**
+		Returns a string representation of the chart header.
+	**/
+	function toString() {
+		return '{ title => $title, artist => $artist, genres => $genres, bpm => $bpm, speed => $speed, characters => ${[for (character in characters) character.toString()]} }';
+	}
 }

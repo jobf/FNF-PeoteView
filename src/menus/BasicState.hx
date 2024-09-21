@@ -29,7 +29,9 @@ class BasicState extends State {
 	// The bpm change stuff.
 	var bpmChangePosition:Int = 0;
 	var bpmChanges:Array<Array<Float>> = [
-		[11162.79069767442, 344]
+		[11162.79069767442, 344],
+		[100465.1162790698, 0, 4, 5],
+		[107441.8604651163, 0, 4, 3]
 	];
 
 	// The countdown event stuff.
@@ -83,8 +85,8 @@ class BasicState extends State {
 		});*/
 
 		conductor.onBeat.add(function(beat) {
-			//Sys.println('Beat $beat');
-			if (beat % 4 != 0) {
+			Sys.println('Beat $beat');
+			if (beat % conductor.denominator != 0) {
 				Audio.playSound("assets/conductor/beat.wav");
 			}
 
@@ -99,7 +101,7 @@ class BasicState extends State {
 		});
 
 		conductor.onMeasure.add(function(measure) {
-			//Sys.println('Measure $measure');
+			Sys.println('Measure $measure');
 			Audio.playSound("assets/conductor/measure.wav");
 		});
 
@@ -124,8 +126,21 @@ class BasicState extends State {
 
 		if (bpmChangePosition < bpmChanges.length) {
 			var bpmChange = bpmChanges[bpmChangePosition];
-			if (conductor.time > bpmChange[0]) {
-				conductor.changeBpmAt(bpmChange[0], bpmChange[1]);
+			var position = bpmChange[0];
+			if (conductor.time > position) {
+				var numerator = bpmChange[2] ?? -1;
+
+				if (numerator == -1) {
+					numerator = conductor.numerator;
+				}
+
+				var denominator = bpmChange[3] ?? -1;
+
+				if (denominator == -1) {
+					denominator = conductor.denominator;
+				}
+
+				conductor.changeBpmAt(position, bpmChange[1], numerator, denominator);
 				++bpmChangePosition;
 			}
 		}

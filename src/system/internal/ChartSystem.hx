@@ -21,7 +21,7 @@ extern class ChartSystem
 
 		var title = input.readLine().split(": ")[1].trim();
 		var artist = input.readLine().split(": ")[1].trim();
-		var genre = input.readLine().split(": ")[1].trim();
+		var genres:Array<SongGenre> = input.readLine().split(": ")[1].trim().split(", ");
 		var speed = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var bpm = Std.parseFloat(input.readLine().split(": ")[1].trim());
 
@@ -47,11 +47,12 @@ extern class ChartSystem
 		var result:ChartHeader = {
 			title: title,
 			artist: artist,
-			genre: genre,
+			genres: genres,
 			speed: speed,
 			bpm: bpm,
 			characters: characterData
 		};
+		trace(result);
 
 		return result;
 	}

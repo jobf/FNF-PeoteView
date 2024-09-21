@@ -11,157 +11,46 @@ class Camera {
 	**/
 	static var renderToTexture:Bool = false;
 
-	/**
-		The camera's x.
-	**/
+	// The camera's x.
 	var x(get, set):Int;
+	inline function get_x():Int { return screen.x; }
+	inline function set_x(value:Int):Int { return screen.x = value; }
 
-	/**
-		Get the camera's x.
-	**/
-	inline function get_x():Int {
-		return screen.x;
-	}
-
-	/**
-		Set the camera's x to a value.
-	**/
-	inline function set_x(value:Int):Int {
-		return screen.x = value;
-	}
-
-	/**
-		The camera's y.
-	**/
+	// The camera's y.
 	var y(get, set):Int;
+	inline function get_y():Int { return screen.y; }
+	inline function set_y(value:Int):Int { return screen.y = value; }
 
-	/**
-		Get the camera's y.
-	**/
-	inline function get_y():Int {
-		return screen.y;
-	}
-
-	/**
-		Set the camera's y to a value.
-	**/
-	inline function set_y(value:Int):Int {
-		return screen.y = value;
-	}
-
-	/**
-		The camera's width.
-	**/
+	// The camera's width.
 	var w(get, set):Int;
+	inline function get_w():Int { return screen.width; }
+	inline function set_w(value:Int):Int { return screen.width = value; }
 
-	/**
-		Get the camera's width.
-	**/
-	inline function get_w():Int {
-		return screen.width;
-	}
-
-	/**
-		Set the camera's width to a value.
-	**/
-	inline function set_w(value:Int):Int {
-		return screen.width = value;
-	}
-
-	/**
-		The camera's height.
-	**/
+	// The camera's height.
 	var h(get, set):Int;
+	inline function get_h():Int { return screen.height; }
+	inline function set_h(value:Int):Int { return screen.height = value; }
 
-	/**
-		Get the camera's width.
-	**/
-	inline function get_h():Int {
-		return screen.height;
-	}
-
-	/**
-		Set the camera's height to a value.
-	**/
-	inline function set_h(value:Int):Int {
-		return screen.height = value;
-	}
-
-	/**
-		The camera's angle.
-	**/
+	// The camera's angle.
 	var r(get, set):Float;
+	// TODO: Implement rotation if render-to-texture is off
+	inline function get_r():Float { return renderToTexture ? sprite.r : 0; }
+	inline function set_r(value:Float):Float { return (renderToTexture ? sprite.r = value : sprite.r = value); }
 
-	/**
-		Get the camera's angle.
-	**/
-	inline function get_r():Float {
-		return renderToTexture ? sprite.r : 0; // TODO: Implement rotation if render-to-texture is off
-	}
-
-	/**
-		Set the camera's angle to a value.
-	**/
-	inline function set_r(value:Float):Float {
-		return (renderToTexture ? sprite.r : sprite.r) = value; // TODO: Implement rotation if render-to-texture is off
-	}
-
-	/**
-		The camera's scroll x.
-	**/
+	// The camera's scroll x.
 	var scrollX(get, set):Float;
+	inline function get_scrollX():Float { return screen.xOffset; }
+	inline function set_scrollX(value:Float):Float { return screen.xOffset = value; }
 
-	/**
-		Get the camera's scroll x.
-	**/
-	inline function get_scrollX():Float {
-		return screen.xOffset;
-	}
-
-	/**
-		Set the camera's scroll x to a value.
-	**/
-	inline function set_scrollX(value:Float):Float {
-		return screen.xOffset = value;
-	}
-
-	/**
-		The camera's scroll y.
-	**/
+	// The camera's scroll y.
 	var scrollY(get, set):Float;
+	inline function get_scrollY():Float { return screen.yOffset; }
+	inline function set_scrollY(value:Float):Float { return screen.yOffset = value; }
 
-	/**
-		Get the camera's scroll y.
-	**/
-	inline function get_scrollY():Float {
-		return screen.yOffset;
-	}
-
-	/**
-		Set the camera's scroll y to a value.
-	**/
-	inline function set_scrollY(value:Float):Float {
-		return screen.yOffset = value;
-	}
-
-	/**
-		The camera's zoom.
-	**/
+	// The camera's zoom.
 	var zoom(get, set):Float;
-
-	/**
-		Get the camera's zoom.
-	**/
-	inline function get_zoom():Float {
-		return screen.zoom;
-	}
-
-	/**
-		Set the camera's zoom to a value.
-	**/
-	inline function set_zoom(value:Float):Float {
-		return screen.zoom = value;
-	}
+	inline function get_zoom():Float { return screen.zoom; }
+	inline function set_zoom(value:Float):Float { return screen.zoom = value; }
 
 	/**
 		The camera's frame.
@@ -220,6 +109,10 @@ class Camera {
 
 		Screen.view.addDisplay(screen);
 
+		buffer2 = new Buffer<Sprite>(1, 1, true);
+		program2 = new Program(buffer2);
+		program2.blendEnabled = program2.blendSeparate = true;
+
 		if (renderToTexture) {
 			Screen.view.addFramebufferDisplay(frame);
 			texture = new Texture(width, height);
@@ -229,12 +122,8 @@ class Camera {
 			program = new Program(buffer);
 			screen.addProgram(program);
 			program.addTexture(texture, "fb");
-		}
+			program.blendEnabled = program.blendSeparate = true;
 
-		buffer2 = new Buffer<Sprite>(1, 1, true);
-		program2 = new Program(buffer2);
-
-		if (renderToTexture) {
 			sprite = new Sprite();
 			sprite.w = screen.width;
 			sprite.h = screen.height;
@@ -281,16 +170,18 @@ class Camera {
 	**/
 	inline function dispose() {
 		Screen.view.removeDisplay(screen);
-		Screen.view.removeFramebufferDisplay(frame);
-
 		screen = null;
-		frame = null;
-		texture = null;
-		buffer = null;
-		program = null;
-		sprite = null;
 		buffer2 = null;
 		program2 = null;
+		sprite = null;
+
+		if (renderToTexture) {
+			Screen.view.removeFramebufferDisplay(frame);
+			frame = null;
+			texture = null;
+			buffer = null;
+			program = null;
+		}
 
 		if (State.useGC) {
 			GC.run();

@@ -1,7 +1,7 @@
 Title: Test
 Artist: Kawai Sprite
-Genre: Light Pop
-Speed: 1.6
+Genre: Online Sequencer, Light Metal, Light Rock, Orchestra, Classic Metal
+Speed: 3
 BPM: 172
 Characters:
 dad

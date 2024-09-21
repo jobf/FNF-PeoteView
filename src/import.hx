@@ -11,3 +11,6 @@ import menus.*;
 import system.*;
 import system.internal.*;
 import utils.*;
+
+// HELPERS
+import haxe.Int64;
