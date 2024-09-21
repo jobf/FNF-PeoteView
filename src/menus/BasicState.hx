@@ -29,8 +29,8 @@ class BasicState extends State {
 	// The bpm change stuff.
 	var bpmChangePosition:Int = 0;
 	var bpmChanges:Array<Array<Float>> = [
-		[11162.79069767442, 344],
-		[100465.1162790698, 0, 4, 5],
+		//[11162.79069767442, 344, 0, 0],
+		[100465.1162790698, 0, 3, 4],
 		[107441.8604651163, 0, 4, 3]
 	];
 
@@ -128,15 +128,17 @@ class BasicState extends State {
 			var bpmChange = bpmChanges[bpmChangePosition];
 			var position = bpmChange[0];
 			if (conductor.time > position) {
-				var numerator = bpmChange[2] ?? -1;
+				var numerator = bpmChange[2];
+				Sys.println(numerator);
 
-				if (numerator == -1) {
+				if (numerator < 1) {
 					numerator = conductor.numerator;
 				}
 
-				var denominator = bpmChange[3] ?? -1;
+				var denominator = bpmChange[3];
+				Sys.println(denominator);
 
-				if (denominator == -1) {
+				if (denominator < 1) {
 					denominator = conductor.denominator;
 				}
 

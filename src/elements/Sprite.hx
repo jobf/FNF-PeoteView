@@ -96,7 +96,7 @@ class Sprite implements Element
 	/**
 		Sets the sprite's size to the texture's size at a specific axis.
 		This is useful for multitexture.
-		@param texture 
+		@param texture The existing texture in `TextureSystem` that you want to set the sprite's size to.
 	**/
 	function setSizeToTexture(texture:Texture, axis:Axis = XY) {
 		if (texture == null) {

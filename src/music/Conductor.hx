@@ -29,22 +29,17 @@ class Conductor
 	/**
 		The conductor's step crochet.
 	**/
-	var stepCrochet(default, null):Float;
+	var stepCrochet(default, null):Float = 150;
 
 	/**
 		The conductor's crochet.
 	**/
-	var crochet(default, null):Float;
+	var crochet(default, null):Float = 600;
 
 	/**
 		The conductor's measure crochet.
 	**/
-	var measureCrochet(default, null):Float;
-
-	/**
-		The conductor's last beats per minute.
-	**/
-	var lastBpm(default, null):Float = 100;
+	var measureCrochet(default, null):Float = 2400;
 
 	/**
 		The conductor's beats per minute.
@@ -68,9 +63,10 @@ class Conductor
 	{
 		time = value;
 
-		_stepTracker = Math.ffloor(stepOffset + (time - offsetTime) / stepCrochet);
-		_beatTracker = Math.ffloor(beatOffset + (time - offsetTime) / crochet);
-		_measureTracker = Math.ffloor(measureOffset + (time - offsetTime) / measureCrochet);
+		var calc = (time - offsetTime);
+		_stepTracker = Math.ffloor(stepOffset + calc / stepCrochet);
+		_beatTracker = Math.ffloor(beatOffset + calc / crochet);
+		_measureTracker = Math.ffloor(measureOffset + calc / measureCrochet);
 
 		if (active) {
 			if (curStep != _stepTracker)
@@ -215,8 +211,8 @@ class Conductor
 		offsetTime = position;
 
 		if (newBpm > 0) {
-			stepCrochet = (15000 / bpm);
 			bpm = newBpm;
+			stepCrochet = (15000 / bpm);
 		}
 
 		crochet = stepCrochet * newNumerator;
@@ -232,7 +228,7 @@ class Conductor
 	inline function reset():Void
 	{
 		stepOffset = beatOffset = measureOffset = offsetTime = time = 0.0;
-		changeBpmAt(0, 0);
+		changeBpmAt(0);
 	}
 
 	/**

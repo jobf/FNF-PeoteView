@@ -162,7 +162,7 @@ class Audio
 
 	/**
 		Play a sound and add it to the sound track.
-		@param path 
+		@param path The sound's path.
 	**/
 	inline static function playSound(path:String):Audio {
 		var newSnd:Audio = new Audio(path);
@@ -313,7 +313,7 @@ class Audio
 
 	/**
 		The setter for the audio's volume.
-		@param newVol 
+		@param newVol The audio's new volume.
 		@return Float
 	**/
 	function set_volume(newVol:Float):Float
@@ -325,7 +325,7 @@ class Audio
 
 	/**
 		The getter for the audio's time.
-		@return AudioTime
+		@return Float
 	**/
 	inline function get_time():Float
 	{
@@ -334,8 +334,8 @@ class Audio
 
 	/**
 		The setter for the audio's time.
-		@param newTime 
-		@return AudioTime
+		@param newTime The audio's new time.
+		@return Float
 	**/
 	function set_time(newTime:Float):Float
 	{
@@ -361,7 +361,7 @@ class Audio
 
 	/**
 		Toggle looping for the audio.
-		@param shouldLoop 
+		@param shouldLoop Whenever the audio should loop or not.
 		@return Bool
 	**/
 	function set_looping(shouldLoop:Bool):Bool
