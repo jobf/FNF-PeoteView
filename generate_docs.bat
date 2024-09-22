@@ -1,6 +1,7 @@
 @echo off
-echo This also builds the game for you.
 echo ONLY USE THIS IF YOU HAVE HAXE INSTALLED ON YOUR SYSTEM!
+echo (This also builds the game for you.)
+echo.
 haxelib install dox
 haxelib install hxargs
 lime build windows -xml
