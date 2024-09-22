@@ -1,22 +1,16 @@
 #if !doc_gen
 package system.internal;
 
-import cpp.UInt8;
-import cpp.Int64;
 import sys.io.File;
 using StringTools;
 
-/**
- * ...
- * @author Christopher Speciale
- */
-@:include('./ChartSystem.cpp')
-extern class ChartSystem 
+#if !debug
+@:noDebug
+#end
+@:publicFields
+class ChartSystem 
 {
-	@:native("file_contents_chart")
-	extern static function _file_contents_chart(path:String):Array<Int64>;
-
-	@:runtime extern inline static function parseHeader(path:String):ChartHeader {
+	inline static function parseHeader(path:String):ChartHeader {
 		var input = File.read(path, false);
 
 		var title = input.readLine().split(": ")[1].trim();
@@ -24,6 +18,7 @@ extern class ChartSystem
 		var genres:Array<SongGenre> = input.readLine().split(": ")[1].trim().split(", ");
 		var speed = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var bpm = Std.parseFloat(input.readLine().split(": ")[1].trim());
+		var stage = input.readLine().split(": ")[1].trim();
 
 		input.readLine();
 
@@ -50,6 +45,7 @@ extern class ChartSystem
 			genres: genres,
 			speed: speed,
 			bpm: bpm,
+			stage: stage,
 			characters: characterData
 		};
 		trace(result);

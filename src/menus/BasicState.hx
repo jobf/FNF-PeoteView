@@ -77,7 +77,7 @@ class BasicState extends State {
 		logo3.w = Math.floor(logo3.w / 5);
 		uiCam.add(logo3);
 
-		chart = new Chart("assets/songs/test");
+		chart = new Chart("assets/songs/fresh");
 
 		conductor = new Conductor(chart.header.bpm);
 		/*conductor.onStep.add(function(step) {
@@ -157,7 +157,7 @@ class BasicState extends State {
 			musicTime = conductor.time += deltaTime;
 		}
 
-		countdownDisp.update(deltaTime);
+		chart.update(musicTime);
 
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;

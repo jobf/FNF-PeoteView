@@ -14,7 +14,7 @@ abstract ChartNote(Int64) from Int64 {
 	/**
 		The position's bit mask.
 	**/
-	static var POSITION_MASK:Int64 = Int64.sub(Int64.shl(Int64.make(0, 1), 41), Int64.make(0, 1));
+	static var POSITION_MASK:Int64 = Int64.sub(Int64.shl(1, 41), Int64.ofInt(1));
 
 	/**
 		Construct a chart note.
@@ -34,7 +34,7 @@ abstract ChartNote(Int64) from Int64 {
 	var position(get, never):Int64;
 
 	/**
-		The duration. 13 bits. 3.2ms granularity.
+		The duration. 13 bits. 2.75ms granularity.
 	**/
 	var duration(get, never):Int;
 
@@ -86,5 +86,12 @@ abstract ChartNote(Int64) from Int64 {
 	**/
 	inline function get_lane():Int {
 		return (this.low:Int) & 0x3; // Get the last 2 bits for lane
+	}
+
+	/**
+		Get the underlying type.
+	**/
+	inline function toNumber():Int64 {
+		return this;
 	}
 }

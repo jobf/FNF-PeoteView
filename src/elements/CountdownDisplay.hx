@@ -89,7 +89,7 @@ class CountdownDisplay {
 	inline function update(deltaTime:Int) {
 		if (sprite.c.aF != 0) {
 			var a = sprite.c.aF;
-			var multVal = (a * 0.5) * (deltaTime * 0.0085);
+			var multVal = (a * 0.5) * (deltaTime * 0.0125);
 			var alphaBoundCheck = a - multVal;
 
 			if (alphaBoundCheck < 0) {

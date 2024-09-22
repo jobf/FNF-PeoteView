@@ -1,6 +1,7 @@
 package music.chart;
 
 import sys.io.File;
+import sys.FileSystem;
 
 using StringTools;
 
@@ -28,7 +29,19 @@ class Chart {
 		@param path The path to the chart folder.
 	**/
 	function new(path:String) {
+		if (FileSystem.exists('$path/chart.json')) {
+			ChartConverter.baseGame(path);
+		}
+
 		header = ChartSystem.parseHeader('$path/header.txt');
 		//bytes = ChartSystem._file_contents_chart('$path/chart.bin');
+	}
+
+	/**
+		Updates the chart.
+		@param time The music's time.
+	**/
+	function update(time:Float) {
+		//Sys.println(nextNote);
 	}
 }

@@ -1,4 +1,4 @@
-package music.internal;
+package music;
 
 import lime.media.vorbis.VorbisFile;
 import cpp.RawPointer;
@@ -17,11 +17,6 @@ class Audio
 		Whenever audio interpolation should be enabled or not.
 	**/
 	static var enableInterpolation:Bool = true;
-
-	/**
-		The raw miniaudio sound pointer.
-	**/
-	private var sound:RawPointer<MASound>;
 
 	/**
 		The audio's volume.
@@ -75,24 +70,29 @@ class Audio
 	private var _length:Float = -1;
 
 	/**
+		The raw miniaudio sound pointer.
+	**/
+	@:noPrivateAccess private var sound(default, null):RawPointer<MASound>;
+
+	/**
 		The raw miniaudio engine pointer.
 	**/
-	private static var engine:RawPointer<MAEngine>;
+	@:noPrivateAccess private static var engine(default, null):RawPointer<MAEngine>;
 
 	/**
 		The raw miniaudio group pointer.
 	**/
-	private static var group:RawPointer<MAGroup>;
+	@:noPrivateAccess private static var group(default, null):RawPointer<MAGroup>;
 
 	/**
 		The raw miniaudio resource manager pointer.
 	**/
-	private static var resourceManager:RawPointer<MAResMan>;
+	@:noPrivateAccess private static var resourceManager(default, null):RawPointer<MAResMan>;
 
 	/**
 		The added audio tracks.
 	**/
-	private static var addedSounds:Array<Audio> = [];
+	static var addedSounds(default, null):Array<Audio> = [];
 
 	/**
 		Construct an audio track.
@@ -166,6 +166,7 @@ class Audio
 	**/
 	inline static function playSound(path:String):Audio {
 		var newSnd:Audio = new Audio(path);
+		Audio.addedSounds.remove(newSnd);
 		newSnd.play();
 
 		return newSnd;
@@ -196,7 +197,7 @@ class Audio
 		{
 			while (addedSounds.length > 0)
 			{
-				var sound:Audio = addedSounds.pop();
+				var sound:Audio = Audio.addedSounds.pop();
 				sound.stop();
 				sound.dispose();
 			}
