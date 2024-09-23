@@ -4,16 +4,15 @@ Genre: Online Sequencer, Light Metal, Light Rock, Orchestra, Classic Metal
 Speed: 3
 BPM: 172
 Stage: stage
+Instrumental: assets/silver-doom.opus
+Voices: 
 Characters:
-dad
-role enemy
+dad enemy
 pos -700 300
 cam 0 45
-gf
-role other
+gf other
 pos -100 300
 cam 0 45
-bf
-role player
+bf player
 pos 200 300
 cam 0 45
