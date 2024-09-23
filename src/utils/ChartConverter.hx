@@ -23,7 +23,8 @@ class ChartConverter
 	**/
 	static function baseGame(path:String) {
 		Sys.println("Welcome to the Funkin' View chart converter!");
-		Sys.println("Converting base-game chart to Funkin' View chart... (Only notes will be converted.)");
+		Sys.println("Converting base-game chart to Funkin' View chart...");
+		Sys.println("1. Won't work for extra key charts with. 2. Only notes will be converted.)");
 
 		var header:FileOutput = File.write('$path/header.txt');
 		var events:FileOutput = File.write('$path/events.txt');
@@ -47,16 +48,32 @@ class ChartConverter
 			stage = "stage";
 		}
 
-		header.writeString('Title: ${song.song}\n');
-		header.writeString('Arist: N/A\n');
-		header.writeString('Genre: N/A\n');
-		header.writeString('Speed: ${song.speed * 0.45}\n');
-		header.writeString('BPM: ${song.bpm}\n');
-		header.writeString('Stage: $stage\n');
-		header.writeString('Characters:\n');
-		header.writeString('${song.player2}\nrole enemy\npos -700 300\ncam 0 45\n');
-		header.writeString('${song.gfVersion}\nrole other\npos -100 300\ncam 0 45\n');
-		header.writeString('${song.player1}\nrole player\npos 200 300\ncam 0 45');
+		var gfVersion = song.gfVersion;
+
+		if (gfVersion == null) {
+			gfVersion = "gf";
+		}
+
+		header.writeString(
+'Title: ${song.song}
+Arist: N/A
+Genre: N/A
+Speed: ${song.speed * 0.45}
+BPM: ${song.bpm}
+Stage: $stage
+Instrumental: $path/Inst.ogg
+Voices: $path/Voices.ogg
+Characters:
+${song.player2}, enemy
+pos -700 300
+cam 0 45
+$gfVersion, other
+pos -100 300
+cam 0 45
+${song.player1}, player
+pos 200 300
+cam 0 45');
+
 		header.close();
 
 		Sys.println("Sorting notes...");
@@ -65,19 +82,21 @@ class ChartConverter
 		try {
 			var notes:Array<Dynamic> = song.notes;
 			var sectionsParsed:Int = 0;
-			for (section in notes.iterator()) {
+			for (section in notes) {
 				section.sectionNotes.sort((a, b) -> a[0] - b[0]);
-				var sectionNotes:Array<Dynamic> = section.sectionNotes;
-				for (note in sectionNotes.iterator()) {
-					var position:Int64 = new ChartNote(
-						betterInt64FromFloat(note[0] * 100000),
-						Math.floor(note[2] * 0.3636363636363636),
-						Math.floor(note[3]),
+				var sectionNotes:Array<Array<Float>> = section.sectionNotes;
+				for (i in 0...sectionNotes.length) {
+					var note:VanillaChartNote = sectionNotes[i];
+					var newNote:ChartNote = new ChartNote(
+						betterInt64FromFloat(note.position * 100),
+						Math.floor(note.duration * 0.3636363636363636), // Equal to `note.duration / 2.75`/
+						note.index,
 						0,
-						Math.floor(note[1] * 0.25)
-					).toNumber();
-					chart.writeInt32((position.high:Int));
-					chart.writeInt32((position.low:Int));
+						note.lane
+					);
+					chart.writeInt32((newNote.toNumber().high:Int));
+					chart.writeInt32((newNote.toNumber().low:Int));
+					Sys.println(newNote.position);
 				}
 			}
 		} catch (e) {
@@ -85,7 +104,7 @@ class ChartConverter
 			Sys.println("This may be an invalid base game chart format or there\'s an error in the file.");
 		}
 
-
+		chart.close();
 	}
 
 	/**
@@ -96,4 +115,70 @@ class ChartConverter
 		var low:Int = Math.floor(value);
         return Int64.make(high, low);
     }
+}
+
+/**
+	The base-game chart note.
+	The only way you can construct it is that if you input a float array.
+**/
+#if !debug
+@:noDebug
+#end
+@:publicFields
+abstract VanillaChartNote(Array<Float>) from Array<Float> {
+	/**
+		The note's position.
+		Assigns the visual representation of a note at a specific time in the song.
+	**/
+	var position(get, never):Float;
+
+	/**
+		The note's index.
+		Where the note should spawn at.
+	**/
+	var index(get, never):Int;
+
+	/**
+		The note's hold duration.
+		Assigns the note's visual representation of the hold note with the length.
+	**/
+	var duration(get, never):Float;
+
+	/**
+		The note's strumline lane.
+		Specifies the position of the note it's assigned to.
+	**/
+	var lane(get, never):Int;
+
+	/**
+		Get the note's position.
+		Assigns the visual representation of a note at a specific time in the song.
+	**/
+	inline function get_position():Float {
+		return this[0];
+	}
+
+	/**
+		Get the note's index.
+		Where the note should spawn at.
+	**/
+	inline function get_index():Int {
+		return Math.floor(this[1]) & 3;
+	}
+
+	/**
+		Get the note's hold duration.
+		Assigns the note's visual representation of the hold note with the length.
+	**/
+	inline function get_duration():Float {
+		return this[2];
+	}
+
+	/**
+		Get the note's strumline lane.
+		Specifies the position of the note it's assigned to.
+	**/
+	inline function get_lane():Int {
+		return Math.floor(this[1]) >> 2;
+	}
 }

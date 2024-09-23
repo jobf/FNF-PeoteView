@@ -19,14 +19,17 @@ class ChartSystem
 		var speed = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var bpm = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var stage = input.readLine().split(": ")[1].trim();
+		var instDir = input.readLine().split(": ")[1].trim();
+		var voicesDir = input.readLine().split(": ")[1].trim();
 
 		input.readLine();
 
 		var characterData:Array<SongCharacter> = [];
 
 		while (!input.eof()) {
-			var name = input.readLine();
-			var role:SongCharacterRole = input.readLine().replace("role ", "");
+			var split = input.readLine().split(", ");
+			var name = split[0];
+			var role:SongCharacterRole = split[1];
 
 			var posSplit = input.readLine().replace("pos ", "").split(" ");
 			var x = Std.parseFloat(posSplit[0]);
@@ -46,6 +49,8 @@ class ChartSystem
 			speed: speed,
 			bpm: bpm,
 			stage: stage,
+			instDir: instDir,
+			voicesDir: voicesDir,
 			characters: characterData
 		};
 		trace(result);

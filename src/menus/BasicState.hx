@@ -22,6 +22,7 @@ class BasicState extends State {
 
 	// The sound.
 	var inst:Audio;
+	var voices:Audio;
 
 	// The conductor.
 	var conductor:Conductor;
@@ -30,18 +31,18 @@ class BasicState extends State {
 	var bpmChangePosition:Int = 0;
 	var bpmChanges:Array<Array<Float>> = [
 		//[11162.79069767442, 344, 0, 0],
-		[100465.1162790698, 0, 3, 4],
-		[107441.8604651163, 0, 4, 3]
+		/*[100465.1162790698, 0, 3, 4],
+		[107441.8604651163, 0, 4, 3]*/
 	];
 
 	// The countdown event stuff.
 	var countdownEventPosition:Int = 0;
 	var countdownEvents:Array<Array<Float>> = [
-		[4534.883720930233, 0],
+		/*[4534.883720930233, 0],
 		[4883.720930232559, 1],
 		[5232.558139534884, 2],
 		[5581.39534883721, 3],
-		[11162.79069767442, 3]
+		[11162.79069767442, 3]*/
 	];
 
 	// The chart.
@@ -95,8 +96,11 @@ class BasicState extends State {
 			}
 
 			if (beat == 0) {
-				inst = new Audio("assets/silver-doom.opus");
+				inst = new Audio(chart.header.instDir);
 				inst.play();
+
+				voices = new Audio(chart.header.voicesDir);
+				voices.play();
 			}
 		});
 
@@ -151,6 +155,7 @@ class BasicState extends State {
 
 		if (inst != null) {
 			inst.update(deltaTime);
+			voices.update(deltaTime);
 			musicTime = inst.time;
 			conductor.time = musicTime;
 		} else {
@@ -179,24 +184,31 @@ class BasicState extends State {
 		switch (keyCode) {
 			case RETURN:
 				inst.play();
+				voices.play();
 
 			case SPACE:
 				inst.pause();
+				voices.pause();
 
 			case M:
 				inst.volume = inst.volume == 0.1 ? 1 : 0.1;
+				voices.volume = voices.volume == 0.1 ? 1 : 0.1;
 
 			case B:
 				inst.time = 1000000;
+				voices.time = 1000000;
 
 			case A:
 				inst.time -= 1000;
+				voices.time -= 1000;
 
 			case D:
 				inst.time += 1000;
+				voices.time += 1000;
 
 			case BACKSPACE:
 				inst.stop();
+				voices.stop();
 
 			case NUMBER_1:
 				logo.slot++;

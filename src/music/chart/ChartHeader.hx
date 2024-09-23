@@ -41,6 +41,16 @@ class ChartHeader {
 	var stage:String;
 
 	/**
+		The song's instrumental directory.
+	**/
+	var instDir:String;
+
+	/**
+		The song's voices directory.
+	**/
+	var voicesDir:String;
+
+	/**
 		The song's characters.
 	**/
 	var characters:Array<SongCharacter>;

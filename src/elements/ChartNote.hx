@@ -29,60 +29,70 @@ abstract ChartNote(Int64) from Int64 {
 	}
 
 	/**
-		The position. 41 bits so it fits the 100 microsecond granularity.
+		The note's position. 41 bits so it fits the 100 microsecond granularity.
+		Assigns the note's visual representation of the hold note with the length.
 	**/
 	var position(get, never):Int64;
 
 	/**
-		The duration. 13 bits. 2.75ms granularity.
+		The note's hold duration. 13 bits. 2.75ms granularity.
+		Assigns its visual representation of the hold note.
 	**/
 	var duration(get, never):Int;
 
 	/**
-		The index. 4 bits.
+		The note's index. 4 bits.
+		Where the note should spawn at.
 	**/
 	var index(get, never):Int;
 
 	/**
-		The type. 4 bits.
+		The note's type. 4 bits.
+		What type the note should be, if a notetype index is set.
 	**/
 	var type(get, never):Int;
 
 	/**
-		The lane. 2 bits.
+		The note's strumline lane. 2 bits.
+		Specifies the position of the note it's assigned to.
 	**/
 	var lane(get, never):Int;
 
 	/**
-		Get the position.
+		Get the note's position.
+		Assigns the note's visual representation of the hold note with the length.
 	**/
 	inline function get_position():Int64 {
 		return (this >> 23) & POSITION_MASK; // Mask 41 bits
 	}
 
 	/**
-		Get the duration.
+		Get the note's hold duration.
+		Assigns its visual representation of the hold note.
 	**/
 	inline function get_duration():Int {
 		return ((this.low:Int) >> 10) & 0x1FFF; // Mask 13 bits
 	}
 
 	/**
-		Get the index.
+		Get the note's index.
+		Specifies the position of the note it's assigned to.
 	**/
 	inline function get_index():Int {
 		return ((this.low:Int) >> 6) & 0xF; // Mask 4 bits
 	}
 
 	/**
-		Get the type.
+		Get the note's type.
+		What type the note should be, if a notetype index is set.
 	**/
 	inline function get_type():Int {
 		return ((this.low:Int) >> 2) & 0xF; // Mask 4 bits
 	}
 
 	/**
-		Get the lane.
+		Get the note's strumline lane.
+		Where the note should spawn at.
 	**/
 	inline function get_lane():Int {
 		return (this.low:Int) & 0x3; // Get the last 2 bits for lane
