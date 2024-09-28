@@ -16,7 +16,7 @@ class Chart {
 	/**
 		The chart's header.
 	**/
-	var header(default, null):ChartHeader;
+	var header(default, null):Header;
 
 	/**
 		The chart's bytes.

@@ -1,4 +1,3 @@
-#if !doc_gen
 package music.internal;
 
 @:buildXml('<include name="../../../src/music/internal/ma/MiniAudioBuild.xml" />')
@@ -8,4 +7,3 @@ package music.internal;
 @:keep
 @:native("ma_sound")
 extern class MASound {}
-#end

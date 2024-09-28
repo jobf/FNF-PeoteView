@@ -10,6 +10,7 @@ import music.internal.ma.*;
 import menus.*;
 import system.*;
 import system.internal.*;
+import tests.*;
 import utils.*;
 
 // HELPERS

@@ -13,7 +13,7 @@ class Screen extends Display {
 	/**
 		The initial state.
 	**/
-	inline private static var initState:Class<State> = BasicState;
+	inline private static var initState:Class<State> = AlphabetFont;
 
 	/**
 		The view of the screen.
@@ -33,10 +33,12 @@ class Screen extends Display {
 	/**
 		Switch the state.
 		@param name The state's name.
+		@throws "Invalid State!" If you don't have an existing state or you've inputted null.
 	**/
 	static function switchState(name:Dynamic) {
-		// todo, add a 'dispose' function to State where you can clear the buffers and remove programs from the Display
-		// or you can have Display on the State and then remove that from peote-view during 'dispose'
+		if (name == null) {
+			throw "Invalid State!";
+		}
 
 		State.current = null;
 
@@ -48,6 +50,12 @@ class Screen extends Display {
 			GC.run();
 		}
 
-		State.current = (name is Class) ? Type.createInstance(name, []) : name;
+		var newState = (name is Class) ? Type.createInstance(name, []) : name;
+
+		if (newState == null) {
+			throw "Invalid State!";
+		}
+
+		State.current = newState;
 	}
 }

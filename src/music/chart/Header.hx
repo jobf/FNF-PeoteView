@@ -9,7 +9,7 @@ package music.chart;
 #end
 @:publicFields
 @:structInit
-class ChartHeader {
+class Header {
 	/**
 		The song's title.
 	**/

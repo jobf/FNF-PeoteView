@@ -1,8 +1,18 @@
 # Welcome!
 
-FNF' in Peote-View, otherwise known as "Funkin' View" is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public), offers ultra-performant gameplay and an incredibly flexible codebase, and is currently aiming to become the new standard of FNF modding.
+FNF' in Peote-View, otherwise known as "Funkin' View" is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public) which offers ultra-performant gameplay and an incredibly flexible codebase, and is currently aiming to become the new standard of FNF modding.
 
 This quite literally started development, so expect this repository to be very active!
+
+# Setup
+
+**Format**:
+
+``haxelib install format``
+
+**Peote-view**:
+
+``haxelib git peote-view https://github.com/maitag/peote-view``
 
 # Credits
 
@@ -16,7 +26,7 @@ This quite literally started development, so expect this repository to be very a
 
 (AKA JF)
 
-: Helped me learn how peote-view works, and wrote the atlas sprite.
+: Helped me learn how peote-view works, fixed up miniaudio things so it actually works on cross-platform, wrote the sprite clipping sample for peote-view, and more.
 
 - Semmi
 

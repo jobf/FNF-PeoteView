@@ -1,4 +1,3 @@
-#if !doc_gen
 package menus;
 
 import lime.ui.KeyCode;
@@ -199,12 +198,16 @@ class BasicState extends State {
 				voices.time = 1000000;
 
 			case A:
-				inst.time -= 1000;
-				voices.time -= 1000;
+				var time = inst.time;
+				time -= 1000;
+				inst.time = time;
+				voices.time = time;
 
 			case D:
-				inst.time += 1000;
-				voices.time += 1000;
+				var time = inst.time;
+				time += 1000;
+				inst.time = time;
+				voices.time = time;
 
 			case BACKSPACE:
 				inst.stop();
@@ -235,4 +238,3 @@ class BasicState extends State {
 		}
 	}
 }
-#end
