@@ -53,17 +53,17 @@ class Camera {
 	inline function set_zoom(value:Float):Float { return screen.zoom = value; }
 
 	/**
-		The camera's frame.
+		The normal display of the camera.
 	**/
 	private var screen(default, null):Display;
 
 	/**
-		The camera's frame.
+		The render-to-texture display of the camera.
 	**/
 	private var frame(default, null):Display;
 
 	/**
-		The camera's screen.
+		The camera's texture.
 	**/
 	private var texture(default, null):Texture;
 
