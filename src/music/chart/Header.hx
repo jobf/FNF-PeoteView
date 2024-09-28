@@ -23,7 +23,7 @@ class Header {
 	/**
 		The song's genres throughout the song.
 	**/
-	var genres:Array<SongGenre>;
+	var genres:Array<Genre>;
 
 	/**
 		The song's speed.
@@ -53,7 +53,7 @@ class Header {
 	/**
 		The song's characters.
 	**/
-	var characters:Array<SongCharacter>;
+	var characters:Array<Character>;
 
 	/**
 		Returns a string representation of the chart header.

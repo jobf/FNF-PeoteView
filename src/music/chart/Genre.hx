@@ -8,7 +8,7 @@ package music.chart;
 @:noDebug
 #end
 @:publicFields
-enum abstract SongGenre(String) from String {
+enum abstract Genre(String) from String {
 	/**
 		Classical.
 	**/

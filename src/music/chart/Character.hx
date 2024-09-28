@@ -1,7 +1,7 @@
 package music.chart;
 
 /**
-	The song charater.
+	The song's charater.
 	This is a structure containing info of the field character.
 **/
 #if !debug
@@ -9,39 +9,39 @@ package music.chart;
 #end
 @:publicFields
 @:structInit
-class SongCharacter {
+class Character {
 	/**
-		The character's name.
+		What to call the character.
 	**/
 	var name:String;
 
 	/**
-		The character's role.
+		What to take roleo of the character.
 	**/
-	var role:SongCharacterRole;
+	var role:CharacterRole;
 
 	/**
-		The character's position x.
+		The position x of the character.
 	**/
 	var x:Float;
 
 	/**
-		The character's position y.
+		The position y of the character.
 	**/
 	var y:Float;
 
 	/**
-		The character's camera x.
+		The camera x of the character.
 	**/
 	var camX:Float;
 
 	/**
-		The character's camera y.
+		The camera y of the character.
 	**/
 	var camY:Float;
 
 	/**
-		Returns a string representation of the song character.
+		Returns a string representation of the character.
 	**/
 	function toString() {
 		return '{ name : $name, role : $role, x : $x, y : $y, camX : $camX, camY : $camY }';

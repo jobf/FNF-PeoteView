@@ -7,19 +7,19 @@ package music.chart;
 #if !debug
 @:noDebug
 #end
-enum abstract SongCharacterRole(String) from String {
+enum abstract CharacterRole(String) from String {
 	/**
 		The enemy role.
 	**/
-	var ENEMY:SongCharacterRole = "enemy";
+	var ENEMY = "enemy";
 
 	/**
 		The player role.
 	**/
-	var PLAYER:SongCharacterRole = "player";
+	var PLAYER = "player";
 
 	/**
 		The other role.
 	**/
-	var OTHER:SongCharacterRole = "other";
+	var OTHER = "other";
 }
