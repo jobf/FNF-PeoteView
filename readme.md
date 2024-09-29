@@ -19,15 +19,15 @@ Now here are the rest that you need so you can run `haxelib setup lime`:
 ``haxelib install format`` (This one is also used in peote-view for `TextureData.fromPNG`)
 ``haxelib install hxp``
 
-After that, make sure that you are on ![this](image-1.png) screen:
+After that, make sure that you are on this screen:![img](image-1.png)
 
 And press "y" to go to the download page for visual studio.
 
-![PRESS COMMUNITY!](image-2.png)
+PRESS COMMUNITY!![img](image-2.png)
 
 And it'll automatically download the setup executable for you.
 
-Make sure that you're looking at ![this](image.png) window.
+Make sure that you're looking at this window:![img](image.png)
 
 Then, you want to go to the Windows 10 SDK (10.0.19041) and MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest). That's literally it.
 
