@@ -15,15 +15,14 @@ class State {
 
 	/**
 		Whenever you want to use the gc or not.
-		If the value is true, the old state will be freed up from memory immediately, and other stuff that has no referecces left on it will.
+		If the value is true, the old state will be freed up from memory immediately, and other stuff that have no references left will.
 	**/
 	static var useGC:Bool = false;
 
 	/**
 		Constructs a state.
 	**/
-	function new() {
-	}
+	function new() {}
 
 	/**
 		Updates the state.
@@ -44,4 +43,9 @@ class State {
 		@param modifier The key modifier.
 	**/
 	function onKeyUp(keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier) {}
+
+	/**
+		Frees the old state from memory when switching a state.
+	**/
+	function dispose() {}
 }

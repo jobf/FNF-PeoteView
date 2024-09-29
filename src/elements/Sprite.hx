@@ -1,7 +1,7 @@
 package elements;
 
 /**
-	The sprite.
+	The element with texture and centered rotation.
 **/
 @:publicFields
 class Sprite implements Element
@@ -113,4 +113,9 @@ class Sprite implements Element
 				h = texture.height;
 		}
 	}
+
+	/**
+		Disposes this sprite.
+	**/
+	function dispose() {}
 }

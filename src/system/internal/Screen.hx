@@ -40,6 +40,8 @@ class Screen extends Display {
 			throw "Invalid State!";
 		}
 
+		State.current.dispose();
+
 		State.current = null;
 
 		/**
