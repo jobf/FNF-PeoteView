@@ -13,7 +13,7 @@ class Screen extends Display {
 	/**
 		The initial state.
 	**/
-	inline private static var initState:Class<State> = AlphabetFont;
+	inline private static var initState:Class<State> = StepsAndHolds;
 
 	/**
 		The view of the screen.
