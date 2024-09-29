@@ -6,19 +6,40 @@ This quite literally started development, so expect this repository to be very a
 
 # Setup
 
-**Format**:
+Instll these haxelibs:
 
-``haxelib install format``
+``haxelib install lime``
 
-**Peote-view**:
+``haxelib git peote-view https://github.com/maitag/peote-view.git``
 
-``haxelib git peote-view https://github.com/maitag/peote-view``
+``haxelib install hxcpp``
+
+Now here are the rest that you need so you can run `haxelib setup lime`:
+
+``haxelib install format`` (This one is also used in peote-view for `TextureData.fromPNG`)
+``haxelib install hxp``
+
+After that, make sure that you are on ![this](image-1.png) screen:
+
+And press "y" to go to the download page for visual studio.
+
+![PRESS COMMUNITY!](image-2.png)
+
+And it'll automatically download the setup executable for you.
+
+Make sure that you're looking at ![this](image.png) window.
+
+Then, you want to go to the Windows 10 SDK (10.0.19041) and MSVC v143 - VS 2022 C++ x64/x86 build tools (Latest). That's literally it.
+
+(Oh yeah and it requires at least 6GB of free storage space on a drive to install btw)
+
+And you're all set up! Just run `lime test (your platform)` and it works!
 
 # Credits
 
 - SomeGuyWhoLikesCoding
 
-(AKA SomeGuyWhoLikesFNF, VeryExcited, 0x1DFA7D, [SomethingIsItchy](https://somethingisitchy.itch.io), [FelixTheCat](https://gamejolt.com/@SomeGuyWhoLikesFNF), or simply Jeremiah):
+(AKA SomeGuyWhoLikesFNF, VeryExcited, 0x1DFA7D (someguywhouhhhhh), [SomethingIsItchy](https://somethingisitchy.itch.io), [FelixTheCat](https://gamejolt.com/@SomeGuyWhoLikesFNF), or simply Jeremiah):
 
 : Owner, Maintainer, and Programmer
 
@@ -36,4 +57,4 @@ This quite literally started development, so expect this repository to be very a
 
 - DoggyDentures
 
-: Wrote the first ever [MiniAudio](https://miniaud.io) implementation in haxe, and wrote [Thursday Night Throwdown](https://gamebanana.com/mods/406432) and a couple more of his mods that have it
+: Wrote the first ever [MiniAudio](https://miniaud.io) implementation in haxe, for [Thursday Night Throwdown](https://gamebanana.com/mods/406432) by the same person.

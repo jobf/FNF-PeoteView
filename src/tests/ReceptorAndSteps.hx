@@ -39,9 +39,8 @@ class ReceptorAndSteps extends Receptor {
     function updateSteps(pos:Float) {
         cam.update(this);
 
-        var stepElems = @:privateAccess steps._elements;
-        for (i in 0...stepElems.length) {
-            var step:Step = stepElems.get(i);
+        for (i in 0...steps.length) {
+            var step:Step = steps.getElement(i);
             step.x = this.x;
             step.y = this.y + pos;
             cam.update(step);
