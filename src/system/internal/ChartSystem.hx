@@ -10,12 +10,12 @@ using StringTools;
 @:publicFields
 class ChartSystem 
 {
-	inline static function parseHeader(path:String):ChartHeader {
+	inline static function parseHeader(path:String):Header {
 		var input = File.read(path, false);
 
 		var title = input.readLine().split(": ")[1].trim();
 		var artist = input.readLine().split(": ")[1].trim();
-		var genres:Array<SongGenre> = input.readLine().split(": ")[1].trim().split(", ");
+		var genres:Array<Genre> = input.readLine().split(": ")[1].trim().split(", ");
 		var speed = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var bpm = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var stage = input.readLine().split(": ")[1].trim();
@@ -24,12 +24,12 @@ class ChartSystem
 
 		input.readLine();
 
-		var characterData:Array<SongCharacter> = [];
+		var characterData:Array<Character> = [];
 
 		while (!input.eof()) {
 			var split = input.readLine().split(", ");
 			var name = split[0];
-			var role:SongCharacterRole = split[1];
+			var role:CharacterRole = split[1];
 
 			var posSplit = input.readLine().replace("pos ", "").split(" ");
 			var x = Std.parseFloat(posSplit[0]);
@@ -38,11 +38,11 @@ class ChartSystem
 			var camX = Std.parseFloat(camSplit[0]);
 			var camY = Std.parseFloat(camSplit[1]);
 
-			var character:SongCharacter = {name: name, role: role, x: x, y: y, camX: camX, camY: camY};
+			var character:Character = {name: name, role: role, x: x, y: y, camX: camX, camY: camY};
 			characterData.push(character);
 		}
 
-		var result:ChartHeader = {
+		var result:Header = {
 			title: title,
 			artist: artist,
 			genres: genres,
