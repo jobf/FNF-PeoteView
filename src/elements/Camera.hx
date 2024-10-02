@@ -9,7 +9,7 @@ class Camera {
 		Whenever you want to use render-to-texture with the camera rendering system.
 		If toggled, may consume more cpu and imply black borders.
 	**/
-	static var renderToTexture:Bool = false;
+	static var renderToTexture:Bool = true;
 
 	// The camera's x.
 	var x(get, set):Int;

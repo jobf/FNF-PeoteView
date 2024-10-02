@@ -40,7 +40,11 @@ class Screen extends Display {
 			throw "Invalid State!";
 		}
 
-		State.current.dispose();
+		try {
+			State.current.dispose();
+		} catch (e) {
+			throw 'Invalid state dispose!\n$e';
+		}
 
 		State.current = null;
 
