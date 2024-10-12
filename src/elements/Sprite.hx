@@ -1,7 +1,7 @@
 package elements;
 
 /**
-	The element with texture and centered rotation.
+	The element with centered rotation and support for global rotation via camera rotation.
 **/
 @:publicFields
 class Sprite implements Element
@@ -9,12 +9,12 @@ class Sprite implements Element
 	/**
 		The sprite's x position.
 	**/
-	@posX @formula("x + (w * 0.5)") var x:Float;
+	@posX @formula("x + px") var x:Int;
 
 	/**
 		The sprite's y position.
 	**/
-	@posY @formula("y + (h * 0.5)") var y:Float;
+	@posY @formula("y + py") var y:Int;
 
 	/**
 		The sprite's z position.
@@ -71,7 +71,7 @@ class Sprite implements Element
 		@param y The sprite's y.
 		@param z The sprite's z index.
 	**/
-	function new(x:Float = 0, y:Float = 0, z:Int = 0) {
+	function new(x:Int = 0, y:Int = 0, z:Int = 0) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -84,12 +84,12 @@ class Sprite implements Element
 	function screenCenter(axis:Axis = XY, widthDiv:Float = 1, heightDiv:Float = 1) {
 		switch (axis) {
 			case X:
-				x = (Screen.view.width - (w / widthDiv)) * 0.5;
+				x = (Screen.view.width - Math.floor(w / widthDiv)) >> 1;
 			case Y:
-				y = (Screen.view.height - (h / heightDiv)) * 0.5;
+				y = (Screen.view.height - Math.floor(h / heightDiv)) >> 1;
 			default:
-				x = (Screen.view.width - (w * widthDiv)) * 0.5;
-				y = (Screen.view.height - (h / heightDiv)) * 0.5;
+				x = (Screen.view.width - Math.floor(w / widthDiv)) >> 1;
+				y = (Screen.view.height - Math.floor(h / heightDiv)) >> 1;
 		}
 	}
 
@@ -105,12 +105,12 @@ class Sprite implements Element
 
 		switch (axis) {
 			case X:
-				w = texture.width;
+				w = texture.slotWidth;
 			case Y:
-				h = texture.height;
+				h = texture.slotHeight;
 			default:
-				w = texture.width;
-				h = texture.height;
+				w = texture.slotWidth;
+				h = texture.slotHeight;
 		}
 	}
 

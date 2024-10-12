@@ -62,19 +62,16 @@ class BasicState extends State {
 
 		logo = new Sprite(50, 50);
 		logo.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
-		logo.w = Math.floor(logo.w / 5);
 		gpCam.add(logo);
 
 		logo2 = new Sprite(200, 50);
 		logo2.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
-		logo2.w = Math.floor(logo2.w / 5);
 		logo2.c = 0x0000ffff;
 		uiCam.add(logo2);
 
 		logo3 = new Sprite(400, 150);
 		logo3.c = 0x00ff00ff;
 		logo3.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
-		logo3.w = Math.floor(logo3.w / 5);
 		uiCam.add(logo3);
 
 		chart = new Chart("assets/songs/fresh");
@@ -166,7 +163,7 @@ class BasicState extends State {
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
 
-		logo2.x = (Math.abs(musicTime) * 1.5) % (Screen.view.width - (logo2.w / 5));
+		logo2.x = Math.floor(Math.abs(musicTime) * 1.5) % (Screen.view.width - Math.floor((logo2.w:Float) / 5));
 
 		//uiCam.r = Math.sin(time) * 20;
 		gpCam.update();

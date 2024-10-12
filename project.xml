@@ -6,6 +6,10 @@
 	<window if="html5||android" width="0" height="0" />
 
 	<app main="Main" path="bin" file="fopv" />
+	<!--
+		Main
+		elements.sustains.Main // Sustain test (add -D stressTest for stress testing)
+	-->
 
 	<source path="src" />
 
@@ -20,7 +24,6 @@
 
 	<!-- for html5 and loading inside onPreloadComplete-event the assets need to be embed=true --> 
 	<assets path="assets" exclude="lime.svg" embed="false" />
-	<assets path="assets" exclude="lime.png" embed="false" />
 
 	<!-- prevent JIT ERROR 0 (jit.c line 541) -->
 	<haxeflag name="-dce" value="full" />

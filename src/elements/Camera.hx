@@ -5,12 +5,6 @@ package elements;
 **/
 @:publicFields
 class Camera {
-	/**
-		Whenever you want to use render-to-texture with the camera rendering system.
-		If toggled, may consume more cpu and imply black borders.
-	**/
-	static var renderToTexture:Bool = true;
-
 	// The camera's x.
 	var x(get, set):Int;
 	inline function get_x():Int { return screen.x; }
@@ -32,10 +26,9 @@ class Camera {
 	inline function set_h(value:Int):Int { return screen.height = value; }
 
 	// The camera's angle.
-	var r(get, set):Float;
+	var r(default, set):Float;
 	// TODO: Implement rotation if render-to-texture is off
-	inline function get_r():Float { return renderToTexture ? sprite.r : 0; }
-	inline function set_r(value:Float):Float { return (renderToTexture ? sprite.r = value : sprite.r = value); }
+	inline function set_r(value:Float):Float { return 0; }
 
 	// The camera's scroll x.
 	var scrollX(get, set):Float;
@@ -58,16 +51,6 @@ class Camera {
 	private var screen(default, null):Display;
 
 	/**
-		The render-to-texture display of the camera.
-	**/
-	private var frame(default, null):Display;
-
-	/**
-		The camera's texture.
-	**/
-	private var texture(default, null):Texture;
-
-	/**
 		The camera's buffer, which is held on by its program.
 	**/
 	private var buffer(default, null):Buffer<Sprite>;
@@ -76,11 +59,6 @@ class Camera {
 		The camera's program, used to render the camera to a texture.
 	**/
 	private var program(default, null):Program;
-
-	/**
-		The camera's sprite.
-	**/
-	private var sprite(default, null):Sprite;
 
 	/**
 		The camera's second buffer, used to store sprites in the camera.
@@ -103,34 +81,12 @@ class Camera {
 	function new(x:Int = 0, y:Int = 0, width:Int = 0, height:Int = 0, color:Color = 0x00000000) {
 		screen = new Display(x, y, width, height, color);
 
-		if (renderToTexture) {
-			frame = new Display(x, y, width, height, color);
-		}
-
 		Screen.view.addDisplay(screen);
 
 		buffer2 = new Buffer<Sprite>(1, 1, true);
 		program2 = new Program(buffer2);
-		program2.blendEnabled = program2.blendSeparate = true;
 
-		if (renderToTexture) {
-			Screen.view.addFramebufferDisplay(frame);
-			texture = new Texture(width, height);
-			frame.setFramebuffer(texture);
-
-			buffer = new Buffer<Sprite>(1, 0, true);
-			program = new Program(buffer);
-			screen.addProgram(program);
-			program.addTexture(texture, "fb");
-			program.blendEnabled = program.blendSeparate = true;
-
-			sprite = new Sprite();
-			sprite.w = screen.width;
-			sprite.h = screen.height;
-			buffer2.addElement(sprite);
-		}
-
-		(renderToTexture ? frame : screen).addProgram(program2);
+		screen.addProgram(program2);
 	}
 
 	/**
@@ -151,10 +107,6 @@ class Camera {
 		} else {
 			buffer2.updateElement(element);
 		}
-
-		if (renderToTexture && buffer != null) {
-			buffer.updateElement(sprite);
-		}
 	}
 
 	/**
@@ -173,15 +125,6 @@ class Camera {
 		screen = null;
 		buffer2 = null;
 		program2 = null;
-		sprite = null;
-
-		if (renderToTexture) {
-			Screen.view.removeFramebufferDisplay(frame);
-			frame = null;
-			texture = null;
-			buffer = null;
-			program = null;
-		}
 
 		if (State.useGC) {
 			GC.run();

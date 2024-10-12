@@ -58,11 +58,10 @@ class CountdownDisplay {
 		sprite = new Sprite();
 
 		sprite.setSizeToTexture(TextureSystem.getTexture("cdTex"));
-		sprite.w = Math.floor(sprite.w / 3);
 		sprite.screenCenter();
 
 		buffer.addElement(sprite);
-		sprite.c.setFloatAlpha(0);
+		sprite.c.aF = 0;
 		buffer.updateElement(sprite);
 
 		selectedChart = fromChart;
@@ -77,7 +76,7 @@ class CountdownDisplay {
 
 		if (id != 0) {
 			sprite.slot = id - 1;
-			sprite.c.setFloatAlpha(1);
+			sprite.c.aF = 1;
 			buffer.updateElement(sprite);
 		}
 	}
