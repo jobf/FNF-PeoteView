@@ -151,7 +151,7 @@ class BasicState extends State {
 
 		if (inst != null) {
 			inst.update(deltaTime);
-			voices.update(deltaTime);
+			//voices.update(deltaTime);
 			musicTime = inst.time;
 			conductor.time = musicTime;
 		} else {

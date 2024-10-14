@@ -51,7 +51,7 @@ class Main extends Application
 
 		State.current.update(newDeltaTime);
 
-        Sys.println(newDeltaTime);
+		//Sys.println(newDeltaTime);
 
 		timeStamp = ts;
 	}

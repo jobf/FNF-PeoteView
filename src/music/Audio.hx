@@ -147,8 +147,8 @@ class Audio
 			if (enableInterpolation) {
 				_time += deltaTime;
 
-				if (diff > 5) {
-					_time -= (_time - audioTime) * (deltaTime * 0.0005); //This
+				if (diff > deltaTime) {
+					_time -= (_time - audioTime) * (deltaTime * 0.001);
 				}
 
 				lastTime = _time;
