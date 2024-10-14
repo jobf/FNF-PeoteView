@@ -14,7 +14,7 @@ import lime.app.Application;
 class Audio
 {
 	/**
-		Whenever audio interpolation should be enabled or not.
+		Whenever audio time interpolation should be enabled or not.
 	**/
 	static var enableInterpolation:Bool = true;
 
