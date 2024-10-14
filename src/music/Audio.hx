@@ -146,12 +146,9 @@ class Audio
 
 			if (enableInterpolation) {
 				_time += deltaTime;
-
-				if (diff > deltaTime) {
-					_time -= (_time - audioTime) * (deltaTime * 0.001);
-				}
-
+				_time -= (_time - audioTime) * (deltaTime * 0.002);
 				lastTime = _time;
+
 				Sys.println('Real audio time: $audioTime, Interpolated: $_time');
 			} else
 				_time = audioTime;
