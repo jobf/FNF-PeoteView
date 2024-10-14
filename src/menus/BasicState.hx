@@ -113,7 +113,7 @@ class BasicState extends State {
 	}
 
 	var time:Float = 0;
-	override function update(deltaTime:Int) {
+	override function update(deltaTime:Float) {
 		countdownDisp.update(deltaTime);
 
 		if (countdownEventPosition < countdownEvents.length) {

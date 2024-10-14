@@ -85,7 +85,7 @@ class CountdownDisplay {
 		Updates the countdown.
 		@param deltaTime The time since the last frame.
 	**/
-	inline function update(deltaTime:Int) {
+	inline function update(deltaTime:Float) {
 		if (sprite.c.aF != 0) {
 			var a = sprite.c.aF;
 			var multVal = (a * 0.5) * (deltaTime * 0.0145);

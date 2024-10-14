@@ -28,7 +28,7 @@ class State {
 		Updates the state.
 		@param deltaTime The time since the last frame.
 	**/
-	function update(deltaTime:Int) {}
+	function update(deltaTime:Float) {}
 
 	/**
 		Override this to add your code to your own state.

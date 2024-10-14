@@ -42,8 +42,18 @@ class Main extends Application
 		// access embeded assets from here
 	}
 
+	var newDeltaTime:Float = 0;
+	var timeStamp:Float = 0;
 	override function update(deltaTime:Int):Void {
-		State.current.update(deltaTime);
+		var ts:Float = untyped __global__.__time_stamp();
+
+		newDeltaTime = (ts - timeStamp) * 1000;
+
+		State.current.update(newDeltaTime);
+
+        Sys.println(newDeltaTime);
+
+		timeStamp = ts;
 	}
 
 	// override function render(context:lime.graphics.RenderContext):Void {}
