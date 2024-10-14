@@ -135,18 +135,17 @@ class Audio
 
 	/**
 		Update the audio.
-		This makes the interpolation work.
+		This updates the time interpolation.
 		@param deltaTime The time since the last frame.
 	**/
 	var lastTime(default, null):Float = 0;
 	function update(deltaTime:Float) {
 		if (playing) {
 			var audioTime:Float = MiniAudio.getTimeInMS(sound);
-			var diff:Float = Math.abs(_time - audioTime);
 
 			if (enableInterpolation) {
 				_time += deltaTime;
-				_time -= (_time - audioTime) * (deltaTime * 0.002);
+				_time -= (_time - audioTime) * (deltaTime * 0.001);
 				lastTime = _time;
 
 				Sys.println('Real audio time: $audioTime, Interpolated: $_time');

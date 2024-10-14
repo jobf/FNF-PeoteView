@@ -82,7 +82,7 @@ class BasicState extends State {
 		});*/
 
 		conductor.onBeat.add(function(beat) {
-			Sys.println('Beat $beat');
+			//Sys.println('Beat $beat');
 			if (beat % conductor.denominator != 0) {
 				Audio.playSound("assets/conductor/beat.wav");
 			}
@@ -101,7 +101,7 @@ class BasicState extends State {
 		});
 
 		conductor.onMeasure.add(function(measure) {
-			Sys.println('Measure $measure');
+			//Sys.println('Measure $measure');
 			Audio.playSound("assets/conductor/measure.wav");
 		});
 
