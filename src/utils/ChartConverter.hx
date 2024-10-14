@@ -54,8 +54,7 @@ class ChartConverter
 			gfVersion = "gf";
 		}
 
-		header.writeString(
-'Title: ${song.song}
+		header.writeString('Title: ${song.song}
 Arist: N/A
 Genre: N/A
 Speed: ${song.speed * 0.45}
@@ -89,14 +88,14 @@ cam 0 45');
 					var note:VanillaChartNote = sectionNotes[i];
 					var newNote:ChartNote = new ChartNote(
 						betterInt64FromFloat(note.position * 100),
-						Math.floor(note.duration * 0.3636363636363636), // Equal to `note.duration / 2.75`/
+						Math.floor(note.duration * 0.3636363636363636), // Equal to `note.duration / 2.75`.
 						note.index,
 						0,
 						note.lane
 					);
 					chart.writeInt32((newNote.toNumber().high:Int));
 					chart.writeInt32((newNote.toNumber().low:Int));
-					Sys.println(newNote.position);
+					Sys.println('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
 				}
 			}
 		} catch (e) {

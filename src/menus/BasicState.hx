@@ -163,7 +163,7 @@ class BasicState extends State {
 		logo.r += deltaTime * 0.075;
 		time += deltaTime / 500;
 
-		logo2.x = Math.floor(Math.abs(musicTime) * 1.5) % (Screen.view.width - Math.floor((logo2.w:Float) / 5));
+		logo2.x = (Math.floor(Math.abs(musicTime) * 1.5) % (Screen.view.width + logo2.w)) - logo.w;
 
 		//uiCam.r = Math.sin(time) * 20;
 		gpCam.update();
