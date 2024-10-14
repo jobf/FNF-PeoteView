@@ -146,7 +146,7 @@ class Audio
 				_time += deltaTime;
 				_time -= (_time - audioTime) * (deltaTime * 0.001);
 
-				Sys.println('Real audio time: $audioTime, Interpolated: $_time');
+				//Sys.println('Real audio time: $audioTime, Interpolated: $_time');
 			} else
 				_time = audioTime;
 		}
