@@ -82,10 +82,11 @@ cam 0 45');
 			var notes:Array<Dynamic> = song.notes;
 			var sectionsParsed:Int = 0;
 			for (section in notes) {
-				section.sectionNotes.sort((a, b) -> a[0] - b[0]);
-				var sectionNotes:Array<Array<Float>> = section.sectionNotes;
+				var sectionNotes:Array<Dynamic> = section.sectionNotes;
+				sectionNotes.sort((a, b) -> a[0] - b[0]);
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
+
 					var newNote:ChartNote = new ChartNote(
 						betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.3636363636363636), // Equal to `note.duration / 2.75`.
@@ -93,6 +94,7 @@ cam 0 45');
 						0,
 						note.lane
 					);
+
 					chart.writeInt32((newNote.toNumber().high:Int));
 					chart.writeInt32((newNote.toNumber().low:Int));
 					Sys.println('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');

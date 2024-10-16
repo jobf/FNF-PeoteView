@@ -75,8 +75,8 @@ class TextureCaching extends Application
 		program = new Program(buffer);
 		display.addProgram(program);		
 		
-		// var textureConfig:TextureConfig = { maxTextureSize:peoteView.gl.getParameter(peoteView.gl.MAX_TEXTURE_SIZE), powerOfTwo: true };
-		var textureConfig:TextureConfig = { maxTextureSize:4096, powerOfTwo: false };
+		var textureConfig:TextureConfig = { maxTextureSize:peoteView.gl.getParameter(peoteView.gl.MAX_TEXTURE_SIZE), powerOfTwo: false };
+		trace('MAX UNITS ${peoteView.gl.getParameter(peoteView.gl.MAX_TEXTURE_IMAGE_UNITS)}');
 
 		var textureCache = new TextureCache(
 			[
@@ -99,28 +99,15 @@ class TextureCaching extends Application
 			"assets/test2.png",
 			"assets/wabbit_alpha.png",
 			"assets/test3.png",
-			"http://maitag.de/semmi/blender/hxMeat.jpg",
-			"http://maitag.de/semmi/blender/mandelbulb/mandelbulb_volume_1001f.blend.png",
-			"http://maitag.de/semmi/blender/lyapunov/example_images/displace-FOSSIL-13.blend.png",
-			"https://upload.wikimedia.org/wikipedia/commons/8/80/Salvador_Dali_The_Rainbow_1972.jpg",
-			"http://maitag.de/semmi/blender/spheresfractal_07_lights.png",
-			"http://maitag.de/semmi/blender/lyapunov/example_images/displace-FOSSIL-19.blend.png",
-			"http://maitag.de/semmi/blender/lyapunov/example_images/volume-fake_07.blend.png",
-			"http://maitag.de/semmi/blender/lyapunov/example_images/microcycles/lyap-displace-test_19.blend.png",
-			"http://maitag.de/semmi/blender/lyapunov/example_images/microcycles/lyap-displace-test_07.blend.png",
-			"http://maitag.de/semmi/blender/mandelbulb/mandelverse_10.blend.jpg",
-			"http://maitag.de/semmi/blender/mandelbulb/mandelverse_11.blend.jpg",
-			"http://maitag.de/semmi/blender/mandelbulb/mandelverse_12.blend.jpg",
-			"http://maitag.de/semmi/blender/mandelbulb/mandelverse_13.blend.jpg",
 			], //true,
 			function(index:Int, loaded:Int, size:Int) {
-				// trace(' File number $index progress ' + Std.int(loaded / size * 100) + "%" , ' ($loaded / $size)');
+				// trace(' File #$index progress ' + Std.int(loaded / size * 100) + "%" , ' ($loaded / $size)');
 			},
 			function(loaded:Int, size:Int) {
 				// trace(' Progress overall: ' + Std.int(loaded / size * 100) + "%" , ' ($loaded / $size)');
 			},
 			function(index:Int, image:Image) { // after every single image is loaded
-				trace('File number $index loaded completely.');
+				trace('File #$index loaded completely.');
 				var p = textureCache.addData(image);
 				if (p!=null) {
 					trace( '${image.width}x${image.height}', "texture-unit:"+p.unit,"texture-slot"+p.slot);

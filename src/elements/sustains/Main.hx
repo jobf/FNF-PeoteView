@@ -35,35 +35,37 @@ class Main extends Application
 		var display = new Display(0, 0, window.width, window.height, Color.GREY2);
 
 		peoteView.addDisplay(display);
-		
-		Loader.image ("assets/tail.png", true, function (image:Image) 
-		{
-			var texture = new Texture(image.width, image.height, 2);
 
-			texture.setData(image);
+		trace('MAX UNITS ${peoteView.gl.getParameter(peoteView.gl.MAX_TEXTURE_IMAGE_UNITS)}');
 
-			Default.init(display, "def", texture); new Default(600, 600, 150, 50);
+		var texture = new Texture(76, 35, null, {smoothExpand: true, smoothShrink: true, powerOfTwo: false});
 
-			HSlice.init(display, "def1", texture); new HSlice(0, 100, 250, 50);
-			new HSlice(0, 200, 400, 50);
-			new HSlice(0, 300, 300, 50);
-	
-			HSliceRepeat.init(display, "texRepeat", texture);
+		var textureBytes = sys.io.File.getBytes('assets/sustains/3.png');
+		var textureData = TextureData.RGBAfrom(TextureData.fromFormatPNG(textureBytes));
 
-			#if stressTest
-			for (i in 0...4000) {
-				var sustain = new HSliceRepeat(30 + Math.floor(i * 0.2), 30, 450, 35);
-				sustain.c.aF = 0.0003;
-			}
-			#else
-			var sustain = new HSliceRepeat(30, 30, 450, 35);
-			sustain.c.aF = 0.0003;
-			#end
+		texture.setData(textureData);
 
-			window.onRender.add(_update);
+		Default.init(display, "def", texture); new Default(600, 600, 150, 50);
 
-			peoteView.start();
-		});
+		HSlice.init(display, "def1", texture); new HSlice(0, 100, 250, 50);
+		new HSlice(0, 200, 400, 50);
+		new HSlice(0, 300, 300, 50);
+
+		HSliceRepeat.init(display, "texRepeat", texture);
+
+		#if stressTest
+		for (j in 0...4000) {
+			var sustain = new HSliceRepeat(30 + j, 30, 450, 35);
+			sustain.c.aF = 0.003;
+			HSliceRepeat.buffer.updateElement(sustain);
+		}
+		#else
+		new HSliceRepeat(30, 30, 450, 35);
+		#end
+
+		window.onRender.add(_update);
+
+		peoteView.start();
 	}
 
 	//var time:Float = 0;

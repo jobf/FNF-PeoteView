@@ -5,7 +5,7 @@ import peote.view.*;
 class HSliceRepeat implements Element
 {
 	// position in pixel (relative to upper left corner of Display)
-	@posX @formula("x + px") public var x:Int;
+	@posX @formula("x") public var x:Int;
 	@posY @formula("y + py") public var y:Int;
 	
 	// size in pixel
@@ -17,11 +17,7 @@ class HSliceRepeat implements Element
 
 	@rotation public var r:Float;
 
-	@pivotX @formula("(tailPoint * 0.25)") public var px:Int; // TODO: ADD PROPER PIVOT X CENTERING
-
 	@pivotY @formula("(h * 0.5)") public var py:Int;
-
-	@texSlot public var slot:Int = 0;
 
 	@color public var c:Color = 0xFFFFFFFF;
 
