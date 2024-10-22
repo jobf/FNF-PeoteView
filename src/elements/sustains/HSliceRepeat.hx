@@ -1,7 +1,5 @@
 package elements.sustains;
 
-import peote.view.*;
-
 class HSliceRepeat implements Element
 {
 	// position in pixel (relative to upper left corner of Display)
