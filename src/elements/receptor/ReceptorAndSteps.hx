@@ -2,13 +2,19 @@ package elements.receptor;
 
 @:publicFields
 class ReceptorAndSteps {
+    // This is where sustains will go
     var bottomBuffer:Buffer<Sustain>;
     var bottomProgram:Program;
 
+    // This is where the receptor will go
+    var middleBuffer:Buffer<Receptor>;
+    var middleProgram:Program;
+
+    // This is where steps will go
     var topBuffer:Buffer<Note>;
     var topProgram:Program;
 
-    var receptor:Note;
+    var receptor:Receptor;
 
     var x(get, set):Int;
 
@@ -52,31 +58,96 @@ class ReceptorAndSteps {
 
     private static var textures(default, null):Map<String, Texture> = [];
 
-    function new(x:Int, y:Int, w:Int, h:Int, display:Display, path:String, name:String) {
-        bottomBuffer = new Buffer<Sustain>(2048, 2048, false);
-        bottomProgram = new Program(bottomBuffer);
+    private var nW(default, null):Int;
+    private var nH(default, null):Int;
+    private var sW(default, null):Int;
+    private var sH(default, null):Int;
+
+    function new(x:Int, y:Int,
+        w:Int, h:Int,
+        nW:Int, nH:Int,
+        sW:Int, sH:Int,
+        display:Display,
+        receptorPath:String, receptorName:String,
+        notePath:String, noteName:String,
+        sustainPath:String, sustainName:String) {
+        this.nW = nW;
+        this.nH = nH;
+        this.sW = sW;
+        this.sH = sH;
+
+        // Receptor and note group setup
+
+        middleBuffer = new Buffer<Receptor>(1, 0, false);
+        middleProgram = new Program(middleBuffer);
+        middleProgram.blendEnabled = true;
+
+        if (!textures.exists(receptorName)) {
+            var texture = new Texture(w * 3, h, null, {tilesX: 3, smoothExpand: true, smoothShrink: true, powerOfTwo: false});
+
+            var textureBytes = sys.io.File.getBytes(receptorPath);
+            var textureData = TextureData.fromFormatPNG(textureBytes);
+
+            texture.setData(textureData);
+            textures[receptorName] = texture;
+        }
+
+		middleProgram.setTexture(textures[receptorName], receptorName, true);
+
+        receptor = new Receptor(x, y, w, h, -27, -27);
+        middleBuffer.addElement(receptor);
+
+        // Note group setup
 
         topBuffer = new Buffer<Note>(2048, 2048, false);
         topProgram = new Program(topBuffer);
+        topProgram.blendEnabled = true;
 
-        // Receptor and note group setup
-        if (!textures.exists(name)) {
-            var texture = new Texture(485, 164, null, {tilesX: 3, smoothExpand: true, smoothShrink: true, powerOfTwo: false});
+        if (!textures.exists(noteName)) {
+            var texture = new Texture(nW, nH, null, {smoothExpand: true, smoothShrink: true, powerOfTwo: false});
 
-            var textureBytes = sys.io.File.getBytes(path);
-            var textureData = TextureData.RGBAfrom(TextureData.fromFormatPNG(textureBytes));
+            var textureBytes = sys.io.File.getBytes(notePath);
+            var textureData = TextureData.fromFormatPNG(textureBytes);
 
             texture.setData(textureData);
-            textures[name] = texture;
+            textures[noteName] = texture;
         }
 
-		topProgram.setTexture(textures[name], name, true);
+		topProgram.setTexture(textures[noteName], noteName, true);
 
+        var note = new Note(x, y + 450, nW, nH);
+        topBuffer.addElement(note);
+
+        // Note group setup
+
+        bottomBuffer = new Buffer<Sustain>(2048, 2048, false);
+        bottomProgram = new Program(bottomBuffer);
+        bottomProgram.blendEnabled = true;
+
+        if (!textures.exists(sustainName)) {
+            var texture = new Texture(sW, sH, null, {smoothExpand: true, smoothShrink: true, powerOfTwo: false});
+
+            var textureBytes = sys.io.File.getBytes(sustainPath);
+            var textureData = TextureData.fromFormatPNG(textureBytes);
+
+            texture.setData(textureData);
+            textures[sustainName] = texture;
+        }
+
+        // Do this to finalize this instance.
+
+		Sustain.init(display, bottomProgram, sustainName, textures[sustainName]);
+		display.addProgram(middleProgram);
 		display.addProgram(topProgram);
 
-        receptor = new Note(x, y, w, h);
-        topBuffer.addElement(receptor);
+        var sustain = new Sustain(note.x + (nW >> 1), note.y + ((nH - sH) >> 1), sW, sH);
+        sustain.tailPoint = 45;
+        sustain.r = 90;
+        sustain.w = 100;
+        bottomBuffer.addElement(sustain);
+    }
 
-        // Sustain group setup
+    inline function updateReceptor() {
+        middleBuffer.updateElement(receptor);
     }
 }

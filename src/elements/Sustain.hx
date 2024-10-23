@@ -20,13 +20,12 @@ class Sustain implements Element
 	@color public var c:Color = 0xFFFFFFFF;
 
 	// --------------------------------------------------------------------------
-
-	static public var program:Program;
 	
 	static public function init(display:Display, program:Program, name:String, texture:Texture)
 	{
 		// creates a texture-layer named "name"
 		program.setTexture(texture, name, true );
+		program.blendEnabled = true;
 		
 		program.injectIntoFragmentShader(
 		'		
@@ -63,7 +62,7 @@ class Sustain implements Element
 		display.addProgram(program);
 	}
 	
-	public function new(x:Int, y:Int, w:Int, h:Int) {
+	inline public function new(x:Int, y:Int, w:Int, h:Int) {
 		this.x = x;
 		this.y = y;
 		this.w = w;

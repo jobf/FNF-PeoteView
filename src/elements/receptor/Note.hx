@@ -1,15 +1,11 @@
 package elements.receptor;
 
 class Note implements Element {
-	@varying @custom @formula("ox * scale") private var ox(default, null):Int;
-	@varying @custom @formula("oy * scale") private var oy(default, null):Int;
-
-	@texTile private var frame(default, null):Int;
-	@varying @custom public var scale:Float;
+	@varying @custom public var scale:Float = 1.0;
 
 	// position in pixel (relative to upper left corner of Display)
-	@posX @formula("ox + x + px") public var x:Int;
-	@posY @formula("oy + y + py") public var y:Int;
+	@posX @formula("x + px") public var x:Int;
+	@posY @formula("y + py") public var y:Int;
 	
 	// size in pixel
 	@varying @sizeX @formula("w * scale") public var w:Int;
@@ -22,12 +18,10 @@ class Note implements Element {
 
 	@color public var c:Color = 0xFFFFFFFF;
 
-    public function new(x:Int, y:Int, w:Int, y:Int, ox:Int = 0, oy:Int = 0) {
+    inline public function new(x:Int, y:Int, w:Int, h:Int) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
-		this.y = h;
-		this.ox = ox;
-		this.oy = oy;
+		this.h = h;
 	}
 }
