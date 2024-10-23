@@ -40,6 +40,8 @@ class Main extends Application
 
 		var angles = [0, -90, 90, 180];
 
+		var time = haxe.Timer.stamp();
+
 		if (false) {
 			var receptor = new ReceptorAndSteps(50, 50,
 			162, 164,
@@ -64,6 +66,8 @@ class Main extends Application
 				receptors.push(receptor);
 			}
 		}
+
+		Sys.println(haxe.Timer.stamp() - time);
 
 		//window.onKeyDown.add(Receptor.keyPress);
 		//window.onKeyUp.add(Receptor.keyRelease);

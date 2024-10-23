@@ -76,7 +76,7 @@ class ReceptorAndSteps {
 
         // Receptor and note group setup
 
-        if (middleBuffer == null) middleBuffer = new Buffer<Receptor>(1, 128, false);
+        if (middleBuffer == null) middleBuffer = new Buffer<Receptor>(64, 128, false);
 
         var middleIsNull = middleProgram == null;
         if (middleIsNull) {
@@ -98,7 +98,7 @@ class ReceptorAndSteps {
 
         // Note group setup
 
-        if (topBuffer == null) topBuffer = new Buffer<Note>(1, 2048, false);
+        if (topBuffer == null) topBuffer = new Buffer<Note>(128, 2048, false);
 
         var topIsNull = topProgram == null;
         if (topIsNull) {
@@ -120,7 +120,7 @@ class ReceptorAndSteps {
 
         // Note group setup
 
-        if (bottomBuffer == null) bottomBuffer = new Buffer<Sustain>(1, 2048, false);
+        if (bottomBuffer == null) bottomBuffer = new Buffer<Sustain>(128, 2048, false);
 
         var bottomIsNull = bottomProgram == null;
         if (bottomIsNull) {
