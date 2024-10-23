@@ -1,6 +1,6 @@
-package elements.sustains;
+package elements;
 
-class HSliceRepeat implements Element
+class Sustain implements Element
 {
 	// position in pixel (relative to upper left corner of Display)
 	@posX @formula("x") public var x:Int;
@@ -20,16 +20,11 @@ class HSliceRepeat implements Element
 	@color public var c:Color = 0xFFFFFFFF;
 
 	// --------------------------------------------------------------------------
-	
-	static public var buffer:Buffer<HSliceRepeat>;
+
 	static public var program:Program;
 	
-	static public function init(display:Display, name:String, texture:Texture)
+	static public function init(display:Display, program:Program, name:String, texture:Texture)
 	{
-		buffer = new Buffer<HSliceRepeat>(1, 1024, true);
-		program = new Program(buffer);
-		program.blendEnabled = true;
-		
 		// creates a texture-layer named "name"
 		program.setTexture(texture, name, true );
 		
@@ -73,7 +68,5 @@ class HSliceRepeat implements Element
 		this.y = y;
 		this.w = w;
 		this.h = h;
-		buffer.addElement(this);
 	}
-
 }
