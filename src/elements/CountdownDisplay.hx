@@ -52,8 +52,8 @@ class CountdownDisplay {
 			fromCamera.addProgram(program);
 		}
 
-		TextureSystem.createMultiTexture("cdTex", ["assets/countdown/ready.png", "assets/countdown/set.png", "assets/countdown/go.png"]);
-		TextureSystem.setTexture(program, "cdTex", "custom");
+		TextureSystem.createTiledTexture("cdTex", "assets/countdown/sheet.png", 1, 3);
+		TextureSystem.setTexture(program, "cdTex", "cdTex");
 
 		sprite = new Sprite();
 
@@ -75,7 +75,7 @@ class CountdownDisplay {
 		Audio.playSound('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
 
 		if (id != 0) {
-			sprite.slot = id - 1;
+			sprite.tile = id - 1;
 			sprite.c.aF = 1;
 			buffer.updateElement(sprite);
 		}

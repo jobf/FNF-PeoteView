@@ -9,10 +9,6 @@ import lime.ui.KeyCode;
 @:noDebug
 #end
 class BasicState extends State {
-	var logo:Sprite;
-	var logo2:Sprite;
-	var logo3:Sprite;
-
 	// The gameplay camera.
 	var gpCam:Camera;
 
@@ -55,24 +51,6 @@ class BasicState extends State {
 
 		gpCam = new Camera(0, 0, Screen.view.width, Screen.view.height, 0xFF00FF7F);
 		uiCam = new Camera(0, 0, Screen.view.width, Screen.view.height, 0x00000000);
-
-		TextureSystem.createMultiTexture("testMultiTex", ["assets/test0.png", "assets/test1.png", "assets/test2.png", "assets/test3.png", "assets/suzanneRGBA.png"]);
-		gpCam.setTexture("testMultiTex", "custom");
-		uiCam.setTexture("testMultiTex", "custom");
-
-		logo = new Sprite(50, 50);
-		logo.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
-		gpCam.add(logo);
-
-		logo2 = new Sprite(200, 50);
-		logo2.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
-		logo2.c = 0x0000ffff;
-		uiCam.add(logo2);
-
-		logo3 = new Sprite(400, 150);
-		logo3.c = 0x00ff00ff;
-		logo3.setSizeToTexture(TextureSystem.getTexture("testMultiTex"));
-		uiCam.add(logo3);
 
 		chart = new Chart("assets/songs/fresh");
 
@@ -160,11 +138,6 @@ class BasicState extends State {
 
 		chart.update(musicTime);
 
-		logo.r += deltaTime * 0.075;
-		time += deltaTime / 500;
-
-		logo2.x = (Math.floor(Math.abs(musicTime)) % (Screen.view.width + logo2.w)) - logo.w;
-
 		//uiCam.r = Math.sin(time) * 20;
 		gpCam.update();
 		uiCam.update();
@@ -209,15 +182,6 @@ class BasicState extends State {
 			case BACKSPACE:
 				inst.stop();
 				voices.stop();
-
-			case NUMBER_1:
-				logo.slot++;
-
-			case NUMBER_2:
-				logo2.slot++;
-
-			case NUMBER_3:
-				logo3.slot++;
 
 			case NUMBER_6:
 				gpCam.scrollX = gpCam.scrollX == 100 ? 0 : 100;

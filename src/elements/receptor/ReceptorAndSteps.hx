@@ -99,7 +99,7 @@ class ReceptorAndSteps {
 
         // Note group setup
 
-        topBuffer = new Buffer<Note>(2048, 2048, false);
+        topBuffer = new Buffer<Note>(1, 1024, false);
         topProgram = new Program(topBuffer);
         topProgram.blendEnabled = true;
 
@@ -120,7 +120,7 @@ class ReceptorAndSteps {
 
         // Note group setup
 
-        bottomBuffer = new Buffer<Sustain>(2048, 2048, false);
+        bottomBuffer = new Buffer<Sustain>(1, 1024, false);
         bottomProgram = new Program(bottomBuffer);
         bottomProgram.blendEnabled = true;
 

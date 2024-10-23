@@ -58,6 +58,12 @@ class Sprite implements Element
 	@texSlot var slot:Int;
 
 	/**
+		The texture tile of this sprite.
+		This is used for texture tiling, which in case WILL performs better.
+	**/
+	@texTile var tile:Int;
+
+	/**
 		The sprite's options.
 		@param texRepeatX Whenever the texture should repeat horizontally.
 		@param texRepeatY Whenever the texture should repeat vertically.
@@ -96,21 +102,25 @@ class Sprite implements Element
 	/**
 		Sets the sprite's size to the texture's size at a specific axis.
 		This is useful for multitexture.
-		@param texture The existing texture in `TextureSystem` that you want to set the sprite's size to.
+		@param texture The texture you want to set the sprite's size to.
+		@param axis The axis you want to rescale the sprite in.
 	**/
 	function setSizeToTexture(texture:Texture, axis:Axis = XY) {
 		if (texture == null) {
 			return;
 		}
 
+		var tW = texture.slotsX != 1 ? texture.slotWidth : Math.floor(texture.width / texture.tilesX);
+		var tH = texture.slotsY != 1 ? texture.slotHeight : Math.floor(texture.height / texture.tilesY);
+
 		switch (axis) {
 			case X:
-				w = texture.slotWidth;
+				w = tW;
 			case Y:
-				h = texture.slotHeight;
+				h = tH;
 			default:
-				w = texture.slotWidth;
-				h = texture.slotHeight;
+				w = tW;
+				h = tH;
 		}
 	}
 

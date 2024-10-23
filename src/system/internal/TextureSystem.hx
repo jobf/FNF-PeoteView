@@ -48,7 +48,34 @@ class TextureSystem {
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
 
-		var texture = new Texture(textureData.width, textureData.height, 1, {
+		var texture = new Texture(textureData.width, textureData.height, null, {
+			format: textureData.format,
+			powerOfTwo: false,
+			smoothExpand: true,
+			smoothShrink: true
+		});
+		texture.setData(textureData);
+
+		pool[name] = texture;
+	}
+
+	/**
+		Create a tiled texture and put it in the texture pool.
+		This accepts horizontal and/or vertical tiled textures.
+		@param name The texture's name.
+		@param path The texture path.
+	**/
+	static function createTiledTexture(name:String, path:String, tX:Int = 1, tY:Int = 1) {
+		if (pool.exists(name)) {
+			return;
+		}
+
+		var textureBytes = File.getBytes(path);
+		var textureData = TextureData.fromFormatPNG(textureBytes);
+
+		var texture = new Texture(textureData.width, textureData.height, null, {
+			tilesX: tX,
+			tilesY: tY,
 			format: textureData.format,
 			powerOfTwo: false,
 			smoothExpand: true,

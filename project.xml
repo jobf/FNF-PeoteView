@@ -5,7 +5,7 @@
 	<window width="1280" height="720" fps="59" resizable="false" vsync="false" />
 	<window if="html5||android" width="0" height="0" />
 
-	<app main="elements.receptor.Main" path="bin" file="fopv" />
+	<app main="Main" path="bin" file="fopv" />
 	<!--
 		Main
 		elements.sustains.Main // Sustain test (add -D stressTest for stress testing)
