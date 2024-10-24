@@ -1,15 +1,8 @@
 package elements.receptor;
 
 import haxe.CallStack;
-
 import lime.app.Application;
 import lime.ui.Window;
-import lime.ui.KeyCode;
-import lime.graphics.Image;
-
-import peote.view.*;
-
-import utils.Loader;
 
 class Main extends Application
 {
@@ -29,7 +22,7 @@ class Main extends Application
 	// ------------------------------------------------------------	
 	var peoteView:PeoteView;
 	var display:Display;
-	var sustainState:SustainState;
+	var sustainState:ReceptorState;
 	
 	public function startSample(window:Window)
 	{
@@ -40,11 +33,15 @@ class Main extends Application
 
 		var angles = [0, -90, 90, 180];
 
-		sustainState = new SustainState(display);
+		sustainState = new ReceptorState(display);
 
-		//window.onKeyDown.add(Receptor.keyPress);
-		//window.onKeyUp.add(Receptor.keyRelease);
+		window.onKeyDown.add(sustainState.keyPress);
+		window.onKeyUp.add(sustainState.keyRelease);
 
 		peoteView.start();
+	}
+
+	override function update(deltaTime:Int) {
+		sustainState.buffer.update();
 	}
 }

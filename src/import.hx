@@ -1,5 +1,6 @@
 // ENGINE
 import peote.view.*;
+import peote.view.intern.*;
 
 // GAME
 import elements.*;

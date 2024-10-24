@@ -1,6 +1,6 @@
 package elements;
 
-class Sustain implements Element
+class Note implements Element
 {
 	// position in pixel (relative to upper left corner of Display)
 	@posX @formula("-27 + x + px") public var x:Int;
@@ -11,7 +11,7 @@ class Sustain implements Element
 	@varying @sizeY public var h:Int;
 
 	// at what x position it have to slice (width of the tail in texturedata pixels) (WARNING: COUNT X POSITION FROM PNG BACKWARDS)
-	@varying @custom public var tailPoint:Int = 31;
+	@varying @custom public var tailPoint:Int = -1;
 
 	@rotation public var r:Float;
 
@@ -20,18 +20,18 @@ class Sustain implements Element
 
 	@color public var c:Color = 0xFFFFFFFF;
 
-	@texTile private var tile:Int;
+	@texTile private var tile(default, null):Int;
 
 	// --------------------------------------------------------------------------
 
-	static public function init(display:Display, program:Program, name:String, texture:Texture)
+	static public function init(program:Program, name:String, texture:Texture)
 	{
 		// creates a texture-layer named "name"
 		program.setTexture(texture, name, true );
 		program.blendEnabled = true;
 
-		var tW:String = Std.string(Math.floor(texture.width / texture.slotsX));
-		var tH:String = Std.string(Math.floor(texture.height / texture.slotsY));
+		var tW:String = Util.toFloatString(texture.width / texture.slotsX);
+		var tH:String = Util.toFloatString(texture.height / texture.slotsY);
 
 		program.injectIntoFragmentShader(
 		'
@@ -39,23 +39,25 @@ class Sustain implements Element
 			{
 				vec2 coord = vTexCoord;
 
-				float slicePositionX = 1.0 - (tailPoint/$tH.0 * vSize.y) / vSize.x;
+				if (tailPoint > 0) {
+					float slicePositionX = 1.0 - (tailPoint/$tH * vSize.y) / vSize.x;
 
-				if (coord.x < slicePositionX)
-				{
-					coord.x = mix(
-					1.0 - tailPoint/$tW.0,
-					0.0,
-					mod(
-						(1.0-coord.x/slicePositionX) *
-						(vSize.x/vSize.y * $tH.0 - tailPoint) /
-						($tW.0 - tailPoint), 1.0
-					)
-					);
-				}
-				else
-				{
-					coord.x = mix(1.0 - tailPoint/$tW.0, 1.0, (coord.x - slicePositionX) / (1.0 - slicePositionX) );
+					if (coord.x < slicePositionX)
+					{
+						coord.x = mix(
+						1.0 - tailPoint/$tW,
+						0.0,
+						mod(
+							(1.0-coord.x/slicePositionX) *
+							(vSize.x/vSize.y * $tH - tailPoint) /
+							($tW - tailPoint), 1.0
+						)
+						);
+					}
+					else
+					{
+						coord.x = mix(1.0 - tailPoint/$tW, 1.0, (coord.x - slicePositionX) / (1.0 - slicePositionX) );
+					}
 				}
 
 				return getTextureColor( textureID, coord );
@@ -64,9 +66,7 @@ class Sustain implements Element
 
 		// instead of using normal "name" identifier to fetch the texture-color,
 		// the postfix "_ID" gives access to use getTextureColor(textureID, ...) or getTextureResolution(textureID)
-		program.setColorFormula( 'slice(${name}_ID, tailPoint)' );
-
-		display.addProgram(program);
+		program.setColorFormula( 'c * slice(${name}_ID, tailPoint)' );
 	}
 
 	inline public function new(x:Int, y:Int, w:Int, h:Int) {
@@ -75,4 +75,10 @@ class Sustain implements Element
 		this.w = w;
 		this.h = h;
 	}
+
+	inline public function reset() tile = 0;
+	inline public function press() tile = 1;
+	inline public function confirm() tile = 2;
+	inline public function toNote() tile = 3;
+	inline public function toSustain() tile = 4;
 }
