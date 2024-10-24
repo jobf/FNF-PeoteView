@@ -22,8 +22,6 @@ class Sustain implements Element
 
 	@texTile private var tile:Int;
 
-	@varying @custom public var isSustain:Int;
-
 	// --------------------------------------------------------------------------
 
 	static public function init(display:Display, program:Program, name:String, texture:Texture)
@@ -37,30 +35,27 @@ class Sustain implements Element
 
 		program.injectIntoFragmentShader(
 		'
-			vec4 slice( int textureID, float tailPoint, int isSustain )
+			vec4 slice( int textureID, float tailPoint )
 			{
 				vec2 coord = vTexCoord;
 
-				if (isSustain < 1)
-				{
-					float slicePositionX = 1.0 - (tailPoint/$tH.0 * vSize.y) / vSize.x;
+				float slicePositionX = 1.0 - (tailPoint/$tH.0 * vSize.y) / vSize.x;
 
-					if (coord.x < slicePositionX)
-					{
-						coord.x = mix(
-						1.0 - tailPoint/$tW.0,
-						0.0,
-						mod(
-							(1.0-coord.x/slicePositionX) *
-							(vSize.x/vSize.y * $tH.0 - tailPoint) /
-							($tW.0 - tailPoint), 1.0
-						)
-						);
-					}
-					else
-					{
-						coord.x = mix(1.0 - tailPoint/$tW.0, 1.0, (coord.x - slicePositionX) / (1.0 - slicePositionX) );
-					}
+				if (coord.x < slicePositionX)
+				{
+					coord.x = mix(
+					1.0 - tailPoint/$tW.0,
+					0.0,
+					mod(
+						(1.0-coord.x/slicePositionX) *
+						(vSize.x/vSize.y * $tH.0 - tailPoint) /
+						($tW.0 - tailPoint), 1.0
+					)
+					);
+				}
+				else
+				{
+					coord.x = mix(1.0 - tailPoint/$tW.0, 1.0, (coord.x - slicePositionX) / (1.0 - slicePositionX) );
 				}
 
 				return getTextureColor( textureID, coord );
@@ -69,7 +64,7 @@ class Sustain implements Element
 
 		// instead of using normal "name" identifier to fetch the texture-color,
 		// the postfix "_ID" gives access to use getTextureColor(textureID, ...) or getTextureResolution(textureID)
-		program.setColorFormula( 'slice(${name}_ID, tailPoint, isSustain)' );
+		program.setColorFormula( 'slice(${name}_ID, tailPoint)' );
 
 		display.addProgram(program);
 	}

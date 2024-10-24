@@ -13,9 +13,7 @@ class SustainState {
 
 		texture.setData(textureData);
 
-		var time = haxe.Timer.stamp();
         buffer = new Buffer<Sustain>(8192, 8192, false);
-		Sys.println(haxe.Timer.stamp() - time);
         program = new Program(buffer);
 
 		Sustain.init(display, program, "noteSkinTex", texture);
