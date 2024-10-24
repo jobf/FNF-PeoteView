@@ -29,7 +29,7 @@ class Main extends Application
 	// ------------------------------------------------------------	
 	var peoteView:PeoteView;
 	var display:Display;
-	var receptors:Array<ReceptorAndSteps> = [];
+	var sustainState:SustainState;
 	
 	public function startSample(window:Window)
 	{
@@ -40,45 +40,11 @@ class Main extends Application
 
 		var angles = [0, -90, 90, 180];
 
-		var time = haxe.Timer.stamp();
-
-		if (false) {
-			var receptor = new ReceptorAndSteps(50, 50,
-			162, 164,
-			108, 110,
-			45, 35,
-			display,
-			"assets/notes/normal/receptor.png", "receptorTex",
-			"assets/notes/normal/note.png", "noteTex",
-			"assets/notes/normal/sustain.png", "sustainTex");
-			receptors.push(receptor);
-		} else {
-			for (j in 0...4) {
-				var receptor = new ReceptorAndSteps(50 + (112 * j) + 640, 50,
-				162, 164,
-				108, 110,
-				45, 35,
-				display,
-				"assets/notes/normal/receptor.png", "receptorTex",
-				"assets/notes/normal/note.png", "noteTex",
-				"assets/notes/normal/sustain.png", "sustainTex");
-				receptor.r = angles[j];
-				receptors.push(receptor);
-			}
-		}
-
-		Sys.println(haxe.Timer.stamp() - time);
+		sustainState = new SustainState(display);
 
 		//window.onKeyDown.add(Receptor.keyPress);
 		//window.onKeyUp.add(Receptor.keyRelease);
 
 		peoteView.start();
-	}
-
-	override function update(deltaTime:Int) {
-		for (i in 0...receptors.length) {
-			var receptor = receptors[i];
-			receptor.updateReceptor();
-		}
 	}
 }
