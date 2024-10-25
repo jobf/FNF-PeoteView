@@ -40,8 +40,4 @@ class Main extends Application
 
 		peoteView.start();
 	}
-
-	override function update(deltaTime:Int) {
-		sustainState.buffer.update();
-	}
 }

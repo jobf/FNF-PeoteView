@@ -5,48 +5,74 @@ import sys.io.File;
 
 @:publicFields
 class ReceptorState {
-    var buffer:Buffer<Note>;
-    var program:Program;
+    // Behind the receptor system
+    var behindBuf:Buffer<Sustain>;
+    var frontBuf:Buffer<Note>;
+
+    // Above the receptor system
+    var behindProg:Program;
+    var frontProg:Program;
 
     var rec:Note;
 
     function new(display:Display) {
         // Note to self: set the texture size exactly to the image's size
-        var tilesheetTex = new Texture(810, 164, null, {tilesX: 5, smoothExpand: true, smoothShrink: true, powerOfTwo: false});
 
-		var data = TextureData.fromFormatPNG(File.getBytes("assets/notes/normal/sheet.png"));
+        // NOTE SHEET SETUP
+        var tilesheetTex = new Texture(648, 164, null, {tilesX: 4, smoothExpand: true, smoothShrink: true, powerOfTwo: false});
+
+		var data = TextureData.fromFormatPNG(File.getBytes("assets/notes/normal/noteSheet.png"));
 		tilesheetTex.setData(data);
 
-        buffer = new Buffer<Note>(8192, 8192, false);
-        program = new Program(buffer);
+        frontBuf = new Buffer<Note>(8192, 8192, false);
+        frontProg = new Program(frontBuf);
+        frontProg.blendEnabled = true;
+        frontProg.setTexture(tilesheetTex, "noteTex");
 
-		Note.init(program, "tilesheetTex", tilesheetTex);
-		display.addProgram(program);
+        // SUSTAIN SETUP
 
-		rec = new Note(0, 0, 162, 164);
-        buffer.addElement(rec);
+        var sustainTex = new Texture(45, 35, null, {smoothExpand: true, smoothShrink: true, powerOfTwo: false});
 
-		var note = new Note(rec.x, rec.y + 185, 162, 164);
-        note.toNote();
-        note.c.aF = 0.5;
-        buffer.addElement(note);
+		var data = TextureData.fromFormatPNG(File.getBytes("assets/notes/normal/sustain.png"));
+		sustainTex.setData(data);
 
-		var sus = new Note(note.x, note.y, 162, 164);
-        sus.toSustain();
-        //sus.r = 90;
-        sus.tailPoint = 58;
-        sus.w = 1100;
-        buffer.addElement(sus);
+        behindBuf = new Buffer<Sustain>(8192, 8192, false);
+        behindProg = new Program(behindBuf);
+        behindProg.blendEnabled = true;
+
+		Sustain.init(behindProg, "sustainTex", sustainTex);
+
+		display.addProgram(behindProg);
+		display.addProgram(frontProg);
+
+		rec = new Note(50, 50, 162, 164);
+        frontBuf.addElement(rec);
+
+        //for (i in 0...20) {
+            var note = new Note(rec.x, rec.y + (25/* * (i + 1)*/), 162, 164);
+            note.toNote();
+            //note.c.aF = 0.5;
+            frontBuf.addElement(note);
+
+            var sus = new Sustain(note.x, note.y, 45, 35);
+            sus.x += note.w >> 1;
+            sus.y += (note.h - sus.initH) >> 1;
+
+            //sus.r = 90;
+            sus.sustainLength = 30;
+            //sus.speed = 2;
+            behindBuf.addElement(sus);
+        //}
     }
 
     function keyPress(code:KeyCode, mod) {
         switch (code) {
             case SPACE:
                 rec.press();
-                buffer.updateElement(rec);
+                frontBuf.updateElement(rec);
             case RETURN:
                 rec.confirm();
-                buffer.updateElement(rec);
+                frontBuf.updateElement(rec);
             default:
         }
     }
@@ -54,7 +80,7 @@ class ReceptorState {
     function keyRelease(code:KeyCode, mod) {
         if (code == SPACE || code == RETURN) {
             rec.reset();
-            buffer.updateElement(rec);
+            frontBuf.updateElement(rec);
         }
     }
 }
