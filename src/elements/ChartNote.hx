@@ -1,7 +1,5 @@
 package elements;
 
-import haxe.Int64;
-
 /**
 	The internal chart note.
 	Written by SomeGuyWhoLovesCoding, fixed and tweaked by Dimensionscape.
@@ -25,7 +23,7 @@ abstract ChartNote(Int64) from Int64 {
 		@param lane The note's lane.
 	**/
 	inline function new(position:Int64, duration:Int, index:Int, type:Int, lane:Int) {
-		this = (position << 23) | (duration << 10) | (index << 6) | (type << 2) | lane;
+		this = (position << 23) | (duration << 11) | (index << 7) | (type << 2) | lane;
 	}
 
 	/**
@@ -35,7 +33,7 @@ abstract ChartNote(Int64) from Int64 {
 	var position(get, never):Int64;
 
 	/**
-		The note's hold duration. 13 bits. 2.75ms granularity.
+		The note's hold duration. 12 bits. 5ms granularity.
 		Assigns its visual representation of the hold note.
 	**/
 	var duration(get, never):Int;
@@ -71,7 +69,7 @@ abstract ChartNote(Int64) from Int64 {
 		Assigns its visual representation of the hold note.
 	**/
 	inline function get_duration():Int {
-		return ((this.low:Int) >> 10) & 0x1FFF; // Mask 13 bits
+		return ((this.low:Int) >> 11) & 0x1FFF; // Mask 12 bits
 	}
 
 	/**
@@ -79,7 +77,7 @@ abstract ChartNote(Int64) from Int64 {
 		Specifies the position of the note it's assigned to.
 	**/
 	inline function get_index():Int {
-		return ((this.low:Int) >> 6) & 0xF; // Mask 4 bits
+		return ((this.low:Int) >> 7) & 0xF; // Mask 5 bits
 	}
 
 	/**

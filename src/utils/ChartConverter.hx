@@ -89,7 +89,7 @@ cam 0 45');
 
 					var newNote:ChartNote = new ChartNote(
 						betterInt64FromFloat(note.position * 100),
-						Math.floor(note.duration * 0.3636363636363636), // Equal to `note.duration / 2.75`.
+						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index,
 						0,
 						note.lane

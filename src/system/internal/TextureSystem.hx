@@ -17,31 +17,45 @@ class TextureSystem {
 
 	/**
 		Get a pre-existing texture from pool.
-		@param name 
+		@param key The texture to get from.
 	**/
-	inline static function getTexture(name:String) {
-		return pool[name];
+	inline static function getTexture(key:String) {
+		return pool[key];
 	}
 
 	/**
 		Set the program's texture to the texture and key.
 		@param prgm The program to set its texture to.
-		@param name The texture's key.
-		@param tex The texture's new name.
+		@param key The texture to get from.
+		@param name The texture's new name.
 	**/
 
-	inline static function setTexture(prgm:Program, name:String, tex:String) {
-		prgm.setTexture(getTexture(name), tex, true);
+	inline static function setTexture(prgm:Program, key:String, name:String) {
+		prgm.setTexture(getTexture(key), name, true);
+	}
+
+	/**
+		Set the program's texture to the texture and key.
+		@param prgm The program to set its texture to.
+		@param key The texture to get from.
+		@param name The texture's new name.
+	**/
+
+	inline static function disposeTexture(key:String) {
+		var tex = getTexture(key);
+		tex.dispose();
+		pool.remove(key);
+		tex = null;
 	}
 
 	/**
 		Create a texture and put it in the texture pool.
 		This only accepts a single texture slot.
-		@param name The texture's name.
+		@param key The texture's key.
 		@param path The texture path.
 	**/
-	static function createTexture(name:String, path:String) {
-		if (pool.exists(name)) {
+	static function createTexture(key:String, path:String) {
+		if (pool.exists(key)) {
 			return;
 		}
 
@@ -56,17 +70,17 @@ class TextureSystem {
 		});
 		texture.setData(textureData);
 
-		pool[name] = texture;
+		pool[key] = texture;
 	}
 
 	/**
 		Create a tiled texture and put it in the texture pool.
 		This accepts horizontal and/or vertical tiled textures.
-		@param name The texture's name.
+		@param key The texture's key.
 		@param path The texture path.
 	**/
-	static function createTiledTexture(name:String, path:String, tX:Int = 1, tY:Int = 1) {
-		if (pool.exists(name)) {
+	static function createTiledTexture(key:String, path:String, tX:Int = 1, tY:Int = 1) {
+		if (pool.exists(key)) {
 			return;
 		}
 
@@ -83,17 +97,17 @@ class TextureSystem {
 		});
 		texture.setData(textureData);
 
-		pool[name] = texture;
+		pool[key] = texture;
 	}
 
 	/**
 		Create a multitexture and put it in the texture pool.
 		You should despise this function's code as it's just flat out intruiging to deal with.
-		@param name The multitexture's name.
+		@param key The multitexture's key.
 		@param paths The texture paths.
 	**/
-	static function createMultiTexture(name:String, paths:Array<String>) {
-		if (pool.exists(name)) {
+	static function createMultiTexture(key:String, paths:Array<String>) {
+		if (pool.exists(key)) {
 			return;
 		}
 
@@ -129,6 +143,6 @@ class TextureSystem {
 			texture.setData(texturesToPush[i], i);
 		}
 
-		pool[name] = texture;
+		pool[key] = texture;
 	}
 }

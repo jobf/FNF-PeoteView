@@ -15,24 +15,28 @@ class Sustain implements Element
 
 	@rotation public var r:Float;
 
-	@pivotY @formula("h * 0.5") public var py:Int;
+	@pivotY @const @formula("h * 0.5") public var py:Int;
 
 	@color public var c:Color = 0xFFFFFFFF;
 
 	@varying @custom public var speed:Float = 1.0;
 
-	public var sustainLength(get, set):Int;
+	public var length(get, set):Int;
 
-	inline function get_sustainLength() {
+	inline function get_length() {
 		return w - initW;
 	}
 
-	inline function set_sustainLength(value:Int) {
+	inline function set_length(value:Int) {
 		return w = value + initW;
 	}
 
-    public var initW(default, null):Int;
-    public var initH(default, null):Int;
+	public var initW(default, null):Int;
+	public var initH(default, null):Int;
+
+	/**
+		The parent of this sustain sprite.
+	**/
 
 	// --------------------------------------------------------------------------
 
@@ -53,22 +57,22 @@ class Sustain implements Element
 
 				float slicePositionX = 1.0 - (tailPoint/$tH * vSize.y) / vSize.x;
 
-                if (coord.x < slicePositionX)
-                {
-                    coord.x = mix(
-                    1.0 - tailPoint/$tW,
-                    0.0,
-                    mod(
-                        (1.0-coord.x/slicePositionX) *
-                        (vSize.x/vSize.y * $tH - tailPoint) /
-                        ($tW - tailPoint), 1.0
-                    )
-                    );
-                }
-                else
-                {
-                    coord.x = mix(1.0 - tailPoint/$tW, 1.0, (coord.x - slicePositionX) / (1.0 - slicePositionX) );
-                }
+				if (coord.x < slicePositionX)
+				{
+					coord.x = mix(
+					1.0 - tailPoint/$tW,
+					0.0,
+					mod(
+						(1.0-coord.x/slicePositionX) *
+						(vSize.x/vSize.y * $tH - tailPoint) /
+						($tW - tailPoint), 1.0
+					)
+					);
+				}
+				else
+				{
+					coord.x = mix(1.0 - tailPoint/$tW, 1.0, (coord.x - slicePositionX) / (1.0 - slicePositionX) );
+				}
 
 				return getTextureColor( textureID, coord );
 			}
@@ -84,5 +88,10 @@ class Sustain implements Element
 		this.y = y;
 		this.w = initW = w;
 		this.h = initH = h;
+	}
+
+	inline public function followNote(note:Note) {
+		x = note.x + ((note.w + (note.ox << 1)) >> 1);
+		y = note.y + (((note.h + (note.oy << 1)) - initH) >> 1);
 	}
 }
