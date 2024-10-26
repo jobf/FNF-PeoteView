@@ -59,9 +59,6 @@ class Main extends Application
 
 		var prop = playField.textureMapProperties;
 
-		var front = playField.frontBuf;
-		var behind = playField.behindBuf;
-
 		var nW = prop[0];
 		var nH = prop[1];
 		var sW = prop[2];
@@ -76,18 +73,16 @@ class Main extends Application
 
 			if (note.duration > 5) {
 				var susSpr = new Sustain(-9999, -9999, sW, sH);
-				playField.addSustain(susSpr);
-
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
 				susSpr.r = 90;
-				behind.updateElement(susSpr);
+				playField.addSustain(susSpr);
 
 				noteSpr.child = susSpr;
 			}
 		}
 
-		playField.numOfNotes = playField.frontBuf.length - playField.numOfReceptors;
+		playField.numOfNotes = @:privateAccess playField.frontBuf.length - playField.numOfReceptors;
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyUp.add(playField.keyRelease);
