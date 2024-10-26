@@ -1,4 +1,4 @@
-package elements.receptor;
+package elements.playField;
 
 import haxe.CallStack;
 import lime.app.Application;
@@ -27,10 +27,14 @@ class Main extends Application
 	var position:Float = -1000;
 
 	var notes:Array<ChartNote> = [
-		new ChartNote(0, 120, 0, 0, 1),
-		new ChartNote(60000, 120, 1, 0, 1),
-		new ChartNote(120000, 120, 2, 0, 1),
-		new ChartNote(180000, 120, 3, 0, 1),
+		new ChartNote(0, 120, 0, 0, 0),
+		new ChartNote(60000, 120, 1, 0, 0),
+		new ChartNote(120000, 120, 2, 0, 0),
+		new ChartNote(180000, 120, 3, 0, 0),
+		new ChartNote(240000, 120, 0, 0, 1),
+		new ChartNote(300000, 120, 1, 0, 1),
+		new ChartNote(360000, 120, 2, 0, 1),
+		new ChartNote(420000, 120, 3, 0, 1)
 	];
 	
 	public function startSample(window:Window)

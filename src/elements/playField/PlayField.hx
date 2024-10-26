@@ -1,4 +1,4 @@
-package elements.receptor;
+package elements.playField;
 
 import lime.ui.KeyCode;
 import sys.io.File;
@@ -140,12 +140,10 @@ class PlayField {
 
 		var map = keybindMap[code];
 
-		var rec = frontBuf.getElement(map[0] + (4 * map[1]));
+		var rec = frontBuf.getElement(map[0] + (strumlineMap[1].length * map[1]));
 
 		rec.confirm();
 		frontBuf.updateElement(rec);
-
-		scrollSpeed += 0.1;
 	}
 
 	function keyRelease(code:KeyCode, mod) {
@@ -155,7 +153,7 @@ class PlayField {
 
 		var map = keybindMap[code];
 
-		var rec = frontBuf.getElement(map[0] + (4 * map[1]));
+		var rec = frontBuf.getElement(map[0] + (strumlineMap[1].length * map[1]));
 
 		rec.reset();
 		frontBuf.updateElement(rec);
