@@ -185,7 +185,7 @@ class PlayField {
 			} else {
 				if (note.c.aF != 0 && diff < 0) {
 					note.c.aF = 0;
-					sustainsToHold[index] = note.child;
+					sustainsToHold[fullIndex] = note.child;
 					rec.confirm();
 				}
 
