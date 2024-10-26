@@ -29,9 +29,19 @@ class Main extends Application
 	var notes:Array<ChartNote> = [
 		new ChartNote(0, 120, 0, 0, 0),
 		new ChartNote(60000, 120, 1, 0, 0),
+		new ChartNote(75000, 0, 0, 0, 0),
+		new ChartNote(90000, 0, 3, 0, 0),
+		new ChartNote(105000, 0, 2, 0, 0),
 		new ChartNote(120000, 120, 2, 0, 0),
 		new ChartNote(180000, 120, 3, 0, 0),
-		new ChartNote(240000, 120, 0, 0, 1),
+		new ChartNote(240000, 0, 0, 0, 1),
+		//new ChartNote(247500, 0, 0, 0, 1),
+		new ChartNote(255000, 0, 0, 0, 1),
+		//new ChartNote(262500, 0, 0, 0, 1),
+		new ChartNote(270000, 0, 0, 0, 1),
+		//new ChartNote(277500, 0, 0, 0, 1),
+		new ChartNote(285000, 0, 0, 0, 1),
+		//new ChartNote(292500, 0, 0, 0, 1),
 		new ChartNote(300000, 120, 1, 0, 1),
 		new ChartNote(360000, 120, 2, 0, 1),
 		new ChartNote(420000, 120, 3, 0, 1)
@@ -45,6 +55,7 @@ class Main extends Application
 		peoteView.addDisplay(display);
 
 		playField = new PlayField(display);
+		playField.scrollSpeed = 1.0;
 
 		var prop = playField.textureMapProperties;
 
@@ -58,22 +69,22 @@ class Main extends Application
 
 		for (i in 0...notes.length) {
 			var note = notes[i];
-			var noteSpr = new Note(-nW, -nH, nW, nH);
+			var noteSpr = new Note(-9999, -9999, nW, nH);
+			noteSpr.data = note;
+			noteSpr.toNote();
+			playField.addNote(noteSpr);
 
 			if (note.duration > 5) {
-				var susSpr = new Sustain(-sW, -sH, sW, sH);
-				behind.addElement(susSpr);
+				var susSpr = new Sustain(-9999, -9999, sW, sH);
+				playField.addSustain(susSpr);
 
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
+				susSpr.w = susSpr.length;
 				susSpr.r = 90;
 				behind.updateElement(susSpr);
 
 				noteSpr.child = susSpr;
 			}
-
-			noteSpr.data = note;
-			noteSpr.toNote();
-			front.addElement(noteSpr);
 		}
 
 		playField.numOfNotes = playField.frontBuf.length - playField.numOfReceptors;

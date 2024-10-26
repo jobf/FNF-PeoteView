@@ -32,6 +32,8 @@ class Note implements Element
 	**/
 	public var child:Sustain;
 
+	public var playable:Bool;
+
 	inline public function new(x:Int, y:Int, w:Int, h:Int) {
 		this.x = x;
 		this.y = y;

@@ -14,12 +14,12 @@ using StringTools;
 @:publicFields
 class Chart {
 	/**
-		The chart's header.
+		The chart's header content.
 	**/
 	var header(default, null):Header;
 
 	/**
-		The chart's bytes.
+		The chart's actual bytes where every note is read and turned to a playable song.
 	**/
 	var bytes(default, null):Array<ChartNote>;
 
@@ -34,13 +34,5 @@ class Chart {
 
 		header = ChartSystem.parseHeader('$path/header.txt');
 		//bytes = ChartSystem._file_contents_chart('$path/chart.bin');
-	}
-
-	/**
-		Updates the chart.
-		@param time The music's time.
-	**/
-	function update(time:Float) {
-		//Sys.println(nextNote);
 	}
 }

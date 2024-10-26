@@ -6,24 +6,29 @@ import sys.io.File;
 @:publicFields
 class PlayField {
 	// Behind the receptor system
-	var behindBuf:Buffer<Sustain>;
-	var frontBuf:Buffer<Note>;
+	private var behindProg(default, null):Program;
+	var behindBuf(default, null):Buffer<Sustain>;
 
 	// Above the receptor system
-	var behindProg:Program;
-	var frontProg:Program;
+	private var frontProg(default, null):Program;
+	var frontBuf(default, null):Buffer<Note>;
 
 	var textureMapProperties:Array<Int> = [];
 	var keybindMap:Map<KeyCode, Array<Int>> = [
-		KeyCode.A => [0, 1],
-		KeyCode.S => [1, 1],
-		KeyCode.UP => [2, 1],
-		KeyCode.RIGHT => [3, 1]
+		KeyCode.A => [0, 0],
+		KeyCode.S => [1, 0],
+		KeyCode.UP => [2, 0],
+		KeyCode.RIGHT => [3, 0]
 	];
 
 	var strumlineMap:Array<Array<Array<Int>>> = [
 		[[0, 50], [-90, 162], [90, 274], [180, 386]],
 		[[0, 690], [-90, 802], [90, 914], [180, 1026]]
+	];
+
+	var strumlinePlayableMap:Array<Bool> = [
+		true,
+		false
 	];
 
 	var numOfReceptors:Int;
@@ -32,15 +37,29 @@ class PlayField {
 	var scrollSpeed(default, set):Float = 1.0;
 
 	inline function set_scrollSpeed(value:Float) {
-		spawnDist = ChartConverter.betterInt64FromFloat(160000 / value);
-		despawnDist = ChartConverter.betterInt64FromFloat(50000 / value);
+		spawnDist = Math.floor(160000 / value);
+		despawnDist = Math.floor(50000 / value);
 		return scrollSpeed = value;
+	}
+
+	private var notesToHit(default, null):Array<Note> = [];
+	private var sustainsToHold(default, null):Array<Sustain> = [];
+
+	inline function addNote(note:Note) {
+		frontBuf.addElement(note);
+	}
+
+	inline function addSustain(sustain:Sustain) {
+		behindBuf.addElement(sustain);
 	}
 
 	function new(display:Display) {
 		for (i in 0...strumlineMap.length) {
 			numOfReceptors += strumlineMap[i].length;
 		}
+
+		notesToHit.resize(numOfReceptors);
+		sustainsToHold.resize(numOfReceptors);
 
 		// Note to self: set the texture size exactly to the image's size
 
@@ -70,8 +89,8 @@ class PlayField {
 		textureMapProperties.push(tex2.width);
 		textureMapProperties.push(tex2.height);
 
-		display.addProgram(behindProg);
 		display.addProgram(frontProg);
+		display.addProgram(behindProg);
 
 		for (j in 0...strumlineMap.length) {
 			var map = strumlineMap[j];
@@ -79,6 +98,7 @@ class PlayField {
 				var rec = new Note(0, 50, textureMapProperties[0], textureMapProperties[1]);
 				rec.r = map[i][0];
 				rec.x = map[i][1];
+				rec.playable = strumlinePlayableMap[j];
 				frontBuf.addElement(rec);
 			}
 		}
@@ -86,50 +106,125 @@ class PlayField {
 
 	private var spawnPosBottom(default, null):Int;
 	private var spawnPosTop(default, null):Int;
-	private var spawnDist(default, null):Int64 = ChartConverter.betterInt64FromFloat(160000);
-	private var despawnDist(default, null):Int64 = ChartConverter.betterInt64FromFloat(50000);
+	private var spawnDist(default, null):Int = 160000;
+	private var despawnDist(default, null):Int = 50000;
+
+	private var currentBottomNote(default, null):Note;
+
+	inline function getNote(id:Int) {
+		return frontBuf.getElement(id + numOfReceptors);
+	}
 
 	function update(songPos:Float) {
 		var pos = ChartConverter.betterInt64FromFloat(songPos * 100);
 
-		while (spawnPosTop != numOfNotes && frontBuf.getElement(spawnPosTop + numOfReceptors).data.position < pos + spawnDist) {
+		// The buffers must be untouched for this to work. Lel
+		while (spawnPosTop != numOfNotes && (getNote(spawnPosTop).data.position - pos).low < spawnDist) {
 			spawnPosTop++;
-			Sys.println('Top: $spawnPosTop');
+		}
+
+		currentBottomNote = getNote(spawnPosBottom);
+
+		if (spawnPosBottom != numOfNotes &&
+			((pos +
+			(
+				(currentBottomNote.data.duration << 2) + currentBottomNote.data.duration
+			)) -
+			currentBottomNote.data.position).low - (despawnDist << 1) > despawnDist) {
+			spawnPosBottom++;
+			Sys.println(spawnPosBottom);
+			currentBottomNote = getNote(spawnPosBottom);
 		}
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = frontBuf.getElement(i + numOfReceptors);
 
 			var data = note.data;
-			var index = note.data.index;
-			var lane = note.data.lane;
+			var index = data.index;
+			var lane = data.lane;
 
 			var laneMap = strumlineMap[lane];
+			var fullIndex = index + (lane * laneMap.length);
 
-			var position = note.data.position;
+			var position = data.position;
 
-			var rec = frontBuf.getElement(index + (lane * laneMap.length));
+			var rec = frontBuf.getElement(fullIndex);
+			var diff = Math.floor(Int64.div(position - pos, 100).low * scrollSpeed);
+
+			var isHit = note.c.aF == 0;
 
 			note.x = rec.x;
-			note.y = rec.y + Math.floor(Int64.div(position - pos, 222).low * scrollSpeed);
+			note.y = rec.y + diff;
 			note.r = laneMap[index][0];
-			frontBuf.updateElement(note);
 
 			var sustain = note.child;
-
+			var sustainExists = sustain != null;
 			var dist = despawnDist;
 
-			if (sustain != null) {
-				sustain.speed = scrollSpeed * 0.45;
-				sustain.followNote(note);
-				behindBuf.updateElement(sustain);
-				dist += sustain.length * 100;
+			// The actual input system logic + opponent note hits
+			// This shit is very different from other fnf engines since this is peote-view.
+			// Do not touch any part of this area unless you know it's critical.
+
+			if (rec.playable) {
+				if (!isHit) {
+					var noteToHit = notesToHit[fullIndex];
+					if ((diff < 160 && noteToHit == null) ||
+						(noteToHit != null && noteToHit.data.position - pos > position - pos)) {
+						notesToHit[fullIndex] = note;
+					}
+
+					if (diff < -200) {
+						notesToHit[fullIndex] = null;
+						note.c.aF = 0;
+						if (sustainExists) sustain.c.aF = 0;
+						if (rec.playable) {
+							Sys.println('Missed $index');
+						}
+					}
+				}
+			} else {
+				if (note.c.aF != 0 && diff < 0) {
+					note.c.aF = 0;
+					sustainsToHold[index] = note.child;
+					rec.confirm();
+				}
+
+				if (sustainExists && sustain.w < 100) {
+					rec.reset();
+					frontBuf.updateElement(rec);
+				}
 			}
 
-			while (spawnPosBottom != numOfNotes && pos - frontBuf.getElement(spawnPosBottom + numOfReceptors).data.position > dist) {
-				spawnPosBottom++;
-				Sys.println('Bottom: $spawnPosBottom');
+			if (sustainExists) {
+				sustain.speed = scrollSpeed;
+
+				if (!isHit) {
+					sustain.followNote(note);
+				} else if (sustain.c.aF != 0) {
+					if (pos > position + (sustain.length * 100)) {
+						rec.reset();
+					}
+
+					sustain.followReceptor(rec);
+					sustain.w = sustain.length - Int64.div(pos - position, 100).low;
+					if (sustain.w < 0) sustain.w = 0;
+					if (!rec.idle()) {
+						rec.confirm();
+						frontBuf.updateElement(rec);
+					}
+				}
+
+				behindBuf.updateElement(sustain);
+
+				@:privateAccess {
+					if (sustain.despawnDist == 0) {
+						sustain.despawnDist = despawnDist + (sustain.length * 100);
+					}
+					dist = sustain.despawnDist;
+				}
 			}
+
+			frontBuf.updateElement(note);
 		}
 	}
 
@@ -139,10 +234,28 @@ class PlayField {
 		}
 
 		var map = keybindMap[code];
+		var lane = map[1];
+		var index = map[0] + (lane * strumlineMap[lane].length);
 
-		var rec = frontBuf.getElement(map[0] + (strumlineMap[1].length * map[1]));
+		var rec = frontBuf.getElement(index);
 
-		rec.confirm();
+		if (!rec.playable) {
+			return;
+		}
+
+		var noteToHit = notesToHit[index];
+		if (noteToHit != null && noteToHit.c.aF != 0) {
+			rec.confirm();
+
+			//Sys.println('Hit player note $index');
+			noteToHit.c.aF = 0;
+			sustainsToHold[index] = noteToHit.child;
+
+			notesToHit[index] = null;
+		} else {
+			rec.press();
+		}
+
 		frontBuf.updateElement(rec);
 	}
 
@@ -152,8 +265,22 @@ class PlayField {
 		}
 
 		var map = keybindMap[code];
+		var lane = map[1];
+		var index = map[0] + (lane * strumlineMap[lane].length);
 
-		var rec = frontBuf.getElement(map[0] + (strumlineMap[1].length * map[1]));
+		var rec = frontBuf.getElement(index);
+
+		if (!rec.playable) {
+			return;
+		}
+
+		var sustain = sustainsToHold[index];
+
+		if (sustain != null && (sustain.c.aF != 0 && sustain.w > 100)) {
+			sustain.c.aF = 0;
+			Sys.println('Miss sustain $index');
+			sustainsToHold[index] = null;
+		}
 
 		rec.reset();
 		frontBuf.updateElement(rec);

@@ -8,7 +8,7 @@ using StringTools;
 @:noDebug
 #end
 @:publicFields
-class ChartSystem 
+class ChartSystem
 {
 	inline static function parseHeader(path:String):Header {
 		var input = File.read(path, false);

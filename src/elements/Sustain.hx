@@ -21,22 +21,12 @@ class Sustain implements Element
 
 	@varying @custom public var speed:Float = 1.0;
 
-	public var length(get, set):Int;
-
-	inline function get_length() {
-		return w - initW;
-	}
-
-	inline function set_length(value:Int) {
-		return w = value + initW;
-	}
-
+	public var length:Int;
 	public var initW(default, null):Int;
 	public var initH(default, null):Int;
 
-	/**
-		The parent of this sustain sprite.
-	**/
+	// Custom despawn distance dedicated to the sustain note.
+	private var despawnDist:Int;
 
 	// --------------------------------------------------------------------------
 
@@ -91,7 +81,20 @@ class Sustain implements Element
 	}
 
 	inline public function followNote(note:Note) {
-		x = note.x + ((note.w + (note.ox << 1)) >> 1);
-		y = note.y + (((note.h + (note.oy << 1)) - initH) >> 1);
+		if (!note.isNote()) {
+			followReceptor(note);
+		} else {
+			x = note.x + ((note.w + (note.ox << 1)) >> 1);
+			y = note.y + (((note.h + (note.oy << 1)) - initH) >> 1);
+		}
+	}
+
+	inline public function followReceptor(rec:Note) {
+		if (rec.isNote()) {
+			followNote(rec);
+		} else {
+			x = rec.x + ((rec.w + (rec.ox << 1)) >> 1);
+			y = rec.y + (((rec.h + (rec.oy << 1)) - initH) >> 1);
+		}
 	}
 }
