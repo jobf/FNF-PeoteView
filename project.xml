@@ -8,7 +8,6 @@
 	<app main="elements.playField.Main" path="bin" file="fopv" />
 	<!--
 		Main
-		elements.sustains.Main // Sustain test (add -D stressTest for stress testing)
 		elements.playField.Main // Note system test
 	-->
 
