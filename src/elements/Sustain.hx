@@ -28,6 +28,13 @@ class Sustain implements Element
 	// Custom despawn distance dedicated to the sustain note.
 	private var despawnDist:Int;
 
+	public var held:Bool;
+
+	/**
+		The parent of this note sprite.
+	**/
+	public var parent:Note;
+
 	// --------------------------------------------------------------------------
 
 	static public function init(program:Program, name:String, texture:Texture)

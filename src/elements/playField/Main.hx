@@ -44,7 +44,8 @@ class Main extends Application
 		//new ChartNote(292500, 0, 0, 0, 1),
 		new ChartNote(300000, 120, 1, 0, 1),
 		new ChartNote(360000, 120, 2, 0, 1),
-		new ChartNote(420000, 120, 3, 0, 1)
+		new ChartNote(420000, 30, 3, 0, 1),
+		new ChartNote(450000, 0, 3, 0, 1)
 	];
 
 	public function startSample(window:Window)
@@ -79,6 +80,7 @@ class Main extends Application
 				susSpr.r = playField.downScroll ? -90 : 90;
 				playField.addSustain(susSpr);
 
+				susSpr.parent = noteSpr;
 				noteSpr.child = susSpr;
 			}
 		}
@@ -87,6 +89,24 @@ class Main extends Application
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyUp.add(playField.keyRelease);
+
+		//// CALLBACK TEST ////
+		/*playField.onNoteHit.add((note:ChartNote) -> {
+			Sys.println('Hit ${note.index}, ${note.lane}');
+		});
+
+		playField.onNoteMiss.add((note:ChartNote) -> {
+			Sys.println('Miss ${note.index}, ${note.lane}');
+		});
+
+		playField.onSustainComplete.add((note:ChartNote) -> {
+			Sys.println('Sustained ${note.index}, ${note.lane}');
+		});
+
+		playField.onSustainRelease.add((note:ChartNote) -> {
+			Sys.println('Released ${note.index}, ${note.lane}');
+		});*/
+		///////////////////////
 
 		peoteView.start();
 	}

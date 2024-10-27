@@ -20,16 +20,16 @@ class PlayField {
 
 	var downScroll(default, null):Bool;
 
-	var onNoteHit:Event<Note->Bool->Void>;
-	var onNoteMiss:Event<Note->Bool->Void>;
-	var onSustainComplete:Event<Sustain->Bool->Void>;
-	var onSustainRelease:Event<Sustain->Bool->Void>;
+	var onNoteHit:Event<ChartNote->Void>;
+	var onNoteMiss:Event<ChartNote->Void>;
+	var onSustainComplete:Event<ChartNote->Void>;
+	var onSustainRelease:Event<ChartNote->Void>;
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
 	// Behind the note system
 	private var sustainProg(default, null):Program;
-	private var sustainBuf(default, null):Buffer<Sustain>;
+	private var sustainsBuf(default, null):Buffer<Sustain>;
 
 	// Above the note system
 	private var frontProg(default, null):Program;
@@ -84,12 +84,19 @@ class PlayField {
 	}
 
 	inline function addSustain(sustain:Sustain) {
-		sustainBuf.addElement(sustain);
+		sustainsBuf.addElement(sustain);
 	}
 
 	inline function getNote(id:Int) {
 		return notesBuf.getElement(id + numOfReceptors);
 	}
+
+	/*function setTime(value:Float) {
+		spawnPosTop = spawnPosBottom = 0;
+
+		// Setting time in the playfield's note system... It's still the second hardest thing to ever do in it.
+		for (i in 0...)
+	}*/
 
 	function cullTop(pos:Int64) {
 		curTopNote = getNote(spawnPosTop);
@@ -111,8 +118,21 @@ class PlayField {
 			)) -
 			curBottomNote.data.position).low > despawnDist) {
 			spawnPosBottom++;
+
 			curBottomNote.x = 9999;
-			Sys.println(spawnPosBottom);
+
+			var sustain = curBottomNote.child;
+			var sustainExists = sustain != null;
+
+			if (sustainExists) {
+				sustain.x = 9999;
+				sustain.c.aF = 1;
+				sustain.held = false;
+				sustainsBuf.updateElement(sustain);
+			}
+
+			curBottomNote.c.aF = 1;
+			notesBuf.updateElement(curBottomNote);
 
 			// Fix for the last sustain not executing the receptor's press animation if it was finished.
 			if (spawnPosBottom == numOfNotes - 1) {
@@ -121,11 +141,10 @@ class PlayField {
 
 				var rec = notesBuf.getElement(data.index + (strumlineMap[lane].length * lane));
 
-				var sustain = curBottomNote.child;
-				if (sustain != null && sustain.w < 100) {
+				if (sustainExists && sustain.w < 100) {
 					rec.reset();
-					onSustainComplete.dispatch(sustain, rec.playable);
 					notesBuf.updateElement(rec);
+					onSustainComplete.dispatch(data);
 				}
 			}
 
@@ -174,25 +193,25 @@ class PlayField {
 						notesToHit[fullIndex] = null;
 						note.c.aF = 0;
 						if (sustainExists) sustain.c.aF = 0;
-						onNoteMiss.dispatch(note, rec.playable);
+						var data = note.data;
+						onNoteMiss.dispatch(data);
+						onSustainRelease.dispatch(data);
 					}
 				}
 			} else {
 				if (!isHit && diff < 0) {
 					note.c.aF = 0;
-					sustainsToHold[fullIndex] = note.child;
+					sustainsToHold[fullIndex] = sustain;
+
 					rec.confirm();
 
 					if (sustainExists) {
 						sustain.followReceptor(rec);
-						sustain.w = Math.floor(Math.max(sustain.length - Int64.div(pos - position, 100).low, 0));
+						sustain.w = sustain.length - Int64.div(pos - position, 100).low;
+						if (sustain.w < 0) sustain.w = 0;
 					}
-				}
 
-				if (sustainExists && sustain.w < 100) {
-					rec.reset();
-					notesBuf.updateElement(rec);
-					onSustainComplete.dispatch(sustain, rec.playable);
+					onNoteHit.dispatch(note.data);
 				}
 			}
 
@@ -201,12 +220,7 @@ class PlayField {
 
 				if (!isHit) {
 					sustain.followNote(note);
-				} else if (sustain.c.aF != 0) {
-					if (pos > position + (sustain.length * 100)) {
-						onSustainComplete.dispatch(sustain, rec.playable);
-						rec.reset();
-					}
-
+				} else if (sustain.c.aF != 0 && !sustain.held) {
 					if (sustain.w > 0) {
 						sustain.followReceptor(rec);
 						sustain.w = Math.floor(Math.max(sustain.length - Int64.div(pos - position, 100).low, 0));
@@ -216,9 +230,16 @@ class PlayField {
 						rec.confirm();
 						notesBuf.updateElement(rec);
 					}
+
+					if (pos > position + (sustain.length * 100)) {
+						sustain.held = true;
+						rec.reset();
+						notesBuf.updateElement(rec);
+						onSustainComplete.dispatch(sustain.parent.data);
+					}
 				}
 
-				sustainBuf.updateElement(sustain);
+				sustainsBuf.updateElement(sustain);
 			}
 
 			notesBuf.updateElement(note);
@@ -247,7 +268,7 @@ class PlayField {
 			noteToHit.c.aF = 0;
 			sustainsToHold[index] = noteToHit.child;
 
-			onNoteHit.dispatch(noteToHit, rec.playable);
+			onNoteHit.dispatch(noteToHit.data);
 
 			notesToHit[index] = null;
 		} else {
@@ -278,7 +299,7 @@ class PlayField {
 
 		if (sustain != null && (sustain.c.aF != 0 && sustain.w > 100)) {
 			sustain.c.aF = 0;
-			onSustainRelease.dispatch(sustain, rec.playable);
+			onSustainRelease.dispatch(sustain.parent.data);
 
 			sustainsToHold[index] = null;
 		}
@@ -292,10 +313,10 @@ class PlayField {
 	function createNoteSystem(display:Display, downScroll:Bool = false) {
 		this.downScroll = downScroll;
 
-		onNoteHit = new Event<Note->Bool->Void>();
-		onNoteMiss = new Event<Note->Bool->Void>();
-		onSustainComplete = new Event<Sustain->Bool->Void>();
-		onSustainRelease = new Event<Sustain->Bool->Void>();
+		onNoteHit = new Event<ChartNote->Void>();
+		onNoteMiss = new Event<ChartNote->Void>();
+		onSustainComplete = new Event<ChartNote->Void>();
+		onSustainRelease = new Event<ChartNote->Void>();
 		onKeyPress = new Event<KeyCode->Void>();
 		onKeyRelease = new Event<KeyCode->Void>();
 
@@ -324,8 +345,8 @@ class PlayField {
 
 		TextureSystem.createTexture("sustainTex", "assets/notes/normal/sustain.png");
 
-		sustainBuf = new Buffer<Sustain>(8192, 8192, false);
-		sustainProg = new Program(sustainBuf);
+		sustainsBuf = new Buffer<Sustain>(8192, 8192, false);
+		sustainProg = new Program(sustainsBuf);
 		sustainProg.blendEnabled = true;
 
 		var tex2 = TextureSystem.getTexture("sustainTex");
