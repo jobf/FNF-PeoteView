@@ -17,7 +17,6 @@ Instll these haxelibs:
 Now here are the rest that you need so you can run `haxelib setup lime`:
 
 ``haxelib install format`` (This one is also used in peote-view for `TextureData.fromPNG`)
-``haxelib install hxp``
 
 After that, make sure that you are on this screen:![img](repo_assets/image-1.png)
 
