@@ -288,7 +288,7 @@ class PlayField {
 
 					if (pos > position + (sustain.length * 100) && !sustain.held) {
 						sustain.held = true;
-						if (rec.playable) rec.press();
+						if (rec.playable && rec.confirmed()) rec.press();
 						else rec.reset();
 						notesBuf.updateElement(rec);
 						onSustainComplete.dispatch(sustain.parent.data);

@@ -116,7 +116,7 @@ class Main extends Application
 
 	function changeTime(code:KeyCode, mod) {
 		switch (code) {
-			case KeyCode.PLUS:
+			case KeyCode.EQUALS:
 				position += 2000;
 				playField.setTime(position);
 			case KeyCode.MINUS:
