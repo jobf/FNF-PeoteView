@@ -124,10 +124,6 @@ class PlayField {
 		}
 
 		spawnPosTop = spawnPosBottom = 0;
-
-		var interval = 1000000000;
-		if (interval > numOfNotes) interval = numOfNotes >> 1;
-
 	}
 
 	function cullTop(pos:Int64) {

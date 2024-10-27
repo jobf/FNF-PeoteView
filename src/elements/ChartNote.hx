@@ -27,7 +27,7 @@ abstract ChartNote(Int64) from Int64 {
 	}
 
 	/**
-		The note's position. 41 bits so it fits the 100 microsecond granularity.
+		The note's position. 41 bits so it fits the 10 microsecond granularity.
 		Assigns the note's visual representation of the hold note with the length.
 	**/
 	var position(get, never):Int64;
