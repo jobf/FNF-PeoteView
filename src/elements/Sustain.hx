@@ -11,7 +11,7 @@ class Sustain implements Element
 	@varying @sizeY public var h:Int;
 
 	// at what x position it have to slice (width of the tail in texturedata pixels) (WARNING: COUNT X POSITION FROM PNG BACKWARDS)
-	@varying @custom public var tailPoint:Int = 30;
+	@varying @custom public var tailPoint:Int = 43;
 
 	@rotation public var r:Float;
 
@@ -22,7 +22,7 @@ class Sustain implements Element
 	@varying @custom public var speed:Float = 1.0;
 
 	static public var defaultAlpha:Float = 0.6;
-	static public var defaultMissAlpha:Float = 0.27;
+	static public var defaultMissAlpha:Float = 0.3;
 
 	public var length:Int;
 	public var initW(default, null):Int;

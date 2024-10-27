@@ -94,7 +94,7 @@ class Main extends Application
 		window.onKeyUp.add(playField.keyRelease);
 
 		//// CALLBACK TEST ////
-		playField.onNoteHit.add((note:ChartNote) -> {
+		/*playField.onNoteHit.add((note:ChartNote) -> {
 			Sys.println('Hit ${note.index}, ${note.lane}');
 		});
 
@@ -108,7 +108,7 @@ class Main extends Application
 
 		playField.onSustainRelease.add((note:ChartNote) -> {
 			Sys.println('Released ${note.index}, ${note.lane}');
-		});
+		});*/
 		///////////////////////
 
 		peoteView.start();
