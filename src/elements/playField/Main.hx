@@ -46,7 +46,7 @@ class Main extends Application
 		new ChartNote(360000, 120, 2, 0, 1),
 		new ChartNote(420000, 120, 3, 0, 1)
 	];
-	
+
 	public function startSample(window:Window)
 	{
 		peoteView = new PeoteView(window);
@@ -66,13 +66,14 @@ class Main extends Application
 
 		for (i in 0...notes.length) {
 			var note = notes[i];
-			var noteSpr = new Note(-9999, -9999, nW, nH);
+			var noteSpr = new Note(9999, 0, nW, nH);
 			noteSpr.data = note;
 			noteSpr.toNote();
+            noteSpr.r = playField.strumlineMap[note.lane][note.index][0];
 			playField.addNote(noteSpr);
 
 			if (note.duration > 5) {
-				var susSpr = new Sustain(-9999, -9999, sW, sH);
+				var susSpr = new Sustain(9999, 0, sW, sH);
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
 				susSpr.r = 90;
@@ -82,7 +83,7 @@ class Main extends Application
 			}
 		}
 
-		playField.numOfNotes = @:privateAccess playField.frontBuf.length - playField.numOfReceptors;
+		playField.numOfNotes = @:privateAccess playField.notesBuf.length - playField.numOfReceptors;
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyUp.add(playField.keyRelease);
