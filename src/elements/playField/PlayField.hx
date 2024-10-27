@@ -100,6 +100,12 @@ class PlayField {
 			notesBuf.updateElement(rec);
 		}
 
+		// Clear the list of note inputs and sustain inputs. This is required!
+		notesToHit.resize(0);
+		sustainsToHold.resize(0);
+		notesToHit.resize(numOfReceptors);
+		sustainsToHold.resize(numOfReceptors);
+
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
 			note.x = 9999;
