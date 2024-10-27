@@ -46,16 +46,22 @@ class PlayField {
 		KeyCode.W => [2, 1],
 		KeyCode.UP => [2, 1],
 		KeyCode.D => [3, 1],
-		KeyCode.RIGHT => [3, 1]
+		KeyCode.RIGHT => [3, 1],
+		KeyCode.Z => [0, 2],
+		KeyCode.X => [1, 2],
+		KeyCode.N => [2, 2],
+		KeyCode.M => [3, 2]
 	];
 
 	var strumlineMap:Array<Array<Array<Int>>> = [
+		[[0, 9999], [0, 9999], [0, 9999], [0, 9999]],
 		[[0, 50], [-90, 162], [90, 274], [180, 386]],
 		[[0, 675], [-90, 787], [90, 899], [180, 1011]]
 	];
 
 	var strumlinePlayableMap:Array<Bool> = [
 		false,
+		true,
 		true
 	];
 
@@ -73,6 +79,7 @@ class PlayField {
 	private var notesToHit(default, null):Array<Note> = [];
 	private var sustainsToHold(default, null):Array<Sustain> = [];
 	private var botHitsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
+	private var playerHitsToCheck(default, null):Array<Bool> = []; // For preventing a key press check from continuing if you hit a note
 
 	private var spawnPosBottom(default, null):Int;
 	private var spawnPosTop(default, null):Int;
@@ -107,9 +114,11 @@ class PlayField {
 		notesToHit.resize(0);
 		sustainsToHold.resize(0);
 		botHitsToCheck.resize(0);
+		playerHitsToCheck.resize(0);
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
 		botHitsToCheck.resize(numOfReceptors);
+		playerHitsToCheck.resize(numOfReceptors);
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
@@ -120,7 +129,7 @@ class PlayField {
 				sustain.c.aF = 0;
 				sustain.x = 9999;
 				sustain.w = sustain.length;
-				sustain.held = false;
+				note.missed = sustain.held = false;
 				sustainsBuf.updateElement(sustain);
 			}
 
@@ -145,7 +154,7 @@ class PlayField {
 				sustain.w = sustain.length;
 				sustain.x = 9999;
 				sustainsBuf.updateElement(sustain);
-				sustain.held = false;
+				curTopNote.missed = sustain.held = false;
 			}
 
 			curTopNote.c.aF = 1;
@@ -175,24 +184,11 @@ class PlayField {
 				sustain.x = 9999;
 				sustain.c.aF = Sustain.defaultAlpha;
 				sustainsBuf.updateElement(sustain);
-				sustain.held = false;
+				curBottomNote.missed = sustain.held = false;
 			}
 
 			curBottomNote.c.aF = 1;
 			notesBuf.updateElement(curBottomNote);
-
-			// Fix for the last sustain not executing the receptor's press animation if it was finished.
-			if (spawnPosBottom == numOfNotes - 1) {
-				var data = curBottomNote.data;
-				var lane = data.lane;
-
-				var rec = notesBuf.getElement(data.index + (strumlineMap[lane].length * lane));
-
-				if (sustainExists && sustain.w < 100 && !sustain.held) {
-					sustain.held = true;
-					notesBuf.updateElement(rec);
-				}
-			}
 
 			curBottomNote = getNote(spawnPosBottom);
 		}
@@ -206,8 +202,7 @@ class PlayField {
 			var index = data.index;
 			var lane = data.lane;
 
-			var laneMap = strumlineMap[lane];
-			var fullIndex = index + (lane * laneMap.length);
+			var fullIndex = index + (lane * strumlineMap[lane].length);
 
 			var position = data.position;
 
@@ -229,22 +224,27 @@ class PlayField {
 			if (rec.playable) {
 				if (!isHit) {
 					var noteToHit = notesToHit[fullIndex];
-					var hitPos = noteToHit != null ? noteToHit.data.position : 0;
-					if ((diff < 160 && noteToHit == null) ||
-						(noteToHit != null && pos - hitPos > (position - hitPos) >> 1)) {
+					var noteToHitExists = noteToHit != null;
+					var hitPos = noteToHitExists ? noteToHit.data.position : 0;
+					if ((diff < 160 && !noteToHitExists) ||
+						(noteToHitExists && pos - hitPos > (position - hitPos) >> 1)) {
 						notesToHit[fullIndex] = note;
 					}
 
-					if (diff < -160) {
-						notesToHit[fullIndex] = null;
+					if (diff < -160 && !note.missed) {
 						note.c.aF = 0.5;
-						if (sustainExists) {
-							sustain.c.aF = Sustain.defaultMissAlpha;
-							sustain.held = true;
-						}
+						note.missed = true;
+
 						var data = note.data;
 						onNoteMiss.dispatch(data);
-						onSustainRelease.dispatch(data);
+
+						if (sustainExists && !sustain.held) {
+							sustain.c.aF = Sustain.defaultMissAlpha;
+							sustain.held = true;
+							onSustainRelease.dispatch(data);
+						}
+
+						notesToHit[fullIndex] = null;
 					}
 				}
 			} else {
@@ -284,7 +284,7 @@ class PlayField {
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
-					if (pos > position + (sustain.length * 100) && !sustain.held) {
+					if (pos > position + (sustain.length * 100) - 125 && !sustain.held) {
 						sustain.held = true;
 						if (rec.confirmed()) {
 							if (rec.playable) rec.press();
@@ -311,6 +311,10 @@ class PlayField {
 		var lane = map[1];
 		var index = map[0] + (lane * strumlineMap[lane].length);
 
+		if (playerHitsToCheck[index]) {
+			return;
+		}
+
 		var rec = notesBuf.getElement(index);
 
 		if (!rec.playable) {
@@ -319,6 +323,8 @@ class PlayField {
 
 		var noteToHit = notesToHit[index];
 		if (noteToHit != null && noteToHit.c.aF != 0) {
+			playerHitsToCheck[index] = true;
+
 			rec.confirm();
 
 			noteToHit.c.aF = 0;
@@ -329,6 +335,7 @@ class PlayField {
 			notesToHit[index] = null;
 		} else {
 			rec.press();
+			Sys.println('Pressed $index');
 		}
 
 		notesBuf.updateElement(rec);
@@ -344,6 +351,8 @@ class PlayField {
 		var map = keybindMap[code];
 		var lane = map[1];
 		var index = map[0] + (lane * strumlineMap[lane].length);
+
+		playerHitsToCheck[index] = false;
 
 		var rec = notesBuf.getElement(index);
 

@@ -30,23 +30,28 @@ class Main extends Application
 	var notes:Array<ChartNote> = [
 		new ChartNote(0, 120, 0, 0, 0),
 		new ChartNote(60000, 120, 1, 0, 0),
-		new ChartNote(75000, 0, 0, 0, 0),
-		new ChartNote(90000, 0, 3, 0, 0),
-		new ChartNote(105000, 0, 2, 0, 0),
+		new ChartNote(75000, 0, 0, 0, 1),
+		new ChartNote(90000, 0, 3, 0, 1),
+		new ChartNote(105000, 0, 2, 0, 1),
 		new ChartNote(120000, 120, 2, 0, 0),
+		new ChartNote(120000, 120, 2, 0, 1),
 		new ChartNote(180000, 120, 3, 0, 0),
-		new ChartNote(240000, 0, 0, 0, 1),
+		new ChartNote(180000, 120, 3, 0, 1),
+		new ChartNote(240000, 0, 0, 0, 2),
 		//new ChartNote(247500, 0, 0, 0, 1),
-		new ChartNote(255000, 0, 0, 0, 1),
+		new ChartNote(255000, 0, 0, 0, 2),
 		//new ChartNote(262500, 0, 0, 0, 1),
-		new ChartNote(270000, 0, 0, 0, 1),
+		new ChartNote(270000, 0, 0, 0, 2),
 		//new ChartNote(277500, 0, 0, 0, 1),
-		new ChartNote(285000, 0, 0, 0, 1),
+		new ChartNote(285000, 0, 0, 0, 2),
 		//new ChartNote(292500, 0, 0, 0, 1),
-		new ChartNote(300000, 120, 1, 0, 1),
-		new ChartNote(360000, 120, 2, 0, 1),
-		new ChartNote(420000, 30, 3, 0, 1),
-		new ChartNote(450000, 30, 3, 0, 1)
+		new ChartNote(300000, 120, 1, 0, 2),
+		new ChartNote(360000, 120, 2, 0, 2),
+		new ChartNote(420000, 30, 3, 0, 2),
+		new ChartNote(450000, 30, 3, 0, 1),
+		new ChartNote(480000, 960, 2, 0, 0),
+		new ChartNote(480000, 960, 2, 0, 1),
+		new ChartNote(480000, 960, 2, 0, 2)
 	];
 
 	public function startSample(window:Window)
@@ -94,7 +99,7 @@ class Main extends Application
 		window.onKeyUp.add(playField.keyRelease);
 
 		//// CALLBACK TEST ////
-		/*playField.onNoteHit.add((note:ChartNote) -> {
+		playField.onNoteHit.add((note:ChartNote) -> {
 			Sys.println('Hit ${note.index}, ${note.lane}');
 		});
 
@@ -103,12 +108,12 @@ class Main extends Application
 		});
 
 		playField.onSustainComplete.add((note:ChartNote) -> {
-			Sys.println('Sustained ${note.index}, ${note.lane}');
+			Sys.println('Complete ${note.index}, ${note.lane}');
 		});
 
 		playField.onSustainRelease.add((note:ChartNote) -> {
-			Sys.println('Released ${note.index}, ${note.lane}');
-		});*/
+			Sys.println('Release ${note.index}, ${note.lane}');
+		});
 		///////////////////////
 
 		peoteView.start();
