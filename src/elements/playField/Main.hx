@@ -54,7 +54,7 @@ class Main extends Application
 
 		peoteView.addDisplay(display);
 
-		playField = new PlayField(display);
+		playField = new PlayField(display, true);
 		playField.scrollSpeed = 1.0;
 
 		var prop = playField.textureMapProperties;
@@ -76,7 +76,7 @@ class Main extends Application
 				var susSpr = new Sustain(9999, 0, sW, sH);
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
-				susSpr.r = 90;
+				susSpr.r = playField.downScroll ? -90 : 90;
 				playField.addSustain(susSpr);
 
 				noteSpr.child = susSpr;
