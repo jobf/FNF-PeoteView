@@ -18,6 +18,8 @@ class PlayField {
 										  NOTE SYSTEM
 	**************************************************************************************/
 
+	// This is a huge ass system lmao
+
 	var downScroll(default, null):Bool;
 
 	var onNoteHit:Event<ChartNote->Void>;
@@ -37,14 +39,14 @@ class PlayField {
 
 	var textureMapProperties:Array<Int> = [];
 	var keybindMap:Map<KeyCode, Array<Int>> = [
-		KeyCode.A => [0, 0],
-		KeyCode.LEFT => [0, 0],
-		KeyCode.S => [1, 0],
-		KeyCode.DOWN => [1, 0],
-		KeyCode.W => [2, 0],
-		KeyCode.UP => [2, 0],
-		KeyCode.D => [3, 0],
-		KeyCode.RIGHT => [3, 0]
+		KeyCode.A => [0, 1],
+		KeyCode.LEFT => [0, 1],
+		KeyCode.S => [1, 1],
+		KeyCode.DOWN => [1, 1],
+		KeyCode.W => [2, 1],
+		KeyCode.UP => [2, 1],
+		KeyCode.D => [3, 1],
+		KeyCode.RIGHT => [3, 1]
 	];
 
 	var strumlineMap:Array<Array<Array<Int>>> = [
@@ -53,8 +55,8 @@ class PlayField {
 	];
 
 	var strumlinePlayableMap:Array<Bool> = [
-		true,
-		false
+		false,
+		true
 	];
 
 	var numOfReceptors:Int;
@@ -70,6 +72,7 @@ class PlayField {
 
 	private var notesToHit(default, null):Array<Note> = [];
 	private var sustainsToHold(default, null):Array<Sustain> = [];
+	private var confirmsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
 
 	private var spawnPosBottom(default, null):Int;
 	private var spawnPosTop(default, null):Int;
@@ -103,8 +106,10 @@ class PlayField {
 		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
 		sustainsToHold.resize(0);
+		confirmsToCheck.resize(0);
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
+		confirmsToCheck.resize(numOfReceptors);
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
@@ -184,7 +189,7 @@ class PlayField {
 				var rec = notesBuf.getElement(data.index + (strumlineMap[lane].length * lane));
 
 				if (sustainExists && sustain.w < 100 && !sustain.held) {
-					if (rec.playable) rec.reset();
+					if (rec.playable && !(rec.pressed() || rec.confirmed())) rec.reset();
 					sustain.held = true;
 					notesBuf.updateElement(rec);
 					onSustainComplete.dispatch(data);
@@ -245,9 +250,18 @@ class PlayField {
 					}
 				}
 			} else {
+				if (confirmsToCheck[fullIndex]) {
+					rec.reset();
+					notesBuf.updateElement(rec);
+					confirmsToCheck[fullIndex] = false;
+				}
+
 				if (!isHit && diff < 0) {
 					note.c.aF = 0;
 					sustainsToHold[fullIndex] = sustain;
+
+					rec.confirm();
+					notesBuf.updateElement(rec);
 
 					if (sustainExists) {
 						sustain.followReceptor(rec);
@@ -256,6 +270,7 @@ class PlayField {
 					}
 
 					onNoteHit.dispatch(note.data);
+					confirmsToCheck[fullIndex] = !sustainExists;
 				}
 			}
 
@@ -271,9 +286,10 @@ class PlayField {
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
-					if (pos > position + (sustain.length * 100)) {
+					if (pos > position + (sustain.length * 100) && !sustain.held) {
 						sustain.held = true;
-						rec.reset();
+						if (rec.playable) rec.press();
+						else rec.reset();
 						notesBuf.updateElement(rec);
 						onSustainComplete.dispatch(sustain.parent.data);
 					}
