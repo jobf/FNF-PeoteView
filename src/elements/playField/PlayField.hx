@@ -72,7 +72,7 @@ class PlayField {
 
 	private var notesToHit(default, null):Array<Note> = [];
 	private var sustainsToHold(default, null):Array<Sustain> = [];
-	private var confirmsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
+	private var botHitsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
 
 	private var spawnPosBottom(default, null):Int;
 	private var spawnPosTop(default, null):Int;
@@ -106,10 +106,10 @@ class PlayField {
 		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
 		sustainsToHold.resize(0);
-		confirmsToCheck.resize(0);
+		botHitsToCheck.resize(0);
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
-		confirmsToCheck.resize(numOfReceptors);
+		botHitsToCheck.resize(numOfReceptors);
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
@@ -189,10 +189,8 @@ class PlayField {
 				var rec = notesBuf.getElement(data.index + (strumlineMap[lane].length * lane));
 
 				if (sustainExists && sustain.w < 100 && !sustain.held) {
-					if (rec.playable && !(rec.pressed() || rec.confirmed())) rec.reset();
 					sustain.held = true;
 					notesBuf.updateElement(rec);
-					onSustainComplete.dispatch(data);
 				}
 			}
 
@@ -250,10 +248,10 @@ class PlayField {
 					}
 				}
 			} else {
-				if (confirmsToCheck[fullIndex]) {
+				if (botHitsToCheck[fullIndex]) {
 					rec.reset();
 					notesBuf.updateElement(rec);
-					confirmsToCheck[fullIndex] = false;
+					botHitsToCheck[fullIndex] = false;
 				}
 
 				if (!isHit && diff < 0) {
@@ -270,7 +268,7 @@ class PlayField {
 					}
 
 					onNoteHit.dispatch(note.data);
-					confirmsToCheck[fullIndex] = !sustainExists;
+					botHitsToCheck[fullIndex] = !sustainExists;
 				}
 			}
 
@@ -288,8 +286,10 @@ class PlayField {
 
 					if (pos > position + (sustain.length * 100) && !sustain.held) {
 						sustain.held = true;
-						if (rec.playable && rec.confirmed()) rec.press();
-						else rec.reset();
+						if (rec.confirmed()) {
+							if (rec.playable) rec.press();
+							else rec.reset();
+						}
 						notesBuf.updateElement(rec);
 						onSustainComplete.dispatch(sustain.parent.data);
 					}
