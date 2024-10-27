@@ -3,6 +3,7 @@ package elements.playField;
 import haxe.CallStack;
 import lime.app.Application;
 import lime.ui.Window;
+import lime.ui.KeyCode;
 
 class Main extends Application
 {
@@ -45,7 +46,7 @@ class Main extends Application
 		new ChartNote(300000, 120, 1, 0, 1),
 		new ChartNote(360000, 120, 2, 0, 1),
 		new ChartNote(420000, 30, 3, 0, 1),
-		new ChartNote(450000, 0, 3, 0, 1)
+		new ChartNote(450000, 30, 3, 0, 1)
 	];
 
 	public function startSample(window:Window)
@@ -56,7 +57,7 @@ class Main extends Application
 		peoteView.addDisplay(display);
 
 		playField = new PlayField(display, true);
-		playField.scrollSpeed = 1.0;
+		playField.scrollSpeed = 2.0;
 
 		var prop = playField.textureMapProperties;
 
@@ -78,6 +79,7 @@ class Main extends Application
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
 				susSpr.r = playField.downScroll ? -90 : 90;
+				susSpr.c.aF = Sustain.defaultAlpha;
 				playField.addSustain(susSpr);
 
 				susSpr.parent = noteSpr;
@@ -88,6 +90,7 @@ class Main extends Application
 		playField.numOfNotes = @:privateAccess playField.notesBuf.length - playField.numOfReceptors;
 
 		window.onKeyDown.add(playField.keyPress);
+		window.onKeyDown.add(changeTime);
 		window.onKeyUp.add(playField.keyRelease);
 
 		//// CALLBACK TEST ////
@@ -111,8 +114,21 @@ class Main extends Application
 		peoteView.start();
 	}
 
+	function changeTime(code:KeyCode, mod) {
+		switch (code) {
+			case KeyCode.PLUS:
+				position += 2000;
+				playField.setTime(position);
+			case KeyCode.MINUS:
+				position -= 2000;
+				playField.setTime(position);
+			default:
+		}
+	}
+
 	override function update(deltaTime:Int) {
 		position += deltaTime;
+		Sys.println(position);
 
 		playField.update(position);
 	}

@@ -2,7 +2,7 @@
 <project>
 	<meta title="Friday Night Funkin': Peote View" package="peote.view" version="0.1.0" company="Sylvio Sell - maitag" />
 
-	<window width="1280" height="720" fps="60" resizable="false" vsync="true" />
+	<window width="1280" height="720" fps="61" resizable="false" vsync="false" />
 	<window if="html5||android" width="0" height="0" />
 
 	<app main="elements.playField.Main" path="bin" file="fopv" />
@@ -27,6 +27,9 @@
 
 	<!-- prevent JIT ERROR 0 (jit.c line 541) -->
 	<haxeflag name="-dce" value="full" />
+
+	<!--Allow working memory greater than 1 gigabyte-->
+	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="cpp" />
 
 	<icon path="assets/lime.svg" />
 </project>

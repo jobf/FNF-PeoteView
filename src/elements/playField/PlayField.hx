@@ -37,14 +37,14 @@ class PlayField {
 
 	var textureMapProperties:Array<Int> = [];
 	var keybindMap:Map<KeyCode, Array<Int>> = [
-		KeyCode.A => [0, 1],
-		KeyCode.LEFT => [0, 1],
-		KeyCode.S => [1, 1],
-		KeyCode.DOWN => [1, 1],
-		KeyCode.W => [2, 1],
-		KeyCode.UP => [2, 1],
-		KeyCode.D => [3, 1],
-		KeyCode.RIGHT => [3, 1]
+		KeyCode.A => [0, 0],
+		KeyCode.LEFT => [0, 0],
+		KeyCode.S => [1, 0],
+		KeyCode.DOWN => [1, 0],
+		KeyCode.W => [2, 0],
+		KeyCode.UP => [2, 0],
+		KeyCode.D => [3, 0],
+		KeyCode.RIGHT => [3, 0]
 	];
 
 	var strumlineMap:Array<Array<Array<Int>>> = [
@@ -53,8 +53,8 @@ class PlayField {
 	];
 
 	var strumlinePlayableMap:Array<Bool> = [
-		false,
-		true
+		true,
+		false
 	];
 
 	var numOfReceptors:Int;
@@ -91,12 +91,38 @@ class PlayField {
 		return notesBuf.getElement(id + numOfReceptors);
 	}
 
-	/*function setTime(value:Float) {
+	function setTime(value:Float) {
+		// Setting time in the playfield's note system... It's still the second hardest thing to ever do in it.
+
+		for (i in 0...numOfReceptors) {
+			var rec = notesBuf.getElement(i);
+			rec.reset();
+			notesBuf.updateElement(rec);
+		}
+
+		for (i in spawnPosBottom...spawnPosTop) {
+			var note = getNote(i);
+			note.x = 9999;
+
+			var sustain = note.child;
+			if (sustain != null) {
+				sustain.c.aF = 0;
+				sustain.x = 9999;
+				sustain.w = sustain.length;
+				sustain.held = false;
+				sustainsBuf.updateElement(sustain);
+			}
+
+			note.c.aF = 0;
+			notesBuf.updateElement(note);
+		}
+
 		spawnPosTop = spawnPosBottom = 0;
 
-		// Setting time in the playfield's note system... It's still the second hardest thing to ever do in it.
-		for (i in 0...)
-	}*/
+		var interval = 1000000000;
+		if (interval > numOfNotes) interval = numOfNotes >> 1;
+
+	}
 
 	function cullTop(pos:Int64) {
 		curTopNote = getNote(spawnPosTop);
@@ -104,6 +130,20 @@ class PlayField {
 		while (spawnPosTop != numOfNotes && (curTopNote.data.position - pos).low < spawnDist) {
 			spawnPosTop++;
 			curTopNote.x = 9999;
+
+			var sustain = curTopNote.child;
+
+			if (sustain != null) {
+				sustain.c.aF = Sustain.defaultAlpha;
+				sustain.w = sustain.length;
+				sustain.x = 9999;
+				sustainsBuf.updateElement(sustain);
+				sustain.held = false;
+			}
+
+			curTopNote.c.aF = 1;
+			notesBuf.updateElement(curTopNote);
+
 			curTopNote = getNote(spawnPosTop);
 		}
 	}
@@ -126,9 +166,9 @@ class PlayField {
 
 			if (sustainExists) {
 				sustain.x = 9999;
-				sustain.c.aF = 1;
-				sustain.held = false;
+				sustain.c.aF = Sustain.defaultAlpha;
 				sustainsBuf.updateElement(sustain);
+				sustain.held = false;
 			}
 
 			curBottomNote.c.aF = 1;
@@ -191,8 +231,11 @@ class PlayField {
 
 					if (diff < -160) {
 						notesToHit[fullIndex] = null;
-						note.c.aF = 0;
-						if (sustainExists) sustain.c.aF = 0;
+						note.c.aF = 0.5;
+						if (sustainExists) {
+							sustain.c.aF = Sustain.defaultMissAlpha;
+							sustain.held = true;
+						}
 						var data = note.data;
 						onNoteMiss.dispatch(data);
 						onSustainRelease.dispatch(data);
@@ -220,13 +263,13 @@ class PlayField {
 
 				if (!isHit) {
 					sustain.followNote(note);
-				} else if (sustain.c.aF != 0 && !sustain.held) {
+				} else if (sustain.c.aF != 0) {
 					if (sustain.w > 0) {
 						sustain.followReceptor(rec);
 						sustain.w = Math.floor(Math.max(sustain.length - Int64.div(pos - position, 100).low, 0));
 					}
 
-					if (!rec.idle()) {
+					if (!rec.idle() && !sustain.held) {
 						rec.confirm();
 						notesBuf.updateElement(rec);
 					}
@@ -298,7 +341,8 @@ class PlayField {
 		var sustain = sustainsToHold[index];
 
 		if (sustain != null && (sustain.c.aF != 0 && sustain.w > 100)) {
-			sustain.c.aF = 0;
+			sustain.c.aF = Sustain.defaultMissAlpha;
+			sustain.held = true;
 			onSustainRelease.dispatch(sustain.parent.data);
 
 			sustainsToHold[index] = null;

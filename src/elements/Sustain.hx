@@ -21,6 +21,9 @@ class Sustain implements Element
 
 	@varying @custom public var speed:Float = 1.0;
 
+	static public var defaultAlpha:Float = 0.6;
+	static public var defaultMissAlpha:Float = 0.27;
+
 	public var length:Int;
 	public var initW(default, null):Int;
 	public var initH(default, null):Int;
