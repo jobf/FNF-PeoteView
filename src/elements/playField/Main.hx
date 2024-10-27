@@ -128,7 +128,7 @@ class Main extends Application
 
 	override function update(deltaTime:Int) {
 		position += deltaTime;
-		Sys.println(position);
+		//Sys.println(position);
 
 		playField.update(position);
 	}

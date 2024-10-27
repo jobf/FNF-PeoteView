@@ -183,8 +183,9 @@ class PlayField {
 
 				var rec = notesBuf.getElement(data.index + (strumlineMap[lane].length * lane));
 
-				if (sustainExists && sustain.w < 100) {
-					rec.reset();
+				if (sustainExists && sustain.w < 100 && !sustain.held) {
+					if (rec.playable) rec.reset();
+					sustain.held = true;
 					notesBuf.updateElement(rec);
 					onSustainComplete.dispatch(data);
 				}
@@ -248,8 +249,6 @@ class PlayField {
 					note.c.aF = 0;
 					sustainsToHold[fullIndex] = sustain;
 
-					rec.confirm();
-
 					if (sustainExists) {
 						sustain.followReceptor(rec);
 						sustain.w = sustain.length - Int64.div(pos - position, 100).low;
@@ -268,12 +267,8 @@ class PlayField {
 				} else if (sustain.c.aF != 0) {
 					if (sustain.w > 0) {
 						sustain.followReceptor(rec);
-						sustain.w = Math.floor(Math.max(sustain.length - Int64.div(pos - position, 100).low, 0));
-					}
-
-					if (!rec.idle() && !sustain.held) {
-						rec.confirm();
-						notesBuf.updateElement(rec);
+						sustain.w = sustain.length - Int64.div(pos - position, 100).low;
+						if (sustain.w < 0) sustain.w = 0;
 					}
 
 					if (pos > position + (sustain.length * 100)) {
