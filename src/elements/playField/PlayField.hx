@@ -129,10 +129,11 @@ class PlayField {
 				sustain.c.aF = 0;
 				sustain.x = 9999;
 				sustain.w = sustain.length;
-				note.missed = sustain.held = false;
+				sustain.held = false;
 				sustainsBuf.updateElement(sustain);
 			}
 
+			note.missed = false;
 			note.c.aF = 0;
 			notesBuf.updateElement(note);
 		}
@@ -154,9 +155,10 @@ class PlayField {
 				sustain.w = sustain.length;
 				sustain.x = 9999;
 				sustainsBuf.updateElement(sustain);
-				curTopNote.missed = sustain.held = false;
+				sustain.held = false;
 			}
 
+			curTopNote.missed = false;
 			curTopNote.c.aF = 1;
 			notesBuf.updateElement(curTopNote);
 
@@ -184,9 +186,10 @@ class PlayField {
 				sustain.x = 9999;
 				sustain.c.aF = Sustain.defaultAlpha;
 				sustainsBuf.updateElement(sustain);
-				curBottomNote.missed = sustain.held = false;
+				sustain.held = false;
 			}
 
+			curBottomNote.missed = false;
 			curBottomNote.c.aF = 1;
 			notesBuf.updateElement(curBottomNote);
 
@@ -321,10 +324,10 @@ class PlayField {
 			return;
 		}
 
-		var noteToHit = notesToHit[index];
-		if (noteToHit != null && noteToHit.c.aF != 0) {
-			playerHitsToCheck[index] = true;
+		playerHitsToCheck[index] = true;
 
+		var noteToHit = notesToHit[index];
+		if (noteToHit != null && !noteToHit.missed && noteToHit.c.aF != 0) {
 			rec.confirm();
 
 			noteToHit.c.aF = 0;
