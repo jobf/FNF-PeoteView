@@ -24,7 +24,7 @@ class PlayField {
 
 	var downScroll(default, null):Bool;
 
-	var onNoteHit:Event<ChartNote->Void>;
+	var onNoteHit:Event<ChartNote->Float->Void>;
 	var onNoteMiss:Event<ChartNote->Void>;
 	var onSustainComplete:Event<ChartNote->Void>;
 	var onSustainRelease:Event<ChartNote->Void>;
@@ -48,22 +48,16 @@ class PlayField {
 		KeyCode.W => [2, 1],
 		KeyCode.UP => [2, 1],
 		KeyCode.D => [3, 1],
-		KeyCode.RIGHT => [3, 1],
-		KeyCode.Z => [0, 2],
-		KeyCode.X => [1, 2],
-		KeyCode.N => [2, 2],
-		KeyCode.M => [3, 2]
+		KeyCode.RIGHT => [3, 1]
 	];
 
 	var strumlineMap:Array<Array<Array<Int>>> = [
-		[[0, 9999], [0, 9999], [0, 9999], [0, 9999]],
 		[[0, 50], [-90, 162], [90, 274], [180, 386]],
 		[[0, 675], [-90, 787], [90, 899], [180, 1011]]
 	];
 
 	var strumlinePlayableMap:Array<Bool> = [
 		false,
-		true,
 		true
 	];
 
@@ -142,6 +136,9 @@ class PlayField {
 			notesBuf.updateElement(note);
 		}
 
+		/**
+			TODO: Optimize this
+		**/
 		spawnPosTop = spawnPosBottom = 0;
 	}
 
@@ -214,7 +211,7 @@ class PlayField {
 			var position = data.position;
 
 			var rec = notesBuf.getElement(fullIndex);
-			var diff = ((position.low - pos.low) * 0.01) * scrollSpeed;
+			var diff = (Int64.toInt(position - pos) * 0.01) * scrollSpeed;
 
 			var isHit = note.c.aF == 0;
 
@@ -270,7 +267,7 @@ class PlayField {
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
-					onNoteHit.dispatch(note.data);
+					onNoteHit.dispatch(data, 0);
 					botHitsToCheck[fullIndex] = !sustainExists;
 				}
 			}
@@ -294,7 +291,7 @@ class PlayField {
 							else rec.reset();
 						}
 						notesBuf.updateElement(rec);
-						onSustainComplete.dispatch(sustain.parent.data);
+						onSustainComplete.dispatch(data);
 					}
 				}
 
@@ -334,7 +331,9 @@ class PlayField {
 			noteToHit.c.aF = 0;
 			sustainsToHold[index] = noteToHit.child;
 
-			onNoteHit.dispatch(noteToHit.data);
+			var data = noteToHit.data;
+
+			onNoteHit.dispatch(data, Int64.toInt(data.position - betterInt64FromFloat(songPosition * 100)) * 0.01);
 
 			notesToHit[index] = null;
 		} else rec.press();
@@ -378,9 +377,11 @@ class PlayField {
 	}
 
 	function createNoteSystem(display:Display, downScroll:Bool = false) {
+		if (strumlineMap.length > 4) strumlineMap.resize(4);
+
 		this.downScroll = downScroll;
 
-		onNoteHit = new Event<ChartNote->Void>();
+		onNoteHit = new Event<ChartNote->Float->Void>();
 		onNoteMiss = new Event<ChartNote->Void>();
 		onSustainComplete = new Event<ChartNote->Void>();
 		onSustainRelease = new Event<ChartNote->Void>();
@@ -446,19 +447,34 @@ class PlayField {
 	private var healthBarProg(default, null):Program;
 
 	function createHUD() {
-		/*healthBarBuf = new Buffer<HealthBar>(1, 0, false);
-		healthBarProg = new Program(healthBarBuf);*/
+		healthBarBuf = new Buffer<HealthBar>(5, 0, false);
+		healthBarProg = new Program(healthBarBuf);
 	}
 
 	/**************************************************************************************
 									   REST OF THIS SHIT
 	**************************************************************************************/
 
+	var songPosition:Float;
 	function update(songPos:Float) {
-		var pos = ChartConverter.betterInt64FromFloat(songPos * 100);
+		songPosition = songPos;
+		var pos = betterInt64FromFloat(songPos * 100);
 
+		// NOTE SYSTEM
 		cullTop(pos);
 		cullBottom(pos);
 		updateNotes(pos);
+
+		// UI SYSTEM
+		//updateUI(pos);
 	}
+
+	/**
+		An optimized version of `haxe.Int64.fromFloat`. Only works on certain targets such as cpp, js, or eval.
+	**/
+	inline static function betterInt64FromFloat(value:Float):Int64 {
+		var high:Int = Math.floor(value / 4294967296);
+		var low:Int = Math.floor(value);
+        return Int64.make(high, low);
+    }
 }

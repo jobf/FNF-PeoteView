@@ -88,7 +88,7 @@ cam 0 45');
 					var note:VanillaChartNote = sectionNotes[i];
 
 					var newNote:ChartNote = new ChartNote(
-						betterInt64FromFloat(note.position * 100),
+						PlayField.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index,
 						0,
@@ -107,15 +107,6 @@ cam 0 45');
 
 		chart.close();
 	}
-
-	/**
-		An optimized version of `haxe.Int64.fromFloat`. Only works on certain targets such as cpp, js, or eval.
-	**/
-	inline static function betterInt64FromFloat(value:Float):Int64 {
-		var high:Int = Math.floor(value / 4294967296);
-		var low:Int = Math.floor(value);
-        return Int64.make(high, low);
-    }
 }
 
 /**
