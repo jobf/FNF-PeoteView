@@ -96,24 +96,26 @@ class Main extends Application
 		window.onKeyUp.add(playField.keyRelease);
 
 		//// CALLBACK TEST ////
-		playField.onNoteHit.add((note:ChartNote, timing:Float) -> {
+		/*playField.onNoteHit.add((note:ChartNote, timing:Float) -> {
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
-			if (timing == 0) return;
+			// This shows you how ratings work
 
-			if (Math.abs(timing) < 20) {
-				Sys.println("Sick!!");
+			if (timing == 0) return; // Don't execute ratings if an opponent note has executed it or you somehow hit a note exactly at the receptor
+
+			var absTiming = Math.abs(timing);
+
+			if (absTiming > 50) {
+				Sys.println("Bad");
 				return;
 			}
 
-			if (Math.abs(timing) < 60) {
+			if (absTiming > 25) {
 				Sys.println("Good!");
 				return;
 			}
 
-			if (Math.abs(timing) < 100) {
-				Sys.println("Bad");
-			}
+			Sys.println("Sick!!");
 		});
 
 		playField.onNoteMiss.add((note:ChartNote) -> {
@@ -126,7 +128,7 @@ class Main extends Application
 
 		playField.onSustainRelease.add((note:ChartNote) -> {
 			Sys.println('Release ${note.index}, ${note.lane}');
-		});
+		});*/
 		///////////////////////
 
 		peoteView.start();
