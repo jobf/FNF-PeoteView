@@ -18,7 +18,9 @@ class PlayField {
 										  NOTE SYSTEM
 	**************************************************************************************/
 
-	// This is a huge ass system lmao
+	// The actual input system logic, very different from other fnf engines since this is peote-view. (Pretty similar to the last FNF Zenith note system rewrite but it's better)
+	// Do not touch any part of this area unless you know it's critical.
+	// This is a huge ass system which took only 2 days to fully complete.
 
 	var downScroll(default, null):Bool;
 
@@ -88,6 +90,8 @@ class PlayField {
 
 	private var curTopNote(default, null):Note;
 	private var curBottomNote(default, null):Note;
+
+	var hitbox:Float = 10000 / 60;
 
 	inline function addNote(note:Note) {
 		notesBuf.addElement(note);
@@ -210,31 +214,27 @@ class PlayField {
 			var position = data.position;
 
 			var rec = notesBuf.getElement(fullIndex);
-			var diff = Math.floor(Int64.div(position - pos, 100).low * scrollSpeed);
+			var diff = ((position.low - pos.low) * 0.01) * scrollSpeed;
 
 			var isHit = note.c.aF == 0;
 
 			note.x = rec.x;
-			note.y = rec.y + (diff * (downScroll ? -1 : 1));
+			note.y = rec.y + (Math.floor(diff) * (downScroll ? -1 : 1));
 
 			var sustain = note.child;
 			var sustainExists = sustain != null;
-
-			// The actual input system logic + opponent note hits
-			// This shit is very different from other fnf engines since this is peote-view.
-			// Do not touch any part of this area unless you know it's critical.
 
 			if (rec.playable) {
 				if (!isHit) {
 					var noteToHit = notesToHit[fullIndex];
 					var noteToHitExists = noteToHit != null;
 					var hitPos = noteToHitExists ? noteToHit.data.position : 0;
-					if ((diff < 160 && !noteToHitExists) ||
+					if ((!note.missed && diff < hitbox && !noteToHitExists) ||
 						(noteToHitExists && pos - hitPos > (position - hitPos) >> 1)) {
 						notesToHit[fullIndex] = note;
 					}
 
-					if (diff < -160 && !note.missed) {
+					if (diff < -hitbox && !note.missed) {
 						note.c.aF = 0.5;
 						note.missed = true;
 
@@ -327,6 +327,7 @@ class PlayField {
 		playerHitsToCheck[index] = true;
 
 		var noteToHit = notesToHit[index];
+
 		if (noteToHit != null && !noteToHit.missed && noteToHit.c.aF != 0) {
 			rec.confirm();
 
