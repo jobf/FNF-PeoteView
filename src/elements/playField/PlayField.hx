@@ -337,10 +337,7 @@ class PlayField {
 			onNoteHit.dispatch(noteToHit.data);
 
 			notesToHit[index] = null;
-		} else {
-			rec.press();
-			Sys.println('Pressed $index');
-		}
+		} else rec.press();
 
 		notesBuf.updateElement(rec);
 
