@@ -99,7 +99,7 @@ cam 0 45');
 					var num = newNote.toNumber();
 					chart.writeInt32((num.low:Int));
 					chart.writeInt32((num.high:Int));
-					Sys.println('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
+					//Sys.println('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
 				}
 			}
 		} catch (e) {

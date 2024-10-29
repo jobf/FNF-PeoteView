@@ -5,8 +5,8 @@ package elements.playField;
 @:publicFields
 class UISprite implements Element {
 	// position in pixel (relative to upper left corner of Display)
-	@posX var x:Int = 0;
-	@posY var y:Int = 0;
+	@posX var x:Float = 0.0;
+	@posY var y:Float = 0.0;
 
 	// size in pixel
 	@sizeX var w:Int = 200;
@@ -23,6 +23,8 @@ class UISprite implements Element {
 	@texPosY  var clipPosY:Int = 0;
 	@texSizeX var clipSizeX:Int = 200;
 	@texSizeY var clipSizeY:Int = 200;
+
+	@color var c:Color = 0xFFFFFFFF;
 
     var isRatingPopup:Bool;
 

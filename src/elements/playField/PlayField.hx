@@ -113,11 +113,9 @@ class PlayField {
 		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
 		sustainsToHold.resize(0);
-		botHitsToCheck.resize(0);
 		playerHitsToCheck.resize(0);
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
-		botHitsToCheck.resize(numOfReceptors);
 		playerHitsToCheck.resize(numOfReceptors);
 
 		for (i in spawnPosBottom...spawnPosTop) {
@@ -245,6 +243,8 @@ class PlayField {
 						}
 
 						notesToHit[fullIndex] = null;
+
+						hideRatingPopup();
 					}
 				}
 			} else {
@@ -365,9 +365,12 @@ class PlayField {
 		if (sustain != null && (sustain.c.aF != 0 && sustain.w > 100)) {
 			sustain.c.aF = Sustain.defaultMissAlpha;
 			sustain.held = true;
+
 			onSustainRelease.dispatch(sustain.parent.data);
 
 			sustainsToHold[index] = null;
+
+			hideRatingPopup();
 		}
 
 		rec.reset();
@@ -440,13 +443,27 @@ class PlayField {
 	// Behind the ui system
 	private var uiBuf(default, null):Buffer<UISprite>;
 	private var uiProg(default, null):Program;
+	var ratingPopup:UISprite;
 
 	function updateRatingPopup() {
-		//ratingPopup.y = ;
+		if (ratingPopup == null) return;
+		if (ratingPopup.c.aF != 0) {
+			ratingPopup.c.aF -= ratingPopup.c.aF * 0.1;
+		}
+		if (ratingPopup.y != 320) {
+			ratingPopup.y -= (ratingPopup.y - 320) * 0.2;
+			uiBuf.updateElement(ratingPopup);
+		}
+	}
+
+	inline function hideRatingPopup() {
+		ratingPopup.c.aF = 0.0;
+		uiBuf.updateElement(ratingPopup);
 	}
 
 	inline function changeRatingPopupIDTo(id:Int) {
-		var ratingPopup = uiBuf.getElement(0);
+		ratingPopup.c.aF = 1.0;
+		ratingPopup.y = 300;
 		ratingPopup.changePopupIDTo(id);
 		uiBuf.updateElement(ratingPopup);
 	}
@@ -460,9 +477,12 @@ class PlayField {
 		TextureSystem.setTexture(uiProg, "uiTex", "uiTex");
 
 		// HEALTH BAR SETUP
-		var ratingPopup = new UISprite();
+		ratingPopup = new UISprite();
 		ratingPopup.isRatingPopup = true;
+		ratingPopup.x = 800;
+		ratingPopup.y = 320;
 		ratingPopup.changePopupIDTo(0);
+		ratingPopup.c.aF = 0.0;
 		uiBuf.addElement(ratingPopup);
 
 		display.addProgram(uiProg);
