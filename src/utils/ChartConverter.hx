@@ -81,9 +81,9 @@ cam 0 45');
 		try {
 			var notes:Array<Dynamic> = song.notes;
 			for (section in notes) {
+				section.sectionNotes.sort((a, b) -> a[0] - b[0]);
 				var sectionNotes:Array<Dynamic> = section.sectionNotes;
 				var mustHitSection:Bool = section.mustHitSection;
-				sectionNotes.sort((a, b) -> a[0] - b[0]);
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
