@@ -38,8 +38,8 @@ class Chart {
 
 		var rawBytes = File.getBytes('$path/chart.cbin');
 
-		for (i in 0...rawBytes.length >> 4) {
-			var note = rawBytes.getInt64(i << 4);
+		for (i in 0...rawBytes.length >> 3) {
+			var note = rawBytes.getInt64(i << 3);
 			bytes.push(note);
 		}
 	}

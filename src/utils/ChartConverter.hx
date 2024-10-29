@@ -9,7 +9,8 @@ import sys.io.FileInput;
 
 /**
 	The chart converter class.
-	This is a universal chart converter that can convert multiple formats to the chart folder.
+	This is a universal chart converter that can convert multiple formats from the folder to the .cbin format.
+	This is also a beta.
 **/
 #if !debug
 @:noDebug
@@ -92,7 +93,7 @@ cam 0 45');
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index,
 						0,
-						mustHitSection ? (note.lane + 1) & 1 : note.lane
+						note.lane
 					);
 
 					var num = newNote.toNumber();
@@ -172,6 +173,6 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 		Specifies the position of the note it's assigned to.
 	**/
 	inline function get_lane():Int {
-		return this[1] > 3 ? 1 : 0;
+		return this[1] > 3 ? 0 : 1;
 	}
 }
