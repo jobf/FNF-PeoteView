@@ -41,7 +41,7 @@ class Main extends Application
 		Note.offsetAndSizeFrames = NoteskinUtils.parseFrameOffsets('assets/notes');
 
 		playField = new PlayField(display, true);
-		playField.scrollSpeed = 2.0;
+		playField.scrollSpeed = 1.0;
 
 		var dimensions = playField.sustainDimensions;
 
