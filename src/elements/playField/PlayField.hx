@@ -2,6 +2,7 @@ package elements.playField;
 
 import lime.ui.KeyCode;
 import lime.app.Event;
+import lime.app.Application;
 
 @:publicFields
 class PlayField {
@@ -12,8 +13,9 @@ class PlayField {
 
 	function new(display:Display, downScroll:Bool = false) {
 		this.downScroll = downScroll;
-		createHUD(display, downScroll);
+
 		createNoteSystem(display, downScroll);
+		createHUD(display, downScroll);
 	}
 
 	/**************************************************************************************
@@ -449,6 +451,14 @@ class PlayField {
 
 	var ratingPopup:UISprite;
 
+	var placeholderHealthColors:Array<Color> = [Color.RED, Color.GREEN];
+	var healthBarParts:Array<UISprite> = [];
+	var healthBarBG:UISprite;
+
+	var healthIcons:Array<UISprite> = [];
+
+	var health:Float = 0.5;
+
 	function updateRatingPopup() {
 		if (ratingPopup == null) return;
 
@@ -462,6 +472,26 @@ class PlayField {
 		}
 	}
 
+	function updatehealthBar() {
+		var part1 = healthBarParts[0];
+
+		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * health)) - 4;
+		part1.x = healthBarBG.x + 2;
+
+		if (part1.w < 0) part1.w = 0;
+
+		uiBuf.updateElement(part1);
+
+		var part2 = healthBarParts[1];
+
+		part2.w = (healthBarBG.w - part1.w) - 4;
+		part2.x = (healthBarBG.x + part1.w) + 2;
+
+		if (part2.w < 0) part2.w = 0;
+
+		uiBuf.updateElement(part2);
+	}
+
 	inline function hideRatingPopup() {
 		ratingPopup.c.aF = 0.0;
 		uiBuf.updateElement(ratingPopup);
@@ -470,7 +500,7 @@ class PlayField {
 	inline function respondWithRatingID(id:Int) {
 		ratingPopup.c.aF = 1.0;
 		ratingPopup.y = 300;
-		ratingPopup.changePopupIDTo(id);
+		ratingPopup.changeID(id);
 		uiBuf.updateElement(ratingPopup);
 	}
 
@@ -479,17 +509,37 @@ class PlayField {
 		uiProg = new Program(uiBuf);
 		uiProg.blendEnabled = true;
 
-		TextureSystem.createTexture("uiTex", "assets/ui/sheet.png");
+		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 		TextureSystem.setTexture(uiProg, "uiTex", "uiTex");
 
-		// HEALTH BAR SETUP
+		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
 		ratingPopup.type = RATING;
-		ratingPopup.x = 800;
+		ratingPopup.x = 600;
 		ratingPopup.y = 320;
-		ratingPopup.changePopupIDTo(0);
+		ratingPopup.changeID(0);
 		ratingPopup.c.aF = 0.0;
 		uiBuf.addElement(ratingPopup);
+
+		// HEALTH BAR SETUP
+		healthBarBG = new UISprite();
+		healthBarBG.type = HEALTH_BAR;
+		healthBarBG.changeID(0);
+		healthBarBG.x = 275;
+		healthBarBG.y = 75;
+
+		// HEALTH BAR PART SETUP
+		for (i in 0...2) {
+			var part = healthBarParts[i] = new UISprite();
+			part.w = (healthBarBG.w >> 1) - 4;
+			part.h = healthBarBG.h - 4;
+			part.x = healthBarBG.x + (part.w * i) + 2;
+			part.y = healthBarBG.y + 2;
+			part.c = placeholderHealthColors[i];
+			uiBuf.addElement(part);
+		}
+
+		uiBuf.addElement(healthBarBG);
 
 		display.addProgram(uiProg);
 	}
@@ -515,5 +565,6 @@ class PlayField {
 
 		// UI SYSTEM
 		updateRatingPopup();
+		updatehealthBar();
 	}
 }

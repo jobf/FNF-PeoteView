@@ -94,7 +94,7 @@ class Sustain implements Element
 		if (!note.isNote()) {
 			followReceptor(note);
 		} else {
-			x = note.x + ((note.w + (note.ox << 1)) >> 1);
+			x = note.x + (note.rW >> 1);
 			y = note.y + (((note.h + (note.oy << 1)) - initH) >> 1);
 		}
 	}
@@ -103,7 +103,7 @@ class Sustain implements Element
 		if (rec.isNote()) {
 			followNote(rec);
 		} else {
-			x = rec.x + ((rec.w + (rec.ox << 1)) >> 1);
+			x = rec.x + (rec.rW >> 1);
 			y = rec.y + (((rec.h + (rec.oy << 1)) - initH) >> 1);
 		}
 	}

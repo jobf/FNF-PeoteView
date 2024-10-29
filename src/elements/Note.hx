@@ -45,6 +45,9 @@ class Note implements Element
 	public var playable:Bool;
 	public var missed:Bool;
 
+	public var rW:Int;
+	public var rH:Int;
+
 	static public var offsetAndSizeFrames:Array<Int>;
 
 	inline public function new(x:Int, y:Int, w:Int, h:Int) {
@@ -59,6 +62,8 @@ class Note implements Element
 
 	inline public function reset() {
 		setOffsetAndSize(0);
+		rW = w;
+		rH = h;
 	}
 
 	inline public function press() {

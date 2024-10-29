@@ -25,7 +25,7 @@ class Main extends Application
 	var display:Display;
 	var playField:PlayField;
 
-	var position:Float = -1000;
+	var position:Float = 0;
 
 	var chart:Chart;
 
@@ -80,7 +80,7 @@ class Main extends Application
 		playField.onNoteHit.add((note:ChartNote, timing:Int) -> {
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
-			// Accumulate the combo
+			// Accumulate the combo and start determining the rating judgement
 			++playField.combo;
 
 			// This shows you how ratings work
@@ -89,33 +89,69 @@ class Main extends Application
 
 			var absTiming = Math.abs(timing);
 
-			if (absTiming > 75) {
+			if (absTiming > 60) {
 				playField.respondWithRatingID(3);
 				playField.score += 50;
+				playField.health += 0.005;
+
+				if (playField.health > 1) {
+					playField.health = 1;
+				}
+
 				return;
 			}
 
-			if (absTiming > 50) {
+			if (absTiming > 45) {
 				playField.respondWithRatingID(2);
 				playField.score += 100;
+				playField.health += 0.015;
+
+				if (playField.health > 1) {
+					playField.health = 1;
+				}
+
 				return;
 			}
 
 			if (absTiming > 30) {
 				playField.respondWithRatingID(1);
 				playField.score += 200;
+				playField.health += 0.025;
+
+				if (playField.health > 1) {
+					playField.health = 1;
+				}
+
 				return;
 			}
 
 			playField.respondWithRatingID(0);
 			playField.score += 400;
+
+			playField.health += 0.05;
+
+			if (playField.health > 1) {
+				playField.health = 1;
+			}
 		});
 
 		playField.onNoteMiss.add((note:ChartNote) -> {
 			//Sys.println('Miss ${note.index}, ${note.lane}');
+
 			// Zero the combo
 			playField.combo = 0;
+
+			// Increment the misses
 			++playField.misses;
+
+			// Hurt the health
+			playField.health -= 0.05;
+
+			// Trigger a game over
+			if (playField.health < 0) {
+				Sys.println("Game Over");
+				Sys.exit(1);
+			}
 		});
 
 		playField.onSustainComplete.add((note:ChartNote) -> {

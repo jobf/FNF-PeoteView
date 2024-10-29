@@ -28,6 +28,12 @@ class UISprite implements Element {
 
 	var type:UISpriteType = NONE;
 
+    var isNone(get, never):Bool;
+
+	inline function get_isNone() {
+		return type == NONE;
+	}
+
     var isRatingPopup(get, never):Bool;
 
 	inline function get_isRatingPopup() {
@@ -40,13 +46,30 @@ class UISprite implements Element {
 		return type == COMBO;
 	}
 
+    var isHealthBar(get, never):Bool;
+
+	inline function get_isHealthBar() {
+		return type == HEALTH_BAR;
+	}
+
+    var isIcon(get, never):Bool;
+
+	inline function get_isIcon() {
+		return type == ICON;
+	}
+
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
+
+	static function init() {
+		
+	}
 
 	function new() {}
 
-    inline function changePopupIDTo(id:Int) {
+    inline function changeID(id:Int) {
 		var wValue = 300;
 		var hValue = 150;
+		var xValue = 0;
 		var yValue = 0;
 
         if (isComboPopup) {
@@ -55,12 +78,24 @@ class UISprite implements Element {
 			yValue = 150;
 		}
 
+		if (isHealthBar) {
+			wValue = 600;
+			hValue = 19;
+			yValue = 222;
+			id = 0;
+		}
+
+		if (isIcon) {
+			wValue = hValue = 150;
+			yValue = 300;
+		}
+
 		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue)) {
 			w = clipWidth = clipSizeX = wValue;
 			h = clipHeight = clipSizeY = hValue;
 		}
 
-		clipX = id * clipWidth;
+		clipX = xValue + (id * clipWidth);
 		clipY = yValue;
     }
 }
@@ -69,4 +104,6 @@ enum abstract UISpriteType(cpp.UInt8) {
 	var NONE;
 	var RATING;
 	var COMBO;
+	var HEALTH_BAR;
+	var ICON;
 }
