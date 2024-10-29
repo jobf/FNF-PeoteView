@@ -11,6 +11,8 @@ class PlayField {
 	**************************************************************************************/
 
 	function new(display:Display, downScroll:Bool = false) {
+		this.downScroll = downScroll;
+		createHUD(display, downScroll);
 		createNoteSystem(display, downScroll);
 	}
 
@@ -24,7 +26,7 @@ class PlayField {
 
 	var downScroll(default, null):Bool;
 
-	var onNoteHit:Event<ChartNote->Float->Void>;
+	var onNoteHit:Event<ChartNote->Int->Void>;
 	var onNoteMiss:Event<ChartNote->Void>;
 	var onSustainComplete:Event<ChartNote->Void>;
 	var onSustainRelease:Event<ChartNote->Void>;
@@ -39,7 +41,7 @@ class PlayField {
 	private var frontProg(default, null):Program;
 	private var notesBuf(default, null):Buffer<Note>;
 
-	var textureMapProperties:Array<Int> = [];
+	var sustainDimensions:Array<Int> = [];
 	var keybindMap:Map<KeyCode, Array<Int>> = [
 		KeyCode.A => [0, 1],
 		KeyCode.LEFT => [0, 1],
@@ -100,7 +102,7 @@ class PlayField {
 	}
 
 	function setTime(value:Float) {
-		// Setting time in the playfield's note system... It's still the second hardest thing to ever do in it.
+		changeRatingPopupIDTo(0);
 
 		for (i in 0...numOfReceptors) {
 			var rec = notesBuf.getElement(i);
@@ -136,9 +138,7 @@ class PlayField {
 			notesBuf.updateElement(note);
 		}
 
-		/**
-			TODO: Optimize this
-		**/
+		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
 		spawnPosTop = spawnPosBottom = 0;
 	}
 
@@ -333,7 +333,7 @@ class PlayField {
 
 			var data = noteToHit.data;
 
-			onNoteHit.dispatch(data, Int64.toInt(data.position - betterInt64FromFloat(songPosition * 100)) * 0.01);
+			onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - Int64Tools.betterInt64FromFloat(songPosition * 100), 100)));
 
 			notesToHit[index] = null;
 		} else rec.press();
@@ -379,9 +379,7 @@ class PlayField {
 	function createNoteSystem(display:Display, downScroll:Bool = false) {
 		if (strumlineMap.length > 4) strumlineMap.resize(4);
 
-		this.downScroll = downScroll;
-
-		onNoteHit = new Event<ChartNote->Float->Void>();
+		onNoteHit = new Event<ChartNote->Int->Void>();
 		onNoteMiss = new Event<ChartNote->Void>();
 		onSustainComplete = new Event<ChartNote->Void>();
 		onSustainRelease = new Event<ChartNote->Void>();
@@ -398,30 +396,27 @@ class PlayField {
 		// Note to self: set the texture size exactly to the image's size
 
 		// NOTE SHEET SETUP
-		TextureSystem.createTiledTexture("noteTex", "assets/notes/normal/noteSheet.png", 4);
 
-		notesBuf = new Buffer<Note>(8192, 8192, false);
+		notesBuf = new Buffer<Note>(16384, 16384, false);
 		frontProg = new Program(notesBuf);
 		frontProg.blendEnabled = true;
+
+		TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 		TextureSystem.setTexture(frontProg, "noteTex", "noteTex");
 
 		var tex1 = TextureSystem.getTexture("noteTex");
-		textureMapProperties.push(tex1.width >> 2);
-		textureMapProperties.push(tex1.height);
 
 		// SUSTAIN SETUP
-
-		TextureSystem.createTexture("sustainTex", "assets/notes/normal/sustain.png");
-
-		sustainsBuf = new Buffer<Sustain>(8192, 8192, false);
+		sustainsBuf = new Buffer<Sustain>(16384, 16384, false);
 		sustainProg = new Program(sustainsBuf);
 		sustainProg.blendEnabled = true;
 
+		TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 		var tex2 = TextureSystem.getTexture("sustainTex");
 
 		Sustain.init(sustainProg, "sustainTex", tex2);
-		textureMapProperties.push(tex2.width);
-		textureMapProperties.push(tex2.height);
+		sustainDimensions.push(tex2.width);
+		sustainDimensions.push(tex2.height);
 
 		display.addProgram(sustainProg);
 		display.addProgram(frontProg);
@@ -429,7 +424,7 @@ class PlayField {
 		for (j in 0...strumlineMap.length) {
 			var map = strumlineMap[j];
 			for (i in 0...map.length) {
-				var rec = new Note(0, downScroll ? display.height - 150 : 50, textureMapProperties[0], textureMapProperties[1]);
+				var rec = new Note(0, downScroll ? display.height - 150 : 50, 0, 0);
 				rec.r = map[i][0];
 				rec.x = map[i][1];
 				rec.playable = strumlinePlayableMap[j];
@@ -443,12 +438,34 @@ class PlayField {
 	**************************************************************************************/
 
 	// Behind the ui system
-	private var healthBarBuf(default, null):Buffer<HealthBar>;
-	private var healthBarProg(default, null):Program;
+	private var uiBuf(default, null):Buffer<UISprite>;
+	private var uiProg(default, null):Program;
 
-	function createHUD() {
-		healthBarBuf = new Buffer<HealthBar>(5, 0, false);
-		healthBarProg = new Program(healthBarBuf);
+	function updateRatingPopup() {
+		//ratingPopup.y = ;
+	}
+
+	inline function changeRatingPopupIDTo(id:Int) {
+		var ratingPopup = uiBuf.getElement(0);
+		ratingPopup.changePopupIDTo(id);
+		uiBuf.updateElement(ratingPopup);
+	}
+
+	function createHUD(display:Display, downScroll:Bool = false) {
+		uiBuf = new Buffer<UISprite>(2048, 2048, false);
+		uiProg = new Program(uiBuf);
+		uiProg.blendEnabled = true;
+
+		TextureSystem.createTexture("uiTex", "assets/ui/sheet.png");
+		TextureSystem.setTexture(uiProg, "uiTex", "uiTex");
+
+		// HEALTH BAR SETUP
+		var ratingPopup = new UISprite();
+		ratingPopup.isRatingPopup = true;
+		ratingPopup.changePopupIDTo(0);
+		uiBuf.addElement(ratingPopup);
+
+		display.addProgram(uiProg);
 	}
 
 	/**************************************************************************************
@@ -458,7 +475,7 @@ class PlayField {
 	var songPosition:Float;
 	function update(songPos:Float) {
 		songPosition = songPos;
-		var pos = betterInt64FromFloat(songPos * 100);
+		var pos = Int64Tools.betterInt64FromFloat(songPos * 100);
 
 		// NOTE SYSTEM
 		cullTop(pos);
@@ -466,15 +483,6 @@ class PlayField {
 		updateNotes(pos);
 
 		// UI SYSTEM
-		//updateUI(pos);
+		updateRatingPopup();
 	}
-
-	/**
-		An optimized version of `haxe.Int64.fromFloat`. Only works on certain targets such as cpp, js, or eval.
-	**/
-	inline static function betterInt64FromFloat(value:Float):Int64 {
-		var high:Int = Math.floor(value / 4294967296);
-		var low:Int = Math.floor(value);
-        return Int64.make(high, low);
-    }
 }

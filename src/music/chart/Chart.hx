@@ -33,6 +33,14 @@ class Chart {
 		}
 
 		header = ChartSystem.parseHeader('$path/header.txt');
-		//bytes = ChartSystem._file_contents_chart('$path/chart.bin');
+
+		bytes = [];
+
+		var rawBytes = File.getBytes('$path/chart.cbin');
+
+		for (i in 0...rawBytes.length >> 4) {
+			var note = rawBytes.getInt64(i << 4);
+			bytes.push(note);
+		}
 	}
 }

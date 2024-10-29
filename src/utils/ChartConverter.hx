@@ -80,23 +80,24 @@ cam 0 45');
 
 		try {
 			var notes:Array<Dynamic> = song.notes;
-			var sectionsParsed:Int = 0;
 			for (section in notes) {
 				var sectionNotes:Array<Dynamic> = section.sectionNotes;
+				var mustHitSection:Bool = section.mustHitSection;
 				sectionNotes.sort((a, b) -> a[0] - b[0]);
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
 					var newNote:ChartNote = new ChartNote(
-						PlayField.betterInt64FromFloat(note.position * 100),
+						Int64Tools.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index,
 						0,
-						note.lane
+						mustHitSection ? (note.lane + 1) & 1 : note.lane
 					);
 
-					chart.writeInt32((newNote.toNumber().high:Int));
-					chart.writeInt32((newNote.toNumber().low:Int));
+					var num = newNote.toNumber();
+					chart.writeInt32((num.low:Int));
+					chart.writeInt32((num.high:Int));
 					Sys.println('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
 				}
 			}
@@ -171,6 +172,6 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 		Specifies the position of the note it's assigned to.
 	**/
 	inline function get_lane():Int {
-		return Math.floor(this[1]) >> 2;
+		return this[1] > 3 ? 1 : 0;
 	}
 }

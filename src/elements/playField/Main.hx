@@ -27,29 +27,7 @@ class Main extends Application
 
 	var position:Float = -1000;
 
-	var notes:Array<ChartNote> = [
-		new ChartNote(0, 120, 0, 0, 0),
-		new ChartNote(60000, 120, 1, 0, 0),
-		new ChartNote(75000, 0, 0, 0, 1),
-		new ChartNote(90000, 0, 3, 0, 1),
-		new ChartNote(105000, 0, 2, 0, 1),
-		new ChartNote(120000, 120, 2, 0, 0),
-		new ChartNote(120000, 120, 2, 0, 1),
-		new ChartNote(180000, 120, 3, 0, 0),
-		new ChartNote(180000, 120, 3, 0, 1),
-		new ChartNote(240000, 0, 0, 0, 1),
-		//new ChartNote(247500, 0, 0, 0, 1),
-		new ChartNote(255000, 0, 0, 0, 1),
-		//new ChartNote(262500, 0, 0, 0, 1),
-		new ChartNote(270000, 0, 0, 0, 1),
-		//new ChartNote(277500, 0, 0, 0, 1),
-		new ChartNote(285000, 0, 0, 0, 1),
-		//new ChartNote(292500, 0, 0, 0, 1),
-		new ChartNote(300000, 120, 1, 0, 1),
-		new ChartNote(360000, 120, 2, 0, 1),
-		new ChartNote(420000, 30, 3, 0, 1),
-		new ChartNote(450000, 30, 3, 0, 1)
-	];
+	var chart:Chart;
 
 	public function startSample(window:Window)
 	{
@@ -58,19 +36,22 @@ class Main extends Application
 
 		peoteView.addDisplay(display);
 
+		chart = new Chart("assets/songs/milf");
+
+		Note.offsetAndSizeFrames = NoteskinUtils.parseFrameOffsets('assets/notes');
+
 		playField = new PlayField(display, true);
 		playField.scrollSpeed = 2.0;
 
-		var prop = playField.textureMapProperties;
+		var dimensions = playField.sustainDimensions;
 
-		var nW = prop[0];
-		var nH = prop[1];
-		var sW = prop[2];
-		var sH = prop[3];
+		var sW = dimensions[0];
+		var sH = dimensions[1];
 
+		var notes = chart.bytes;
 		for (i in 0...notes.length) {
 			var note = notes[i];
-			var noteSpr = new Note(9999, 0, nW, nH);
+			var noteSpr = new Note(9999, 0, 0, 0);
 			noteSpr.data = note;
 			noteSpr.toNote();
             noteSpr.r = playField.strumlineMap[note.lane][note.index][0];
@@ -96,7 +77,7 @@ class Main extends Application
 		window.onKeyUp.add(playField.keyRelease);
 
 		//// CALLBACK TEST ////
-		/*playField.onNoteHit.add((note:ChartNote, timing:Float) -> {
+		playField.onNoteHit.add((note:ChartNote, timing:Int) -> {
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
 			// This shows you how ratings work
@@ -106,29 +87,29 @@ class Main extends Application
 			var absTiming = Math.abs(timing);
 
 			if (absTiming > 50) {
-				Sys.println("Bad");
+				playField.changeRatingPopupIDTo(2);
 				return;
 			}
 
 			if (absTiming > 25) {
-				Sys.println("Good!");
+				playField.changeRatingPopupIDTo(1);
 				return;
 			}
 
-			Sys.println("Sick!!");
+			playField.changeRatingPopupIDTo(0);
 		});
 
 		playField.onNoteMiss.add((note:ChartNote) -> {
-			Sys.println('Miss ${note.index}, ${note.lane}');
+			//Sys.println('Miss ${note.index}, ${note.lane}');
 		});
 
 		playField.onSustainComplete.add((note:ChartNote) -> {
-			Sys.println('Complete ${note.index}, ${note.lane}');
+			//Sys.println('Complete ${note.index}, ${note.lane}');
 		});
 
 		playField.onSustainRelease.add((note:ChartNote) -> {
-			Sys.println('Release ${note.index}, ${note.lane}');
-		});*/
+			//Sys.println('Release ${note.index}, ${note.lane}');
+		});
 		///////////////////////
 
 		peoteView.start();
