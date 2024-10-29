@@ -26,21 +26,47 @@ class UISprite implements Element {
 
 	@color var c:Color = 0xFFFFFFFF;
 
-    var isRatingPopup:Bool;
+	var type:UISpriteType = NONE;
+
+    var isRatingPopup(get, never):Bool;
+
+	inline function get_isRatingPopup() {
+		return type == RATING;
+	}
+
+    var isComboPopup(get, never):Bool;
+
+	inline function get_isComboPopup() {
+		return type == COMBO;
+	}
 
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
 
 	function new() {}
 
     inline function changePopupIDTo(id:Int) {
-        if (isRatingPopup) {
-            if ((w != 300 && clipWidth != 300 && clipSizeX != 300) && (h != 150 && clipHeight != 150 && clipHeight != 150)) {
-                w = clipWidth = clipSizeX = 300;
-                h = clipHeight = clipSizeY = 150;
-            }
-    
-            clipX = (id & 3) * clipWidth;
-            clipY = (id >> 2) * clipHeight;
-        }
+		var wValue = 300;
+		var hValue = 150;
+		var yValue = 0;
+
+        if (isComboPopup) {
+			wValue = 60;
+			hValue = 72;
+			yValue = 150;
+		}
+
+		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue)) {
+			w = clipWidth = clipSizeX = wValue;
+			h = clipHeight = clipSizeY = hValue;
+		}
+
+		clipX = id * clipWidth;
+		clipY = yValue;
     }
+}
+
+enum abstract UISpriteType(cpp.UInt8) {
+	var NONE;
+	var RATING;
+	var COMBO;
 }

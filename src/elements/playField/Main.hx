@@ -80,27 +80,42 @@ class Main extends Application
 		playField.onNoteHit.add((note:ChartNote, timing:Int) -> {
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
+			// Accumulate the combo
+			++playField.combo;
+
 			// This shows you how ratings work
 
 			if (timing == 0) return; // Don't execute ratings if an opponent note has executed it or you somehow hit a note exactly at the receptor
 
 			var absTiming = Math.abs(timing);
 
+			if (absTiming > 75) {
+				playField.respondWithRatingID(3);
+				playField.score += 50;
+				return;
+			}
+
 			if (absTiming > 50) {
-				playField.changeRatingPopupIDTo(2);
+				playField.respondWithRatingID(2);
+				playField.score += 100;
 				return;
 			}
 
-			if (absTiming > 25) {
-				playField.changeRatingPopupIDTo(1);
+			if (absTiming > 30) {
+				playField.respondWithRatingID(1);
+				playField.score += 200;
 				return;
 			}
 
-			playField.changeRatingPopupIDTo(0);
+			playField.respondWithRatingID(0);
+			playField.score += 400;
 		});
 
 		playField.onNoteMiss.add((note:ChartNote) -> {
 			//Sys.println('Miss ${note.index}, ${note.lane}');
+			// Zero the combo
+			playField.combo = 0;
+			++playField.misses;
 		});
 
 		playField.onSustainComplete.add((note:ChartNote) -> {

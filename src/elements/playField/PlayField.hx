@@ -71,6 +71,7 @@ class PlayField {
 	inline function set_scrollSpeed(value:Float) {
 		spawnDist = Math.floor(160000 / value);
 		despawnDist = Math.floor(40000 / Math.min(value, 1.0));
+		hitbox = 200 * scrollSpeed;
 		return scrollSpeed = value;
 	}
 
@@ -87,7 +88,7 @@ class PlayField {
 	private var curTopNote(default, null):Note;
 	private var curBottomNote(default, null):Note;
 
-	var hitbox:Float = 10000 / 60;
+	var hitbox:Float = 200;
 
 	inline function addNote(note:Note) {
 		notesBuf.addElement(note);
@@ -102,7 +103,7 @@ class PlayField {
 	}
 
 	function setTime(value:Float) {
-		changeRatingPopupIDTo(0);
+		hideRatingPopup();
 
 		for (i in 0...numOfReceptors) {
 			var rec = notesBuf.getElement(i);
@@ -209,7 +210,9 @@ class PlayField {
 			var position = data.position;
 
 			var rec = notesBuf.getElement(fullIndex);
+
 			var diff = (Int64.toInt(position - pos) * 0.01) * scrollSpeed;
+			var leftover = Math.floor((Int64.toInt(pos - position):Float) * 0.01);
 
 			var isHit = note.c.aF == 0;
 
@@ -263,7 +266,7 @@ class PlayField {
 
 					if (sustainExists) {
 						sustain.followReceptor(rec);
-						sustain.w = sustain.length - Int64.div(pos - position, 100).low;
+						sustain.w = sustain.length - leftover;
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
@@ -280,7 +283,7 @@ class PlayField {
 				} else if (sustain.c.aF != 0) {
 					if (sustain.w > 0) {
 						sustain.followReceptor(rec);
-						sustain.w = sustain.length - Int64.div(pos - position, 100).low;
+						sustain.w = sustain.length - leftover;
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
@@ -440,16 +443,19 @@ class PlayField {
 										   UI SYSTEM
 	**************************************************************************************/
 
-	// Behind the ui system
+	// Everything.
 	private var uiBuf(default, null):Buffer<UISprite>;
 	private var uiProg(default, null):Program;
+
 	var ratingPopup:UISprite;
 
 	function updateRatingPopup() {
 		if (ratingPopup == null) return;
+
 		if (ratingPopup.c.aF != 0) {
 			ratingPopup.c.aF -= ratingPopup.c.aF * 0.1;
 		}
+
 		if (ratingPopup.y != 320) {
 			ratingPopup.y -= (ratingPopup.y - 320) * 0.2;
 			uiBuf.updateElement(ratingPopup);
@@ -461,7 +467,7 @@ class PlayField {
 		uiBuf.updateElement(ratingPopup);
 	}
 
-	inline function changeRatingPopupIDTo(id:Int) {
+	inline function respondWithRatingID(id:Int) {
 		ratingPopup.c.aF = 1.0;
 		ratingPopup.y = 300;
 		ratingPopup.changePopupIDTo(id);
@@ -478,7 +484,7 @@ class PlayField {
 
 		// HEALTH BAR SETUP
 		ratingPopup = new UISprite();
-		ratingPopup.isRatingPopup = true;
+		ratingPopup.type = RATING;
 		ratingPopup.x = 800;
 		ratingPopup.y = 320;
 		ratingPopup.changePopupIDTo(0);
@@ -492,7 +498,12 @@ class PlayField {
 									   REST OF THIS SHIT
 	**************************************************************************************/
 
+	var score:Int64 = 0;
+	var misses:Int64 = 0;
+	var combo:Int;
+
 	var songPosition:Float;
+
 	function update(songPos:Float) {
 		songPosition = songPos;
 		var pos = Int64Tools.betterInt64FromFloat(songPos * 100);
