@@ -254,8 +254,10 @@ class PlayField {
 				}
 			} else {
 				if (botHitsToCheck[fullIndex]) {
-					rec.reset();
-					notesBuf.updateElement(rec);
+					if (!rec.idle()) {
+						rec.reset();
+						notesBuf.updateElement(rec);
+					}
 					botHitsToCheck[fullIndex] = false;
 				}
 
@@ -263,8 +265,10 @@ class PlayField {
 					note.c.aF = 0;
 					sustainsToHold[fullIndex] = sustain;
 
-					rec.confirm();
-					notesBuf.updateElement(rec);
+					if (!rec.confirmed()) {
+						rec.confirm();
+						notesBuf.updateElement(rec);
+					}
 
 					if (sustainExists) {
 						sustain.followReceptor(rec);
@@ -331,19 +335,25 @@ class PlayField {
 		var noteToHit = notesToHit[index];
 
 		if (noteToHit != null && !noteToHit.missed && noteToHit.c.aF != 0) {
-			rec.confirm();
+			if (!rec.confirmed()) {
+				rec.confirm();
+				notesBuf.updateElement(rec);
+			}
 
 			noteToHit.c.aF = 0;
 			sustainsToHold[index] = noteToHit.child;
 
 			var data = noteToHit.data;
 
-			onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - Int64Tools.betterInt64FromFloat(songPosition * 100), 100)));
+			onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - Tools.betterInt64FromFloat(songPosition * 100), 100)));
 
 			notesToHit[index] = null;
-		} else rec.press();
-
-		notesBuf.updateElement(rec);
+		} else {
+			if (!rec.pressed()) {
+				rec.press();
+				notesBuf.updateElement(rec);
+			}
+		}
 
 		onKeyPress.dispatch(code);
 	}
@@ -378,8 +388,10 @@ class PlayField {
 			hideRatingPopup();
 		}
 
-		rec.reset();
-		notesBuf.updateElement(rec);
+		if (!rec.idle()) {
+			rec.reset();
+			notesBuf.updateElement(rec);
+		}
 
 		onKeyRelease.dispatch(code);
 	}
@@ -446,7 +458,7 @@ class PlayField {
 	**************************************************************************************/
 
 	// Everything.
-	private var uiBuf(default, null):Buffer<UISprite>;
+	var uiBuf(default, null):Buffer<UISprite>;
 	private var uiProg(default, null):Program;
 
 	var ratingPopup:UISprite;
@@ -456,14 +468,15 @@ class PlayField {
 	var healthBarBG:UISprite;
 
 	var healthIcons:Array<UISprite> = [];
+	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
 
 	var health:Float = 0.5;
 
 	function updateRatingPopup() {
 		if (ratingPopup == null) return;
 
-		if (ratingPopup.c.aF != 0) {
-			ratingPopup.c.aF -= ratingPopup.c.aF * 0.1;
+		if (ratingPopup.a != 0) {
+			ratingPopup.a -= ratingPopup.c.aF * 0.1;
 		}
 
 		if (ratingPopup.y != 320) {
@@ -472,11 +485,13 @@ class PlayField {
 		}
 	}
 
-	function updatehealthBar() {
+	function updateHealthBar() {
 		var part1 = healthBarParts[0];
 
-		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * health)) - 4;
-		part1.x = healthBarBG.x + 2;
+		if (part1 == null) return;
+
+		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * health)) - 8;
+		part1.x = healthBarBG.x + 4;
 
 		if (part1.w < 0) part1.w = 0;
 
@@ -484,21 +499,57 @@ class PlayField {
 
 		var part2 = healthBarParts[1];
 
-		part2.w = (healthBarBG.w - part1.w) - 4;
-		part2.x = (healthBarBG.x + part1.w) + 2;
+		if (part2 == null) return;
+
+		part2.w = (healthBarBG.w - part1.w) - 8;
+		part2.x = (healthBarBG.x + part1.w) + 4;
 
 		if (part2.w < 0) part2.w = 0;
 
 		uiBuf.updateElement(part2);
 	}
 
+	function updateHealthIcons() {
+		var part1 = healthBarParts[1];
+
+		if (part1 == null) return;
+
+		var health = health;
+		var icons = healthIcons;
+		var ids = healthIconIDs;
+
+		var oppIcon = icons[0];
+		var plrIcon = icons[1];
+
+		var oppIcon = healthIcons[0];
+		oppIcon.x = part1.x - 118;
+
+		var plrIcon = healthIcons[1];
+		plrIcon.x = part1.x - 18;
+
+		if (health > 0.75) {
+			oppIcon.changeID(ids[0][1]);
+		} else {
+			oppIcon.changeID(ids[0][0]);
+		}
+
+		if (health < 0.25) {
+			plrIcon.changeID(ids[1][1]);
+		} else {
+			plrIcon.changeID(ids[1][0]);
+		}
+
+		uiBuf.updateElement(oppIcon);
+		uiBuf.updateElement(plrIcon);
+	}
+
 	inline function hideRatingPopup() {
-		ratingPopup.c.aF = 0.0;
+		ratingPopup.a = 0.0;
 		uiBuf.updateElement(ratingPopup);
 	}
 
 	inline function respondWithRatingID(id:Int) {
-		ratingPopup.c.aF = 1.0;
+		ratingPopup.a = 1.0;
 		ratingPopup.y = 300;
 		ratingPopup.changeID(id);
 		uiBuf.updateElement(ratingPopup);
@@ -510,7 +561,8 @@ class PlayField {
 		uiProg.blendEnabled = true;
 
 		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
-		TextureSystem.setTexture(uiProg, "uiTex", "uiTex");
+
+		UISprite.init(uiProg, "uiTex", TextureSystem.getTexture("uiTex"));
 
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
@@ -518,7 +570,7 @@ class PlayField {
 		ratingPopup.x = 600;
 		ratingPopup.y = 320;
 		ratingPopup.changeID(0);
-		ratingPopup.c.aF = 0.0;
+		ratingPopup.a = 0.0;
 		uiBuf.addElement(ratingPopup);
 
 		// HEALTH BAR SETUP
@@ -526,26 +578,49 @@ class PlayField {
 		healthBarBG.type = HEALTH_BAR;
 		healthBarBG.changeID(0);
 		healthBarBG.x = 275;
-		healthBarBG.y = 75;
+		healthBarBG.y = downScroll ? 90 : 630;
 
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
 			var part = healthBarParts[i] = new UISprite();
-			part.w = (healthBarBG.w >> 1) - 4;
-			part.h = healthBarBG.h - 4;
-			part.x = healthBarBG.x + (part.w * i) + 2;
-			part.y = healthBarBG.y + 2;
+			part.gradientMode = 1;
+			part.clipWidth = part.clipHeight = part.clipSizeX = part.clipSizeY = 0;
+			part.w = (healthBarBG.w >> 1) - 8;
+			part.h = healthBarBG.h - 10;
+			part.x = healthBarBG.x + (part.w * i) + 4;
+			part.y = healthBarBG.y + 5;
 			part.c = placeholderHealthColors[i];
+			part.c2 = Color.YELLOW;
+			part.c3 = Color.BLUE;
+			part.c4 = Color.MAGENTA;
+			part.c5 = Color.BLACK;
+			part.c6 = Color.CYAN;
 			uiBuf.addElement(part);
 		}
 
 		uiBuf.addElement(healthBarBG);
 
+		// HEALTH ICONS SETUP
+
+		var oppIcon = healthIcons[0] = new UISprite();
+		oppIcon.type = HEALTH_ICON;
+		oppIcon.changeID(healthIconIDs[0][0]);
+
+		var plrIcon = healthIcons[1] = new UISprite();
+		plrIcon.type = HEALTH_ICON;
+		plrIcon.changeID(healthIconIDs[1][0]);
+
+		oppIcon.y = plrIcon.y = healthBarBG.y - 75;
+		plrIcon.flip = 1;
+
+		uiBuf.addElement(oppIcon);
+		uiBuf.addElement(plrIcon);
+
 		display.addProgram(uiProg);
 	}
 
 	/**************************************************************************************
-									   REST OF THIS SHIT
+									 THE REST OF THIS SHIT
 	**************************************************************************************/
 
 	var score:Int64 = 0;
@@ -556,7 +631,7 @@ class PlayField {
 
 	function update(songPos:Float) {
 		songPosition = songPos;
-		var pos = Int64Tools.betterInt64FromFloat(songPos * 100);
+		var pos = Tools.betterInt64FromFloat(songPos * 100);
 
 		// NOTE SYSTEM
 		cullTop(pos);
@@ -565,6 +640,7 @@ class PlayField {
 
 		// UI SYSTEM
 		updateRatingPopup();
-		updatehealthBar();
+		updateHealthBar();
+		updateHealthIcons();
 	}
 }

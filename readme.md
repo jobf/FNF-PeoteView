@@ -2,7 +2,7 @@
 
 FNF' in Peote-View, otherwise known as "Funkin' View" is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public) which offers ultra-performant gameplay and an incredibly flexible codebase, and is currently aiming to become the new standard of FNF modding.
 
-This quite literally started development, so expect this repository to be very active!
+This project just got started, so expect this repository to be very active!
 
 # Setup
 
@@ -12,11 +12,9 @@ Instll these haxelibs:
 
 ``haxelib git peote-view https://github.com/maitag/peote-view.git``
 
-``haxelib install hxcpp``
+``haxelib install hxcpp``:
 
-Now here are the rest that you need so you can run `haxelib setup lime`:
-
-``haxelib install format`` (This one is also used in peote-view for `TextureData.fromPNG`)
+``haxelib install format`` (This one is also used in peote-view for `TextureData.fromFormatPNG`)
 
 After that, make sure that you are on this screen:![img](repo_assets/image-1.png)
 

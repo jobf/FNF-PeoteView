@@ -44,7 +44,7 @@ class Sustain implements Element
 	{
 		// creates a texture-layer named "name"
 		program.setTexture(texture, name, true );
-		program.blendEnabled = program.blendSeparate = true;
+		program.blendEnabled = true;
 
 		var tW:String = Util.toFloatString(texture.width);
 		var tH:String = Util.toFloatString(texture.height);

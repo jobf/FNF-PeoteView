@@ -24,7 +24,43 @@ class UISprite implements Element {
 	@texSizeX var clipSizeX:Int = 200;
 	@texSizeY var clipSizeY:Int = 200;
 
-	@color var c:Color = 0xFFFFFFFF;
+	@color var c1:Color = 0xFFFFFFFF;
+	@color var c2:Color = 0xFFFFFFFF;
+	@color var c3:Color = 0xFFFFFFFF;
+	@color var c4:Color = 0xFFFFFFFF;
+	@color var c5:Color = 0xFFFFFFFF;
+	@color var c6:Color = 0xFFFFFFFF;
+
+	static var healthBarDimensions:Array<Int> = [];
+
+	var c(get, set):Color;
+
+	inline function get_c() {
+		return c1;
+	}
+
+	inline function set_c(value:Color) {
+		return c1 = c2 = c3 = c4 = c5 = c6 = value;
+	}
+
+	var a(get, set):Float;
+
+	inline function get_a() {
+		return c.aF;
+	}
+
+	inline function set_a(value:Float) {
+		c1.aF = value;
+		c2.aF = value;
+		c3.aF = value;
+		c4.aF = value;
+		c5.aF = value;
+		c6.aF = value;
+		return value;
+	}
+
+	@varying @custom var gradientMode:Float = 0.0;
+	@varying @custom var flip:Float = 0.0;
 
 	var type:UISpriteType = NONE;
 
@@ -52,16 +88,47 @@ class UISprite implements Element {
 		return type == HEALTH_BAR;
 	}
 
-    var isIcon(get, never):Bool;
+    var isHealthIcon(get, never):Bool;
 
-	inline function get_isIcon() {
-		return type == ICON;
+	inline function get_isHealthIcon() {
+		return type == HEALTH_ICON;
 	}
 
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
 
-	static function init() {
-		
+	static function init(program:Program, name:String, texture:Texture) {
+		// creates a texture-layer named "name"
+		program.setTexture(texture, name, true);
+		program.blendEnabled = true;
+
+		program.injectIntoFragmentShader('
+			vec4 gradient( int textureID, float gradientMode, float flip, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6 )
+			{
+				vec2 coord = vTexCoord;
+
+				float t = coord.y * 2.0;
+				vec4 gradientColor = mix(
+				mix(
+					mix(
+						mix(
+							mix(c1, c2, t),
+							c3, t - 0.333333),
+						c4, t - 0.666666),
+					c5, t - 1.0),
+				c6, t - 1.333333);
+
+				if (flip != 0.0) {
+					coord.x = 1.0 - coord.x;
+				}
+
+				vec4 texColor = c1 * getTextureColor( textureID, coord );
+
+				// if the mix factor (gradientMode) is 1.0 then it will be fully gradientColor or if its 0.0 then it will be fully texColor
+				return mix(texColor, gradientColor, gradientMode ); 
+			}
+		');
+
+		program.setColorFormula('gradient(${name}_ID, gradientMode, flip, c1, c2, c3, c4, c5, c6)');
 	}
 
 	function new() {}
@@ -79,15 +146,16 @@ class UISprite implements Element {
 		}
 
 		if (isHealthBar) {
-			wValue = 600;
-			hValue = 19;
+			wValue = healthBarDimensions[0];
+			hValue = healthBarDimensions[1];
 			yValue = 222;
 			id = 0;
 		}
 
-		if (isIcon) {
+		if (isHealthIcon) {
 			wValue = hValue = 150;
-			yValue = 300;
+			yValue = 300 + (150 * (id >> 3));
+			id &= 0x7;
 		}
 
 		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue)) {
@@ -105,5 +173,5 @@ enum abstract UISpriteType(cpp.UInt8) {
 	var RATING;
 	var COMBO;
 	var HEALTH_BAR;
-	var ICON;
+	var HEALTH_ICON;
 }

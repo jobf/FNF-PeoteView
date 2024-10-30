@@ -16,8 +16,12 @@ class ChartSystem
 		var title = input.readLine().split(": ")[1].trim();
 		var artist = input.readLine().split(": ")[1].trim();
 		var genres:Array<Genre> = input.readLine().split(": ")[1].trim().split(", ");
+
 		var speed = Std.parseFloat(input.readLine().split(": ")[1].trim());
 		var bpm = Std.parseFloat(input.readLine().split(": ")[1].trim());
+		var timeSigRaw = input.readLine().split(": ")[1].trim().split("/");
+		var timeSig = [Std.parseInt(timeSigRaw[0]), Std.parseInt(timeSigRaw[1])];
+
 		var stage = input.readLine().split(": ")[1].trim();
 		var instDir = input.readLine().split(": ")[1].trim();
 		var voicesDir = input.readLine().split(": ")[1].trim();
@@ -48,12 +52,13 @@ class ChartSystem
 			genres: genres,
 			speed: speed,
 			bpm: bpm,
+			timeSig: timeSig,
 			stage: stage,
 			instDir: instDir,
 			voicesDir: voicesDir,
 			characters: characterData
 		};
-		trace(result);
+		//trace(result);
 
 		return result;
 	}

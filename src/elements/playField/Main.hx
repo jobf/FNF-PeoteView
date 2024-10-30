@@ -24,6 +24,7 @@ class Main extends Application
 	var peoteView:PeoteView;
 	var display:Display;
 	var playField:PlayField;
+	var conductor:Conductor;
 
 	var position:Float = 0;
 
@@ -38,7 +39,15 @@ class Main extends Application
 
 		chart = new Chart("assets/songs/milf");
 
-		Note.offsetAndSizeFrames = NoteskinUtils.parseFrameOffsets('assets/notes');
+		var timeSig = chart.header.timeSig;
+		conductor = new Conductor(chart.header.bpm, timeSig[0], timeSig[1]);
+
+		conductor.onBeat.add((beat:Float) -> {
+			Sys.println(beat);
+		});
+
+		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
+		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
 
 		playField = new PlayField(display, true);
 		playField.scrollSpeed = 2.0;
@@ -81,22 +90,26 @@ class Main extends Application
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
 			// Accumulate the combo and start determining the rating judgement
+
 			++playField.combo;
 
 			// This shows you how ratings work
 
 			if (timing == 0) return; // Don't execute ratings if an opponent note has executed it or you somehow hit a note exactly at the receptor
 
+			// Add the health
+
+			playField.health += 0.05;
+
+			if (playField.health > 1) {
+				playField.health = 1;
+			}
+
 			var absTiming = Math.abs(timing);
 
 			if (absTiming > 60) {
 				playField.respondWithRatingID(3);
 				playField.score += 50;
-				playField.health += 0.005;
-
-				if (playField.health > 1) {
-					playField.health = 1;
-				}
 
 				return;
 			}
@@ -104,11 +117,6 @@ class Main extends Application
 			if (absTiming > 45) {
 				playField.respondWithRatingID(2);
 				playField.score += 100;
-				playField.health += 0.015;
-
-				if (playField.health > 1) {
-					playField.health = 1;
-				}
 
 				return;
 			}
@@ -116,23 +124,12 @@ class Main extends Application
 			if (absTiming > 30) {
 				playField.respondWithRatingID(1);
 				playField.score += 200;
-				playField.health += 0.025;
-
-				if (playField.health > 1) {
-					playField.health = 1;
-				}
 
 				return;
 			}
 
 			playField.respondWithRatingID(0);
 			playField.score += 400;
-
-			playField.health += 0.05;
-
-			if (playField.health > 1) {
-				playField.health = 1;
-			}
 		});
 
 		playField.onNoteMiss.add((note:ChartNote) -> {
@@ -183,5 +180,7 @@ class Main extends Application
 		//Sys.println(position);
 
 		playField.update(position);
+
+		conductor.time = position;
 	}
 }

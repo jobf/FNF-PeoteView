@@ -23,15 +23,14 @@ class ChartConverter
 		@param path The specified path you want to convert your chart to.
 	**/
 	static function baseGame(path:String) {
-		Sys.println("Welcome to the Funkin' View chart converter!");
-		Sys.println("Converting base-game chart to Funkin' View chart...");
-		Sys.println("1. Won't work for extra key charts with. 2. Only notes will be converted.)");
-
 		var header:FileOutput = File.write('$path/header.txt');
 		var events:FileOutput = File.write('$path/events.txt');
 		var chart:FileOutput  = File.write('$path/chart.cbin');
 
-		Sys.println("Parsing json... (The slow part, as json is a dynamic file structure system, hence the name javascript object notation)");
+		Sys.println("Welcome to the Funkin' View chart converter!");
+		Sys.println("Converting base-game chart to Funkin' View chart...");
+		Sys.println("1. Won't work for extra key charts with. 2. Only notes from the chart will be converted.)");
+		Sys.println("Parsing json...");
 
 		var fileContents = "";
 		try {
@@ -60,6 +59,7 @@ Arist: N/A
 Genre: N/A
 Speed: ${song.speed * 0.45}
 BPM: ${song.bpm}
+Time Signature: 4/4
 Stage: $stage
 Instrumental: $path/Inst.ogg
 Voices: $path/Voices.ogg
@@ -76,8 +76,7 @@ cam 0 45');
 
 		header.close();
 
-		Sys.println("Sorting notes...");
-		Sys.println("Notes in a base game format chart can get out of order\n");
+		Sys.println("Sorting and adding notes...");
 
 		try {
 			var notes:Array<Dynamic> = song.notes;
@@ -89,7 +88,7 @@ cam 0 45');
 					var note:VanillaChartNote = sectionNotes[i];
 
 					var newNote:ChartNote = new ChartNote(
-						Int64Tools.betterInt64FromFloat(note.position * 100),
+						Tools.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index,
 						0,

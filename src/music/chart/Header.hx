@@ -36,6 +36,11 @@ class Header {
 	var bpm:Float;
 
 	/**
+		The song's time signature.
+	**/
+	var timeSig:Array<Int>;
+
+	/**
 		The song's stage.
 	**/
 	var stage:String;
@@ -59,6 +64,6 @@ class Header {
 		Returns a string representation of the chart header.
 	**/
 	function toString() {
-		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, stage => $stage, characters => ${[for (character in characters) character.toString()]} }';
+		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, characters => ${[for (character in characters) character.toString()]} }';
 	}
 }
