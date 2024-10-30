@@ -52,6 +52,9 @@ class Main extends Application
 		playField = new PlayField(display, true);
 		playField.scrollSpeed = 2.0;
 
+		playField.healthBarWS = UISprite.healthBarDimensions[2];
+		playField.healthBarHS = UISprite.healthBarDimensions[3];
+
 		var dimensions = playField.sustainDimensions;
 
 		var sW = dimensions[0];

@@ -470,6 +470,9 @@ class PlayField {
 	var healthIcons:Array<UISprite> = [];
 	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
 
+	var healthBarWS:Int;
+	var healthBarHS:Int;
+
 	var health:Float = 0.5;
 
 	function updateRatingPopup() {
@@ -490,8 +493,8 @@ class PlayField {
 
 		if (part1 == null) return;
 
-		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * health)) - 8;
-		part1.x = healthBarBG.x + 4;
+		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * health)) - (healthBarWS << 1);
+		part1.x = healthBarBG.x + healthBarWS;
 
 		if (part1.w < 0) part1.w = 0;
 
@@ -501,8 +504,8 @@ class PlayField {
 
 		if (part2 == null) return;
 
-		part2.w = (healthBarBG.w - part1.w) - 8;
-		part2.x = (healthBarBG.x + part1.w) + 4;
+		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
+		part2.x = (healthBarBG.x + part1.w) + healthBarWS;
 
 		if (part2.w < 0) part2.w = 0;
 
@@ -556,6 +559,9 @@ class PlayField {
 	}
 
 	function createHUD(display:Display, downScroll:Bool = false) {
+		var healthBarWS = UISprite.healthBarDimensions[2];
+		var healthBarHS = UISprite.healthBarDimensions[3];
+
 		uiBuf = new Buffer<UISprite>(2048, 2048, false);
 		uiProg = new Program(uiBuf);
 		uiProg.blendEnabled = true;
@@ -585,10 +591,10 @@ class PlayField {
 			var part = healthBarParts[i] = new UISprite();
 			part.gradientMode = 1;
 			part.clipWidth = part.clipHeight = part.clipSizeX = part.clipSizeY = 0;
-			part.w = (healthBarBG.w >> 1) - 8;
-			part.h = healthBarBG.h - 10;
-			part.x = healthBarBG.x + (part.w * i) + 4;
-			part.y = healthBarBG.y + 5;
+			part.w = (healthBarBG.w >> 1) - (healthBarWS << 1);
+			part.h = healthBarBG.h - (healthBarHS << 1);
+			part.x = (healthBarBG.x + (part.w * i)) + healthBarWS;
+			part.y = healthBarBG.y + healthBarHS;
 			part.c = placeholderHealthColors[i];
 			part.c2 = Color.YELLOW;
 			part.c3 = Color.BLUE;

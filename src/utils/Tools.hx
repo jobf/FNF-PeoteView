@@ -38,7 +38,7 @@ class Tools {
         var line = File.getContent('$path/healthBarConfig.txt');
 
         var split = line.split(", ");
-        if (split.length != 4) throw "ARGUMENTS ARE NOT EQUAL TO TWO!";
+        if (split.length != 4) throw "ARGUMENTS ARE NOT EQUAL TO FOUR!";
 
         var w = Std.parseInt(split[0].split(" ")[1]);
         var h = Std.parseInt(split[1].split(" ")[1]);
