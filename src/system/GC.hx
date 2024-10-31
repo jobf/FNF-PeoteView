@@ -12,8 +12,8 @@ typedef GCBackend = #if cpp cpp.vm.Gc; #else Int #end
 @:publicFields
 abstract GC(GCBackend) {
 	/**
-		Enable the GC.
-		@param inEnable 
+		Enables the GC.
+		@param inEnable Whenever you want to turn it on or not.
 	**/
 	static function enable(inEnable:Bool) {
 		#if cpp
@@ -23,10 +23,14 @@ abstract GC(GCBackend) {
 
 	/**
 		Run the GC.
+		@param times How many times the gc should be ran.
 	**/
-	static function run() {
-		#if cpp
-		GCBackend.run(true);
-		#end
+	static function run(times:Int = 1) {
+		for (i in 0...times) {
+			#if cpp
+			GCBackend.run(false);
+			GCBackend.run(true);
+			#end
+		}
 	}
 }

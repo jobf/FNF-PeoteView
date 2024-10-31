@@ -2,9 +2,7 @@ package elements;
 
 /**
 	The countdown display.
-	This is a helper class for the gameplay state.
 	Inspired from defective engine's countdown class.
-	This uses a tiled texture for the element.
 **/
 #if !debug
 @:noDebug
@@ -30,10 +28,9 @@ class CountdownDisplay {
 
 	/**
 		Constructs a countdown display from chart.
-		@param chart The chart you want the countdown display to input the chart onto.
 		@param display The underlying display that is required to add the underlying program.
 	**/
-	function new(display:Display, buffer:Buffer<UISprite>, program:Program) {
+	function new(display:Display, buffer:Buffer<UISprite>) {
 		this.buffer = buffer;
 
 		sprite = new UISprite();
@@ -87,8 +84,8 @@ class CountdownDisplay {
 		Disposes the countdown display.
 	**/
 	function dispose() {
+		buffer.removeElement(sprite);
 		sprite = null;
-		TextureSystem.disposeTexture("cdTex");
 		GC.run();
 	}
 }

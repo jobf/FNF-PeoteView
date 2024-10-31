@@ -41,7 +41,8 @@ class TextureSystem {
 		@param name The texture's new name.
 	**/
 
-	inline static function disposeTexture(key:String) {
+	static function disposeTexture(key:String) {
+		if (!pool.exists(key)) return;
 		var tex = getTexture(key);
 		tex.dispose();
 		pool.remove(key);

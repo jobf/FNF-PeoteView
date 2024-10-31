@@ -20,7 +20,8 @@ class Main extends Application
 	
 	// ------------------------------------------------------------
 	// --------------- SAMPLE STARTS HERE -------------------------
-	// ------------------------------------------------------------	
+	// ------------------------------------------------------------
+
 	var peoteView:PeoteView;
 
 	var bottomDisplay:Display;
@@ -33,6 +34,10 @@ class Main extends Application
 	{
 		peoteView = new PeoteView(window);
 
+		TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
+		TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
+		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
+
 		bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 		bottomDisplay.hide();
 
@@ -43,7 +48,8 @@ class Main extends Application
 		topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 		topDisplay.hide();
 
-		playField = new PlayField(middleDisplay, true);
+		playField = new PlayField();
+		playField.init(middleDisplay, true);
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyDown.add(changeTime);
@@ -55,7 +61,8 @@ class Main extends Application
 		peoteView.addDisplay(middleDisplay);
 		peoteView.addDisplay(topDisplay);
 
-		//GC.enable(false);
+		GC.run(10);
+		GC.enable(false);
 	}
 
 	function changeTime(code:KeyCode, mod) {

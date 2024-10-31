@@ -6,17 +6,22 @@ import lime.app.Application;
 
 @:publicFields
 class PlayField {
+	var disposed:Bool = true;
 
 	/**************************************************************************************
 										  CONSTRUCTOR
 	**************************************************************************************/
 
-	function new(display:Display, downScroll:Bool = false) {
+	function new() {}
+
+	function init(display:Display, downScroll:Bool) {
 		this.downScroll = downScroll;
 
 		createNoteSystem(display);
 		createHUD(display);
 		finishPlayfield(display);
+
+		disposed = false;
 	}
 
 	/**************************************************************************************
@@ -38,10 +43,10 @@ class PlayField {
 
 	// Behind the note system
 	private var sustainProg(default, null):Program;
-	private var sustainsBuf(default, null):Buffer<Sustain>;
+	private var sustainBuf(default, null):Buffer<Sustain>;
 
 	// Above the note system
-	private var frontProg(default, null):Program;
+	private var notesProg(default, null):Program;
 	private var notesBuf(default, null):Buffer<Note>;
 
 	var sustainDimensions:Array<Int> = [];
@@ -102,7 +107,7 @@ class PlayField {
 	}
 
 	inline function addSustain(sustain:Sustain) {
-		sustainsBuf.addElement(sustain);
+		sustainBuf.addElement(sustain);
 	}
 
 	inline function getNote(id:Int) {
@@ -110,7 +115,11 @@ class PlayField {
 	}
 
 	function setTime(value:Float) {
-		songPosition = value;
+		if (disposed) return;
+
+		conductor.active = false;
+		conductor.time = songPosition = value;
+		conductor.active = true;
 
 		hideRatingPopup();
 
@@ -138,7 +147,7 @@ class PlayField {
 				sustain.x = 9999;
 				sustain.w = sustain.length;
 				sustain.held = false;
-				sustainsBuf.updateElement(sustain);
+				sustainBuf.updateElement(sustain);
 			}
 
 			note.missed = false;
@@ -151,6 +160,8 @@ class PlayField {
 	}
 
 	function cullTop(pos:Int64) {
+		if (disposed) return;
+
 		curTopNote = getNote(spawnPosTop);
 
 		while (spawnPosTop != numOfNotes && (curTopNote.data.position - pos).low < spawnDist) {
@@ -163,7 +174,7 @@ class PlayField {
 				sustain.c.aF = Sustain.defaultAlpha;
 				sustain.w = sustain.length;
 				sustain.x = 9999;
-				sustainsBuf.updateElement(sustain);
+				sustainBuf.updateElement(sustain);
 				sustain.held = false;
 			}
 
@@ -176,6 +187,8 @@ class PlayField {
 	}
 
 	function cullBottom(pos:Int64) {
+		if (disposed) return;
+
 		curBottomNote = getNote(spawnPosBottom);
 
 		while (spawnPosBottom != numOfNotes /* We subtract one because we want to make sure that */ &&
@@ -194,7 +207,7 @@ class PlayField {
 			if (sustainExists) {
 				sustain.x = 9999;
 				sustain.c.aF = Sustain.defaultAlpha;
-				sustainsBuf.updateElement(sustain);
+				sustainBuf.updateElement(sustain);
 				sustain.held = false;
 			}
 
@@ -207,6 +220,8 @@ class PlayField {
 	}
 
 	function updateNotes(pos:Int64) {
+		if (disposed) return;
+
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
 
@@ -221,7 +236,7 @@ class PlayField {
 			var rec = notesBuf.getElement(fullIndex);
 
 			var diff = (Int64.toInt(position - pos) * 0.01) * scrollSpeed;
-			var leftover = Math.floor((Int64.toInt(pos - position):Float) * 0.01);
+			var leftover = Math.floor(Int64.toInt(pos - position) * 0.01);
 
 			var isHit = note.c.aF == 0;
 
@@ -311,7 +326,7 @@ class PlayField {
 					}
 				}
 
-				sustainsBuf.updateElement(sustain);
+				sustainBuf.updateElement(sustain);
 			}
 
 			notesBuf.updateElement(note);
@@ -319,6 +334,8 @@ class PlayField {
 	}
 
 	function keyPress(code:KeyCode, mod) {
+		if (disposed) return;
+
 		if (!keybindMap.exists(code)) {
 			return;
 		}
@@ -366,6 +383,8 @@ class PlayField {
 	}
 
 	function keyRelease(code:KeyCode, mod) {
+		if (disposed) return;
+
 		if (!keybindMap.exists(code)) {
 			return;
 		}
@@ -428,20 +447,18 @@ class PlayField {
 		// NOTE SHEET SETUP
 
 		notesBuf = new Buffer<Note>(16384, 16384, false);
-		frontProg = new Program(notesBuf);
-		frontProg.blendEnabled = true;
+		notesProg = new Program(notesBuf);
+		notesProg.blendEnabled = true;
 
-		TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
-		TextureSystem.setTexture(frontProg, "noteTex", "noteTex");
+		TextureSystem.setTexture(notesProg, "noteTex", "noteTex");
 
 		var tex1 = TextureSystem.getTexture("noteTex");
 
 		// SUSTAIN SETUP
-		sustainsBuf = new Buffer<Sustain>(16384, 16384, false);
-		sustainProg = new Program(sustainsBuf);
+		sustainBuf = new Buffer<Sustain>(16384, 16384, false);
+		sustainProg = new Program(sustainBuf);
 		sustainProg.blendEnabled = true;
 
-		TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 		var tex2 = TextureSystem.getTexture("sustainTex");
 
 		Sustain.init(sustainProg, "sustainTex", tex2);
@@ -449,7 +466,7 @@ class PlayField {
 		sustainDimensions.push(tex2.height);
 
 		display.addProgram(sustainProg);
-		display.addProgram(frontProg);
+		display.addProgram(notesProg);
 
 		for (j in 0...strumlineMap.length) {
 			var map = strumlineMap[j];
@@ -475,23 +492,28 @@ class PlayField {
 	var ratingPopup:UISprite;
 	var comboNumbers:Array<UISprite> = [];
 
-	var placeholderHealthColors:Array<Color> = [Color.RED, Color.GREEN];
 	var healthBarParts:Array<UISprite> = [];
 	var healthBarBG:UISprite;
 
 	var healthIcons:Array<UISprite> = [];
 	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
+	var healthIconColors:Array<Color> = [Color.RED1, Color.LIME];
 
 	var healthBarWS:Int;
 	var healthBarHS:Int;
 
 	var health:Float = 0.5;
 
+	/**
+		Updates the rating popup.
+	**/
 	function updateRatingPopup(deltaTime:Float) {
+		if (disposed) return;
+
 		if (ratingPopup == null) return;
 
 		if (ratingPopup.a != 0) {
-			ratingPopup.a -= ratingPopup.c.aF * (deltaTime * 0.0075);
+			ratingPopup.a -= ratingPopup.c.aF * (deltaTime * 0.005);
 		}
 
 		if (ratingPopup.y != 320) {
@@ -500,7 +522,12 @@ class PlayField {
 		}
 	}
 
+	/**
+		Updates the combo numbers.
+	**/
 	function updateComboNumbers() {
+		if (disposed) return;
+
 		var num:Float = combo;
 
 		for (i in 0...10) {
@@ -523,7 +550,12 @@ class PlayField {
 		}
 	}
 
+	/**
+		Updates the health bar.
+	**/
 	function updateHealthBar() {
+		if (disposed) return;
+
 		var part1 = healthBarParts[0];
 
 		if (part1 == null) return;
@@ -547,7 +579,12 @@ class PlayField {
 		uiBuf.updateElement(part2);
 	}
 
+	/**
+		Updates the health icons.
+	**/
 	function updateHealthIcons() {
+		if (disposed) return;
+
 		var part1 = healthBarParts[1];
 
 		if (part1 == null) return;
@@ -581,18 +618,31 @@ class PlayField {
 		uiBuf.updateElement(plrIcon);
 	}
 
+	/**
+		Hides the rating popup.
+	**/
 	inline function hideRatingPopup() {
+		if (disposed) return;
+
 		ratingPopup.a = 0.0;
 		uiBuf.updateElement(ratingPopup);
 	}
 
+	/**
+		Wakes up the rating popup.
+	**/
 	inline function respondWithRatingID(id:Int) {
+		if (disposed) return;
+
 		ratingPopup.a = 1.0;
 		ratingPopup.y = 300;
 		ratingPopup.changeID(id);
 		uiBuf.updateElement(ratingPopup);
 	}
 
+	/**
+		Create the playfield UI.
+	**/
 	function createHUD(display:Display) {
 		healthBarWS = UISprite.healthBarDimensions[2];
 		healthBarHS = UISprite.healthBarDimensions[3];
@@ -600,8 +650,6 @@ class PlayField {
 		uiBuf = new Buffer<UISprite>(2048, 2048, false);
 		uiProg = new Program(uiBuf);
 		uiProg.blendEnabled = true;
-
-		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 
 		UISprite.init(uiProg, "uiTex", TextureSystem.getTexture("uiTex"));
 
@@ -643,7 +691,7 @@ class PlayField {
 			part.h = healthBarBG.h - (healthBarHS << 1);
 			part.x = (healthBarBG.x + (part.w * i)) + healthBarWS;
 			part.y = healthBarBG.y + healthBarHS;
-			part.c = placeholderHealthColors[i];
+			part.c = healthIconColors[i];
 
 			// GRADIENT TEST
 			/*part.c2 = Color.YELLOW;
@@ -684,6 +732,9 @@ class PlayField {
 									 THE REST OF THIS SHIT
 	**************************************************************************************/
 
+	/**
+		Finalize the playfield.
+	**/
 	function finishPlayfield(display:Display) {
 		chart = new Chart("assets/songs/milf");
 
@@ -692,7 +743,7 @@ class PlayField {
 
 		scrollSpeed = chart.header.speed;
 
-		songPosition = -conductor.crochet * 5;
+		songPosition = -conductor.crochet * 4.5;
 
 		conductor.onBeat.add((beat:Float) -> {
 			if (beat < 0) {
@@ -700,7 +751,7 @@ class PlayField {
 			}
 		});
 
-		countdownDisp = new CountdownDisplay(display, uiBuf, uiProg);
+		countdownDisp = new CountdownDisplay(display, uiBuf);
 
 		var dimensions = sustainDimensions;
 
@@ -803,7 +854,7 @@ class PlayField {
 			// Trigger a game over
 			if (health < 0) {
 				Sys.println("Game Over");
-				Sys.exit(1);
+				dispose();
 			}
 		});
 
@@ -826,7 +877,14 @@ class PlayField {
 
 	var chart:Chart;
 
+	/**
+		Update the playfield.
+	**/
 	function update(deltaTime:Float) {
+		if (disposed) return;
+
+		conductor.time = songPosition;
+
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
 		// NOTE SYSTEM
@@ -840,8 +898,42 @@ class PlayField {
 		updateHealthBar();
 		updateHealthIcons();
 
-		countdownDisp.update(deltaTime);
+		if (countdownDisp == null) return;
 
-		conductor.time = songPosition;
+		countdownDisp.update(deltaTime);
+	}
+
+	/**
+		Dispose the playfield.
+	**/
+	function dispose() {
+		countdownDisp.dispose();
+		countdownDisp = null;
+
+		uiBuf.removeElement(ratingPopup);
+		ratingPopup = null;
+
+		for (i in 0...comboNumbers.length) {
+			uiBuf.removeElement(comboNumbers[i]);
+			comboNumbers[i] = null;
+		}
+		comboNumbers = null;
+
+		uiBuf.removeElement(healthBarBG);
+		healthBarBG = null;
+
+		for (i in 0...healthIcons.length) {
+			uiBuf.removeElement(healthIcons[i]);
+			healthIcons[i] = null;
+		}
+		healthIcons = null;
+
+		notesProg.displays[0].removeProgram(notesProg);
+		sustainProg.displays[0].removeProgram(sustainProg);
+		uiProg.displays[0].removeProgram(uiProg);
+
+		disposed = true;
+
+		GC.run();
 	}
 }
