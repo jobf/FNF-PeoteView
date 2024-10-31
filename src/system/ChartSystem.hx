@@ -1,5 +1,5 @@
-#if !doc_gen
-package system.internal;
+
+package system;
 
 import sys.io.File;
 using StringTools;
@@ -8,6 +8,7 @@ using StringTools;
 @:noDebug
 #end
 @:publicFields
+@dox(hide)
 class ChartSystem
 {
 	inline static function parseHeader(path:String):Header {
@@ -63,4 +64,3 @@ class ChartSystem
 		return result;
 	}
 }
-#end

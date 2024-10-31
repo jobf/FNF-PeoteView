@@ -1,4 +1,4 @@
-package system.internal;
+package system;
 
 typedef GCBackend = #if cpp cpp.vm.Gc; #else Int #end
 

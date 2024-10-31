@@ -4,7 +4,7 @@ package elements;
 	The countdown display.
 	This is a helper class for the gameplay state.
 	Inspired from defective engine's countdown class.
-	NOTE: You should only use this if necessary to do so. This uses a program per sprite, which uses multitexture.
+	NOTE: You should only use this if necessary to do so. This uses a program per sprite, which uses a tiled texture.
 **/
 #if !debug
 @:noDebug
@@ -42,14 +42,14 @@ class CountdownDisplay {
 	/**
 		Constructs a countdown display from chart.
 		@param chart The chart you want the countdown display to input the chart onto.
-		@param fromCamera The underlying camera that is required to add the underlying program.
+		@param display The underlying display that is required to add the underlying program.
 	**/
-	function new(fromChart:Chart, fromCamera:Camera) {
-		buffer = new Buffer<Sprite>(1, 0, true);
+	function new(fromChart:Chart, display:Display) {
+		buffer = new Buffer<Sprite>(1, 0, false);
 		program = new Program(buffer);
 
-		if (!fromCamera.hasProgram(program)) {
-			fromCamera.addProgram(program);
+		if (!display.hasProgram(program)) {
+			display.addProgram(program);
 		}
 
 		TextureSystem.createTiledTexture("cdTex", "assets/countdown/sheet.png", 1, 3);
@@ -58,7 +58,7 @@ class CountdownDisplay {
 		sprite = new Sprite();
 
 		sprite.setSizeToTexture(TextureSystem.getTexture("cdTex"));
-		sprite.screenCenter();
+		sprite.screenCenter(display);
 
 		buffer.addElement(sprite);
 		sprite.c.aF = 0;
@@ -72,11 +72,11 @@ class CountdownDisplay {
 		@param id The countdown's tick index.
 	**/
 	function countdownTick(id:Int) {
-		Audio.playSound('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
+		//Audio.playSound('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
 
 		if (id != 0) {
 			sprite.tile = id - 1;
-			sprite.c.aF = 1;
+			sprite.c.aF = id < 0 ? 0 : 1;
 			buffer.updateElement(sprite);
 		}
 	}
@@ -109,8 +109,8 @@ class CountdownDisplay {
 		program = null;
 		sprite = null;
 
-		if (State.useGC) {
-			GC.run();
-		}
+		TextureSystem.disposeTexture("cdTex");
+
+		GC.run();
 	}
 }

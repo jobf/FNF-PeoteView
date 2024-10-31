@@ -84,18 +84,18 @@ class Sprite implements Element
 	}
 
 	/**
-		Screen center the sprite at a specific axis.
+		Screen center the sprite at a specific axis, in a display.
 		@param axis The axis you want to center the sprite to.
 	**/
-	function screenCenter(axis:Axis = XY, widthDiv:Float = 1, heightDiv:Float = 1) {
+	function screenCenter(display:Display, axis:Axis = XY, widthDiv:Float = 1, heightDiv:Float = 1) {
 		switch (axis) {
 			case X:
-				x = (Screen.view.width - Math.floor(w / widthDiv)) >> 1;
+				x = (display.width - w) >> 1;
 			case Y:
-				y = (Screen.view.height - Math.floor(h / heightDiv)) >> 1;
+				y = (display.height - h) >> 1;
 			default:
-				x = (Screen.view.width - Math.floor(w / widthDiv)) >> 1;
-				y = (Screen.view.height - Math.floor(h / heightDiv)) >> 1;
+				x = (display.width - w) >> 1;
+				y = (display.height - h) >> 1;
 		}
 	}
 

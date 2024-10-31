@@ -1,25 +1,19 @@
 package;
 
 import haxe.CallStack;
-
 import lime.app.Application;
 import lime.ui.Window;
+import lime.ui.KeyCode;
 
-#if !debug
-@:noDebug
-#end
 class Main extends Application
 {
 	override function onWindowCreate():Void
 	{
-		/*Application.current.window.borderless = true;
-		Application.current.window.opacity = 0.75;*/
-
 		switch (window.context.type)
 		{
 			case WEBGL, OPENGL, OPENGLES:
 				try startSample(window)
-				catch (_) Sys.println(CallStack.toString(CallStack.exceptionStack()) + ', $_');
+				catch (_) trace(CallStack.toString(CallStack.exceptionStack()), _);
 			default: throw("Sorry, only works with OpenGL.");
 		}
 	}
@@ -27,78 +21,40 @@ class Main extends Application
 	// ------------------------------------------------------------
 	// --------------- SAMPLE STARTS HERE -------------------------
 	// ------------------------------------------------------------	
-	
+	var peoteView:PeoteView;
+	var display:Display;
+	var playField:PlayField;
+
 	public function startSample(window:Window)
 	{
+		peoteView = new PeoteView(window);
+		display = new Display(0, 0, window.width, window.height, Color.GREY2);
+
+		peoteView.addDisplay(display);
+
+		playField = new PlayField(display, true);
+
+		window.onKeyDown.add(playField.keyPress);
+		window.onKeyDown.add(changeTime);
+		window.onKeyUp.add(playField.keyRelease);
+
+		peoteView.start();
+
 		GC.enable(false);
-		Screen.init(window);
-	}
-	
-	// ------------------------------------------------------------
-	// ----------------- LIME EVENTS ------------------------------
-	// ------------------------------------------------------------	
-
-	override function onPreloadComplete():Void {
-		// access embeded assets from here
 	}
 
-	var newDeltaTime:Float = 0;
-	var timeStamp:Float = 0;
-	override function update(deltaTime:Int):Void {
-		var ts:Float = untyped __global__.__time_stamp();
-
-		newDeltaTime = (ts - timeStamp) * 1000;
-
-		State.current.update(newDeltaTime);
-
-		//Sys.println(newDeltaTime);
-
-		timeStamp = ts;
+	function changeTime(code:KeyCode, mod) {
+		switch (code) {
+			case KeyCode.EQUALS:
+				playField.setTime(playField.songPosition += 2000);
+			case KeyCode.MINUS:
+				playField.setTime(playField.songPosition -= 2000);
+			default:
+		}
 	}
 
-	// override function render(context:lime.graphics.RenderContext):Void {}
-	// override function onRenderContextLost ():Void trace(" --- WARNING: LOST RENDERCONTEXT --- ");		
-	// override function onRenderContextRestored (context:lime.graphics.RenderContext):Void trace(" --- onRenderContextRestored --- ");		
-
-	// ----------------- MOUSE EVENTS ------------------------------
-
-	// override function onMouseMove (x:Float, y:Float):Void {}	
-	// override function onMouseDown (x:Float, y:Float, button:lime.ui.MouseButton):Void {}	
-	// override function onMouseUp (x:Float, y:Float, button:lime.ui.MouseButton):Void {}	
-	// override function onMouseWheel (deltaX:Float, deltaY:Float, deltaMode:lime.ui.MouseWheelMode):Void {}
-	// override function onMouseMoveRelative (x:Float, y:Float):Void {}
-
-	// ----------------- TOUCH EVENTS ------------------------------
-
-	// override function onTouchStart (touch:lime.ui.Touch):Void {}
-	// override function onTouchMove (touch:lime.ui.Touch):Void	{}
-	// override function onTouchEnd (touch:lime.ui.Touch):Void {}
-	
-	// ----------------- KEYBOARD EVENTS ---------------------------
-
-	override function onKeyDown (keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
-		State.current.onKeyDown(keyCode, modifier);
+	override function update(deltaTime:Int) {
+		playField.songPosition += deltaTime;
+		playField.update(deltaTime);
 	}
-
-	override function onKeyUp (keyCode:lime.ui.KeyCode, modifier:lime.ui.KeyModifier):Void {
-		State.current.onKeyUp(keyCode, modifier);
-	}
-
-	// -------------- other WINDOWS EVENTS ----------------------------
-
-	// override function onWindowResize (width:Int, height:Int):Void { trace("onWindowResize", width, height); }
-	// override function onWindowLeave():Void { trace("onWindowLeave"); }
-	// override function onWindowActivate():Void { trace("onWindowActivate"); }
-	// override function onWindowClose():Void { trace("onWindowClose"); }
-	// override function onWindowDeactivate():Void { trace("onWindowDeactivate"); }
-	// override function onWindowDropFile(file:String):Void { trace("onWindowDropFile"); }
-	// override function onWindowEnter():Void { trace("onWindowEnter"); }
-	// override function onWindowExpose():Void { trace("onWindowExpose"); }
-	// override function onWindowFocusIn():Void { trace("onWindowFocusIn"); }
-	// override function onWindowFocusOut():Void { trace("onWindowFocusOut"); }
-	// override function onWindowFullscreen():Void { trace("onWindowFullscreen"); }
-	// override function onWindowMove(x:Float, y:Float):Void { trace("onWindowMove"); }
-	// override function onWindowMinimize():Void { trace("onWindowMinimize"); }
-	// override function onWindowRestore():Void { trace("onWindowRestore"); }
-	
 }

@@ -1,4 +1,4 @@
-package elements.playField;
+package menus;
 
 import lime.ui.KeyCode;
 import lime.app.Event;
@@ -14,8 +14,9 @@ class PlayField {
 	function new(display:Display, downScroll:Bool = false) {
 		this.downScroll = downScroll;
 
-		createNoteSystem(display, downScroll);
-		createHUD(display, downScroll);
+		createNoteSystem(display);
+		createHUD(display);
+		finishPlayfield(display);
 	}
 
 	/**************************************************************************************
@@ -396,7 +397,10 @@ class PlayField {
 		onKeyRelease.dispatch(code);
 	}
 
-	function createNoteSystem(display:Display, downScroll:Bool = false) {
+	function createNoteSystem(display:Display) {
+		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
+		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
+
 		if (strumlineMap.length > 4) strumlineMap.resize(4);
 
 		onNoteHit = new Event<ChartNote->Int->Void>();
@@ -457,11 +461,13 @@ class PlayField {
 										   UI SYSTEM
 	**************************************************************************************/
 
-	// Everything.
-	var uiBuf(default, null):Buffer<UISprite>;
+	var countdownDisp:CountdownDisplay;
+
+	private var uiBuf(default, null):Buffer<UISprite>;
 	private var uiProg(default, null):Program;
 
 	var ratingPopup:UISprite;
+	var comboNumbers:Array<UISprite> = [for (i in 0...9) null];
 
 	var placeholderHealthColors:Array<Color> = [Color.RED, Color.GREEN];
 	var healthBarParts:Array<UISprite> = [];
@@ -558,9 +564,9 @@ class PlayField {
 		uiBuf.updateElement(ratingPopup);
 	}
 
-	function createHUD(display:Display, downScroll:Bool = false) {
-		var healthBarWS = UISprite.healthBarDimensions[2];
-		var healthBarHS = UISprite.healthBarDimensions[3];
+	function createHUD(display:Display) {
+		healthBarWS = UISprite.healthBarDimensions[2];
+		healthBarHS = UISprite.healthBarDimensions[3];
 
 		uiBuf = new Buffer<UISprite>(2048, 2048, false);
 		uiProg = new Program(uiBuf);
@@ -572,12 +578,23 @@ class PlayField {
 
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
-		ratingPopup.type = RATING;
-		ratingPopup.x = 600;
-		ratingPopup.y = 320;
+		ratingPopup.type = RATING_POPUP;
 		ratingPopup.changeID(0);
+		ratingPopup.x = 500;
+		ratingPopup.y = 360;
 		ratingPopup.a = 0.0;
 		uiBuf.addElement(ratingPopup);
+
+		// COMBO NUMBERS SETUP
+		for (i in 0...9) {
+			var comboNumber = comboNumbers[9 - i] = new UISprite();
+			comboNumber.type = COMBO_NUMBER;
+			comboNumber.changeID(0);
+			comboNumber.x = ratingPopup.x + 275 - ((comboNumber.w + 2) * i);
+			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
+			comboNumber.a = 0.5;
+			uiBuf.addElement(comboNumber);
+		}
 
 		// HEALTH BAR SETUP
 		healthBarBG = new UISprite();
@@ -596,11 +613,14 @@ class PlayField {
 			part.x = (healthBarBG.x + (part.w * i)) + healthBarWS;
 			part.y = healthBarBG.y + healthBarHS;
 			part.c = placeholderHealthColors[i];
-			part.c2 = Color.YELLOW;
+
+			// GRADIENT TEST
+			/*part.c2 = Color.YELLOW;
 			part.c3 = Color.BLUE;
 			part.c4 = Color.MAGENTA;
 			part.c5 = Color.BLACK;
-			part.c6 = Color.CYAN;
+			part.c6 = Color.CYAN;*/
+
 			uiBuf.addElement(part);
 		}
 
@@ -608,12 +628,16 @@ class PlayField {
 
 		// HEALTH ICONS SETUP
 
+		var x = healthBarBG.x + (healthBarBG.w >> 1);
+
 		var oppIcon = healthIcons[0] = new UISprite();
 		oppIcon.type = HEALTH_ICON;
+		oppIcon.x = x - 118;
 		oppIcon.changeID(healthIconIDs[0][0]);
 
 		var plrIcon = healthIcons[1] = new UISprite();
 		plrIcon.type = HEALTH_ICON;
+		plrIcon.x = x - 18;
 		plrIcon.changeID(healthIconIDs[1][0]);
 
 		oppIcon.y = plrIcon.y = healthBarBG.y - 75;
@@ -629,15 +653,150 @@ class PlayField {
 									 THE REST OF THIS SHIT
 	**************************************************************************************/
 
+	function finishPlayfield(display:Display) {
+		chart = new Chart("assets/songs/milf");
+
+		var timeSig = chart.header.timeSig;
+		conductor = new Conductor(chart.header.bpm, timeSig[0], timeSig[1]);
+
+		scrollSpeed = chart.header.speed;
+
+		songPosition = -conductor.crochet * 5;
+
+		conductor.onBeat.add((beat:Float) -> {
+			if (beat < 0) {
+				countdownDisp.countdownTick(Math.floor(4 + beat));
+			}
+		});
+
+		countdownDisp = new CountdownDisplay(chart, display);
+
+		var dimensions = sustainDimensions;
+
+		var sW = dimensions[0];
+		var sH = dimensions[1];
+
+		var notes = chart.bytes;
+		for (i in 0...notes.length) {
+			var note = notes[i];
+			var noteSpr = new Note(9999, 0, 0, 0);
+			noteSpr.data = note;
+			noteSpr.toNote();
+            noteSpr.r = strumlineMap[note.lane][note.index][0];
+			addNote(noteSpr);
+
+			if (note.duration > 5) {
+				var susSpr = new Sustain(9999, 0, sW, sH);
+				susSpr.length = ((note.duration << 2) + note.duration) - 25;
+				susSpr.w = susSpr.length;
+				susSpr.r = downScroll ? -90 : 90;
+				susSpr.c.aF = Sustain.defaultAlpha;
+				addSustain(susSpr);
+
+				susSpr.parent = noteSpr;
+				noteSpr.child = susSpr;
+			}
+		}
+
+		numOfNotes = notesBuf.length - numOfReceptors;
+
+		//// CALLBACK TEST ////
+		onNoteHit.add((note:ChartNote, timing:Int) -> {
+			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
+
+			// Accumulate the combo and start determining the rating judgement
+
+			++combo;
+
+			// Don't execute ratings if an opponent note has executed it
+
+			if (!strumlinePlayableMap[note.lane]) {
+				health -= 0.025;
+
+				if (health < 0.05) {
+					health = 0.05;
+				}
+
+				return;
+			}
+
+			// Add the health
+
+			health += 0.025;
+
+			if (health > 1) {
+				health = 1;
+			}
+
+			// This shows you how ratings work
+
+			var absTiming = Math.abs(timing);
+
+			if (absTiming > 60) {
+				respondWithRatingID(3);
+				score += 50;
+
+				return;
+			}
+
+			if (absTiming > 45) {
+				respondWithRatingID(2);
+				score += 100;
+
+				return;
+			}
+
+			if (absTiming > 30) {
+				respondWithRatingID(1);
+				score += 200;
+
+				return;
+			}
+
+			respondWithRatingID(0);
+			score += 400;
+		});
+
+		onNoteMiss.add((note:ChartNote) -> {
+			//Sys.println('Miss ${note.index}, ${note.lane}');
+
+			// Zero the combo
+			combo = 0;
+
+			// Increment the misses
+			++misses;
+
+			// Hurt the health
+			health -= 0.05;
+
+			// Trigger a game over
+			if (health < 0) {
+				Sys.println("Game Over");
+				Sys.exit(1);
+			}
+		});
+
+		onSustainComplete.add((note:ChartNote) -> {
+			//Sys.println('Complete ${note.index}, ${note.lane}');
+		});
+
+		onSustainRelease.add((note:ChartNote) -> {
+			//Sys.println('Release ${note.index}, ${note.lane}');
+		});
+		///////////////////////
+	}
+
 	var score:Int64 = 0;
 	var misses:Int64 = 0;
 	var combo:Int;
 
 	var songPosition:Float;
+	var conductor:Conductor;
 
-	function update(songPos:Float) {
-		songPosition = songPos;
-		var pos = Tools.betterInt64FromFloat(songPos * 100);
+	var chart:Chart;
+
+	function update(deltaTime:Float) {
+		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
 		// NOTE SYSTEM
 		cullTop(pos);
@@ -646,7 +805,12 @@ class PlayField {
 
 		// UI SYSTEM
 		updateRatingPopup();
+		updateComboNumbers();
 		updateHealthBar();
 		updateHealthIcons();
+
+		countdownDisp.update(deltaTime);
+
+		conductor.time = songPosition;
 	}
 }

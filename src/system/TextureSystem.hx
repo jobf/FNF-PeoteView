@@ -1,4 +1,4 @@
-package system.internal;
+package system;
 
 import sys.io.File;
 

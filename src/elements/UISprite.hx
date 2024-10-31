@@ -1,6 +1,6 @@
 // Note to self: I did a stress test on that sprites by rendering 4000 and it turns out the bigger the texture dimensions are the slower it runs
 
-package elements.playField;
+package elements;
 
 @:publicFields
 class UISprite implements Element {
@@ -73,13 +73,13 @@ class UISprite implements Element {
     var isRatingPopup(get, never):Bool;
 
 	inline function get_isRatingPopup() {
-		return type == RATING;
+		return type == RATING_POPUP;
 	}
 
-    var isComboPopup(get, never):Bool;
+    var isComboNumber(get, never):Bool;
 
-	inline function get_isComboPopup() {
-		return type == COMBO;
+	inline function get_isComboNumber() {
+		return type == COMBO_NUMBER;
 	}
 
     var isHealthBar(get, never):Bool;
@@ -139,10 +139,11 @@ class UISprite implements Element {
 		var xValue = 0;
 		var yValue = 0;
 
-        if (isComboPopup) {
+        if (isComboNumber) {
 			wValue = 60;
 			hValue = 72;
 			yValue = 150;
+			id %= 10;
 		}
 
 		if (isHealthBar) {
@@ -170,8 +171,8 @@ class UISprite implements Element {
 
 enum abstract UISpriteType(cpp.UInt8) {
 	var NONE;
-	var RATING;
-	var COMBO;
+	var RATING_POPUP;
+	var COMBO_NUMBER;
 	var HEALTH_BAR;
 	var HEALTH_ICON;
 }
