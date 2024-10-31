@@ -4,7 +4,7 @@ package elements;
 	The countdown display.
 	This is a helper class for the gameplay state.
 	Inspired from defective engine's countdown class.
-	NOTE: You should only use this if necessary to do so. This uses a program per sprite, which uses a tiled texture.
+	This uses a tiled texture for the element.
 **/
 #if !debug
 @:noDebug
@@ -12,27 +12,16 @@ package elements;
 @:publicFields
 class CountdownDisplay {
 	/**
-		The countdown display's program.
-		This is here to render the textures.
-	**/
-	var program:Program;
-
-	/**
 		The countdown display's buffer.
 		This holds one single sprite.
 	**/
-	var buffer:Buffer<Sprite>;
+	var buffer:Buffer<UISprite>;
 
 	/**
 		The countdown display's sprite.
 		This is held on by the buffer that actually gets rendered by the program's display.
 	**/
-	var sprite:Sprite;
-
-	/**
-		The countdown display's underlying chart.
-	**/
-	var selectedChart:Chart;
+	private var sprite:UISprite;
 
 	/**
 		The countdown display's sound suffix.
@@ -44,27 +33,19 @@ class CountdownDisplay {
 		@param chart The chart you want the countdown display to input the chart onto.
 		@param display The underlying display that is required to add the underlying program.
 	**/
-	function new(fromChart:Chart, display:Display) {
-		buffer = new Buffer<Sprite>(1, 0, false);
-		program = new Program(buffer);
+	function new(display:Display, buffer:Buffer<UISprite>, program:Program) {
+		this.buffer = buffer;
 
-		if (!display.hasProgram(program)) {
-			display.addProgram(program);
-		}
+		sprite = new UISprite();
+		sprite.type = COUNTDOWN_POPUP;
+		sprite.changeID(0);
 
-		TextureSystem.createTiledTexture("cdTex", "assets/countdown/sheet.png", 1, 3);
-		TextureSystem.setTexture(program, "cdTex", "cdTex");
+		sprite.x = (display.width - sprite.w) >> 1;
+		sprite.y = (display.height - sprite.h) >> 1;
 
-		sprite = new Sprite();
-
-		sprite.setSizeToTexture(TextureSystem.getTexture("cdTex"));
-		sprite.screenCenter(display);
+		sprite.c.aF = 0.0;
 
 		buffer.addElement(sprite);
-		sprite.c.aF = 0;
-		buffer.updateElement(sprite);
-
-		selectedChart = fromChart;
 	}
 
 	/**
@@ -75,8 +56,9 @@ class CountdownDisplay {
 		//Audio.playSound('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
 
 		if (id != 0) {
-			sprite.tile = id - 1;
-			sprite.c.aF = id < 0 ? 0 : 1;
+			var idBelowZero = id < 0;
+			sprite.changeID(idBelowZero ? 0 : id - 1);
+			sprite.c.aF = idBelowZero ? 0.0 : 1.0;
 			buffer.updateElement(sprite);
 		}
 	}
@@ -85,7 +67,7 @@ class CountdownDisplay {
 		Updates the countdown.
 		@param deltaTime The time since the last frame.
 	**/
-	inline function update(deltaTime:Float) {
+	function update(deltaTime:Float) {
 		if (sprite.c.aF != 0) {
 			var a = sprite.c.aF;
 			var multVal = (a * 0.5) * (deltaTime * 0.0145);
@@ -105,12 +87,8 @@ class CountdownDisplay {
 		Disposes the countdown display.
 	**/
 	function dispose() {
-		buffer = null;
-		program = null;
 		sprite = null;
-
 		TextureSystem.disposeTexture("cdTex");
-
 		GC.run();
 	}
 }

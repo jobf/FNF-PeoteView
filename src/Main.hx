@@ -22,17 +22,28 @@ class Main extends Application
 	// --------------- SAMPLE STARTS HERE -------------------------
 	// ------------------------------------------------------------	
 	var peoteView:PeoteView;
-	var display:Display;
+
+	var bottomDisplay:Display;
+	var middleDisplay:Display;
+	var topDisplay:Display;
+
 	var playField:PlayField;
 
 	public function startSample(window:Window)
 	{
 		peoteView = new PeoteView(window);
-		display = new Display(0, 0, window.width, window.height, Color.GREY2);
 
-		peoteView.addDisplay(display);
+		bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+		bottomDisplay.hide();
 
-		playField = new PlayField(display, true);
+		// Coming soon...
+
+		middleDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+
+		topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+		topDisplay.hide();
+
+		playField = new PlayField(middleDisplay, true);
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyDown.add(changeTime);
@@ -40,15 +51,19 @@ class Main extends Application
 
 		peoteView.start();
 
-		GC.enable(false);
+		peoteView.addDisplay(bottomDisplay);
+		peoteView.addDisplay(middleDisplay);
+		peoteView.addDisplay(topDisplay);
+
+		//GC.enable(false);
 	}
 
 	function changeTime(code:KeyCode, mod) {
 		switch (code) {
 			case KeyCode.EQUALS:
-				playField.setTime(playField.songPosition += 2000);
+				playField.setTime(playField.songPosition + 2000);
 			case KeyCode.MINUS:
-				playField.setTime(playField.songPosition -= 2000);
+				playField.setTime(playField.songPosition - 2000);
 			default:
 		}
 	}

@@ -45,6 +45,9 @@ class PlayField {
 	private var notesBuf(default, null):Buffer<Note>;
 
 	var sustainDimensions:Array<Int> = [];
+
+	// CUSTOMIZATION SECTION //
+
 	var keybindMap:Map<KeyCode, Array<Int>> = [
 		KeyCode.A => [0, 1],
 		KeyCode.LEFT => [0, 1],
@@ -65,6 +68,7 @@ class PlayField {
 		false,
 		true
 	];
+	///////////////////////////
 
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
@@ -106,6 +110,8 @@ class PlayField {
 	}
 
 	function setTime(value:Float) {
+		songPosition = value;
+
 		hideRatingPopup();
 
 		for (i in 0...numOfReceptors) {
@@ -467,7 +473,7 @@ class PlayField {
 	private var uiProg(default, null):Program;
 
 	var ratingPopup:UISprite;
-	var comboNumbers:Array<UISprite> = [for (i in 0...9) null];
+	var comboNumbers:Array<UISprite> = [];
 
 	var placeholderHealthColors:Array<Color> = [Color.RED, Color.GREEN];
 	var healthBarParts:Array<UISprite> = [];
@@ -481,16 +487,39 @@ class PlayField {
 
 	var health:Float = 0.5;
 
-	function updateRatingPopup() {
+	function updateRatingPopup(deltaTime:Float) {
 		if (ratingPopup == null) return;
 
 		if (ratingPopup.a != 0) {
-			ratingPopup.a -= ratingPopup.c.aF * 0.1;
+			ratingPopup.a -= ratingPopup.c.aF * (deltaTime * 0.0075);
 		}
 
 		if (ratingPopup.y != 320) {
-			ratingPopup.y -= (ratingPopup.y - 320) * 0.2;
+			ratingPopup.y -= (ratingPopup.y - 320) * (deltaTime * 0.0125);
 			uiBuf.updateElement(ratingPopup);
+		}
+	}
+
+	function updateComboNumbers() {
+		var num:Float = combo;
+
+		for (i in 0...10) {
+			var comboNumber = comboNumbers[i];
+
+			if (comboNumber == null) continue;
+
+			var digit = Math.floor(num) % 10;
+
+			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
+			comboNumber.a = (Math.floor(num) != 0) ? ratingPopup.a : 0.0;
+
+			if (comboNumber.curID != digit) {
+				comboNumber.changeID(digit);
+			}
+
+			uiBuf.updateElement(comboNumber);
+
+			num *= 0.1;
 		}
 	}
 
@@ -585,14 +614,16 @@ class PlayField {
 		ratingPopup.a = 0.0;
 		uiBuf.addElement(ratingPopup);
 
+		comboNumbers.resize(10);
+
 		// COMBO NUMBERS SETUP
-		for (i in 0...9) {
-			var comboNumber = comboNumbers[9 - i] = new UISprite();
+		for (i in 0...10) {
+			var comboNumber = comboNumbers[i] = new UISprite();
 			comboNumber.type = COMBO_NUMBER;
 			comboNumber.changeID(0);
-			comboNumber.x = ratingPopup.x + 275 - ((comboNumber.w + 2) * i);
+			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.a = 0.5;
+			comboNumber.a = 0.0;
 			uiBuf.addElement(comboNumber);
 		}
 
@@ -669,7 +700,7 @@ class PlayField {
 			}
 		});
 
-		countdownDisp = new CountdownDisplay(chart, display);
+		countdownDisp = new CountdownDisplay(display, uiBuf, uiProg);
 
 		var dimensions = sustainDimensions;
 
@@ -704,10 +735,6 @@ class PlayField {
 		onNoteHit.add((note:ChartNote, timing:Int) -> {
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
-			// Accumulate the combo and start determining the rating judgement
-
-			++combo;
-
 			// Don't execute ratings if an opponent note has executed it
 
 			if (!strumlinePlayableMap[note.lane]) {
@@ -727,6 +754,10 @@ class PlayField {
 			if (health > 1) {
 				health = 1;
 			}
+
+			// Accumulate the combo and start determining the rating judgement
+
+			++combo;
 
 			// This shows you how ratings work
 
@@ -804,7 +835,7 @@ class PlayField {
 		updateNotes(pos);
 
 		// UI SYSTEM
-		updateRatingPopup();
+		updateRatingPopup(deltaTime);
 		updateComboNumbers();
 		updateHealthBar();
 		updateHealthIcons();

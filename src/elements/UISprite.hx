@@ -94,6 +94,14 @@ class UISprite implements Element {
 		return type == HEALTH_ICON;
 	}
 
+    var isCountdownPopup(get, never):Bool;
+
+	inline function get_isCountdownPopup() {
+		return type == COUNTDOWN_POPUP;
+	}
+
+	var curID(default, null):Int;
+
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
 
 	static function init(program:Program, name:String, texture:Texture) {
@@ -155,8 +163,18 @@ class UISprite implements Element {
 
 		if (isHealthIcon) {
 			wValue = hValue = 150;
-			yValue = 300 + (150 * (id >> 3));
+			yValue = 750 + (150 * (id >> 3));
 			id &= 0x7;
+		}
+
+		if (isCountdownPopup) {
+			wValue = 600;
+			hValue = 300;
+			yValue = 150 + (150 * id);
+
+			xValue = id == 1 ? -600 : 600;
+
+			id &= 0x1;
 		}
 
 		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue)) {
@@ -166,6 +184,8 @@ class UISprite implements Element {
 
 		clipX = xValue + (id * clipWidth);
 		clipY = yValue;
+
+		curID = id;
     }
 }
 
@@ -175,4 +195,5 @@ enum abstract UISpriteType(cpp.UInt8) {
 	var COMBO_NUMBER;
 	var HEALTH_BAR;
 	var HEALTH_ICON;
+	var COUNTDOWN_POPUP;
 }
