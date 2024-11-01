@@ -282,6 +282,7 @@ class PlayField {
 						rec.reset();
 						notesBuf.updateElement(rec);
 					}
+
 					botHitsToCheck[fullIndex] = false;
 				}
 
@@ -758,7 +759,6 @@ class PlayField {
 		var sW = dimensions[0];
 		var sH = dimensions[1];
 
-		var stamp = haxe.Timer.stamp();
 		var notes = chart.bytes;
 		for (i in 0...notes.length) {
 			var note = notes[i];
@@ -780,7 +780,6 @@ class PlayField {
 				noteSpr.child = susSpr;
 			}
 		}
-		Sys.println(haxe.Timer.stamp() - stamp);
 
 		numOfNotes = notesBuf.length - numOfReceptors;
 
@@ -869,8 +868,6 @@ class PlayField {
 		onSustainComplete.add((note:ChartNote) -> {
 			//Sys.println('Complete ${note.index}, ${note.lane}');
 
-			// Add the health
-
 			if (!strumlinePlayableMap[note.lane]) {
 				health -= 0.025;
 
@@ -880,6 +877,10 @@ class PlayField {
 
 				return;
 			}
+
+			// Add the health
+
+			health += 0.025;
 
 			if (health > 1) {
 				health = 1;

@@ -87,14 +87,14 @@ cam 0 45');
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
-					var lane = note.lane;
+					var lane = note.index > 4 ? 1 : 0;
 
-					if (mustHitSection) lane = 1 - lane;
+					if (mustHitSection) lane = note.index > 4 ? 0 : 1;
 
 					var newNote:ChartNote = new ChartNote(
 						Tools.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
-						note.index,
+						note.index & 0x3,
 						0,
 						lane
 					);
@@ -142,12 +142,6 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 	var duration(get, never):Float;
 
 	/**
-		The note's strumline lane.
-		Specifies the position of the note it's assigned to.
-	**/
-	var lane(get, never):Int;
-
-	/**
 		Get the note's position.
 		Assigns the visual representation of a note at a specific time in the song.
 	**/
@@ -160,7 +154,7 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 		Where the note should spawn at.
 	**/
 	inline function get_index():Int {
-		return Math.floor(this[1]) & 3;
+		return Math.floor(this[1]);
 	}
 
 	/**
@@ -169,13 +163,5 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 	**/
 	inline function get_duration():Float {
 		return this[2];
-	}
-
-	/**
-		Get the note's strumline lane.
-		Specifies the position of the note it's assigned to.
-	**/
-	inline function get_lane():Int {
-		return this[1] < 4 ? 0 : 1;
 	}
 }
