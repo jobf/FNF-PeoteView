@@ -34,9 +34,12 @@ class Main extends Application
 	{
 		peoteView = new PeoteView(window);
 
+		var stamp = haxe.Timer.stamp();
+		trace("Preloading textures...");
 		TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 		TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
+		trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 		bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 		bottomDisplay.hide();
@@ -48,7 +51,7 @@ class Main extends Application
 		topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 		topDisplay.hide();
 
-		playField = new PlayField();
+		playField = new PlayField("unsolicited-oneshot");
 		playField.init(middleDisplay, true);
 
 		window.onKeyDown.add(playField.keyPress);

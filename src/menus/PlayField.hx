@@ -12,7 +12,9 @@ class PlayField {
 										  CONSTRUCTOR
 	**************************************************************************************/
 
-	function new() {}
+	function new(songName:String) {
+		chart = new Chart('assets/songs/$songName');
+	}
 
 	function init(display:Display, downScroll:Bool) {
 		this.downScroll = downScroll;
@@ -736,8 +738,6 @@ class PlayField {
 		Finalize the playfield.
 	**/
 	function finishPlayfield(display:Display) {
-		chart = new Chart("assets/songs/milf");
-
 		var timeSig = chart.header.timeSig;
 		conductor = new Conductor(chart.header.bpm, timeSig[0], timeSig[1]);
 
@@ -758,6 +758,7 @@ class PlayField {
 		var sW = dimensions[0];
 		var sH = dimensions[1];
 
+		var stamp = haxe.Timer.stamp();
 		var notes = chart.bytes;
 		for (i in 0...notes.length) {
 			var note = notes[i];
@@ -779,6 +780,7 @@ class PlayField {
 				noteSpr.child = susSpr;
 			}
 		}
+		Sys.println(haxe.Timer.stamp() - stamp);
 
 		numOfNotes = notesBuf.length - numOfReceptors;
 
@@ -842,6 +844,18 @@ class PlayField {
 		onNoteMiss.add((note:ChartNote) -> {
 			//Sys.println('Miss ${note.index}, ${note.lane}');
 
+			// Don't execute ratings if an opponent note has executed it
+
+			if (!strumlinePlayableMap[note.lane]) {
+				health -= 0.025;
+
+				if (health < 0.05) {
+					health = 0.05;
+				}
+
+				return;
+			}
+
 			// Zero the combo
 			combo = 0;
 
@@ -850,20 +864,48 @@ class PlayField {
 
 			// Hurt the health
 			health -= 0.05;
-
-			// Trigger a game over
-			if (health < 0) {
-				Sys.println("Game Over");
-				dispose();
-			}
 		});
 
 		onSustainComplete.add((note:ChartNote) -> {
 			//Sys.println('Complete ${note.index}, ${note.lane}');
+
+			// Add the health
+
+			if (!strumlinePlayableMap[note.lane]) {
+				health -= 0.025;
+
+				if (health < 0.05) {
+					health = 0.05;
+				}
+
+				return;
+			}
+
+			if (health > 1) {
+				health = 1;
+			}
 		});
 
 		onSustainRelease.add((note:ChartNote) -> {
 			//Sys.println('Release ${note.index}, ${note.lane}');
+
+			// Add the health
+
+			if (!strumlinePlayableMap[note.lane]) {
+				health -= 0.025;
+
+				if (health < 0.05) {
+					health = 0.05;
+				}
+
+				return;
+			}
+
+			// Zero the combo
+			combo = 0;
+
+			// Hurt the health
+			health -= 0.025;
 		});
 		///////////////////////
 	}
@@ -882,6 +924,12 @@ class PlayField {
 	**/
 	function update(deltaTime:Float) {
 		if (disposed) return;
+
+		// Trigger a game over
+		if (health < 0) {
+			Sys.println("Game Over");
+			dispose();
+		}
 
 		conductor.time = songPosition;
 
@@ -907,6 +955,13 @@ class PlayField {
 		Dispose the playfield.
 	**/
 	function dispose() {
+		disposed = true;
+
+		onNoteHit = null;
+		onNoteMiss = null;
+		onSustainComplete = null;
+		onSustainRelease = null;
+
 		countdownDisp.dispose();
 		countdownDisp = null;
 
@@ -931,8 +986,6 @@ class PlayField {
 		notesProg.displays[0].removeProgram(notesProg);
 		sustainProg.displays[0].removeProgram(sustainProg);
 		uiProg.displays[0].removeProgram(uiProg);
-
-		disposed = true;
 
 		GC.run();
 	}

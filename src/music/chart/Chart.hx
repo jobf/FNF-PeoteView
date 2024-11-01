@@ -2,8 +2,7 @@ package music.chart;
 
 import sys.io.File;
 import sys.FileSystem;
-
-using StringTools;
+import haxe.io.Bytes;
 
 /**
 	The chart.
@@ -36,11 +35,40 @@ class Chart {
 
 		bytes = [];
 
-		var rawBytes = File.getBytes('$path/chart.cbin');
+		Sys.println('Parsing chart from CBIN...');
 
-		for (i in 0...rawBytes.length >> 3) {
-			var note = rawBytes.getInt64(i << 3);
-			bytes.push(note);
+		var chartPath = '$path/chart.cbin';
+		var size = FileSystem.stat(chartPath).size;
+
+		var stamp:Float;
+		if (size < 0xFFFFF) {
+			var input = File.read('$path/chart.cbin');
+			var buffer = Bytes.alloc(0xA00000);
+
+			stamp = haxe.Timer.stamp();
+			while (!input.eof()) {
+				var bufSize = 0xA00000;
+				try {
+					input.readFullBytes(buffer, 0, bufSize);
+				} catch (e) {
+					bufSize = size & 0x9FFFFF;
+				}
+	
+				for (i in 0...buffer.length >> 3) {
+					var note = buffer.getInt64(i << 3);
+					bytes.push(note);
+				}
+			}
+		} else {
+			stamp = haxe.Timer.stamp();
+			var rawBytes = File.getBytes('$path/chart.cbin');
+
+			for (i in 0...rawBytes.length >> 3) {
+				var note = rawBytes.getInt64(i << 3);
+				bytes.push(note);
+			}
 		}
+
+		Sys.println('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 	}
 }

@@ -27,10 +27,10 @@ class ChartConverter
 		var events:FileOutput = File.write('$path/events.txt');
 		var chart:FileOutput  = File.write('$path/chart.cbin');
 
-		Sys.println("Welcome to the Funkin' View chart converter!");
-		Sys.println("Converting base-game chart to Funkin' View chart...");
-		Sys.println("1. Won't work for extra key charts with. 2. Only notes from the chart will be converted.)");
-		Sys.println("Parsing json...");
+		trace("Welcome to the Funkin' View chart converter!");
+		trace("Converting base-game chart to Funkin' View chart...");
+		trace("1. Won't work for extra key charts with. 2. Only notes from the chart will be converted.)");
+		trace("Parsing json...");
 
 		var fileContents = "";
 		try {
@@ -76,7 +76,7 @@ cam 0 45');
 
 		header.close();
 
-		Sys.println("Sorting and adding notes...");
+		trace("Sorting and adding notes...");
 
 		try {
 			var notes:Array<Dynamic> = song.notes;
@@ -87,23 +87,27 @@ cam 0 45');
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
+					var lane = note.lane;
+
+					if (mustHitSection) lane = 1 - lane;
+
 					var newNote:ChartNote = new ChartNote(
 						Tools.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index,
 						0,
-						note.lane
+						lane
 					);
 
 					var num = newNote.toNumber();
-					chart.writeInt32((num.low:Int));
-					chart.writeInt32((num.high:Int));
-					//Sys.println('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
+					chart.writeInt32(num.low);
+					chart.writeInt32(num.high);
+					//trace('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
 				}
 			}
 		} catch (e) {
-			Sys.println(e);
-			Sys.println("This may be an invalid base game chart format or there\'s an error in the file.");
+			trace(e);
+			trace("This may be an invalid base game chart format or there\'s an error in the file.");
 		}
 
 		chart.close();
@@ -172,6 +176,6 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 		Specifies the position of the note it's assigned to.
 	**/
 	inline function get_lane():Int {
-		return this[1] > 3 ? 0 : 1;
+		return this[1] < 4 ? 0 : 1;
 	}
 }
