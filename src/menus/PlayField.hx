@@ -75,6 +75,9 @@ class PlayField {
 		false,
 		true
 	];
+
+	var flipHealthBar:Bool;
+
 	///////////////////////////
 
 	var numOfReceptors:Int;
@@ -563,7 +566,7 @@ class PlayField {
 
 		if (part1 == null) return;
 
-		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * health)) - (healthBarWS << 1);
+		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
 		part1.x = healthBarBG.x + healthBarWS;
 
 		if (part1.w < 0) part1.w = 0;
@@ -605,16 +608,19 @@ class PlayField {
 		var plrIcon = healthIcons[1];
 		plrIcon.x = part1.x - 18;
 
+		var oppIco = flipHealthBar ? plrIcon : oppIcon;
+		var plrIco = flipHealthBar ? oppIcon : plrIcon;
+
 		if (health > 0.75) {
-			oppIcon.changeID(ids[0][1]);
+			oppIco.changeID(ids[0][1]);
 		} else {
-			oppIcon.changeID(ids[0][0]);
+			oppIco.changeID(ids[0][0]);
 		}
 
 		if (health < 0.25) {
-			plrIcon.changeID(ids[1][1]);
+			plrIco.changeID(ids[1][1]);
 		} else {
-			plrIcon.changeID(ids[1][0]);
+			plrIco.changeID(ids[1][0]);
 		}
 
 		uiBuf.updateElement(oppIcon);

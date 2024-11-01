@@ -46,13 +46,14 @@ class Main extends Application
 
 		// Coming soon...
 
-		middleDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+		middleDisplay = new Display(0, 0, window.width, window.height, 0xFFFFFFFF);
 
 		topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 		topDisplay.hide();
 
-		playField = new PlayField("unsolicited-oneshot");
+		playField = new PlayField("termination");
 		playField.init(middleDisplay, true);
+		playField.flipHealthBar = true;
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyDown.add(changeTime);
@@ -74,6 +75,8 @@ class Main extends Application
 				playField.setTime(playField.songPosition + 2000);
 			case KeyCode.MINUS:
 				playField.setTime(playField.songPosition - 2000);
+			case KeyCode.F:
+				playField.flipHealthBar = !playField.flipHealthBar;
 			default:
 		}
 	}
