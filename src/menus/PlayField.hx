@@ -503,7 +503,10 @@ class PlayField {
 
 	var healthIcons:Array<UISprite> = [];
 	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
-	var healthIconColors:Array<Color> = [Color.RED1, Color.LIME];
+	var healthIconColors:Array<Array<Color>> = [
+		[Color.RED1, Color.RED1, Color.RED1, Color.RED1, Color.RED1, Color.RED1],
+		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
+	];
 
 	var healthBarWS:Int;
 	var healthBarHS:Int;
@@ -566,6 +569,15 @@ class PlayField {
 
 		if (part1 == null) return;
 
+		var healthIconColor = healthIconColors[flipHealthBar ? 1 : 0];
+
+		part1.c1 = healthIconColor[0];
+		part1.c2 = healthIconColor[1];
+		part1.c3 = healthIconColor[2];
+		part1.c4 = healthIconColor[3];
+		part1.c5 = healthIconColor[4];
+		part1.c6 = healthIconColor[5];
+
 		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
 		part1.x = healthBarBG.x + healthBarWS;
 
@@ -576,6 +588,15 @@ class PlayField {
 		var part2 = healthBarParts[1];
 
 		if (part2 == null) return;
+
+		var healthIconColor = healthIconColors[flipHealthBar ? 0 : 1];
+
+		part2.c1 = healthIconColor[0];
+		part2.c2 = healthIconColor[1];
+		part2.c3 = healthIconColor[2];
+		part2.c4 = healthIconColor[3];
+		part2.c5 = healthIconColor[4];
+		part2.c6 = healthIconColor[5];
 
 		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
 		part2.x = (healthBarBG.x + part1.w) + healthBarWS;
@@ -700,7 +721,15 @@ class PlayField {
 			part.h = healthBarBG.h - (healthBarHS << 1);
 			part.x = (healthBarBG.x + (part.w * i)) + healthBarWS;
 			part.y = healthBarBG.y + healthBarHS;
-			part.c = healthIconColors[i];
+
+			var healthIconColor = healthIconColors[i];
+
+			part.c1 = healthIconColor[0];
+			part.c2 = healthIconColor[1];
+			part.c3 = healthIconColor[2];
+			part.c4 = healthIconColor[3];
+			part.c5 = healthIconColor[4];
+			part.c6 = healthIconColor[5];
 
 			// GRADIENT TEST
 			/*part.c2 = Color.YELLOW;

@@ -51,7 +51,7 @@ class Main extends Application
 		topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 		topDisplay.hide();
 
-		playField = new PlayField("termination");
+		playField = new PlayField(Sys.args()[0]);
 		playField.init(middleDisplay, true);
 		playField.flipHealthBar = true;
 
@@ -84,5 +84,6 @@ class Main extends Application
 	override function update(deltaTime:Int) {
 		playField.songPosition += deltaTime;
 		playField.update(deltaTime);
+		//Sys.println('Draw calls: ${peoteView.gl.getInteger()}');
 	}
 }
