@@ -53,7 +53,6 @@ class Main extends Application
 
 		playField = new PlayField(Sys.args()[0]);
 		playField.init(middleDisplay, true);
-		playField.flipHealthBar = true;
 
 		window.onKeyDown.add(playField.keyPress);
 		window.onKeyDown.add(changeTime);
@@ -81,9 +80,51 @@ class Main extends Application
 		}
 	}
 
-	override function update(deltaTime:Int) {
-		playField.songPosition += deltaTime;
-		playField.update(deltaTime);
-		//Sys.println('Draw calls: ${peoteView.gl.getInteger()}');
+	var newDeltaTime:Float = 0;
+	var timeStamp:Float = 0;
+	var justStarted:Bool;
+	override function update(deltaTime:Int):Void {
+		var ts:Float = stamp();
+		//syncFramerate(ts);
+
+		newDeltaTime = (ts - timeStamp) * 1000;
+
+		if (playField != null) {
+			playField.songPosition += newDeltaTime;
+			playField.update(newDeltaTime);
+		}
+
+		timeStamp = stamp();
+
+		//Sys.println(newDeltaTime);
+	}
+
+	// This'll be deprecated once the main loop rework drops
+	var cpuTime:Float;
+	function syncFramerate(ts:Float) {
+		var destination:Float = ts + ((1 / Application.current.window.frameRate) - cpuTime);
+
+		if (justStarted) {
+			// Do this so the frametime syncs
+			var _:Float = stamp();
+			while (true) {
+				var current = stamp();
+				var timeLeft = destination - current;
+				if (timeLeft >= 0.001)
+					Sys.sleep(0.001);
+				else {
+					Sys.sleep(0.000000000);
+					if (current >= destination) break;
+				}
+			}
+		} else justStarted = true;
+
+		cpuTime = Sys.cpuTime();
+	}
+
+	inline function stamp() {
+		// Choose any I guess?
+		return untyped __global__.__time_stamp();
+		//return Sys.time() * 0.000001;
 	}
 }

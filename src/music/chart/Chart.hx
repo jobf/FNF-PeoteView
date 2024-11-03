@@ -18,30 +18,23 @@ class Chart {
 	var header(default, null):Header;
 
 	/**
-		The chart's actual bytes where every note is read and turned to a playable song.
+		The chart data where every note is read and parsed to a playable song.
 	**/
-	var bytes(default, null):Array<ChartNote>;
+	var data(default, null):ChartData;
 
 	/**
 		Constructs a chart.
 		@param path The path to the chart folder.
 	**/
 	function new(path:String) {
+		trace('Parsing chart from folder...');
+
 		if (FileSystem.exists('$path/chart.json')) {
 			ChartConverter.baseGame(path);
 		}
 
 		header = ChartSystem.parseHeader('$path/header.txt');
 
-		bytes = [];
-
-		Sys.println('Parsing chart from CBIN...');
-
-		var rawBytes = File.getBytes('$path/chart.cbin');
-
-		for (i in 0...rawBytes.length >> 3) {
-			var note = rawBytes.getInt64(i << 3);
-			bytes.push(note);
-		}
+		data = ChartData.fromFile('$path/chart.cbin');
 	}
 }

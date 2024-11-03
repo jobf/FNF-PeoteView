@@ -2,7 +2,6 @@ package utils;
 
 import sys.io.File;
 import haxe.Json;
-import haxe.Int64;
 
 import sys.io.FileOutput;
 import sys.io.FileInput;
@@ -25,7 +24,7 @@ class ChartConverter
 	static function baseGame(path:String) {
 		var header:FileOutput = File.write('$path/header.txt');
 		var events:FileOutput = File.write('$path/events.txt');
-		var chart:FileOutput  = File.write('$path/chart.cbin');
+		var chart: FileOutput = File.write('$path/chart.cbin');
 
 		trace("Welcome to the Funkin' View chart converter!");
 		trace("Converting base-game chart to Funkin' View chart...");
@@ -87,9 +86,9 @@ cam 0 45');
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
-					var lane = note.index > 4 ? 1 : 0;
+					var lane = note.index > 3 ? 1 : 0;
 
-					if (mustHitSection) lane = note.index > 4 ? 0 : 1;
+					if (mustHitSection) lane = 1 - lane;
 
 					var newNote:ChartNote = new ChartNote(
 						Tools.betterInt64FromFloat(note.position * 100),
@@ -154,7 +153,7 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 		Where the note should spawn at.
 	**/
 	inline function get_index():Int {
-		return Math.floor(this[1]);
+		return Math.floor(this[1]) & 0x7;
 	}
 
 	/**

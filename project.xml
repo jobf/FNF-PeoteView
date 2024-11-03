@@ -27,10 +27,14 @@
 	<!-- prevent JIT ERROR 0 (jit.c line 541) -->
 	<haxeflag name="-dce" value="full" />
 
-	<!--Allow working memory greater than 1 gigabyte-->
+	<!-- Allow working memory greater than 1 gigabyte -->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="cpp" />
 
-	<!--Allow intergration with tracy profiler-->
+	<!-- Compile-time features dedicated to Funkin' View -->
+	<haxelib name="HxBigIO" if="FV_BIG_BYTES" />
+	<haxedef name="HXCPP_M64" if="FV_BIG_BYTES" />
+
+	<!-- Allow intergration with tracy profiler -->
 	<haxedef name="HXCPP_TRACY" if="debug" />
 	<haxedef name="HXCPP_TELEMETRY" if="debug" />
 	<haxedef name="HXCPP_STACK_TRACE" if="debug" />

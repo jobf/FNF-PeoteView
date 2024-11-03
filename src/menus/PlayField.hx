@@ -794,9 +794,18 @@ class PlayField {
 		var sW = dimensions[0];
 		var sH = dimensions[1];
 
-		var notes = chart.bytes;
-		for (i in 0...notes.length) {
-			var note = notes[i];
+		var notes = chart.data;
+
+		// Create a while loop instead that accepts Int64's cause haxe's for loop syntax sugar doesn't have it
+		#if FV_BIG_BYTES
+		var i:Int64 = 0;
+		var len:Int64 = notes.length;
+		while (i < len)
+		#else
+		for (i in 0...notes.length)
+		#end
+		{
+			var note = notes.getNote(i);
 			var noteSpr = new Note(9999, 0, 0, 0);
 			noteSpr.data = note;
 			noteSpr.toNote();
@@ -814,6 +823,8 @@ class PlayField {
 				susSpr.parent = noteSpr;
 				noteSpr.child = susSpr;
 			}
+
+			#if FV_BIG_BYTES i++; #end
 		}
 
 		numOfNotes = notesBuf.length - numOfReceptors;
