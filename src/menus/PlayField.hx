@@ -45,7 +45,7 @@ class PlayField {
 
 	// Behind the note system
 	private var sustainProg(default, null):Program;
-	private var sustainBuf(default, null):Buffer<Sustain>;
+	private var sustainsBuf(default, null):Buffer<Sustain>;
 
 	// Above the note system
 	private var notesProg(default, null):Program;
@@ -110,7 +110,7 @@ class PlayField {
 	}
 
 	inline function addSustain(sustain:Sustain) {
-		sustainBuf.addElement(sustain);
+		sustainsBuf.addElement(sustain);
 	}
 
 	inline function getNote(id:Int) {
@@ -150,7 +150,7 @@ class PlayField {
 				sustain.x = 9999;
 				sustain.w = sustain.length;
 				sustain.held = false;
-				sustainBuf.updateElement(sustain);
+				sustainsBuf.updateElement(sustain);
 			}
 
 			note.missed = false;
@@ -177,7 +177,7 @@ class PlayField {
 				sustain.c.aF = Sustain.defaultAlpha;
 				sustain.w = sustain.length;
 				sustain.x = 9999;
-				sustainBuf.updateElement(sustain);
+				sustainsBuf.updateElement(sustain);
 				sustain.held = false;
 			}
 
@@ -210,7 +210,7 @@ class PlayField {
 			if (sustainExists) {
 				sustain.x = 9999;
 				sustain.c.aF = Sustain.defaultAlpha;
-				sustainBuf.updateElement(sustain);
+				sustainsBuf.updateElement(sustain);
 				sustain.held = false;
 			}
 
@@ -282,9 +282,8 @@ class PlayField {
 					if (!rec.idle()) {
 						rec.reset();
 						notesBuf.updateElement(rec);
+						botHitsToCheck[fullIndex] = false;
 					}
-
-					botHitsToCheck[fullIndex] = false;
 				}
 
 				if (!isHit && diff < 0) {
@@ -330,7 +329,7 @@ class PlayField {
 					}
 				}
 
-				sustainBuf.updateElement(sustain);
+				sustainsBuf.updateElement(sustain);
 			}
 
 			notesBuf.updateElement(note);
@@ -470,8 +469,8 @@ class PlayField {
 		var tex1 = TextureSystem.getTexture("noteTex");
 
 		// SUSTAIN SETUP
-		sustainBuf = new Buffer<Sustain>(16384, 16384, false);
-		sustainProg = new Program(sustainBuf);
+		sustainsBuf = new Buffer<Sustain>(16384, 16384, false);
+		sustainProg = new Program(sustainsBuf);
 		sustainProg.blendEnabled = true;
 
 		var tex2 = TextureSystem.getTexture("sustainTex");
