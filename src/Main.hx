@@ -74,7 +74,7 @@ class Main extends Application
 				playField.setTime(playField.songPosition + 2000);
 			case KeyCode.MINUS:
 				playField.setTime(playField.songPosition - 2000);
-			case KeyCode.F:
+			case KeyCode.F8:
 				playField.flipHealthBar = !playField.flipHealthBar;
 			default:
 		}
