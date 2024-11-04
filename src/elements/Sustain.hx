@@ -8,7 +8,7 @@ class Sustain implements Element
 
 	// size in pixel
 	@varying @sizeX @formula("w * speed") public var w:Int;
-	@varying @sizeY public var h:Int;
+	@varying @sizeY @formula("h * scale") public var h:Int;
 
 	// at what x position it have to slice (width of the tail in texturedata pixels) (WARNING: COUNT X POSITION FROM PNG BACKWARDS)
 	@varying @custom public var tailPoint:Int = 43;
@@ -20,6 +20,8 @@ class Sustain implements Element
 	@color public var c:Color = 0xFFFFFFFF;
 
 	@varying @custom public var speed:Float = 1.0;
+
+	@varying @custom public var scale:Float = 1.0;
 
 	static public var defaultAlpha:Float = 0.6;
 	static public var defaultMissAlpha:Float = 0.3;
@@ -91,20 +93,7 @@ class Sustain implements Element
 	}
 
 	inline public function followNote(note:Note) {
-		if (!note.isNote()) {
-			followReceptor(note);
-		} else {
-			x = note.x + (note.rW >> 1);
-			y = note.y + (((note.h + (note.oy << 1)) - initH) >> 1);
-		}
-	}
-
-	inline public function followReceptor(rec:Note) {
-		if (rec.isNote()) {
-			followNote(rec);
-		} else {
-			x = rec.x + (rec.rW >> 1);
-			y = rec.y + (((rec.h + (rec.oy << 1)) - initH) >> 1);
-		}
+		x = note.x + (Math.floor(note.rW * scale) >> 1);
+		y = note.y + (((note.h + (note.oy << 1)) - Math.floor(initH * scale)) >> 1);
 	}
 }

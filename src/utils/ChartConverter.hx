@@ -27,8 +27,8 @@ class ChartConverter
 		var chart: FileOutput = File.write('$path/chart.cbin');
 
 		trace("Welcome to the Funkin' View chart converter!");
-		trace("Converting base-game chart to Funkin' View chart...");
-		trace("1. Won't work for extra key charts with. 2. Only notes from the chart will be converted.)");
+		trace("Converting base-game chart to CBIN...");
+		trace("No events from the chart will be converted since the Funkin' View chart format has its own dedicated event format.");
 		trace("Parsing json...");
 
 		var fileContents = "";
@@ -79,6 +79,19 @@ cam 0 45');
 
 		try {
 			var notes:Array<Dynamic> = song.notes;
+			var mania = song.mania == null ? 4 : song.mania;
+
+			switch (mania) {
+				case 0:
+					mania = 4;
+				case 1:
+					mania = 6;
+				case 2:
+					mania = 7;
+				case 3:
+					mania = 9;
+			}
+
 			for (section in notes) {
 				section.sectionNotes.sort((a, b) -> a[0] - b[0]);
 				var sectionNotes:Array<Dynamic> = section.sectionNotes;
@@ -86,14 +99,12 @@ cam 0 45');
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
-					var lane = note.index > 3 ? 1 : 0;
-
-					if (mustHitSection) lane = 1 - lane;
+					var lane = 1 - Math.floor((mustHitSection ? note.index : ((note.index <= mania) ? note.index + mania : note.index)) / mania);
 
 					var newNote:ChartNote = new ChartNote(
 						Tools.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
-						note.index & 0x3,
+						note.index % mania,
 						0,
 						lane
 					);
@@ -105,7 +116,7 @@ cam 0 45');
 				}
 			}
 		} catch (e) {
-			trace(e);
+			trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), e);
 			trace("This may be an invalid base game chart format or there\'s an error in the file.");
 		}
 

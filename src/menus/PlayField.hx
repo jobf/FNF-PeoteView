@@ -57,24 +57,21 @@ class PlayField {
 
 	var keybindMap:Map<KeyCode, Array<Int>> = [
 		KeyCode.A => [0, 1],
-		KeyCode.LEFT => [0, 1],
 		KeyCode.S => [1, 1],
-		KeyCode.DOWN => [1, 1],
-		KeyCode.W => [2, 1],
-		KeyCode.UP => [2, 1],
-		KeyCode.D => [3, 1],
-		KeyCode.RIGHT => [3, 1]
+		KeyCode.D => [2, 1],
+		KeyCode.F => [3, 1],
+		KeyCode.SPACE => [4, 1],
+		KeyCode.H => [5, 1],
+		KeyCode.J => [6, 1],
+		KeyCode.K => [7, 1],
+		KeyCode.L => [8, 1]
 	];
 
-	var strumlineMap:Array<Array<Array<Int>>> = [
-		[[0, 50], [-90, 162], [90, 274], [180, 386]],
-		[[0, 675], [-90, 787], [90, 899], [180, 1011]]
-	];
+	var strumlineRotationMap:Array<Int>;
 
-	var strumlinePlayableMap:Array<Bool> = [
-		false,
-		true
-	];
+	var strumlineMap:Array<Array<Array<Float>>>;
+
+	var strumlinePlayableMap:Array<Bool>;
 
 	var flipHealthBar:Bool;
 
@@ -82,6 +79,7 @@ class PlayField {
 
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
+	var precalculatedIndexThing:Array<Int> = [];
 
 	var scrollSpeed(default, set):Float = 1.0;
 
@@ -234,7 +232,7 @@ class PlayField {
 			var index = data.index;
 			var lane = data.lane;
 
-			var fullIndex = index + (lane * strumlineMap[lane].length);
+			var fullIndex = index + precalculatedIndexThing[lane];
 
 			var position = data.position;
 
@@ -299,7 +297,7 @@ class PlayField {
 					}
 
 					if (sustainExists) {
-						sustain.followReceptor(rec);
+						sustain.followNote(rec);
 						sustain.w = sustain.length - leftover;
 						if (sustain.w < 0) sustain.w = 0;
 					}
@@ -316,12 +314,12 @@ class PlayField {
 					sustain.followNote(note);
 				} else if (sustain.c.aF != 0) {
 					if (sustain.w > 0) {
-						sustain.followReceptor(rec);
+						sustain.followNote(rec);
 						sustain.w = sustain.length - leftover;
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
-					if (pos > position + (sustain.length * 100) - 125 && !sustain.held) {
+					if (pos > position + (sustain.length * 100) - 75 && !sustain.held) {
 						sustain.held = true;
 						if (rec.confirmed()) {
 							if (rec.playable) rec.press();
@@ -348,7 +346,7 @@ class PlayField {
 
 		var map = keybindMap[code];
 		var lane = map[1];
-		var index = map[0] + (lane * strumlineMap[lane].length);
+		var index = map[0] + precalculatedIndexThing[lane];
 
 		if (playerHitsToCheck[index]) {
 			return;
@@ -397,7 +395,7 @@ class PlayField {
 
 		var map = keybindMap[code];
 		var lane = map[1];
-		var index = map[0] + (lane * strumlineMap[lane].length);
+		var index = map[0] + precalculatedIndexThing[lane];
 
 		playerHitsToCheck[index] = false;
 
@@ -432,7 +430,16 @@ class PlayField {
 		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
 		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
 
+		strumlineRotationMap = [0, -90, 90, 180, 90, 0, -90, 90, 180];
+
+		strumlineMap = [
+			[for (i in 0...9) [strumlineRotationMap[i], 50 + (56 * i), 0.7]],
+			[for (i in 0...9) [strumlineRotationMap[i], 645 + (56 * i), 0.7]]
+		];
+
 		if (strumlineMap.length > 4) strumlineMap.resize(4);
+
+		strumlinePlayableMap = [false, true];
 
 		onNoteHit = new Event<ChartNote->Int->Void>();
 		onNoteMiss = new Event<ChartNote->Void>();
@@ -443,6 +450,8 @@ class PlayField {
 
 		for (i in 0...strumlineMap.length) {
 			numOfReceptors += strumlineMap[i].length;
+			if (i != 0) precalculatedIndexThing.push(strumlineMap[i-1].length);
+			else precalculatedIndexThing.push(0);
 		}
 
 		notesToHit.resize(numOfReceptors);
@@ -477,9 +486,11 @@ class PlayField {
 		for (j in 0...strumlineMap.length) {
 			var map = strumlineMap[j];
 			for (i in 0...map.length) {
+				var strum = map[i];
 				var rec = new Note(0, downScroll ? display.height - 150 : 50, 0, 0);
-				rec.r = map[i][0];
-				rec.x = map[i][1];
+				rec.r = strum[0];
+				rec.x = Math.floor(strum[1]);
+				rec.scale = strum[2];
 				rec.playable = strumlinePlayableMap[j];
 				notesBuf.addElement(rec);
 			}
@@ -806,10 +817,14 @@ class PlayField {
 		#end
 		{
 			var note = notes.getNote(i);
+
+			var strum = strumlineMap[note.lane][note.index];
+
 			var noteSpr = new Note(9999, 0, 0, 0);
 			noteSpr.data = note;
 			noteSpr.toNote();
-            noteSpr.r = strumlineMap[note.lane][note.index][0];
+            noteSpr.r = strum[0];
+            noteSpr.scale = strum[2];
 			addNote(noteSpr);
 
 			if (note.duration > 5) {
@@ -817,6 +832,7 @@ class PlayField {
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
 				susSpr.r = downScroll ? -90 : 90;
+				susSpr.scale = noteSpr.scale;
 				susSpr.c.aF = Sustain.defaultAlpha;
 				addSustain(susSpr);
 

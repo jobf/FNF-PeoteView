@@ -27,24 +27,6 @@ abstract ChartData(Bytes) from Bytes
 	}
 
 	/**
-		Constructs the chart data from a file.
-		@param path The file path to load your chart.
-		@returns ChartData
-	**/
-	static function fromFile(path:String):ChartData {
-		if (path.split(".")[1].toLowerCase() != 'cbin') {
-			throw "NOT A CBIN FILE!";
-		}
-
-		#if FV_BIG_BYTES
-		Sys.println('Loading big bytes of $path');
-		return BigBytes.fromFile(path);
-		#else
-		return File.getBytes(path);
-		#end
-	}
-
-	/**
 		Gets the chart note from the index of this chart data.
 		@param id The id you want to access the note from.
 		@returns ChartNote

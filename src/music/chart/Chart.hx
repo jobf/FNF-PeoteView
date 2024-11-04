@@ -35,6 +35,10 @@ class Chart {
 
 		header = ChartSystem.parseHeader('$path/header.txt');
 
-		data = ChartData.fromFile('$path/chart.cbin');
+		#if FV_BIG_BYTES
+		data = hx.io.BigBytes.fromFile('$path/chart.cbin');
+		#else
+		data = File.getBytes('$path/chart.cbin');
+		#end
 	}
 }
