@@ -56,6 +56,11 @@ class Header {
 	var voicesDir:String;
 
 	/**
+		The song's key count.
+	**/
+	var mania:Int;
+
+	/**
 		The song's characters.
 	**/
 	var characters:Array<Character>;

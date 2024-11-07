@@ -53,43 +53,21 @@ class ChartConverter
 			gfVersion = "gf";
 		}
 
-		header.writeString('Title: ${song.song}
-Arist: N/A
-Genre: N/A
-Speed: ${song.speed * 0.45}
-BPM: ${song.bpm}
-Time Signature: 4/4
-Stage: $stage
-Instrumental: $path/Inst.ogg
-Voices: $path/Voices.ogg
-Characters:
-${song.player2}, enemy
-pos -700 300
-cam 0 45
-$gfVersion, other
-pos -100 300
-cam 0 45
-${song.player1}, player
-pos 200 300
-cam 0 45');
-
-		header.close();
-
 		trace("Sorting and adding notes...");
 
 		try {
 			var notes:Array<Dynamic> = song.notes;
-			var mania = song.mania == null ? 4 : song.mania;
+			var mania = 4;
 
-			switch (mania) {
-				case 0:
-					mania = 4;
+			switch (song.mania) {
 				case 1:
 					mania = 6;
 				case 2:
 					mania = 7;
 				case 3:
 					mania = 9;
+				default:
+					mania = 4;
 			}
 
 			for (section in notes) {
@@ -99,7 +77,7 @@ cam 0 45');
 				for (i in 0...sectionNotes.length) {
 					var note:VanillaChartNote = sectionNotes[i];
 
-					var lane = 1 - Math.floor((mustHitSection ? note.index : ((note.index <= mania) ? note.index + mania : note.index)) / mania);
+					var lane = 1 - Math.floor((mustHitSection ? note.index : ((note.index >= mania) ? note.index - mania : note.index + mania)) / mania);
 
 					var newNote:ChartNote = new ChartNote(
 						Tools.betterInt64FromFloat(note.position * 100),
@@ -115,12 +93,35 @@ cam 0 45');
 					//trace('Position: ${newNote.position}, Duration: ${newNote.duration}, Id: ${newNote.index}, Type: ${newNote.type}, Lane: ${newNote.lane}');
 				}
 			}
+
+			header.writeString('Title: ${song.song}
+	Arist: N/A
+	Genre: N/A
+	Speed: ${song.speed * 0.45}
+	BPM: ${song.bpm}
+	Time Signature: 4/4
+	Stage: $stage
+	Instrumental: $path/Inst.ogg
+	Voices: $path/Voices.ogg
+	Mania: $mania
+	Characters:
+	${song.player2}, enemy
+	pos -700 300
+	cam 0 45
+	$gfVersion, other
+	pos -100 300
+	cam 0 45
+	${song.player1}, player
+	pos 200 300
+	cam 0 45');
 		} catch (e) {
 			trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), e);
 			trace("This may be an invalid base game chart format or there\'s an error in the file.");
 		}
 
 		chart.close();
+
+		header.close();
 	}
 }
 

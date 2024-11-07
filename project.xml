@@ -24,6 +24,9 @@
 	<!-- for html5 and loading inside onPreloadComplete-event the assets need to be embed=true --> 
 	<assets path="assets" exclude="lime.svg" embed="false" />
 
+	<!-- Allow intergration with miniaudio -->
+	<haxelib name="genkit_miniaudio" />
+
 	<!-- prevent JIT ERROR 0 (jit.c line 541) -->
 	<haxeflag name="-dce" value="full" />
 

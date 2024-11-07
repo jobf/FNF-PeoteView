@@ -1,4 +1,3 @@
-
 package system;
 
 import sys.io.File;
@@ -26,6 +25,8 @@ class ChartSystem
 		var stage = input.readLine().split(": ")[1].trim();
 		var instDir = input.readLine().split(": ")[1].trim();
 		var voicesDir = input.readLine().split(": ")[1].trim();
+
+		var mania = Std.parseInt(input.readLine().split(": ")[1].trim());
 
 		input.readLine();
 
@@ -57,6 +58,7 @@ class ChartSystem
 			stage: stage,
 			instDir: instDir,
 			voicesDir: voicesDir,
+			mania: mania,
 			characters: characterData
 		};
 		//trace(result);
