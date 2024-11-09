@@ -84,6 +84,8 @@ class Main extends Application
 	var timeStamp:Float = 0;
 	var justStarted:Bool;
 	override function update(deltaTime:Int):Void {
+		Tools.profileFrame();
+
 		var ts:Float = stamp();
 		//syncFramerate(ts);
 
@@ -95,6 +97,8 @@ class Main extends Application
 		}
 
 		timeStamp = stamp();
+
+		Tools.profileFrame();
 
 		//Sys.println(newDeltaTime);
 	}

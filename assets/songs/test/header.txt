@@ -6,6 +6,7 @@ BPM: 172
 Time Signature: 4/4
 Stage: stage
 Instrumental: assets/silver-doom.opus
+Mania: 4
 Voices: 
 Characters:
 dad enemy

@@ -1,6 +1,5 @@
 package music.chart;
 
-import sys.io.File;
 import sys.FileSystem;
 import haxe.io.Bytes;
 
@@ -18,9 +17,9 @@ class Chart {
 	var header(default, null):Header;
 
 	/**
-		The chart data where every note is read and parsed to a playable song.
+		The chart file where every note is read and parsed to a playable song.
 	**/
-	var data(default, null):ChartData;
+	var file(default, null):File;
 
 	/**
 		Constructs a chart.
@@ -35,10 +34,8 @@ class Chart {
 
 		header = ChartSystem.parseHeader('$path/header.txt');
 
-		#if FV_BIG_BYTES
-		data = hx.io.BigBytes.fromFile('$path/chart.cbin');
-		#else
-		data = File.getBytes('$path/chart.cbin');
-		#end
+		var stamp = haxe.Timer.stamp();
+		file = new File('$path/chart.cbin');
+		trace('Done! Took ${Tools.formatTime((haxe.Timer.stamp() - stamp) * 1000.0, true)} to load.');
 	}
 }

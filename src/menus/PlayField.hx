@@ -804,7 +804,7 @@ class PlayField {
 		var sW = dimensions[0];
 		var sH = dimensions[1];
 
-		var notes = chart.data;
+		var notes = chart.file;
 
 		// Create a while loop instead that accepts Int64's cause haxe's for loop syntax sugar doesn't have it
 		#if FV_BIG_BYTES

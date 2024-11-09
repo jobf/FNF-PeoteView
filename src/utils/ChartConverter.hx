@@ -95,25 +95,25 @@ class ChartConverter
 			}
 
 			header.writeString('Title: ${song.song}
-	Arist: N/A
-	Genre: N/A
-	Speed: ${song.speed * 0.45}
-	BPM: ${song.bpm}
-	Time Signature: 4/4
-	Stage: $stage
-	Instrumental: $path/Inst.ogg
-	Voices: $path/Voices.ogg
-	Mania: $mania
-	Characters:
-	${song.player2}, enemy
-	pos -700 300
-	cam 0 45
-	$gfVersion, other
-	pos -100 300
-	cam 0 45
-	${song.player1}, player
-	pos 200 300
-	cam 0 45');
+Arist: N/A
+Genre: N/A
+Speed: ${song.speed * 0.45}
+BPM: ${song.bpm}
+Time Signature: 4/4
+Stage: $stage
+Instrumental: $path/Inst.ogg
+Voices: $path/Voices.ogg
+Mania: $mania
+Characters:
+${song.player2}, enemy
+pos -700 300
+cam 0 45
+$gfVersion, other
+pos -100 300
+cam 0 45
+${song.player1}, player
+pos 200 300
+cam 0 45');
 		} catch (e) {
 			trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), e);
 			trace("This may be an invalid base game chart format or there\'s an error in the file.");
