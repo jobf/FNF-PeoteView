@@ -19,7 +19,7 @@ class PlayField {
 	function init(display:Display, downScroll:Bool) {
 		this.downScroll = downScroll;
 
-		createNoteSystem(display);
+		createNoteSystem(display, chart.header.mania);
 		createHUD(display);
 		finishPlayfield(display);
 
@@ -425,16 +425,120 @@ class PlayField {
 		onKeyRelease.dispatch(code);
 	}
 
-	function createNoteSystem(display:Display) {
+	function createNoteSystem(display:Display, mania:Int = 4) {
 		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
 		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
 
-		strumlineRotationMap = [0, -90, 90, 180, 90, 0, -90, 90, 180];
+		if (mania > 16) mania = 16;
 
-		strumlineMap = [
-			[for (i in 0...9) [strumlineRotationMap[i], 50 + (56 * i), 0.7]],
-			[for (i in 0...9) [strumlineRotationMap[i], 645 + (56 * i), 0.7]]
-		];
+		// This shit is fucking unbearable as FUCK
+		// But it's fine for now since it supports a max of 16 keys
+		switch (mania) {
+			case 5:
+				strumlineRotationMap = [0, -90, 90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...5) [strumlineRotationMap[i], 50 + (97 * i), 0.9]],
+					[for (i in 0...5) [strumlineRotationMap[i], 678 + (97 * i), 0.9]]
+				];
+
+			case 6:
+				strumlineRotationMap = [0, -90, 180, 0, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...6) [strumlineRotationMap[i], 50 + (83 * i), 0.83]],
+					[for (i in 0...6) [strumlineRotationMap[i], 676 + (83 * i), 0.83]]
+				];
+
+			case 7:
+				strumlineRotationMap = [0, -90, 180, 90, 0, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...7) [strumlineRotationMap[i], 50 + (75 * i), 0.77]],
+					[for (i in 0...7) [strumlineRotationMap[i], 668 + (75 * i), 0.77]]
+				];
+
+			case 8:
+				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...8) [strumlineRotationMap[i], 50 + (70 * i), 0.68]],
+					[for (i in 0...8) [strumlineRotationMap[i], 663 + (70 * i), 0.68]]
+				];
+
+			case 9:
+				strumlineRotationMap = [0, -90, 90, 180, 90, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...9) [strumlineRotationMap[i], 50 + (56 * i), 0.64]],
+					[for (i in 0...9) [strumlineRotationMap[i], 655 + (56 * i), 0.64]]
+				];
+
+			case 10:
+				strumlineRotationMap = [0, -90, 90, 180, -90, 90, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...10) [strumlineRotationMap[i], 47 + (53 * i), 0.59]],
+					[for (i in 0...10) [strumlineRotationMap[i], 645 + (53 * i), 0.59]]
+				];
+
+			case 11:
+				strumlineRotationMap = [0, -90, 90, 180, 0, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...11) [strumlineRotationMap[i], 44 + (50 * i), 0.57]],
+					[for (i in 0...11) [strumlineRotationMap[i], 639 + (50 * i), 0.57]]
+				];
+
+			case 12:
+				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...12) [strumlineRotationMap[i], 40 + (47 * i), 0.4777]],
+					[for (i in 0...12) [strumlineRotationMap[i], 631 + (47 * i), 0.4777]]
+				];
+
+			case 13:
+				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 90, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...13) [strumlineRotationMap[i], 38 + (42 * i), 0.432]],
+					[for (i in 0...13) [strumlineRotationMap[i], 628 + (42 * i), 0.432]]
+				];
+
+			case 14:
+				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 180, 0, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...14) [strumlineRotationMap[i], 36 + (41 * i), 0.42]],
+					[for (i in 0...14) [strumlineRotationMap[i], 627 + (41 * i), 0.42]]
+				];
+
+			case 15:
+				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 180, 90, 0, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...15) [strumlineRotationMap[i], 34 + (39 * i), 0.405]],
+					[for (i in 0...15) [strumlineRotationMap[i], 626 + (39 * i), 0.405]]
+				];
+
+			case 16:
+				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 180, -90, 90, 0, 90, 180, 0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...16) [strumlineRotationMap[i], 30 + (37 * i), 0.375]],
+					[for (i in 0...16) [strumlineRotationMap[i], 626 + (37 * i), 0.375]]
+				];
+
+			default:
+				strumlineRotationMap = [0, -90, 90, 180];
+
+				strumlineMap = [
+					[for (i in 0...4) [strumlineRotationMap[i], 50 + (112 * i), 1]],
+					[for (i in 0...4) [strumlineRotationMap[i], 680 + (112 * i), 1]]
+				];
+
+		}
 
 		if (strumlineMap.length > 4) strumlineMap.resize(4);
 

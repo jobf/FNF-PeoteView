@@ -94,6 +94,6 @@ class Sustain implements Element
 
 	inline public function followNote(note:Note) {
 		x = note.x + (Math.floor(note.rW * scale) >> 1);
-		y = note.y + (((note.h + (note.oy << 1)) - Math.floor(initH * scale)) >> 1);
+		y = note.y + (Math.floor(((note.h - initH) + (note.oy << 1)) * scale) >> 1);
 	}
 }
