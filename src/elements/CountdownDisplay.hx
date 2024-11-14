@@ -50,7 +50,11 @@ class CountdownDisplay {
 		@param id The countdown's tick index.
 	**/
 	function countdownTick(id:Int) {
-		//Audio.playSound('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
+		if (id != -1) {
+			var snd = new Sound();
+			snd.fromFile('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
+			snd.play();
+		}
 
 		if (id != 0) {
 			var idBelowZero = id < 0;

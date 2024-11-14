@@ -1,7 +1,7 @@
 package music;
 
 import lime.app.Event;
-import haxe.Int64;
+import haxe.EntryPoint;
 
 /**
 	The conductor. Steps, beats, and measures use floats because this class was carried over from fnf zenith's.
@@ -71,59 +71,26 @@ class Conductor
 		if (active) {
 			if (curStep != _stepTracker)
 			{
-				var leftover:Float = _stepTracker - curStep;
-
-				/**
-					This is here just in case you miss a couple steps.
-				**/
-				if (leftover > 1) {
-					var leftoverCounter:Float = 0;
-					while (++leftoverCounter < leftover) {
-						onStep.dispatch(curStep + leftoverCounter);
-					}
-				}
-
 				curStep = _stepTracker;
-
-				onStep.dispatch(curStep);
+				EntryPoint.runInMainThread(() -> {
+					onStep.dispatch(curStep);
+				});
 			}
 
 			if (curBeat != _beatTracker)
 			{
-				var leftover:Float = _beatTracker - curBeat;
-
-				/**
-					This is here just in case you miss a couple beats.
-				**/
-				if (leftover > 1) {
-					var leftoverCounter:Float = 0;
-					while (++leftoverCounter < leftover) {
-						onBeat.dispatch(curBeat + leftoverCounter);
-					}
-				}
-
 				curBeat = _beatTracker;
-
-				onBeat.dispatch(curBeat);
+				EntryPoint.runInMainThread(() -> {
+					onBeat.dispatch(curBeat);
+				});
 			}
 
 			if (curMeasure != _measureTracker)
 			{
-				var leftover:Float = _measureTracker - curMeasure;
-
-				/**
-					This is here just in case you miss a couple measures.
-				**/
-				if (leftover > 1) {
-					var leftoverCounter:Float = 0;
-					while (++leftoverCounter < leftover) {
-						onMeasure.dispatch(curMeasure + leftoverCounter);
-					}
-				}
-
 				curMeasure = _measureTracker;
-
-				onMeasure.dispatch(curMeasure);
+				EntryPoint.runInMainThread(() -> {
+					onMeasure.dispatch(curMeasure);
+				});
 			}
 		} else {
 			curStep = _stepTracker;

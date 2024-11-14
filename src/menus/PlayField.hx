@@ -6,7 +6,8 @@ import lime.app.Application;
 
 @:publicFields
 class PlayField {
-	var disposed:Bool = true;
+	var disposed(default, null):Bool;
+	var paused(default, null):Bool;
 
 	/**************************************************************************************
 										  CONSTRUCTOR
@@ -21,9 +22,8 @@ class PlayField {
 
 		createNoteSystem(display, chart.header.mania);
 		createHUD(display);
+		loadAudio();
 		finishPlayfield(display);
-
-		disposed = false;
 	}
 
 	/**************************************************************************************
@@ -55,7 +55,57 @@ class PlayField {
 
 	// CUSTOMIZATION SECTION //
 
-	var keybindMap:Map<KeyCode, Array<Int>> = [
+	var keybindMaps:Array<Map<KeyCode, Array<Int>>> = [
+	[],
+	[],
+	[],
+	[
+		KeyCode.A => [0, 1],
+		KeyCode.S => [1, 1],
+		KeyCode.W => [2, 1],
+		KeyCode.D => [3, 1],
+		KeyCode.LEFT => [0, 1],
+		KeyCode.DOWN => [1, 1],
+		KeyCode.UP => [2, 1],
+		KeyCode.RIGHT => [3, 1]
+	],
+	[
+		KeyCode.A => [0, 1],
+		KeyCode.S => [1, 1],
+		KeyCode.SPACE => [2, 1],
+		KeyCode.W => [3, 1],
+		KeyCode.D => [4, 1],
+		KeyCode.LEFT => [0, 1],
+		KeyCode.DOWN => [1, 1],
+		KeyCode.UP => [3, 1],
+		KeyCode.RIGHT => [4, 1]
+	], 
+	[
+		KeyCode.S => [0, 1],
+		KeyCode.D => [1, 1],
+		KeyCode.F => [2, 1],
+		KeyCode.J => [3, 1],
+		KeyCode.K => [4, 1],
+		KeyCode.L => [5, 1]
+	], 
+	[
+		KeyCode.S => [0, 1],
+		KeyCode.D => [1, 1],
+		KeyCode.F => [2, 1],
+		KeyCode.SPACE => [3, 1],
+		KeyCode.J => [4, 1],
+		KeyCode.K => [5, 1],
+		KeyCode.L => [6, 1]
+	], [
+		KeyCode.A => [0, 1],
+		KeyCode.S => [1, 1],
+		KeyCode.D => [2, 1],
+		KeyCode.F => [3, 1],
+		KeyCode.H => [4, 1],
+		KeyCode.J => [5, 1],
+		KeyCode.K => [6, 1],
+		KeyCode.L => [7, 1]
+	], [
 		KeyCode.A => [0, 1],
 		KeyCode.S => [1, 1],
 		KeyCode.D => [2, 1],
@@ -65,7 +115,9 @@ class PlayField {
 		KeyCode.J => [6, 1],
 		KeyCode.K => [7, 1],
 		KeyCode.L => [8, 1]
-	];
+	]];
+
+	var keybindMap:Map<KeyCode, Array<Int>>;
 
 	var strumlineRotationMap:Array<Int>;
 
@@ -431,6 +483,8 @@ class PlayField {
 
 		if (mania > 16) mania = 16;
 
+		keybindMap = keybindMaps[mania > 9 ? 9 : mania < 4 ? 4 : mania];
+
 		// This shit is fucking unbearable as FUCK
 		// But it's fine for now since it supports a max of 16 keys
 		switch (mania) {
@@ -608,6 +662,9 @@ class PlayField {
 
 	private var uiBuf(default, null):Buffer<UISprite>;
 	private var uiProg(default, null):Program;
+	private var textProg(default, null):Program;
+
+	var scoreTxt:Text;
 
 	var ratingPopup:UISprite;
 	var comboNumbers:Array<UISprite> = [];
@@ -878,11 +935,43 @@ class PlayField {
 		uiBuf.addElement(plrIcon);
 
 		display.addProgram(uiProg);
+
+		// TEXT SETUP
+
+		scoreTxt = new Text(0, 0, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ");
+		scoreTxt.x = 50;
+		scoreTxt.y = 50;
+
+		textProg = new Program(scoreTxt.buffer);
+		textProg.blendEnabled = true;
+
+		TextureSystem.setTexture(textProg, 'vcrTex', 'vcrTex');
+
+		display.addProgram(textProg);
+	}
+
+	/**************************************************************************************
+											 AUDIO
+	**************************************************************************************/
+
+	var instrumentals:Array<Sound> = [];
+	var voicesTracks:Array<Sound> = [];
+
+	function loadAudio() {
+		var inst1 = instrumentals[0] = new Sound();
+		inst1.fromFile(chart.header.instDir);
+		inst1.conductor = conductor;
+
+		var voices1 = voicesTracks[0] = new Sound();
+		voices1.fromFile(chart.header.voicesDir);
 	}
 
 	/**************************************************************************************
 									 THE REST OF THIS SHIT
 	**************************************************************************************/
+
+	var songStarted(default, null):Bool;
+	var songEnded(default, null):Bool;
 
 	/**
 		Finalize the playfield.
@@ -898,6 +987,32 @@ class PlayField {
 		conductor.onBeat.add((beat:Float) -> {
 			if (beat < 0) {
 				countdownDisp.countdownTick(Math.floor(4 + beat));
+			}
+
+			if (beat == 0 && !songStarted) {
+				for (inst in instrumentals) {
+					inst.time = 0;
+					inst.play();
+				}
+
+				for (voices in voicesTracks) {
+					voices.time = 0;
+					voices.play();
+				}
+
+				songStarted = true;
+
+				sys.thread.Thread.create(() -> {
+					while (!disposed && (!songEnded && songStarted) && instrumentals != null) {
+						try {
+							if (!paused) {
+								var firstInst = instrumentals[0];
+								firstInst.update();
+								songPosition = firstInst.time;
+							}
+						} catch (e) {}
+					}
+				});
 			}
 		});
 
@@ -926,8 +1041,8 @@ class PlayField {
 			var noteSpr = new Note(9999, 0, 0, 0);
 			noteSpr.data = note;
 			noteSpr.toNote();
-            noteSpr.r = strum[0];
-            noteSpr.scale = strum[2];
+			noteSpr.r = strum[0];
+			noteSpr.scale = strum[2];
 			addNote(noteSpr);
 
 			if (note.duration > 5) {
@@ -1089,7 +1204,7 @@ class PlayField {
 		Update the playfield.
 	**/
 	function update(deltaTime:Float) {
-		if (disposed) return;
+		if (disposed || paused) return;
 
 		// Trigger a game over
 		if (health < 0) {
@@ -1097,7 +1212,11 @@ class PlayField {
 			dispose();
 		}
 
-		conductor.time = songPosition;
+		songEnded = instrumentals[0].finished;
+
+		if (!songStarted || songEnded) {
+			conductor.time = songPosition;
+		}
 
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
@@ -1118,7 +1237,7 @@ class PlayField {
 	}
 
 	/**
-		Dispose the playfield.
+		Disposes the playfield.
 	**/
 	function dispose() {
 		disposed = true;
@@ -1153,6 +1272,54 @@ class PlayField {
 		sustainProg.displays[0].removeProgram(sustainProg);
 		uiProg.displays[0].removeProgram(uiProg);
 
+		for (inst in instrumentals) {
+			inst.dispose();
+			inst = null;
+		}
+		instrumentals = null;
+
+		for (voices in voicesTracks) {
+			voices.dispose();
+			voices = null;
+		}
+		voicesTracks = null;
+
 		GC.run();
+	}
+
+	/**
+		Pauses the playfield.
+	**/
+	function pause() {
+		if (disposed || paused) return;
+
+		paused = true;
+
+		for (inst in instrumentals) {
+			inst.stop();
+		}
+
+		for (voices in voicesTracks) {
+			voices.stop();
+		}
+	}
+
+	/**
+		Resumes the playfield.
+	**/
+	function resume() {
+		if (disposed || !paused) return;
+
+		paused = false;
+
+		if (songStarted) {
+			for (inst in instrumentals) {
+				inst.play();
+			}
+	
+			for (voices in voicesTracks) {
+				voices.play();
+			}
+		}
 	}
 }

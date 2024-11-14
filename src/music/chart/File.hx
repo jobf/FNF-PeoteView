@@ -1,9 +1,7 @@
 package music.chart;
 
-import sys.io.File;
-
 @dox(hide)
-typedef Int_f = #if FV_BIG_BYTES Int64 #else Int #end;
+typedef _Number = #if FV_BIG_BYTES Int64 #else Int #end;
 
 /**
 	The chart's file.
@@ -22,12 +20,12 @@ abstract File (
 	/**
 		Gets how many notes in the chart file there are in total.
 	**/
-	var length(get, never):Int_f;
+	var length(get, never):_Number;
 
 	/**
 		The length getter.
 	**/
-	inline function get_length():Int_f {
+	inline function get_length():_Number {
 		return this.length >> 3;
 	}
 
@@ -39,7 +37,7 @@ abstract File (
 		#if FV_BIG_BYTES
 		this = hx.io.BigBytes.fromFile(path);
 		#else
-		this = File.getBytes(path);
+		this = sys.io.File.getBytes(path);
 		#end
 	}
 
@@ -48,7 +46,7 @@ abstract File (
 		@param id The id you want to access the note from.
 		@returns ChartNote
 	**/
-	inline function getNote(id:Int_f):ChartNote {
+	inline function getNote(id:_Number):ChartNote {
 		return this.getInt64(id << 3);
 	}
 }

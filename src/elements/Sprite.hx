@@ -63,6 +63,18 @@ class Sprite implements Element
 	**/
 	@texTile var tile:Int;
 
+	// extra tex attributes for clipping
+	@texX var clipX:Int = 0;
+	@texY var clipY:Int = 0;
+	@texW var clipWidth:Int = 200;
+	@texH var clipHeight:Int = 200;
+
+	// extra tex attributes to adjust texture within the clip
+	@texPosX  var clipPosX:Int = 0;
+	@texPosY  var clipPosY:Int = 0;
+	@texSizeX var clipSizeX:Int = 200;
+	@texSizeY var clipSizeY:Int = 200;
+
 	/**
 		The sprite's options.
 		@param texRepeatX Whenever the texture should repeat horizontally.
