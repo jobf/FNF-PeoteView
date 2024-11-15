@@ -948,9 +948,11 @@ class PlayField {
 
 		// TEXT SETUP
 
-		scoreTxt = new Text(0, 0, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^`'\"/\\&*()[]{}<>|:;_-+=?,. ");
+		scoreTxt = new Text(0, 0);
 		scoreTxt.x = 50;
 		scoreTxt.y = 50;
+		scoreTxt.x = 10;
+		scoreTxt.y = 10;
 
 		textProg = new Program(scoreTxt.buffer);
 		textProg.blendEnabled = true;
@@ -1138,9 +1140,6 @@ class PlayField {
 
 			// Increment the misses
 			++misses;
-
-			// Hurt the health
-			health -= 0.05;
 		});
 
 		onSustainComplete.add((note:ChartNote) -> {
@@ -1174,8 +1173,8 @@ class PlayField {
 		///////////////////////
 	}
 
-	var score:Int64 = 0;
-	var misses:Int64 = 0;
+	var score:Int128 = 0;
+	var misses:Int128 = 0;
 	var combo:Int;
 
 	var songPosition:Float;
@@ -1195,6 +1194,10 @@ class PlayField {
 			dispose();
 			return;
 		}
+
+		scoreTxt.text = 'Score: $score, Misses: $misses';
+		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
+		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 2);
 
 		songEnded = instrumentals[0].finished;
 

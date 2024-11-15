@@ -66,14 +66,14 @@ class Sprite implements Element
 	// extra tex attributes for clipping
 	@texX var clipX:Int = 0;
 	@texY var clipY:Int = 0;
-	@texW var clipWidth:Int = 200;
-	@texH var clipHeight:Int = 200;
+	@texW var clipWidth:Int = 1;
+	@texH var clipHeight:Int = 1;
 
 	// extra tex attributes to adjust texture within the clip
 	@texPosX  var clipPosX:Int = 0;
 	@texPosY  var clipPosY:Int = 0;
-	@texSizeX var clipSizeX:Int = 200;
-	@texSizeY var clipSizeY:Int = 200;
+	@texSizeX var clipSizeX:Int = 1;
+	@texSizeY var clipSizeY:Int = 1;
 
 	/**
 		The sprite's options.

@@ -41,7 +41,7 @@ class Main extends Application
 		TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 		TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
-		TextureSystem.createTexture("vcrTex", "assets/fonts/vcr.png");
+		TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
 		trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 		bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
