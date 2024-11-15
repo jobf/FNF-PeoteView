@@ -176,9 +176,15 @@ class PlayField {
 	function setTime(value:Float) {
 		if (disposed) return;
 
-		conductor.active = false;
-		conductor.time = songPosition = value;
-		conductor.active = true;
+		for (inst in instrumentals) {
+			inst.time = value;
+			inst.update();
+		}
+
+		for (voices in voicesTracks) {
+			voices.time = value;
+			voices.update();
+		}
 
 		hideRatingPopup();
 

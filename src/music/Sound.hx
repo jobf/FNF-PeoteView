@@ -126,10 +126,10 @@ class Sound {
         }
     }
 
-    function setTime(timeInSec:cpp.Float64) {
+    private function setTime(timeInSec:cpp.Float64) {
         Miniaudio.ma_sound_seek_to_pcm_frame(sound, untyped (sampleRate * timeInSec));
 
-        programPos = timeInSec;
+        programPos = -Timestamp.get() + timeInSec;
 
         return timeInSec;
     }
