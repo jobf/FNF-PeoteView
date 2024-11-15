@@ -2,7 +2,7 @@ package music;
 
 import Miniaudio.MaEngine;
 import Miniaudio.MaSound;
-import Miniaudio.MaSoundGroup;
+import Miniaudio.MaDataSource;
 import Miniaudio.MaResult;
 import Miniaudio.MaSoundFlags;
 
@@ -25,6 +25,8 @@ class Sound {
     private var driverPos:cpp.Float32;
     private var _length:cpp.Float32;
     private var _time:cpp.Float64;
+    private var _sampleRate:cpp.UInt32;
+    private var _dataSource:cpp.Star<MaDataSource>;
 
     private var _playhead(default, null):Playhead = [];
 
@@ -39,6 +41,12 @@ class Sound {
     }
 
     /// END OF PLAYBACK TRACKING SYSTEM ///
+
+    var sampleRate(get, never):Int;
+
+    inline function get_sampleRate() {
+        return _sampleRate;
+    }
 
     var length(get, never):Float;
 
@@ -84,12 +92,14 @@ class Sound {
 
     function fromFile(path:String) {
         var result = Miniaudio.ma_sound_init_from_file(engine, path,
-            MaSoundFlags.MA_SOUND_FLAG_STREAM |
-            MaSoundFlags.MA_SOUND_FLAG_ASYNC |
-            MaSoundFlags.MA_SOUND_FLAG_NO_PITCH,
+            //MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_DECODE | MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_NO_PITCH
+            0x00000001 | 0x00000002 | 0x00000004 | 0x00002000,
         null, null, sound);
 
         Miniaudio.ma_sound_get_length_in_seconds(sound, cpp.Pointer.addressOf(_length).ptr);
+
+        _dataSource = Miniaudio.ma_sound_get_data_source(sound);
+        Miniaudio.ma_data_source_get_data_format(_dataSource, null, null, cpp.Pointer.addressOf(_sampleRate).ptr, null, 0);
 
         if (result != MaResult.MA_SUCCESS) {
             trace("Failed to initialize sound");
@@ -118,10 +128,6 @@ class Sound {
     }
 
     function setTime(timeInSec:cpp.Float64) {
-        var sampleRate:cpp.UInt32 = 0;
-        var dataSource = Miniaudio.ma_sound_get_data_source(sound);
-        Miniaudio.ma_data_source_get_data_format(dataSource, null, null, cpp.Pointer.addressOf(sampleRate).ptr, null, 0);
-
         Miniaudio.ma_sound_seek_to_pcm_frame(sound, untyped (sampleRate * timeInSec));
 
         programPos = timeInSec;
@@ -137,7 +143,7 @@ class Sound {
             _playhead.program = programPos + stamp;
 
             Miniaudio.ma_sound_get_cursor_in_seconds(sound, cpp.Pointer.addressOf(driverPos).ptr);
-            _playhead.driver = driverPos;
+            _playhead.driver = Math.floor(driverPos * 1000) * 0.001;
 
             switch (playbackTrackingMethod) {
                 case DRIVER:
@@ -145,7 +151,7 @@ class Sound {
                 case PROGRAM:
                     result = _playhead.program;
                 default:
-                    _playhead.program -= (_playhead.program - _playhead.driver) * 0.0666;
+                    _playhead.program -= (_playhead.program - _playhead.driver) * 0.02;
                     result = _playhead.program;
             }
 

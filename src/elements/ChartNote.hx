@@ -12,7 +12,7 @@ abstract ChartNote(Int64) from Int64 {
 	/**
 		The position's bit mask.
 	**/
-	static var POSITION_MASK:Int64 = Int64.sub(Int64.shl(1, 41), Int64.ofInt(1));
+	static var POSITION_MASK:Int64 = Int64.fromFloat(2199023255551);
 
 	/**
 		Construct a chart note.

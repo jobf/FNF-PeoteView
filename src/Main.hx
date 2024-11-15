@@ -99,12 +99,12 @@ class Main extends Application
 
 		newDeltaTime = (ts - timeStamp) * 1000;
 
-		try {
-			if (!playField.songStarted && !playField.paused) {
+		if (!playField.disposed) {
+			if ((!playField.songStarted || playField.songEnded) && !playField.paused) {
 				playField.songPosition += newDeltaTime;
 			}
 			playField.update(newDeltaTime);
-		} catch (e) {}
+		}
 
 		timeStamp = stamp();
 

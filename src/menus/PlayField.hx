@@ -4,6 +4,10 @@ import lime.ui.KeyCode;
 import lime.app.Event;
 import lime.app.Application;
 
+/**
+	The UI and note system.
+	This includes audio which present the [instrumentals] and [voicesTracks].
+**/
 @:publicFields
 class PlayField {
 	var disposed(default, null):Bool;
@@ -370,7 +374,7 @@ class PlayField {
 						if (sustain.w < 0) sustain.w = 0;
 					}
 
-					if (pos > position + (sustain.length * 100) - 75 && !sustain.held) {
+					if (pos > position + (sustain.length * 100) - 75 && !sustain.held && !note.missed) {
 						sustain.held = true;
 						if (rec.confirmed()) {
 							if (rec.playable) rec.press();
@@ -920,12 +924,10 @@ class PlayField {
 
 		var oppIcon = healthIcons[0] = new UISprite();
 		oppIcon.type = HEALTH_ICON;
-		oppIcon.x = x - 118;
 		oppIcon.changeID(healthIconIDs[0][0]);
 
 		var plrIcon = healthIcons[1] = new UISprite();
 		plrIcon.type = HEALTH_ICON;
-		plrIcon.x = x - 18;
 		plrIcon.changeID(healthIconIDs[1][0]);
 
 		oppIcon.y = plrIcon.y = healthBarBG.y - 75;
@@ -933,6 +935,8 @@ class PlayField {
 
 		uiBuf.addElement(oppIcon);
 		uiBuf.addElement(plrIcon);
+
+		updateHealthIcons();
 
 		display.addProgram(uiProg);
 
@@ -1003,14 +1007,13 @@ class PlayField {
 				songStarted = true;
 
 				sys.thread.Thread.create(() -> {
-					while (!disposed && (!songEnded && songStarted) && instrumentals != null) {
-						try {
-							if (!paused) {
-								var firstInst = instrumentals[0];
-								firstInst.update();
-								songPosition = firstInst.time;
-							}
-						} catch (e) {}
+					while (!disposed && (!songEnded && songStarted)) {
+						if (!paused) {
+							var firstInst = instrumentals[0];
+							firstInst.update();
+							songPosition = firstInst.time;
+						}
+						Sys.sleep(0.005);
 					}
 				});
 			}
@@ -1123,7 +1126,7 @@ class PlayField {
 		onNoteMiss.add((note:ChartNote) -> {
 			//Sys.println('Miss ${note.index}, ${note.lane}');
 
-			// Don't execute ratings if an opponent note has executed it
+			// Hurt the health
 
 			if (!strumlinePlayableMap[note.lane]) {
 				health -= 0.025;
@@ -1170,23 +1173,8 @@ class PlayField {
 		onSustainRelease.add((note:ChartNote) -> {
 			//Sys.println('Release ${note.index}, ${note.lane}');
 
-			// Add the health
-
-			if (!strumlinePlayableMap[note.lane]) {
-				health -= 0.025;
-
-				if (health < 0.05) {
-					health = 0.05;
-				}
-
-				return;
-			}
-
 			// Zero the combo
 			combo = 0;
-
-			// Hurt the health
-			health -= 0.025;
 		});
 		///////////////////////
 	}
@@ -1207,14 +1195,15 @@ class PlayField {
 		if (disposed || paused) return;
 
 		// Trigger a game over
-		if (health < 0) {
+		if (health < 0 && !disposed) {
 			Sys.println("Game Over");
 			dispose();
+			return;
 		}
 
 		songEnded = instrumentals[0].finished;
 
-		if (!songStarted || songEnded) {
+		if (!songStarted) {
 			conductor.time = songPosition;
 		}
 
@@ -1271,6 +1260,12 @@ class PlayField {
 		notesProg.displays[0].removeProgram(notesProg);
 		sustainProg.displays[0].removeProgram(sustainProg);
 		uiProg.displays[0].removeProgram(uiProg);
+		textProg.displays[0].removeProgram(textProg);
+
+		notesProg = null;
+		sustainProg = null;
+		uiProg = null;
+		textProg = null;
 
 		for (inst in instrumentals) {
 			inst.dispose();
@@ -1283,6 +1278,8 @@ class PlayField {
 			voices = null;
 		}
 		voicesTracks = null;
+
+		songEnded = true;
 
 		GC.run();
 	}

@@ -7,7 +7,6 @@ using StringTools;
 @:noDebug
 #end
 @:publicFields
-@dox(hide)
 class ChartSystem
 {
 	inline static function parseHeader(path:String):Header {
@@ -27,6 +26,7 @@ class ChartSystem
 		var voicesDir = input.readLine().split(": ")[1].trim();
 
 		var mania = Std.parseInt(input.readLine().split(": ")[1].trim());
+		var difficulty = Std.parseInt(input.readLine().split(": #")[1].trim()) - 1;
 
 		input.readLine();
 
@@ -59,6 +59,7 @@ class ChartSystem
 			instDir: instDir,
 			voicesDir: voicesDir,
 			mania: mania,
+			difficulty: difficulty,
 			characters: characterData
 		};
 		//trace(result);

@@ -5,9 +5,9 @@ echo.
 timeout /t 1 /nobreak >nul
 haxelib install dox
 haxelib install hxargs
-lime build windows -xml -dce no
+lime build windows -xml -D FV_BIG_BYTES
 haxelib run dox -o bin/api -i bin/windows/types.xml -in system -in elements -in utils -in music
 cd ./bin/api
 index.html
-cls
+
 echo Done!

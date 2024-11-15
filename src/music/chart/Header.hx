@@ -61,6 +61,11 @@ class Header {
 	var mania:Int;
 
 	/**
+		The song's difficulty level.
+	**/
+	var difficulty:Difficulty;
+
+	/**
 		The song's characters.
 	**/
 	var characters:Array<Character>;

@@ -104,6 +104,7 @@ Stage: $stage
 Instrumental: $path/Inst.ogg
 Voices: $path/Voices.ogg
 Mania: $mania
+Difficulty: #8
 Characters:
 ${song.player2}, enemy
 pos -700 300

@@ -17,7 +17,7 @@ class Sprite implements Element
 	@posY @formula("y + py") var y:Int;
 
 	/**
-		The sprite's z position.
+		The sprite's z index.
 	**/
 	@zIndex var z:Int;
 
