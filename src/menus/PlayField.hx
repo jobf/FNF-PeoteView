@@ -1005,17 +1005,6 @@ class PlayField {
 				}
 
 				songStarted = true;
-
-				sys.thread.Thread.create(() -> {
-					while (!disposed && (!songEnded && songStarted)) {
-						if (!paused) {
-							var firstInst = instrumentals[0];
-							firstInst.update();
-							songPosition = firstInst.time;
-						}
-						Sys.sleep(0.005);
-					}
-				});
 			}
 		});
 

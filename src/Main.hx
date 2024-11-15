@@ -99,9 +99,13 @@ class Main extends Application
 
 		newDeltaTime = (ts - timeStamp) * 1000;
 
-		if (!playField.disposed) {
-			if ((!playField.songStarted || playField.songEnded) && !playField.paused) {
+		if (!playField.disposed && !playField.paused) {
+			if ((!playField.songStarted || playField.songEnded)) {
 				playField.songPosition += newDeltaTime;
+			} else {
+				var firstInst = playField.instrumentals[0];
+				firstInst.update();
+				playField.songPosition = firstInst.time;
 			}
 			playField.update(newDeltaTime);
 		}
