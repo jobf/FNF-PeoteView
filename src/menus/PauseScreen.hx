@@ -7,6 +7,6 @@ package menus;
 @:publicFields
 class PauseScreen {
     function new(difficulty:Difficulty) {
-        
+        // TODO
     }
 }
