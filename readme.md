@@ -44,13 +44,13 @@ And you're all set up! Just run `lime test (your platform)` and it works!
 
 (AKA JF)
 
-: Helped me learn how peote-view works, fixed up miniaudio things so it actually works on cross-platform, wrote the sprite clipping sample for peote-view, and more.
+: Helped me learn how peote-view works, wrote the sprite clipping sample for peote-view, and more.
 
 - Semmi
 
 (AKA Semmis, maitag, or simply Sylvio Sell)
 
-: Wrote peote-view
+: Wrote peote-view, and wrote the `slices` shader sample for the sustain note.
 
 - DoggyDentures
 
