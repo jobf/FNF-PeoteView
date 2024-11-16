@@ -1,106 +1,127 @@
 package elements.text;
 
 /**
-    The text buffer class.
+	The text buffer class.
 **/
 @:publicFields
 class Text {
-    var buffer:Buffer<Sprite>;
-    var text(default, set):String;
+	var buffer:Buffer<Sprite>;
+	var text(default, set):String;
 
-    function set_text(str:String) {
-        if (str == text) {
-            return text;
-        }
+	function set_text(str:String) {
+		if (str == text) {
+			return text;
+		}
 
-        buffer.clear();
+		var advanceX:Int = 0;
 
-        var advanceX:Int = 0;
-        for (i in 0...str.length) {
-            var code = str.charCodeAt(i) - 32;
+		for (i in str.length...text.length) {
+			var elem = buffer.getElement(i);
+			if (elem != null) {
+				elem.x = elem.y = -999999999;
+				buffer.updateElement(elem);
+			}
+		}
 
-            if (code > 95) {
-                code = 0;
-            }
+		for (i in 0...str.length) {
+			var code = str.charCodeAt(i) - 32;
 
-            var data = parsedTextAtlasData[code];
-            var padding = data.padding;
+			if (code > 95) {
+				code = 0;
+			}
 
-            var spr = new Sprite();
-            spr.clipX = data.position.x + padding;
-            spr.clipY = data.position.y + padding;
-            spr.w = spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
-            spr.h = spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
-            spr.x = x + data.char.offset.x + advanceX;
-            spr.y = y + data.char.offset.y;
-            advanceX += data.char.advanceX;
+			var data = parsedTextAtlasData[code];
+			var padding = data.padding;
 
-            buffer.addElement(spr);
-        }
+			var spr = buffer.getElement(i);
 
-        width = advanceX;
+			if (spr == null) {
+				spr = new Sprite();
+				buffer.addElement(spr);
+			}
 
-        return text = str;
-    }
+			spr.clipX = data.position.x + padding;
+			spr.clipY = data.position.y + padding;
+			spr.w = spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
+			spr.h = spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
+			spr.x = x + data.char.offset.x + advanceX;
+			spr.y = y + data.char.offset.y;
+			advanceX += data.char.advanceX;
 
-    var x(default, set):Int;
+			if (height < spr.h) {
+				height = spr.h;
+			}
 
-    function set_x(value:Int) {
-        if (value == x) {
-            return x;
-        }
+			if (spr != null) {
+				buffer.updateElement(spr);
+			}
+		}
 
-        for (i in 0...text.length) {
-            var elem = buffer.getElement(i);
-            elem.x += value - x;
-            buffer.updateElement(elem);
-        }
+		width = advanceX;
 
-        return x = value;
-    }
+		return text = str;
+	}
 
-    var y(default, set):Int;
+	var x(default, set):Int;
 
-    function set_y(value:Int) {
-        if (value == y) {
-            return y;
-        }
+	function set_x(value:Int) {
+		if (value == x) {
+			return x;
+		}
 
-        for (i in 0...text.length) {
-            var elem = buffer.getElement(i);
-            elem.y += value - y;
-            buffer.updateElement(elem);
-        }
+		for (i in 0...text.length) {
+			var elem = buffer.getElement(i);
+			elem.x += value - x;
+			buffer.updateElement(elem);
+		}
 
-        return y = value;
-    }
+		return x = value;
+	}
 
-    var width(default, null):Int;
+	var y(default, set):Int;
 
-    static var parsedTextAtlasData:Array<FontAtlasSprite>;
+	function set_y(value:Int) {
+		if (value == y) {
+			return y;
+		}
 
-    function new(x:Int, y:Int, text:String = "Score: 1000000000000") {
-        parsedTextAtlasData = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json")).sprites;
-        buffer = new Buffer<Sprite>(2048, 2048, false);
+		for (i in 0...text.length) {
+			var elem = buffer.getElement(i);
+			elem.y += value - y;
+			buffer.updateElement(elem);
+		}
 
-        this.text = text;
-        this.x = x;
-        this.y = y;
-    }
+		return y = value;
+	}
+
+	var width(default, null):Int;
+
+	var height(default, null):Int;
+
+	static var parsedTextAtlasData:Array<FontAtlasSprite>;
+
+	function new(x:Int, y:Int, text:String = "Score: 1000000000000") {
+		parsedTextAtlasData = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json")).sprites;
+		buffer = new Buffer<Sprite>(2048, 2048, false);
+
+		this.text = text;
+		this.x = x;
+		this.y = y;
+	}
 }
 
 private typedef FontAtlasSprite = {
-    position:{
-        x:Int,
-        y:Int
-    },
-    sourceSize:{
-        width:Int,
-        height:Int
-    },
-    padding:Int,
-    char:{
-        advanceX:Int,
-        offset:{x:Int, y:Int}
-    }
+	position:{
+		x:Int,
+		y:Int
+	},
+	sourceSize:{
+		width:Int,
+		height:Int
+	},
+	padding:Int,
+	char:{
+		advanceX:Int,
+		offset:{x:Int, y:Int}
+	}
 }

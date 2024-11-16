@@ -55,7 +55,7 @@ class PlayField {
 	private var notesProg(default, null):Program;
 	private var notesBuf(default, null):Buffer<Note>;
 
-	var sustainDimensions:Array<Int> = [];
+	private var sustainDimensions:Array<Int> = [];
 
 	// CUSTOMIZATION SECTION //
 
@@ -174,15 +174,21 @@ class PlayField {
 	}
 
 	function setTime(value:Float) {
-		if (disposed) return;
+		if (disposed || !songStarted || songEnded) return;
+
+		if (value < 0) {
+			value = 0;
+		}
+
+		songPosition = value;
 
 		for (inst in instrumentals) {
-			inst.time = value;
+			inst.time = songPosition;
 			inst.update();
 		}
 
 		for (voices in voicesTracks) {
-			voices.time = value;
+			voices.time = songPosition;
 			voices.update();
 		}
 
@@ -204,12 +210,12 @@ class PlayField {
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
-			note.x = 9999;
+			note.x = 999999999;
 
 			var sustain = note.child;
 			if (sustain != null) {
 				sustain.c.aF = 0;
-				sustain.x = 9999;
+				sustain.x = 999999999;
 				sustain.w = sustain.length;
 				sustain.held = false;
 				sustainsBuf.updateElement(sustain);
@@ -231,14 +237,14 @@ class PlayField {
 
 		while (spawnPosTop != numOfNotes && (curTopNote.data.position - pos).low < spawnDist) {
 			spawnPosTop++;
-			curTopNote.x = 9999;
+			curTopNote.x = 999999999;
 
 			var sustain = curTopNote.child;
 
 			if (sustain != null) {
 				sustain.c.aF = Sustain.defaultAlpha;
 				sustain.w = sustain.length;
-				sustain.x = 9999;
+				sustain.x = 999999999;
 				sustainsBuf.updateElement(sustain);
 				sustain.held = false;
 			}
@@ -264,13 +270,13 @@ class PlayField {
 			curBottomNote.data.position).low > despawnDist) {
 			spawnPosBottom++;
 
-			curBottomNote.x = 9999;
+			curBottomNote.x = 999999999;
 
 			var sustain = curBottomNote.child;
 			var sustainExists = sustain != null;
 
 			if (sustainExists) {
-				sustain.x = 9999;
+				sustain.x = 999999999;
 				sustain.c.aF = Sustain.defaultAlpha;
 				sustainsBuf.updateElement(sustain);
 				sustain.held = false;
@@ -434,7 +440,7 @@ class PlayField {
 
 			var data = noteToHit.data;
 
-			onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - Tools.betterInt64FromFloat(songPosition * 100), 100)));
+			onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - Tools.betterInt64FromFloat((songPosition + latencyCompensation) * 100), 100)));
 
 			notesToHit[index] = null;
 		} else {
@@ -672,9 +678,11 @@ class PlayField {
 
 	private var uiBuf(default, null):Buffer<UISprite>;
 	private var uiProg(default, null):Program;
-	private var textProg(default, null):Program;
+	private var scoreTxtProg(default, null):Program;
+	private var watermarkTxtProg(default, null):Program;
 
 	var scoreTxt:Text;
+	var watermarkTxt:Text;
 
 	var ratingPopup:UISprite;
 	var comboNumbers:Array<UISprite> = [];
@@ -864,6 +872,8 @@ class PlayField {
 
 		UISprite.init(uiProg, "uiTex", TextureSystem.getTexture("uiTex"));
 
+		display.addProgram(uiProg);
+
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
 		ratingPopup.type = RATING_POPUP;
@@ -898,9 +908,7 @@ class PlayField {
 			var part = healthBarParts[i] = new UISprite();
 			part.gradientMode = 1;
 			part.clipWidth = part.clipHeight = part.clipSizeX = part.clipSizeY = 0;
-			part.w = (healthBarBG.w >> 1) - (healthBarWS << 1);
 			part.h = healthBarBG.h - (healthBarHS << 1);
-			part.x = (healthBarBG.x + (part.w * i)) + healthBarWS;
 			part.y = healthBarBG.y + healthBarHS;
 
 			var healthIconColor = healthIconColors[i];
@@ -924,6 +932,8 @@ class PlayField {
 
 		uiBuf.addElement(healthBarBG);
 
+		updateHealthBar();
+
 		// HEALTH ICONS SETUP
 
 		var x = healthBarBG.x + (healthBarBG.w >> 1);
@@ -944,22 +954,27 @@ class PlayField {
 
 		updateHealthIcons();
 
-		display.addProgram(uiProg);
-
 		// TEXT SETUP
 
 		scoreTxt = new Text(0, 0);
-		scoreTxt.x = 50;
-		scoreTxt.y = 50;
-		scoreTxt.x = 10;
-		scoreTxt.y = 10;
 
-		textProg = new Program(scoreTxt.buffer);
-		textProg.blendEnabled = true;
+		watermarkTxt = new Text(0, 0, "FV TEST BUILD - Keybinds: -/= to change time, F8 to flip bar, and [/] to adjust latency by 10ms");
+		watermarkTxt.x = 2;
 
-		TextureSystem.setTexture(textProg, 'vcrTex', 'vcrTex');
+		scoreTxtProg = new Program(scoreTxt.buffer);
+		scoreTxtProg.blendEnabled = true;
 
-		display.addProgram(textProg);
+		watermarkTxtProg = new Program(watermarkTxt.buffer);
+		watermarkTxtProg.blendEnabled = true;
+
+		TextureSystem.setTexture(scoreTxtProg, 'vcrTex', 'vcrTex');
+
+		display.addProgram(scoreTxtProg);
+
+		TextureSystem.setTexture(watermarkTxtProg, 'vcrTex', 'vcrTex');
+
+		display.addProgram(watermarkTxtProg);
+		watermarkTxt.y = watermarkTxtProg.displays[0].height - (watermarkTxt.height + 2);
 	}
 
 	/**************************************************************************************
@@ -1038,7 +1053,7 @@ class PlayField {
 
 			var strum = strumlineMap[note.lane][note.index];
 
-			var noteSpr = new Note(9999, 0, 0, 0);
+			var noteSpr = new Note(999999999, 0, 0, 0);
 			noteSpr.data = note;
 			noteSpr.toNote();
 			noteSpr.r = strum[0];
@@ -1046,7 +1061,7 @@ class PlayField {
 			addNote(noteSpr);
 
 			if (note.duration > 5) {
-				var susSpr = new Sustain(9999, 0, sW, sH);
+				var susSpr = new Sustain(999999999, 0, sW, sH);
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
 				susSpr.r = downScroll ? -90 : 90;
@@ -1125,18 +1140,13 @@ class PlayField {
 
 			// Hurt the health
 
-			if (!strumlinePlayableMap[note.lane]) {
-				health -= 0.025;
-
-				if (health < 0.05) {
-					health = 0.05;
-				}
-
-				return;
-			}
+			health -= 0.025;
 
 			// Zero the combo
 			combo = 0;
+
+			// Hurt the score
+			score -= 50;
 
 			// Increment the misses
 			++misses;
@@ -1182,10 +1192,14 @@ class PlayField {
 
 	var chart:Chart;
 
+	var latencyCompensation:Int = 0;
+
 	/**
 		Update the playfield.
 	**/
 	function update(deltaTime:Float) {
+		songPosition += latencyCompensation;
+
 		if (disposed || paused) return;
 
 		// Trigger a game over
@@ -1195,11 +1209,22 @@ class PlayField {
 			return;
 		}
 
+		var firstInst = instrumentals[0];
+
+		// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
+		for (vocals in voicesTracks) {
+			if (vocals.time - firstInst.time > 10) {
+				vocals.time = firstInst.time;
+			}
+		}
+
 		scoreTxt.text = 'Score: $score, Misses: $misses';
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 2);
 
-		songEnded = instrumentals[0].finished;
+		watermarkTxt.text = 'FV TEST BUILD | - and = to change time | F8 to flip bar | [ and ] to adjust latency (${latencyCompensation}ms)';
+
+		songEnded = firstInst.finished;
 
 		if (!songStarted) {
 			conductor.time = songPosition;
@@ -1218,9 +1243,9 @@ class PlayField {
 		updateHealthBar();
 		updateHealthIcons();
 
-		if (countdownDisp == null) return;
-
 		countdownDisp.update(deltaTime);
+
+		songPosition -= latencyCompensation;
 	}
 
 	/**
@@ -1258,12 +1283,14 @@ class PlayField {
 		notesProg.displays[0].removeProgram(notesProg);
 		sustainProg.displays[0].removeProgram(sustainProg);
 		uiProg.displays[0].removeProgram(uiProg);
-		textProg.displays[0].removeProgram(textProg);
+		scoreTxtProg.displays[0].removeProgram(scoreTxtProg);
+		watermarkTxtProg.displays[0].removeProgram(watermarkTxtProg);
 
 		notesProg = null;
 		sustainProg = null;
 		uiProg = null;
-		textProg = null;
+		scoreTxtProg = null;
+		watermarkTxtProg = null;
 
 		for (inst in instrumentals) {
 			inst.dispose();

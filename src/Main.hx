@@ -36,39 +36,41 @@ class Main extends Application
 
 		peoteView = new PeoteView(window);
 
-		var stamp = haxe.Timer.stamp();
-		trace("Preloading textures...");
-		TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
-		TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
-		TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
-		TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
-		trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
-
-		bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
-		bottomDisplay.hide();
-
-		// Coming soon...
-
-		middleDisplay = new Display(0, 0, window.width, window.height, 0x333333FF);
-
-		topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
-		topDisplay.hide();
-
-		playField = new PlayField(Sys.args()[0]);
-		playField.init(middleDisplay, true);
-
-		window.onKeyDown.add(playField.keyPress);
-		window.onKeyDown.add(changeTime);
-		window.onKeyUp.add(playField.keyRelease);
-
-		peoteView.start();
-
-		peoteView.addDisplay(bottomDisplay);
-		peoteView.addDisplay(middleDisplay);
-		peoteView.addDisplay(topDisplay);
-
-		GC.run(10);
-		GC.enable(false);
+		haxe.Timer.delay(200, function() {
+			var stamp = haxe.Timer.stamp();
+			trace("Preloading textures...");
+			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
+			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
+			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
+			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
+			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
+	
+			bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+			bottomDisplay.hide();
+	
+			// Coming soon...
+	
+			middleDisplay = new Display(0, 0, window.width, window.height, 0x333333FF);
+	
+			topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+			topDisplay.hide();
+	
+			playField = new PlayField(Sys.args()[0]);
+			playField.init(middleDisplay, true);
+	
+			window.onKeyDown.add(playField.keyPress);
+			window.onKeyDown.add(changeTime);
+			window.onKeyUp.add(playField.keyRelease);
+	
+			peoteView.start();
+	
+			peoteView.addDisplay(bottomDisplay);
+			peoteView.addDisplay(middleDisplay);
+			peoteView.addDisplay(topDisplay);
+	
+			GC.run(10);
+			GC.enable(false);
+		});
 	}
 
 	function changeTime(code:KeyCode, mod) {
@@ -79,6 +81,10 @@ class Main extends Application
 				playField.setTime(playField.songPosition - 2000);
 			case KeyCode.F8:
 				playField.flipHealthBar = !playField.flipHealthBar;
+			case KeyCode.LEFT_BRACKET:
+				playField.latencyCompensation -= 10;
+			case KeyCode.RIGHT_BRACKET:
+				playField.latencyCompensation += 10;
 			case KeyCode.RETURN:
 				if (playField.paused) {
 					playField.resume();
