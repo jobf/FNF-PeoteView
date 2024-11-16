@@ -8,6 +8,7 @@ Stage: stage
 Instrumental: assets/songs/god-eater/Inst.flac
 Voices: assets/songs/god-eater/Voices.flac
 Mania: 9
+Difficulty: #4
 Characters:
 pshaggy, enemy
 pos -700 300

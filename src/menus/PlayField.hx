@@ -1192,7 +1192,7 @@ class PlayField {
 
 	var chart:Chart;
 
-	var latencyCompensation:Int = 0;
+	var latencyCompensation:Int;
 
 	/**
 		Update the playfield.
@@ -1227,7 +1227,7 @@ class PlayField {
 		songEnded = firstInst.finished;
 
 		if (!songStarted) {
-			conductor.time = songPosition - latencyCompensation;
+			conductor.time = songPosition + latencyCompensation;
 		}
 
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);

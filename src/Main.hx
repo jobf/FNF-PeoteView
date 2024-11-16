@@ -74,7 +74,7 @@ class Main extends Application
 			GC.enable(false);
 
 			_started = true;
-		}, 200);
+		}, 100);
 	}
 
 	function changeTime(code:KeyCode, mod) {
@@ -107,11 +107,11 @@ class Main extends Application
 	override function update(deltaTime:Int):Void {
 		Tools.profileFrame();
 
-		var ts:Float = stamp();
-
-		newDeltaTime = (ts - timeStamp) * 1000;
-
 		if (_started) {
+			var ts:Float = stamp();
+
+			newDeltaTime = (ts - timeStamp) * 1000;
+
 			if (!playField.disposed && !playField.paused) {
 				if ((!playField.songStarted || playField.songEnded)) {
 					playField.songPosition += newDeltaTime;
@@ -122,9 +122,9 @@ class Main extends Application
 				}
 				playField.update(newDeltaTime);
 			}
-		}
 
-		timeStamp = stamp();
+			timeStamp = stamp();
+		}
 
 		Tools.profileFrame();
 	}
