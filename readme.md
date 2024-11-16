@@ -51,7 +51,3 @@ And you're all set up! Just run `lime test (your platform)` and it works!
 (AKA Semmis, maitag, or simply Sylvio Sell)
 
 : Wrote peote-view, and wrote the `slices` shader sample for the sustain note.
-
-- DoggyDentures
-
-: Wrote the first ever [MiniAudio](https://miniaud.io) implementation in haxe, for [Thursday Night Throwdown](https://gamebanana.com/mods/406432) by the same person.
