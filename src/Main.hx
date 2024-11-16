@@ -36,7 +36,7 @@ class Main extends Application
 
 		peoteView = new PeoteView(window);
 
-		haxe.Timer.delay(200, function() {
+		haxe.Timer.delay(function() {
 			var stamp = haxe.Timer.stamp();
 			trace("Preloading textures...");
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
@@ -70,7 +70,7 @@ class Main extends Application
 	
 			GC.run(10);
 			GC.enable(false);
-		});
+		}, 200);
 	}
 
 	function changeTime(code:KeyCode, mod) {
