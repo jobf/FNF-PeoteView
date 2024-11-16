@@ -30,6 +30,8 @@ class Main extends Application
 
 	var playField:PlayField;
 
+	var _started:Bool;
+
 	public function startSample(window:Window)
 	{
 		Sound.init();
@@ -70,10 +72,14 @@ class Main extends Application
 	
 			GC.run(10);
 			GC.enable(false);
+
+			_startd = true;
 		}, 200);
 	}
 
 	function changeTime(code:KeyCode, mod) {
+		if (!_started) return;
+
 		switch (code) {
 			case KeyCode.EQUALS:
 				playField.setTime(playField.songPosition + 2000);
@@ -105,15 +111,17 @@ class Main extends Application
 
 		newDeltaTime = (ts - timeStamp) * 1000;
 
-		if (!playField.disposed && !playField.paused) {
-			if ((!playField.songStarted || playField.songEnded)) {
-				playField.songPosition += newDeltaTime;
-			} else {
-				var firstInst = playField.instrumentals[0];
-				firstInst.update();
-				playField.songPosition = firstInst.time;
+		if (_started) {
+			if (!playField.disposed && !playField.paused) {
+				if ((!playField.songStarted || playField.songEnded)) {
+					playField.songPosition += newDeltaTime;
+				} else {
+					var firstInst = playField.instrumentals[0];
+					firstInst.update();
+					playField.songPosition = firstInst.time;
+				}
+				playField.update(newDeltaTime);
 			}
-			playField.update(newDeltaTime);
 		}
 
 		timeStamp = stamp();
