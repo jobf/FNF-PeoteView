@@ -73,7 +73,7 @@ class Main extends Application
 			GC.run(10);
 			GC.enable(false);
 
-			_startd = true;
+			_started = true;
 		}, 200);
 	}
 
