@@ -17,7 +17,7 @@ class Main extends Application
 			default: throw("Sorry, only works with OpenGL.");
 		}
 	}
-	
+
 	// ------------------------------------------------------------
 	// --------------- SAMPLE STARTS HERE -------------------------
 	// ------------------------------------------------------------
@@ -46,30 +46,30 @@ class Main extends Application
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
-	
+
 			bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 			bottomDisplay.hide();
-	
+
 			// Coming soon...
-	
+
 			middleDisplay = new Display(0, 0, window.width, window.height, 0x333333FF);
-	
+
 			topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
 			topDisplay.hide();
-	
-			playField = new PlayField(Sys.args()[0]);
-			playField.init(middleDisplay, true);
-	
-			window.onKeyDown.add(playField.keyPress);
-			window.onKeyDown.add(changeTime);
-			window.onKeyUp.add(playField.keyRelease);
-	
+
 			peoteView.start();
-	
+
 			peoteView.addDisplay(bottomDisplay);
 			peoteView.addDisplay(middleDisplay);
 			peoteView.addDisplay(topDisplay);
-	
+
+			playField = new PlayField(Sys.args()[0]);
+			playField.init(middleDisplay, true);
+
+			window.onKeyDown.add(playField.keyPress);
+			window.onKeyDown.add(changeTime);
+			window.onKeyUp.add(playField.keyRelease);
+
 			GC.run(10);
 			GC.enable(false);
 

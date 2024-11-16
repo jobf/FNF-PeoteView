@@ -101,7 +101,7 @@ class Sound {
         Miniaudio.ma_data_source_get_data_format(_dataSource, null, null, cpp.Pointer.addressOf(_sampleRate).ptr, null, 0);
 
         if (result != MaResult.MA_SUCCESS) {
-            trace("Failed to initialize sound");
+            Sys.println("[Sound system] Failed to initialize sound");
             return;
         }
     }
@@ -112,7 +112,7 @@ class Sound {
         var result = Miniaudio.ma_sound_start(sound);
 
         if (result != MaResult.MA_SUCCESS) {
-            trace("Failed to play sound");
+            Sys.println("[Sound system] Failed to play sound");
             return;
         }
     }
@@ -121,7 +121,7 @@ class Sound {
         var result = Miniaudio.ma_sound_stop(sound);
 
         if (result != MaResult.MA_SUCCESS) {
-            trace("Failed to stop sound");
+            Sys.println("[Sound system] Failed to stop sound");
             return;
         }
     }

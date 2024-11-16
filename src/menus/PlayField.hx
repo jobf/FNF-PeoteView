@@ -83,7 +83,7 @@ class PlayField {
 		KeyCode.DOWN => [1, 1],
 		KeyCode.UP => [3, 1],
 		KeyCode.RIGHT => [4, 1]
-	], 
+	],
 	[
 		KeyCode.S => [0, 1],
 		KeyCode.D => [1, 1],
@@ -91,7 +91,7 @@ class PlayField {
 		KeyCode.J => [3, 1],
 		KeyCode.K => [4, 1],
 		KeyCode.L => [5, 1]
-	], 
+	],
 	[
 		KeyCode.S => [0, 1],
 		KeyCode.D => [1, 1],
@@ -1227,7 +1227,7 @@ class PlayField {
 		songEnded = firstInst.finished;
 
 		if (!songStarted) {
-			conductor.time = songPosition;
+			conductor.time = songPosition - latencyCompensation;
 		}
 
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
@@ -1338,7 +1338,7 @@ class PlayField {
 			for (inst in instrumentals) {
 				inst.play();
 			}
-	
+
 			for (voices in voicesTracks) {
 				voices.play();
 			}
