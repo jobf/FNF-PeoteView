@@ -65,7 +65,6 @@ class Main extends Application
 
 			playField = new PlayField(Sys.args()[0]);
 			playField.init(middleDisplay, true);
-			playField.practiceMode = true;
 
 			window.onKeyDown.add(playField.keyPress);
 			window.onKeyDown.add(changeTime);
