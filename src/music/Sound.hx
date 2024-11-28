@@ -92,7 +92,7 @@ class Sound {
         // Explanation:
         // GC frees that shit like it thinks it's a zombie so do this.
         // This is because certain externs can be buggy and somewhat unstable.
-                               cpp.vm.Gc.doNotKill(this);
+                              cpp.vm.Gc.doNotKill(this);                      
         //////////////////////////////////////////////////////////////////////
     }
 

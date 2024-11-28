@@ -72,25 +72,19 @@ class Conductor
 			if (curStep != _stepTracker)
 			{
 				curStep = _stepTracker;
-				EntryPoint.runInMainThread(() -> {
-					onStep.dispatch(curStep);
-				});
+				onStep.dispatch(curStep);
 			}
 
 			if (curBeat != _beatTracker)
 			{
 				curBeat = _beatTracker;
-				EntryPoint.runInMainThread(() -> {
-					onBeat.dispatch(curBeat);
-				});
+				onBeat.dispatch(curBeat);
 			}
 
 			if (curMeasure != _measureTracker)
 			{
 				curMeasure = _measureTracker;
-				EntryPoint.runInMainThread(() -> {
-					onMeasure.dispatch(curMeasure);
-				});
+				onMeasure.dispatch(curMeasure);
 			}
 		} else {
 			curStep = _stepTracker;
