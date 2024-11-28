@@ -992,16 +992,20 @@ class PlayField {
 											 AUDIO
 	**************************************************************************************/
 
-	var instrumentals:Array<Sound> = [];
-	var voicesTracks:Array<Sound> = [];
+	var instrumentals:Map<String, Sound> = [];
+	var voicesTracks:Map<String, Sound> = [];
 
 	function loadAudio() {
-		var inst1 = instrumentals[0] = new Sound();
-		inst1.fromFile(chart.header.instDir);
-		inst1.conductor = conductor;
+		var inst = new Sound();
+		inst.fromFile(chart.header.instDir);
+		inst.conductor = conductor;
 
-		var voices1 = voicesTracks[0] = new Sound();
-		voices1.fromFile(chart.header.voicesDir);
+		instrumentals.set("base", inst);
+
+		var voices = new Sound();
+		voices.fromFile(chart.header.voicesDir);
+
+		voicesTracks.set("base", voices);
 	}
 
 	/**************************************************************************************
@@ -1225,7 +1229,6 @@ class PlayField {
 		Update the playfield.
 	**/
 	function update(deltaTime:Float) {
-		songPosition += latencyCompensation;
 
 		if (disposed || paused) return;
 
@@ -1236,7 +1239,7 @@ class PlayField {
 			return;
 		}
 
-		var firstInst = instrumentals[0];
+		var firstInst = instrumentals["base"];
 
 		// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
 		for (vocals in voicesTracks) {
@@ -1255,9 +1258,15 @@ class PlayField {
 			onStopSong.dispatch(chart);
 		}
 
-		if (!songStarted) {
+		if (!songStarted || songEnded) {
+			songPosition += deltaTime;
 			conductor.time = songPosition + latencyCompensation;
+		} else {
+			firstInst.update();
+			songPosition = firstInst.time;
 		}
+
+		songPosition += latencyCompensation;
 
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
