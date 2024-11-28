@@ -42,5 +42,9 @@
 	<haxedef name="HXCPP_TRACY_ON_DEMAND" if="FV_PROFILE" />
 	<haxedef name="HXCPP_TRACY_MEMORY" if="FV_PROFILE" />
 
+	<!-- Undefine some shit related to lime -->
+	<undefine name="lime-openal" />
+	<undefine name="lime_openal" />
+
 	<icon path="assets/lime.svg" />
 </project>

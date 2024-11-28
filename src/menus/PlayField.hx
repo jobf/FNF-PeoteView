@@ -39,6 +39,10 @@ class PlayField {
 	// This is a huge ass system which took only 2 days to fully complete.
 
 	var downScroll(default, null):Bool;
+	var practiceMode:Bool;
+
+	var onStartSong:Event<Chart->Void>;
+	var onStopSong:Event<Chart->Void>;
 
 	var onNoteHit:Event<ChartNote->Int->Void>;
 	var onNoteMiss:Event<ChartNote->Void>;
@@ -227,6 +231,7 @@ class PlayField {
 		}
 
 		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
+
 		spawnPosTop = spawnPosBottom = 0;
 	}
 
@@ -295,113 +300,116 @@ class PlayField {
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
-
-			var data = note.data;
-			var index = data.index;
-			var lane = data.lane;
-
-			var fullIndex = index + precalculatedIndexThing[lane];
-
-			var position = data.position;
-
-			var rec = notesBuf.getElement(fullIndex);
-
-			var diff = (Int64.toInt(position - pos) * 0.01) * scrollSpeed;
-			var leftover = Math.floor(Int64.toInt(pos - position) * 0.01);
-
-			var isHit = note.c.aF == 0;
-
-			note.x = rec.x;
-			note.y = rec.y + (Math.floor(diff) * (downScroll ? -1 : 1));
-
-			var sustain = note.child;
-			var sustainExists = sustain != null;
-
-			if (rec.playable) {
-				if (!isHit) {
-					var noteToHit = notesToHit[fullIndex];
-					var noteToHitExists = noteToHit != null;
-					var hitPos = noteToHitExists ? noteToHit.data.position : 0;
-					if ((!note.missed && diff < hitbox && !noteToHitExists) ||
-						(noteToHitExists && pos - hitPos > (position - hitPos) >> 1)) {
-						notesToHit[fullIndex] = note;
-					}
-
-					if (diff < -hitbox && !note.missed) {
-						note.c.aF = 0.5;
-						note.missed = true;
-
-						var data = note.data;
-						onNoteMiss.dispatch(data);
-
-						if (sustainExists && !sustain.held) {
-							sustain.c.aF = Sustain.defaultMissAlpha;
-							sustain.held = true;
-							onSustainRelease.dispatch(data);
-						}
-
-						notesToHit[fullIndex] = null;
-
-						hideRatingPopup();
-					}
-				}
-			} else {
-				if (botHitsToCheck[fullIndex]) {
-					if (!rec.idle()) {
-						rec.reset();
-						notesBuf.updateElement(rec);
-						botHitsToCheck[fullIndex] = false;
-					}
-				}
-
-				if (!isHit && diff < 0) {
-					note.c.aF = 0;
-					sustainsToHold[fullIndex] = sustain;
-
-					if (!rec.confirmed()) {
-						rec.confirm();
-						notesBuf.updateElement(rec);
-					}
-
-					if (sustainExists) {
-						sustain.followNote(rec);
-						sustain.w = sustain.length - leftover;
-						if (sustain.w < 0) sustain.w = 0;
-					}
-
-					onNoteHit.dispatch(data, 0);
-					botHitsToCheck[fullIndex] = !sustainExists;
-				}
-			}
-
-			if (sustainExists) {
-				sustain.speed = scrollSpeed;
-
-				if (!isHit) {
-					sustain.followNote(note);
-				} else if (sustain.c.aF != 0) {
-					if (sustain.w > 0) {
-						sustain.followNote(rec);
-						sustain.w = sustain.length - leftover;
-						if (sustain.w < 0) sustain.w = 0;
-					}
-
-					if (pos > position + (sustain.length * 100) - 75 && !sustain.held && !note.missed) {
-						sustain.held = true;
-						if (rec.confirmed()) {
-							if (rec.playable) rec.press();
-							else rec.reset();
-						}
-						notesBuf.updateElement(rec);
-						onSustainComplete.dispatch(data);
-					}
-				}
-
-				sustainsBuf.updateElement(sustain);
-			}
-
-			notesBuf.updateElement(note);
+			updateNote(pos, note);
 		}
+	}
+
+	private function updateNote(pos:Int64, note:Note) {
+		var data = note.data;
+		var index = data.index;
+		var lane = data.lane;
+
+		var fullIndex = index + precalculatedIndexThing[lane];
+
+		var position = data.position;
+
+		var rec = notesBuf.getElement(fullIndex);
+
+		var diff = (Int64.toInt(position - pos) * 0.01) * scrollSpeed;
+		var leftover = Math.floor(Int64.toInt(pos - position) * 0.01);
+
+		var isHit = note.c.aF == 0;
+
+		note.x = rec.x;
+		note.y = rec.y + (Math.floor(diff) * (downScroll ? -1 : 1));
+
+		var sustain = note.child;
+		var sustainExists = sustain != null;
+
+		if (rec.playable) {
+			if (!isHit) {
+				var noteToHit = notesToHit[fullIndex];
+				var noteToHitExists = noteToHit != null;
+				var hitPos = noteToHitExists ? noteToHit.data.position : 0;
+				if ((!note.missed && diff < hitbox && !noteToHitExists) ||
+					(noteToHitExists && pos - hitPos > (position - hitPos) >> 1)) {
+					notesToHit[fullIndex] = note;
+				}
+
+				if (diff < -hitbox && !note.missed) {
+					note.c.aF = 0.5;
+					note.missed = true;
+
+					var data = note.data;
+					onNoteMiss.dispatch(data);
+
+					if (sustainExists && !sustain.held) {
+						sustain.c.aF = Sustain.defaultMissAlpha;
+						sustain.held = true;
+						onSustainRelease.dispatch(data);
+					}
+
+					notesToHit[fullIndex] = null;
+
+					hideRatingPopup();
+				}
+			}
+		} else {
+			if (botHitsToCheck[fullIndex]) {
+				if (!rec.idle()) {
+					rec.reset();
+					notesBuf.updateElement(rec);
+					botHitsToCheck[fullIndex] = false;
+				}
+			}
+
+			if (!isHit && diff < 0) {
+				note.c.aF = 0;
+				sustainsToHold[fullIndex] = sustain;
+
+				if (!rec.confirmed()) {
+					rec.confirm();
+					notesBuf.updateElement(rec);
+				}
+
+				if (sustainExists) {
+					sustain.followNote(rec);
+					sustain.w = sustain.length - leftover;
+					if (sustain.w < 0) sustain.w = 0;
+				}
+
+				onNoteHit.dispatch(data, 0);
+				botHitsToCheck[fullIndex] = !sustainExists;
+			}
+		}
+
+		if (sustainExists) {
+			sustain.speed = scrollSpeed;
+
+			if (!isHit) {
+				sustain.followNote(note);
+			} else if (sustain.c.aF != 0) {
+				if (sustain.w > 0) {
+					sustain.followNote(rec);
+					sustain.w = sustain.length - leftover;
+					if (sustain.w < 0) sustain.w = 0;
+				}
+
+				if (pos > position + (sustain.length * 100) - 75 && !sustain.held && !note.missed) {
+					sustain.held = true;
+					if (rec.confirmed()) {
+						if (rec.playable) rec.press();
+						else rec.reset();
+					}
+					notesBuf.updateElement(rec);
+					onSustainComplete.dispatch(data);
+				}
+			}
+
+			sustainsBuf.updateElement(sustain);
+		}
+
+		notesBuf.updateElement(note);
 	}
 
 	function keyPress(code:KeyCode, mod) {
@@ -613,6 +621,9 @@ class PlayField {
 		if (strumlineMap.length > 4) strumlineMap.resize(4);
 
 		strumlinePlayableMap = [false, true];
+
+		onStartSong = new Event<Chart->Void>();
+		onStopSong = new Event<Chart->Void>();
 
 		onNoteHit = new Event<ChartNote->Int->Void>();
 		onNoteMiss = new Event<ChartNote->Void>();
@@ -1017,17 +1028,7 @@ class PlayField {
 			}
 
 			if (beat == 0 && !songStarted) {
-				for (inst in instrumentals) {
-					inst.time = 0;
-					inst.play();
-				}
-
-				for (voices in voicesTracks) {
-					voices.time = 0;
-					voices.play();
-				}
-
-				songStarted = true;
+				onStartSong.dispatch(chart);
 			}
 		});
 
@@ -1078,7 +1079,6 @@ class PlayField {
 
 		numOfNotes = notesBuf.length - numOfReceptors;
 
-		//// CALLBACK TEST ////
 		onNoteHit.add((note:ChartNote, timing:Int) -> {
 			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
@@ -1142,6 +1142,10 @@ class PlayField {
 
 			health -= 0.025;
 
+			if (practiceMode && health < 0.05) {
+				health = 0.05;
+			}
+
 			// Zero the combo
 			combo = 0;
 
@@ -1180,7 +1184,30 @@ class PlayField {
 			// Zero the combo
 			combo = 0;
 		});
-		///////////////////////
+
+		onStartSong.add((chart:Chart) -> {
+			Sys.println('Song activity is on');
+
+			for (inst in instrumentals) {
+				inst.time = 0;
+				inst.play();
+			}
+
+			for (voices in voicesTracks) {
+				voices.time = 0;
+				voices.play();
+			}
+
+			songStarted = true;
+			songEnded = false;
+		});
+
+		onStopSong.add((chart:Chart) -> {
+			Sys.println('Song activity is off');
+
+			songEnded = true;
+			songStarted = false;
+		});
 	}
 
 	var score:Int128 = 0;
@@ -1224,7 +1251,9 @@ class PlayField {
 
 		watermarkTxt.text = 'FV TEST BUILD | - and = to change time | F8 to flip bar | [ and ] to adjust latency (${latencyCompensation}ms)';
 
-		songEnded = firstInst.finished;
+		if (!songEnded && firstInst.finished) {
+			onStopSong.dispatch(chart);
+		}
 
 		if (!songStarted) {
 			conductor.time = songPosition + latencyCompensation;
