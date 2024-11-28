@@ -1425,7 +1425,7 @@ class PlayField {
 	}
 
 	inline function measureHit(measure:Float) {
-		if (measure >= 0) {
+		if (songStarted && !songEnded) {
 			display.zoom += 0.015;
 		}
 	}
