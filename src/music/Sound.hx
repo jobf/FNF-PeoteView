@@ -99,7 +99,7 @@ class Sound {
     function fromFile(path:String) {
         var result = Miniaudio.ma_sound_init_from_file(engine, path,
             //MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_WAIT_INIT | MA_SOUND_FLAG_ASYNC | MA_SOUND_FLAG_NO_SPATIALIZATION
-            0x00000001 | 0x00000002 | 0x00000004 | 0x00002000 | 0x00004000,
+            #if FV_STREAM 0x00000001 | #end 0x00000002 | 0x00000004 | 0x00002000 | 0x00004000,
         null, null, sound);
 
         Miniaudio.ma_sound_get_length_in_seconds(sound, cpp.Pointer.addressOf(_length).ptr);
