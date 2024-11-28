@@ -5,8 +5,6 @@ import Miniaudio.MaSound;
 import Miniaudio.MaDataSource;
 import Miniaudio.MaResult;
 
-import music.Conductor;
-
 /**
     Sound class using miniaudio.
 **/
@@ -14,20 +12,18 @@ import music.Conductor;
 class Sound {
     private var sound:MaSound;
     static private var engine:MaEngine;
-    var conductor:Conductor;
 
     // START OF PLAYBACK TRACKING SYSTEM //
 
     var playbackTrackingMethod:PlaybackTrackingMethod = HYBRID;
 
-    private var programPos:cpp.Float64;
-    private var driverPos:cpp.Float32;
+    private var _programPos:cpp.Float64;
+    private var _driverPos:cpp.Float32;
     private var _length:cpp.Float32;
     private var _time:cpp.Float64;
     private var _sampleRate:cpp.UInt32;
     private var _dataSource:cpp.Star<MaDataSource>;
-
-    private var _playhead(default, null):Playhead = [];
+    private var _playhead(default, null):Playhead = new Playhead();
 
     var time(get, set):Float;
 
@@ -114,7 +110,7 @@ class Sound {
     }
 
     function play() {
-        programPos = -Timestamp.get() + _playhead.program;
+        _programPos = -Timestamp.get() + _playhead.program;
 
         var result = Miniaudio.ma_sound_start(sound);
 
@@ -136,7 +132,7 @@ class Sound {
     private function setTime(timeInSec:cpp.Float64) {
         Miniaudio.ma_sound_seek_to_pcm_frame(sound, untyped (sampleRate * timeInSec));
 
-        programPos = -Timestamp.get() + timeInSec;
+        _programPos = -Timestamp.get() + timeInSec;
 
         return timeInSec;
     }
@@ -146,10 +142,10 @@ class Sound {
 
         if (playing) {
             var stamp = Timestamp.get();
-            _playhead.program = programPos + stamp;
+            _playhead.program = _programPos + stamp;
 
-            Miniaudio.ma_sound_get_cursor_in_seconds(sound, cpp.Pointer.addressOf(driverPos).ptr);
-            _playhead.driver = Math.floor(driverPos * 1000) * 0.001;
+            Miniaudio.ma_sound_get_cursor_in_seconds(sound, cpp.Pointer.addressOf(_driverPos).ptr);
+            _playhead.driver = Math.floor(_driverPos * 1000) * 0.001;
 
             switch (playbackTrackingMethod) {
                 case DRIVER:
@@ -173,10 +169,6 @@ class Sound {
         }
 
         _time = result * 1000.0;
-
-        if (conductor != null) {
-            conductor.time = _time;
-        }
     }
 
     function dispose() {
@@ -233,5 +225,9 @@ private abstract Playhead(Array<Float>) from Array<Float> {
 
     inline function set_program(value:Float):Float {
         return this[1] = value;
+    }
+
+    inline function new() {
+        this = [0, 0];
     }
 }

@@ -10,6 +10,8 @@ import lime.app.Application;
 **/
 @:publicFields
 class PlayField {
+	var display(default, null):Display;
+
 	var disposed(default, null):Bool;
 	var paused(default, null):Bool;
 
@@ -23,6 +25,7 @@ class PlayField {
 
 	function init(display:Display, downScroll:Bool) {
 		this.downScroll = downScroll;
+		this.display = display;
 
 		createNoteSystem(display, chart.header.mania);
 		createHUD(display);
@@ -1018,7 +1021,6 @@ class PlayField {
 	function loadAudio() {
 		var inst = new Sound();
 		inst.fromFile(chart.header.instDir);
-		inst.conductor = conductor;
 
 		instrumentals.set("base", inst);
 
@@ -1040,21 +1042,14 @@ class PlayField {
 	**/
 	function finishPlayfield(display:Display) {
 		var timeSig = chart.header.timeSig;
-		conductor = new Conductor(chart.header.bpm, timeSig[0], timeSig[1]);
+		Main.conductor.changeBpmAt(0, chart.header.bpm, timeSig[0], timeSig[1]);
 
 		scrollSpeed = chart.header.speed;
 
-		songPosition = -conductor.crochet * 4.5;
+		songPosition = -Main.conductor.crochet * 4.5;
 
-		conductor.onBeat.add((beat:Float) -> {
-			if (beat < 0) {
-				countdownDisp.countdownTick(Math.floor(4 + beat));
-			}
-
-			if (beat == 0 && !songStarted) {
-				onStartSong.dispatch(chart);
-			}
-		});
+		Main.conductor.onBeat.add(beatHit);
+		Main.conductor.onMeasure.add(measureHit);
 
 		countdownDisp = new CountdownDisplay(display, uiBuf);
 
@@ -1239,7 +1234,6 @@ class PlayField {
 	var combo:Int;
 
 	var songPosition:Float;
-	var conductor:Conductor;
 
 	var chart:Chart;
 
@@ -1249,8 +1243,11 @@ class PlayField {
 		Update the playfield.
 	**/
 	function update(deltaTime:Float) {
-
 		if (disposed || paused) return;
+
+		if (display.zoom != 1) {
+			display.zoom -= (display.zoom - 1) * 0.15;
+		}
 
 		// Trigger a game over
 		if (health < 0 && !disposed) {
@@ -1280,11 +1277,12 @@ class PlayField {
 
 		if (!songStarted || songEnded) {
 			songPosition += deltaTime;
-			conductor.time = songPosition + latencyCompensation;
 		} else {
 			firstInst.update();
 			songPosition = firstInst.time;
 		}
+
+		Main.conductor.time = songPosition + latencyCompensation;
 
 		songPosition += latencyCompensation;
 
@@ -1338,11 +1336,11 @@ class PlayField {
 		}
 		healthIcons = null;
 
-		notesProg.displays[0].removeProgram(notesProg);
-		sustainProg.displays[0].removeProgram(sustainProg);
-		uiProg.displays[0].removeProgram(uiProg);
-		scoreTxtProg.displays[0].removeProgram(scoreTxtProg);
-		watermarkTxtProg.displays[0].removeProgram(watermarkTxtProg);
+		display.removeProgram(notesProg);
+		display.removeProgram(sustainProg);
+		display.removeProgram(uiProg);
+		display.removeProgram(scoreTxtProg);
+		display.removeProgram(watermarkTxtProg);
 
 		notesProg = null;
 		sustainProg = null;
@@ -1400,6 +1398,24 @@ class PlayField {
 			for (voices in voicesTracks) {
 				voices.play();
 			}
+		}
+	}
+
+	// Extra stuff
+
+	inline function beatHit(beat:Float) {
+		if (beat < 0) {
+			countdownDisp.countdownTick(Math.floor(4 + beat));
+		}
+
+		if (beat == 0 && !songStarted) {
+			onStartSong.dispatch(chart);
+		}
+	}
+
+	inline function measureHit(measure:Float) {
+		if (measure >= 0) {
+			display.zoom += 0.015;
 		}
 	}
 }

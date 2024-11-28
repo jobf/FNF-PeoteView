@@ -5,6 +5,7 @@ import lime.app.Application;
 import lime.ui.Window;
 import lime.ui.KeyCode;
 
+@:publicFields
 class Main extends Application
 {
 	override function onWindowCreate():Void
@@ -19,7 +20,7 @@ class Main extends Application
 	}
 
 	// ------------------------------------------------------------
-	// --------------- SAMPLE STARTS HERE -------------------------
+	// ------------------- SAMPLE STARTS HERE ---------------------
 	// ------------------------------------------------------------
 
 	var peoteView:PeoteView;
@@ -29,6 +30,7 @@ class Main extends Application
 	var topDisplay:Display;
 
 	var playField:PlayField;
+	static var conductor:Conductor;
 
 	var _started:Bool;
 
@@ -63,6 +65,8 @@ class Main extends Application
 			peoteView.addDisplay(middleDisplay);
 			peoteView.addDisplay(topDisplay);
 
+			conductor = new Conductor();
+
 			playField = new PlayField(Sys.args()[0]);
 			playField.init(middleDisplay, true);
 
@@ -74,6 +78,8 @@ class Main extends Application
 			GC.enable(false);
 
 			_started = true;
+
+			window.onResize.add(resize);
 		}, 100);
 	}
 
@@ -122,7 +128,24 @@ class Main extends Application
 		Tools.profileFrame();
 	}
 
+	function resize(w:Int, h:Int) {
+		peoteView.resize(w, h);
+
+		bottomDisplay.width = w;
+		bottomDisplay.height = h;
+
+		middleDisplay.width = w;
+		middleDisplay.height = h;
+
+		topDisplay.width = w;
+		topDisplay.height = h;
+	}
+
 	inline function stamp() {
 		return Timestamp.get();
 	}
+
+	// ------------------------------------------------------------
+	// -------------------- SAMPLE ENDS HERE ----------------------
+	// ------------------------------------------------------------
 }
