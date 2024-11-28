@@ -71,6 +71,7 @@ class Main extends Application
 			window.onKeyUp.add(playField.keyRelease);
 
 			GC.run(10);
+			GC.enable(false);
 
 			_started = true;
 		}, 100);
