@@ -151,6 +151,7 @@ class PlayField {
 	}
 
 	private var notesToHit(default, null):Array<Note> = [];
+	private var ghostNotes(default, null):Array<Array<Note>> = [];
 	private var sustainsToHold(default, null):Array<Sustain> = [];
 	private var botHitsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
 	private var playerHitsToCheck(default, null):Array<Bool> = []; // For preventing a key press check from continuing if you hit a note
@@ -206,9 +207,11 @@ class PlayField {
 
 		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
+		ghostNotes.resize(0);
 		sustainsToHold.resize(0);
 		playerHitsToCheck.resize(0);
 		notesToHit.resize(numOfReceptors);
+		ghostNotes.resize(numOfReceptors); for (i in 0...ghostNotes.length) ghostNotes[i] = [];
 		sustainsToHold.resize(numOfReceptors);
 		playerHitsToCheck.resize(numOfReceptors);
 
@@ -304,6 +307,7 @@ class PlayField {
 		}
 	}
 
+	// Do not fuck with this EVER
 	private function updateNote(pos:Int64, note:Note) {
 		var data = note.data;
 		var index = data.index;
@@ -331,16 +335,21 @@ class PlayField {
 				var noteToHit = notesToHit[fullIndex];
 				var noteToHitExists = noteToHit != null;
 				var hitPos = noteToHitExists ? noteToHit.data.position : 0;
+
 				if ((!note.missed && diff < hitbox && !noteToHitExists) ||
 					(noteToHitExists && pos - hitPos > (position - hitPos) >> 1)) {
 					notesToHit[fullIndex] = note;
+				}
+
+				if (!isHit && noteToHitExists && Math.abs(Int64.toInt(data.position - noteToHit.data.position)) < 20) {
+					var ghostNotesToHit = ghostNotes[fullIndex];
+					if (ghostNotesToHit != null) ghostNotesToHit.push(note);
 				}
 
 				if (diff < -hitbox && !note.missed) {
 					note.c.aF = 0.5;
 					note.missed = true;
 
-					var data = note.data;
 					onNoteMiss.dispatch(data);
 
 					if (sustainExists && !sustain.held) {
@@ -441,6 +450,16 @@ class PlayField {
 			if (!rec.confirmed()) {
 				rec.confirm();
 				notesBuf.updateElement(rec);
+			}
+
+			// Clear unneeded ghost notes
+			var ghostNotesToHit = ghostNotes[index];
+			if (ghostNotesToHit.length != 0) {
+				while (ghostNotesToHit.length != 0) {
+					var note = ghostNotesToHit.pop();
+					if (note == null) continue;
+					note.c.aF = 0;
+				}
 			}
 
 			noteToHit.c.aF = 0;
@@ -639,6 +658,7 @@ class PlayField {
 		}
 
 		notesToHit.resize(numOfReceptors);
+		ghostNotes.resize(numOfReceptors); for (i in 0...ghostNotes.length) ghostNotes[i] = [];
 		sustainsToHold.resize(numOfReceptors);
 
 		// Note to self: set the texture size exactly to the image's size
