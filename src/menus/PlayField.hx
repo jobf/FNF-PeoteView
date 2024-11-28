@@ -305,8 +305,7 @@ class PlayField {
 		if (disposed) return;
 
 		for (i in spawnPosBottom...spawnPosTop) {
-			var note = getNote(i);
-			updateNote(pos, note);
+			updateNote(pos, getNote(i));
 		}
 	}
 
@@ -327,6 +326,8 @@ class PlayField {
 
 		var isHit = note.c.aF == 0;
 
+		var ghost = note.ghost;
+
 		note.x = rec.x;
 		note.y = rec.y + (Math.floor(diff) * (downScroll ? -1 : 1));
 
@@ -344,9 +345,15 @@ class PlayField {
 					notesToHit[fullIndex] = note;
 				}
 
-				if (!isHit && noteToHitExists && Math.abs(Int64.toInt(data.position - noteToHit.data.position)) < 20) {
-					var ghostNotesToHit = ghostNotes[fullIndex];
-					if (ghostNotesToHit != null) ghostNotesToHit.push(note);
+				var ghostNotesToHit = ghostNotes[fullIndex];
+				var ghostNoteExists = false;
+
+				if ((data.position - hitPos < 500 && data.index == noteToHit.data.index) &&
+					!ghost && !isHit && noteToHitExists) {
+					if (ghostNotesToHit != null) {
+						ghostNotesToHit.push(note);
+					}
+					note.ghost = true;
 				}
 
 				if (diff < -hitbox && !note.missed) {
@@ -359,6 +366,10 @@ class PlayField {
 						sustain.c.aF = Sustain.defaultMissAlpha;
 						sustain.held = true;
 						onSustainRelease.dispatch(data);
+					}
+
+					if (ghost) {
+						ghostNotesToHit.remove(note);
 					}
 
 					notesToHit[fullIndex] = null;

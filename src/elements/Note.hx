@@ -44,6 +44,7 @@ class Note implements Element
 
 	public var playable:Bool;
 	public var missed:Bool;
+	public var ghost:Bool;
 
 	public var rW:Int;
 	public var rH:Int;
