@@ -184,7 +184,7 @@ class Main extends Application
 		process = new Process('ffmpeg', [
 			'-v', 'quiet', '-y', // START
 			'-f', 'rawvideo', // FILTER
-			'-pix_fmt', 'rgba', // PIXEL FORMAT
+			'-pix_fmt', 'yuv420p', // PIXEL FORMAT
 			'-s', peoteView.width + 'x' + peoteView.height, // DIMENSIONS
 			'-r', '60', // FRAMERATE
 			'-display_hflip', '-display_rotation', '180', // This is here because the original output is mirrored and upside down
