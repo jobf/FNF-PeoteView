@@ -127,15 +127,15 @@ class Main extends Application
 			newDeltaTime = (ts - timeStamp) * 1000;
 
 			if (ffmpegMode) {
-				newDeltaTime = 1000 / Application.current.window.frameRate;
+				newDeltaTime = 1000 / 60;
 			}
 
 			if (!playField.disposed && !playField.paused) {
+				playField.update(newDeltaTime);
+
 				if (ffmpegMode) {
 					pipeFrame();
 				}
-
-				playField.update(newDeltaTime);
 			}
 
 			timeStamp = stamp();
