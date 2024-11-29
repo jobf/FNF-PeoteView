@@ -476,6 +476,7 @@ class PlayField {
 					var note = ghostNotesToHit.pop();
 					if (note == null) continue;
 					note.c.aF = 0;
+					onNoteHit.dispatch(note.data, Int64.toInt(Int64.div(note.data.position - Tools.betterInt64FromFloat((songPosition + latencyCompensation) * 100), 100)));
 				}
 			}
 
