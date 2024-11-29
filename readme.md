@@ -16,6 +16,8 @@ Instll these haxelibs:
 
 ``haxelib install format`` (This one is also used in peote-view for `TextureData.fromFormatPNG`)
 
+``haxelib git genkit_miniaudio https://github.com/alchemy-haxe/genkit_miniaudio.gut``
+
 After that, make sure that you are on this screen:![img](repo_assets/image-1.png)
 
 And press "y" to go to the download page for visual studio.
@@ -49,5 +51,9 @@ And you're all set up! Just run `lime test (your platform)` and it works!
 - Semmi
 
 (AKA Semmis, maitag, or simply Sylvio Sell)
+
+- MKI
+
+- : Generated the miniaudio bindings via genkit (listed above)
 
 : Wrote peote-view, and wrote the `slices` shader sample for the sustain note.
