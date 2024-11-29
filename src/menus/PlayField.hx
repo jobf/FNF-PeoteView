@@ -155,7 +155,6 @@ class PlayField {
 	}
 
 	private var notesToHit(default, null):Array<Note> = [];
-	private var ghostNotes(default, null):Array<Array<Note>> = [];
 	private var sustainsToHold(default, null):Array<Sustain> = [];
 	private var botHitsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
 	private var playerHitsToCheck(default, null):Array<Bool> = []; // For preventing a key press check from continuing if you hit a note
@@ -211,11 +210,9 @@ class PlayField {
 
 		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
-		ghostNotes.resize(0);
 		sustainsToHold.resize(0);
 		playerHitsToCheck.resize(0);
 		notesToHit.resize(numOfReceptors);
-		ghostNotes.resize(numOfReceptors); for (i in 0...ghostNotes.length) ghostNotes[i] = [];
 		sustainsToHold.resize(numOfReceptors);
 		playerHitsToCheck.resize(numOfReceptors);
 
@@ -327,8 +324,6 @@ class PlayField {
 
 		var isHit = note.c.aF == 0;
 
-		var ghost = note.ghost;
-
 		note.x = rec.x;
 		note.y = rec.y + (Math.floor(diff) * (downScroll ? -1 : 1));
 
@@ -348,17 +343,6 @@ class PlayField {
 					notesToHit[fullIndex] = note;
 				}
 
-				var ghostNotesToHit = ghostNotes[fullIndex];
-				var ghostNoteExists = false;
-
-				if ((data.position - hitPos < 500 && data.index == noteToHit.data.index) &&
-					!ghost && !isHit && noteToHitExists) {
-					if (ghostNotesToHit != null) {
-						ghostNotesToHit.push(note);
-					}
-					note.ghost = true;
-				}
-
 				if (diff < -hitbox && !note.missed) {
 					note.c.aF = 0.5;
 					note.missed = true;
@@ -369,10 +353,6 @@ class PlayField {
 						sustain.c.aF = Sustain.defaultMissAlpha;
 						sustain.held = true;
 						onSustainRelease.dispatch(data);
-					}
-
-					if (ghost) {
-						ghostNotesToHit.remove(note);
 					}
 
 					notesToHit[fullIndex] = null;
@@ -467,17 +447,6 @@ class PlayField {
 			if (!rec.confirmed()) {
 				rec.confirm();
 				notesBuf.updateElement(rec);
-			}
-
-			// Clear unneeded ghost notes
-			var ghostNotesToHit = ghostNotes[index];
-			if (ghostNotesToHit.length != 0) {
-				while (ghostNotesToHit.length != 0) {
-					var note = ghostNotesToHit.pop();
-					if (note == null) continue;
-					note.c.aF = 0;
-					onNoteHit.dispatch(note.data, Int64.toInt(Int64.div(note.data.position - Tools.betterInt64FromFloat((songPosition + latencyCompensation) * 100), 100)));
-				}
 			}
 
 			noteToHit.c.aF = 0;
@@ -676,7 +645,6 @@ class PlayField {
 		}
 
 		notesToHit.resize(numOfReceptors);
-		ghostNotes.resize(numOfReceptors); for (i in 0...ghostNotes.length) ghostNotes[i] = [];
 		sustainsToHold.resize(numOfReceptors);
 
 		// Note to self: set the texture size exactly to the image's size
