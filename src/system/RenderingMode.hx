@@ -30,6 +30,7 @@ class RenderingMode {
 
 		peoteView = entryPoint.peoteView;
 		playField = entryPoint.playField;
+		playField.botplay = true;
 
 		process = new Process('ffmpeg', [
 			'-v', 'quiet', '-y', // START
