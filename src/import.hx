@@ -4,7 +4,6 @@ import peote.view.intern.*;
 
 // GAME
 import elements.*;
-import elements.text.*;
 import music.*;
 import music.chart.*;
 import music.internal.*;

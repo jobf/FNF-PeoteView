@@ -24,40 +24,9 @@ class UISprite implements Element {
 	@texSizeX var clipSizeX:Int = 200;
 	@texSizeY var clipSizeY:Int = 200;
 
-	@color var c1:Color = 0xFFFFFFFF;
-	@color var c2:Color = 0xFFFFFFFF;
-	@color var c3:Color = 0xFFFFFFFF;
-	@color var c4:Color = 0xFFFFFFFF;
-	@color var c5:Color = 0xFFFFFFFF;
-	@color var c6:Color = 0xFFFFFFFF;
+	@color var c:Color = 0xFFFFFFFF;
 
 	static var healthBarDimensions:Array<Int> = [];
-
-	var c(get, set):Color;
-
-	inline function get_c() {
-		return c1;
-	}
-
-	inline function set_c(value:Color) {
-		return c1 = c2 = c3 = c4 = c5 = c6 = value;
-	}
-
-	var a(get, set):Float;
-
-	inline function get_a() {
-		return c.aF;
-	}
-
-	inline function set_a(value:Float) {
-		c1.aF = value;
-		c2.aF = value;
-		c3.aF = value;
-		c4.aF = value;
-		c5.aF = value;
-		c6.aF = value;
-		return value;
-	}
 
 	@varying @custom var gradientMode:Float = 0.0;
 	@varying @custom var flip:Float = 0.0;
@@ -86,6 +55,12 @@ class UISprite implements Element {
 
 	inline function get_isHealthBar() {
 		return type == HEALTH_BAR;
+	}
+
+    var isHealthBarPart(get, never):Bool;
+
+	inline function get_isHealthBarPart() {
+		return type == HEALTH_BAR_PART;
 	}
 
     var isHealthIcon(get, never):Bool;
@@ -123,33 +98,19 @@ class UISprite implements Element {
 		program.blendEnabled = true;
 
 		program.injectIntoFragmentShader('
-			vec4 gradient( int textureID, float gradientMode, float flip, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6 )
+			vec4 flipTex( int textureID, float flip )
 			{
 				vec2 coord = vTexCoord;
-
-				float t = coord.y * 2.0;
-				vec4 gradientColor = mix(
-				mix(
-					mix(
-						mix(
-							mix(c1, c2, t),
-							c3, t - 0.333333),
-						c4, t - 0.666666),
-					c5, t - 1.0),
-				c6, t - 1.333333);
 
 				if (flip != 0.0) {
 					coord.x = 1.0 - coord.x;
 				}
 
-				vec4 texColor = c1 * getTextureColor( textureID, coord );
-
-				// if the mix factor (gradientMode) is 1.0 then it will be fully gradientColor or if its 0.0 then it will be fully texColor
-				return mix(texColor, gradientColor, gradientMode ); 
+				return getTextureColor( textureID, coord );
 			}
 		');
 
-		program.setColorFormula('gradient(${name}_ID, gradientMode, flip, c1, c2, c3, c4, c5, c6)');
+		program.setColorFormula('c * flipTex(${name}_ID, flip)');
 	}
 
 	function new() {}
@@ -180,18 +141,33 @@ class UISprite implements Element {
 			id &= 0x7;
 		}
 
+		if (isHealthBarPart) {
+			xValue = 602 + (id << 1);
+			yValue = 600;
+			wValue = 0;
+			hValue = 6;
+			id = 0;
+		}
+
 		if (isCountdownPopup) {
 			wValue = 600;
 			hValue = 300;
 			yValue = 150 + (150 * id);
 
-			xValue = id == 1 ? -600 : 600;
-
-			id &= 0x1;
+			switch (id) {
+				case 0:
+					xValue = 600;
+				case 1:
+					xValue = -600;
+				case 2:
+					xValue = 606;
+					wValue = 294;
+					id = 0;
+			}
 		}
 
 		if (!isPauseOption) {
-			xValue += id * clipWidth;
+			xValue += id * wValue;
 		} else {
 			var option:Array<Int> = hardcoded_pause_option_values[id];
 			xValue = option[0];
@@ -210,6 +186,25 @@ class UISprite implements Element {
 
 		curID = id;
     }
+
+	static var data:TextureData;
+	static function setPixelThenUpdateTex(tex:Texture, row:Int, id:Int, c:Color) {
+		id &= 0x1;
+
+		var rowY = 450 + row;
+		switch (id) {
+			case 0:
+				data.setColor_RGBA(600, rowY, c);
+				data.setColor_RGBA(601, rowY, c);
+				data.setColor_RGBA(602, rowY, c);
+			case 1:
+				data.setColor_RGBA(603, rowY, c);
+				data.setColor_RGBA(604, rowY, c);
+				data.setColor_RGBA(605, rowY, c);
+		}
+
+		tex.setData(data);
+	}
 }
 
 enum abstract UISpriteType(cpp.UInt8) {
@@ -218,6 +213,7 @@ enum abstract UISpriteType(cpp.UInt8) {
 	var COMBO_NUMBER;
 	var HEALTH_BAR;
 	var HEALTH_ICON;
+	var HEALTH_BAR_PART;
 	var COUNTDOWN_POPUP;
 	var PAUSE_OPTION;
 }

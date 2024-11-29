@@ -8,6 +8,7 @@ import lime.graphics.opengl.GL;
 @:publicFields
 class RenderingMode {
 	static var process:Process;
+	static var encoder:Process;
 	private static var ffmpegExists(default, null):Bool;
 	static var enabled:Bool = false;
 
@@ -22,7 +23,7 @@ class RenderingMode {
 		}
 
 		if (!FileSystem.exists('assets/videos/rendered/')) { // In case you delete the videos/rendered folder
-			trace('videos/rendered folder not found! Re-creating it...');
+			Sys.println('Rendering Mode System - "assets/videos/rendered" folder not found! Recreating it...');
 			FileSystem.createDirectory('assets/videos/rendered');
 		}
 
@@ -41,12 +42,11 @@ class RenderingMode {
 			'-display_hflip', '-display_rotation', '180', // This is here because the original output is mirrored and upside down
 			'-i', '-', // INPUT INIT
 			'-vcodec', 'libx264', // ENCODER
-			'-crf', '9', // CRF
+			'-crf', '0', // CRF
 			'-preset', 'ultrafast', // PRESET
-			'-c:a', 'copy', // COPY
-			'-tune', 'fastdecode', // TUNE
+			'-c:a', 'copy', // COPY,
 			'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
-			'assets/videos/rendered/' + playField.chart.header.title + '.mp4' // END (FILEPATH)
+			'assets/videos/rendered/' + playField.chart.header.title + '_raw.mp4' // END (FILEPATH)
 		]);
 	}
 
@@ -75,6 +75,22 @@ class RenderingMode {
 
 			process.close();
 			process.kill();
+
+			Sys.println("Rendering Mode System - Encoding...");
+
+			Sys.command('ffmpeg', [
+				'-y', // START
+				'-i', // INPUT INIT
+				'assets/videos/rendered/' + playField.chart.header.title + '_raw.mp4',
+				'-vcodec', 'libx264', // ENCODER
+				'-crf', '18', // CRF
+				'-preset', 'ultrafast', // PRESET
+				'-movflags', '+faststart', // MOVFLAGS
+				'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
+				'assets/videos/rendered/' + playField.chart.header.title + '.mp4' // END (FILEPATH)
+			]);
+			Sys.println("Rendering Mode System - Encoding done!");
+			FileSystem.deleteFile('assets/videos/rendered/' + playField.chart.header.title + '_raw.mp4');
 		}
 	}
 }

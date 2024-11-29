@@ -56,7 +56,7 @@ class Main extends Application
 
 			// Coming soon...
 
-			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0xFF00FFFF);
+			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x111111FF);
 
 			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 

@@ -1,4 +1,4 @@
-package elements.text;
+package elements;
 
 /**
 	The text buffer class.

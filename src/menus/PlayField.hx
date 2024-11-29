@@ -730,8 +730,8 @@ class PlayField {
 
 		if (ratingPopup == null) return;
 
-		if (ratingPopup.a != 0) {
-			ratingPopup.a -= ratingPopup.c.aF * (deltaTime * 0.005);
+		if (ratingPopup.c.aF != 0) {
+			ratingPopup.c.aF -= ratingPopup.c.aF * (deltaTime * 0.005);
 		}
 
 		if (ratingPopup.y != 320) {
@@ -756,7 +756,7 @@ class PlayField {
 			var digit = Math.floor(num) % 10;
 
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.a = (Math.floor(num) != 0) ? ratingPopup.a : 0.0;
+			comboNumber.c.aF = (Math.floor(num) != 0) ? ratingPopup.c.aF : 0.0;
 
 			if (comboNumber.curID != digit) {
 				comboNumber.changeID(digit);
@@ -780,12 +780,7 @@ class PlayField {
 
 		var healthIconColor = healthIconColors[flipHealthBar ? 1 : 0];
 
-		part1.c1 = healthIconColor[0];
-		part1.c2 = healthIconColor[1];
-		part1.c3 = healthIconColor[2];
-		part1.c4 = healthIconColor[3];
-		part1.c5 = healthIconColor[4];
-		part1.c6 = healthIconColor[5];
+		//part1.c = healthIconColor[0];
 
 		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
 		part1.x = healthBarBG.x + healthBarWS;
@@ -800,12 +795,7 @@ class PlayField {
 
 		var healthIconColor = healthIconColors[flipHealthBar ? 0 : 1];
 
-		part2.c1 = healthIconColor[0];
-		part2.c2 = healthIconColor[1];
-		part2.c3 = healthIconColor[2];
-		part2.c4 = healthIconColor[3];
-		part2.c5 = healthIconColor[4];
-		part2.c6 = healthIconColor[5];
+		//part2.c = healthIconColor[0];
 
 		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
 		part2.x = (healthBarBG.x + part1.w) + healthBarWS;
@@ -863,7 +853,7 @@ class PlayField {
 	inline function hideRatingPopup() {
 		if (disposed) return;
 
-		ratingPopup.a = 0.0;
+		ratingPopup.c.aF = 0.0;
 		uiBuf.updateElement(ratingPopup);
 	}
 
@@ -873,7 +863,7 @@ class PlayField {
 	inline function respondWithRatingID(id:Int) {
 		if (disposed) return;
 
-		ratingPopup.a = 1.0;
+		ratingPopup.c.aF = 1.0;
 		ratingPopup.y = 300;
 		ratingPopup.changeID(id);
 		uiBuf.updateElement(ratingPopup);
@@ -890,7 +880,11 @@ class PlayField {
 		uiProg = new Program(uiBuf);
 		uiProg.blendEnabled = true;
 
-		UISprite.init(uiProg, "uiTex", TextureSystem.getTexture("uiTex"));
+		var tex = TextureSystem.getTexture("uiTex");
+
+		UISprite.init(uiProg, "uiTex", tex);
+
+		UISprite.setPixelThenUpdateTex(tex, 2, 1, Color.RED);
 
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
@@ -898,7 +892,7 @@ class PlayField {
 		ratingPopup.changeID(0);
 		ratingPopup.x = 500;
 		ratingPopup.y = 360;
-		ratingPopup.a = 0.0;
+		ratingPopup.c.aF = 0.0;
 		uiBuf.addElement(ratingPopup);
 
 		comboNumbers.resize(10);
@@ -910,7 +904,7 @@ class PlayField {
 			comboNumber.changeID(0);
 			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.a = 0.0;
+			comboNumber.c.aF = 0.0;
 			uiBuf.addElement(comboNumber);
 		}
 
@@ -924,26 +918,13 @@ class PlayField {
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
 			var part = healthBarParts[i] = new UISprite();
-			part.gradientMode = 1;
-			part.clipWidth = part.clipHeight = part.clipSizeX = part.clipSizeY = 0;
+			part.type = HEALTH_BAR_PART;
+			part.changeID(i);
 			part.h = healthBarBG.h - (healthBarHS << 1);
 			part.y = healthBarBG.y + healthBarHS;
 
 			var healthIconColor = healthIconColors[i];
-
-			part.c1 = healthIconColor[0];
-			part.c2 = healthIconColor[1];
-			part.c3 = healthIconColor[2];
-			part.c4 = healthIconColor[3];
-			part.c5 = healthIconColor[4];
-			part.c6 = healthIconColor[5];
-
-			// GRADIENT TEST
-			/*part.c2 = Color.YELLOW;
-			part.c3 = Color.BLUE;
-			part.c4 = Color.MAGENTA;
-			part.c5 = Color.BLACK;
-			part.c6 = Color.CYAN;*/
+			//part.c = healthIconColor[0];
 
 			uiBuf.addElement(part);
 		}
@@ -1007,13 +988,11 @@ class PlayField {
 	function createPauseScreen() {
 		pauseBG = new UISprite();
 
-		pauseBG.clipWidth = pauseBG.clipHeight = pauseBG.clipSizeX = pauseBG.clipSizeY = 0;
+		pauseBG.type = HEALTH_BAR_PART;
+		pauseBG.changeID(0);
 		pauseBG.w = display.width;
 		pauseBG.h = display.height;
-		pauseBG.c = 0x0000007F;
-		pauseBG.c.aF = 0;
-
-		uiBuf.addElement(pauseBG);
+		pauseBG.c.aF = 0.5;
 
 		var currentY = 160;
 		for (i in 0...3) {
@@ -1021,32 +1000,24 @@ class PlayField {
 			option.type = PAUSE_OPTION;
 			option.changeID(i);
 			option.y = currentY;
-			option.a = 0;
-			uiBuf.addElement(option);
 			currentY += option.h + 2;
 			pauseOptions.push(option);
 		}
 	}
 
 	function openPauseScreen() {
-		pauseBG.gradientMode = 1;
-		uiBuf.updateElement(pauseBG);
+		uiBuf.addElement(pauseBG);
 
 		for (i in 0...pauseOptions.length) {
-			var option = pauseOptions[i];
-			option.a = 1;
-			uiBuf.updateElement(option);
+			uiBuf.addElement(pauseOptions[i]);
 		}
 	}
 
 	function closePauseScreen() {
-		pauseBG.gradientMode = 0;
-		uiBuf.updateElement(pauseBG);
+		uiBuf.removeElement(pauseBG);
 
 		for (i in 0...pauseOptions.length) {
-			var option = pauseOptions[i];
-			option.a = 0;
-			uiBuf.updateElement(option);
+			uiBuf.removeElement(pauseOptions[i]);
 		}
 	}
 
