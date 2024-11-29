@@ -190,7 +190,9 @@ class UISprite implements Element {
 			id &= 0x1;
 		}
 
-		if (isPauseOption) {
+		if (!isPauseOption) {
+			xValue += id * clipWidth;
+		} else {
 			var option:Array<Int> = hardcoded_pause_option_values[id];
 			xValue = option[0];
 			yValue = option[1];
@@ -203,7 +205,7 @@ class UISprite implements Element {
 			h = clipHeight = clipSizeY = hValue;
 		}
 
-		clipX = xValue + (id * clipWidth);
+		clipX = xValue;
 		clipY = yValue;
 
 		curID = id;

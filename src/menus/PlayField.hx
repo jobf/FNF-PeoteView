@@ -30,9 +30,9 @@ class PlayField {
 
 		createNoteSystem(display, chart.header.mania);
 		createHUD(display);
-		craetePauseScreen();
 		loadAudio();
 		finishPlayfield(display);
+		createPauseScreen();
 	}
 
 	/**************************************************************************************
@@ -892,8 +892,6 @@ class PlayField {
 
 		UISprite.init(uiProg, "uiTex", TextureSystem.getTexture("uiTex"));
 
-		display.addProgram(uiProg);
-
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
 		ratingPopup.type = RATING_POPUP;
@@ -995,6 +993,8 @@ class PlayField {
 
 		display.addProgram(watermarkTxtProg);
 		watermarkTxt.y = watermarkTxtProg.displays[0].height - (watermarkTxt.height + 2);
+
+		display.addProgram(uiProg);
 	}
 
 	/**************************************************************************************
@@ -1002,20 +1002,51 @@ class PlayField {
 	**************************************************************************************/
 
 	var pauseBG(default, null):UISprite;
-	var pauseOptions(default, null):Array<UISprite>;
+	var pauseOptions(default, null):Array<UISprite> = [];
 
-	function craetePauseScreen() {
-		var pauseBG = new UISprite();
+	function createPauseScreen() {
+		pauseBG = new UISprite();
+
 		pauseBG.clipWidth = pauseBG.clipHeight = pauseBG.clipSizeX = pauseBG.clipSizeY = 0;
+		pauseBG.w = display.width;
+		pauseBG.h = display.height;
+		pauseBG.c = 0x0000007F;
+		pauseBG.c.aF = 0;
 
 		uiBuf.addElement(pauseBG);
 
+		var currentY = 160;
 		for (i in 0...3) {
 			var option = new UISprite();
 			option.type = PAUSE_OPTION;
 			option.changeID(i);
-			option.y = 160 + (160 * i);
+			option.y = currentY;
+			option.a = 0;
 			uiBuf.addElement(option);
+			currentY += option.h + 2;
+			pauseOptions.push(option);
+		}
+	}
+
+	function openPauseScreen() {
+		pauseBG.gradientMode = 1;
+		uiBuf.updateElement(pauseBG);
+
+		for (i in 0...pauseOptions.length) {
+			var option = pauseOptions[i];
+			option.a = 1;
+			uiBuf.updateElement(option);
+		}
+	}
+
+	function closePauseScreen() {
+		pauseBG.gradientMode = 0;
+		uiBuf.updateElement(pauseBG);
+
+		for (i in 0...pauseOptions.length) {
+			var option = pauseOptions[i];
+			option.a = 0;
+			uiBuf.updateElement(option);
 		}
 	}
 
@@ -1154,7 +1185,7 @@ class PlayField {
 
 		scoreTxt.text = 'Score: $score, Misses: $misses';
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
-		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 2);
+		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 
 		watermarkTxt.text = 'FV TEST BUILD | - and = to change time | F8 to flip bar | [ and ] to adjust latency (${latencyCompensation}ms)';
 
@@ -1260,24 +1291,29 @@ class PlayField {
 
 		paused = true;
 
-		for (inst in instrumentals) {
-			inst.stop();
+		if (!RenderingMode.enabled) {
+			for (inst in instrumentals) {
+				inst.stop();
+			}
+	
+			for (voices in voicesTracks) {
+				voices.stop();
+			}
 		}
 
-		for (voices in voicesTracks) {
-			voices.stop();
-		}
+		display.zoom = 1;
+		openPauseScreen();
 	}
 
 	/**
 		Resumes the playfield.
 	**/
 	function resume() {
-		if (disposed || !paused || RenderingMode.enabled) return;
+		if (disposed || !paused) return;
 
 		paused = false;
 
-		if (songStarted) {
+		if (!RenderingMode.enabled && songStarted) {
 			for (inst in instrumentals) {
 				inst.play();
 			}
@@ -1286,6 +1322,9 @@ class PlayField {
 				voices.play();
 			}
 		}
+
+		display.zoom = 1;
+		closePauseScreen();
 	}
 
 	// Callback stuff
