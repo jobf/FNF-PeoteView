@@ -99,6 +99,7 @@ class Sound {
         null, null, sound);
 
         Miniaudio.ma_sound_get_length_in_seconds(sound, cpp.Pointer.addressOf(_length).ptr);
+        _length *= 1000;
 
         _dataSource = Miniaudio.ma_sound_get_data_source(sound);
         Miniaudio.ma_data_source_get_data_format(_dataSource, null, null, cpp.Pointer.addressOf(_sampleRate).ptr, null, 0);

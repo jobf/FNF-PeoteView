@@ -4,10 +4,6 @@ import haxe.CallStack;
 import lime.app.Application;
 import lime.ui.Window;
 import lime.ui.KeyCode;
-import sys.io.Process;
-import sys.FileSystem;
-import haxe.io.Bytes;
-import lime.graphics.opengl.GL;
 
 @:publicFields
 class Main extends Application
@@ -73,6 +69,7 @@ class Main extends Application
 
 			playField = new PlayField(Sys.args()[0]);
 			playField.init(middleDisplay, true);
+			playField.botplay = true;
 
 			window.onKeyDown.add(playField.keyPress);
 			window.onKeyDown.add(changeTime);
@@ -85,8 +82,8 @@ class Main extends Application
 
 			window.onResize.add(resize);
 
-			if (ffmpegMode) {
-				initRender();
+			if (RenderingMode.enabled) {
+				RenderingMode.initRender(this);
 			}
 		}, 100);
 	}
@@ -126,15 +123,15 @@ class Main extends Application
 
 			newDeltaTime = (ts - timeStamp) * 1000;
 
-			if (ffmpegMode) {
+			if (RenderingMode.enabled) {
 				newDeltaTime = 1000 / 60;
 			}
 
 			if (!playField.disposed && !playField.paused) {
 				playField.update(newDeltaTime);
 
-				if (ffmpegMode) {
-					pipeFrame();
+				if (RenderingMode.enabled && !playField.songEnded) {
+					RenderingMode.pipeFrame();
 				}
 			}
 
@@ -160,73 +157,6 @@ class Main extends Application
 	inline function stamp() {
 		return Timestamp.get();
 	}
-
-	//////// RENDERING MODE STUFF ////////
-
-	var process:Process;
-	var ffmpegExists:Bool;
-	static var ffmpegMode:Bool = false;
-
-	private function initRender()
-	{
-		if (!FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end)) {
-			Sys.println('Rendering Mode System - "ffmpeg${#if windows '.exe' #end}" not found! Is it located at the current working directory?');
-			return;
-		}
-
-		if (!FileSystem.exists('assets/videos/rendered/')) { // In case you delete the videos/rendered folder
-			trace('videos/rendered folder not found! Re-creating it...');
-            FileSystem.createDirectory('assets/videos/rendered');
-        }
-
-		ffmpegExists = true;
-
-		process = new Process('ffmpeg', [
-			'-v', 'quiet', '-y', // START
-			'-f', 'rawvideo', // FILTER
-			'-pix_fmt', 'yuv420p', // PIXEL FORMAT
-			'-s', peoteView.width + 'x' + peoteView.height, // DIMENSIONS
-			'-r', '60', // FRAMERATE
-			'-display_hflip', '-display_rotation', '180', // This is here because the original output is mirrored and upside down
-			'-i', '-', // INPUT INIT
-			'-vcodec', 'libx264', // ENCODER
-			'-crf', '9', // CRF
-			'-preset', 'ultrafast', // PRESET
-			'-c:a', 'copy', // COPY
-			'-tune', 'fastdecode', // TUNE
-			'assets/videos/rendered/' + playField.chart.header.title + '.mp4' // END (FILEPATH)
-		]);
-	}
-
-	var bytes:haxe.io.Int32Array;
-	private function pipeFrame()
-	{
-		if (!ffmpegMode || !ffmpegExists || process == null)
-			return;
-
-		if (bytes == null) {
-			bytes = new haxe.io.Int32Array(peoteView.width * peoteView.height);
-		}
-
-		peoteView.gl.readPixels_Int32(0, 0, peoteView.width, peoteView.height, GL.RGBA, GL.UNSIGNED_BYTE, bytes);
-		process.stdin.write(untyped bytes.bytes);
-	}
-
-	public function stopRender()
-	{
-		if (!ffmpegMode)
-			return;
-
-		if (process != null) {
-			if (process.stdin != null)
-				process.stdin.close();
-
-			process.close();
-			process.kill();
-		}
-	}
-
-	//////////////////////////////////////
 
 	// ------------------------------------------------------------
 	// -------------------- SAMPLE ENDS HERE ----------------------

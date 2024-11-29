@@ -47,6 +47,7 @@ class PlayField {
 
 	var onStartSong:Event<Chart->Void>;
 	var onStopSong:Event<Chart->Void>;
+	var onDeath:Event<Chart->Void>;
 
 	var onNoteHit:Event<ChartNote->Int->Void>;
 	var onNoteMiss:Event<ChartNote->Void>;
@@ -630,6 +631,7 @@ class PlayField {
 
 		onStartSong = new Event<Chart->Void>();
 		onStopSong = new Event<Chart->Void>();
+		onDeath = new Event<Chart->Void>();
 
 		onNoteHit = new Event<ChartNote->Int->Void>();
 		onNoteMiss = new Event<ChartNote->Void>();
@@ -1081,139 +1083,13 @@ class PlayField {
 
 		numOfNotes = notesBuf.length - numOfReceptors;
 
-		onNoteHit.add((note:ChartNote, timing:Int) -> {
-			//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
-
-			// Don't execute ratings if an opponent note has executed it
-
-			if (!strumlinePlayableMap[note.lane]) {
-				health -= 0.025;
-
-				if (health < 0.05) {
-					health = 0.05;
-				}
-
-				return;
-			}
-
-			// Add the health
-
-			health += 0.025;
-
-			if (health > 1) {
-				health = 1;
-			}
-
-			// Accumulate the combo and start determining the rating judgement
-
-			++combo;
-
-			// This shows you how ratings work
-
-			var absTiming = Math.abs(timing);
-
-			if (absTiming > 60) {
-				respondWithRatingID(3);
-				score += 50;
-
-				return;
-			}
-
-			if (absTiming > 45) {
-				respondWithRatingID(2);
-				score += 100;
-
-				return;
-			}
-
-			if (absTiming > 30) {
-				respondWithRatingID(1);
-				score += 200;
-
-				return;
-			}
-
-			respondWithRatingID(0);
-			score += 400;
-		});
-
-		onNoteMiss.add((note:ChartNote) -> {
-			//Sys.println('Miss ${note.index}, ${note.lane}');
-
-			// Hurt the health
-
-			health -= 0.025;
-
-			if (practiceMode && health < 0.05) {
-				health = 0.05;
-			}
-
-			// Zero the combo
-			combo = 0;
-
-			// Hurt the score
-			score -= 50;
-
-			// Increment the misses
-			++misses;
-		});
-
-		onSustainComplete.add((note:ChartNote) -> {
-			//Sys.println('Complete ${note.index}, ${note.lane}');
-
-			if (!strumlinePlayableMap[note.lane]) {
-				health -= 0.025;
-
-				if (health < 0.05) {
-					health = 0.05;
-				}
-
-				return;
-			}
-
-			// Add the health
-
-			health += 0.025;
-
-			if (health > 1) {
-				health = 1;
-			}
-		});
-
-		onSustainRelease.add((note:ChartNote) -> {
-			//Sys.println('Release ${note.index}, ${note.lane}');
-
-			// Zero the combo
-			combo = 0;
-		});
-
-		onStartSong.add((chart:Chart) -> {
-			Sys.println('Song activity is on');
-
-			if (!Main.ffmpegMode) {
-				for (inst in instrumentals) {
-					inst.time = 0;
-					inst.play();
-				}
-	
-				for (voices in voicesTracks) {
-					voices.time = 0;
-					voices.play();
-				}
-	
-				songStarted = true;
-				songEnded = false;
-			}
-		});
-
-		onStopSong.add((chart:Chart) -> {
-			Sys.println('Song activity is off');
-
-			if (!Main.ffmpegMode) {
-				songEnded = true;
-				songStarted = false;
-			}
-		});
+		onNoteHit.add(hitNote);
+		onNoteMiss.add(missNote);
+		onSustainComplete.add(completeSustain);
+		onSustainRelease.add(releaseSustain);
+		onStartSong.add(startSong);
+		onStopSong.add(stopSong);
+		onDeath.add(gameOver);
 	}
 
 	var score:Int128 = 0;
@@ -1238,17 +1114,18 @@ class PlayField {
 
 		// Trigger a game over
 		if (health < 0 && !disposed) {
-			Sys.println("Game Over");
-			dispose();
+			onDeath.dispatch(chart);
 			return;
 		}
 
 		var firstInst = instrumentals["base"];
 
 		// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
-		for (vocals in voicesTracks) {
-			if (vocals.time - firstInst.time > 10) {
-				vocals.time = firstInst.time;
+		if (songStarted && !RenderingMode.enabled) {
+			for (vocals in voicesTracks) {
+				if (vocals.time - firstInst.time > 10) {
+					vocals.time = firstInst.time;
+				}
 			}
 		}
 
@@ -1258,11 +1135,11 @@ class PlayField {
 
 		watermarkTxt.text = 'FV TEST BUILD | - and = to change time | F8 to flip bar | [ and ] to adjust latency (${latencyCompensation}ms)';
 
-		if (!songEnded && firstInst.finished) {
+		if (songPosition > firstInst.length && !songEnded) {
 			onStopSong.dispatch(chart);
 		}
 
-		if (!songStarted || songEnded) {
+		if (!songStarted || songEnded || RenderingMode.enabled) {
 			songPosition += deltaTime;
 		} else {
 			firstInst.update();
@@ -1373,7 +1250,7 @@ class PlayField {
 		Resumes the playfield.
 	**/
 	function resume() {
-		if (disposed || !paused) return;
+		if (disposed || !paused || RenderingMode.enabled) return;
 
 		paused = false;
 
@@ -1388,7 +1265,7 @@ class PlayField {
 		}
 	}
 
-	// Extra stuff
+	// Callback stuff
 
 	inline function beatHit(beat:Float) {
 		if (beat < 0) {
@@ -1403,6 +1280,159 @@ class PlayField {
 	inline function measureHit(measure:Float) {
 		if (measure >= 0) {
 			display.zoom += 0.015;
+		}
+	}
+
+	function hitNote(note:ChartNote, timing:Int) {
+		//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
+
+		// Don't execute ratings if an opponent note has executed it
+
+		if (!strumlinePlayableMap[note.lane]) {
+			health -= 0.025;
+
+			if (health < 0.05) {
+				health = 0.05;
+			}
+
+			return;
+		}
+
+		// Add the health
+
+		health += 0.025;
+
+		if (health > 1) {
+			health = 1;
+		}
+
+		// Accumulate the combo and start determining the rating judgement
+
+		++combo;
+
+		// This shows you how ratings work
+
+		var absTiming = Math.abs(timing);
+
+		if (absTiming > 60) {
+			respondWithRatingID(3);
+			score += 50;
+
+			return;
+		}
+
+		if (absTiming > 45) {
+			respondWithRatingID(2);
+			score += 100;
+
+			return;
+		}
+
+		if (absTiming > 30) {
+			respondWithRatingID(1);
+			score += 200;
+
+			return;
+		}
+
+		respondWithRatingID(0);
+		score += 400;
+	}
+
+	inline function missNote(note:ChartNote) {
+		//Sys.println('Miss ${note.index}, ${note.lane}');
+
+		// Hurt the health
+
+		health -= 0.025;
+
+		if (practiceMode && health < 0.05) {
+			health = 0.05;
+		}
+
+		// Zero the combo
+		combo = 0;
+
+		// Hurt the score
+		score -= 50;
+
+		// Increment the misses
+		++misses;
+	}
+
+	inline function completeSustain(note:ChartNote) {
+		//Sys.println('Complete ${note.index}, ${note.lane}');
+
+		if (!strumlinePlayableMap[note.lane]) {
+			health -= 0.025;
+
+			if (health < 0.05) {
+				health = 0.05;
+			}
+
+			return;
+		}
+
+		// Add the health
+
+		health += 0.025;
+
+		if (health > 1) {
+			health = 1;
+		}
+	}
+
+	inline function releaseSustain(note:ChartNote) {
+		//Sys.println('Release ${note.index}, ${note.lane}');
+
+		// Zero the combo
+		combo = 0;
+	}
+
+	function startSong(chart:Chart) {
+		Sys.println('Song activity is on');
+
+		if (!RenderingMode.enabled) {
+			for (inst in instrumentals) {
+				inst.time = 0;
+				inst.play();
+			}
+
+			for (voices in voicesTracks) {
+				voices.time = 0;
+				voices.play();
+			}
+		}
+
+		songStarted = true;
+		songEnded = false;
+	}
+
+	function stopSong(chart:Chart) {
+		Sys.println('Song activity is off');
+
+		if (!RenderingMode.enabled) {
+			for (inst in instrumentals) {
+				inst.stop();
+			}
+
+			for (voices in voicesTracks) {
+				voices.stop();
+			}
+		} else {
+			RenderingMode.stopRender();
+		}
+
+		songEnded = true;
+		songStarted = false;
+	}
+
+	function gameOver(chart:Chart) {
+		Sys.println("Game Over");
+		dispose();
+
+		if (RenderingMode.enabled) {
+			RenderingMode.stopRender();
 		}
 	}
 }
