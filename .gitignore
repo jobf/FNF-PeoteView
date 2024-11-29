@@ -6,3 +6,4 @@ slices/
 benchmark/
 assets/why/
 _starter/
+./src/menus/PauseScreen.hx

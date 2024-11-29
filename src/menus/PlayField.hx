@@ -30,6 +30,7 @@ class PlayField {
 
 		createNoteSystem(display, chart.header.mania);
 		createHUD(display);
+		craetePauseScreen();
 		loadAudio();
 		finishPlayfield(display);
 	}
@@ -994,6 +995,28 @@ class PlayField {
 
 		display.addProgram(watermarkTxtProg);
 		watermarkTxt.y = watermarkTxtProg.displays[0].height - (watermarkTxt.height + 2);
+	}
+
+	/**************************************************************************************
+									  PAUSE SCREEN SYSTEM                                  
+	**************************************************************************************/
+
+	var pauseBG(default, null):UISprite;
+	var pauseOptions(default, null):Array<UISprite>;
+
+	function craetePauseScreen() {
+		var pauseBG = new UISprite();
+		pauseBG.clipWidth = pauseBG.clipHeight = pauseBG.clipSizeX = pauseBG.clipSizeY = 0;
+
+		uiBuf.addElement(pauseBG);
+
+		for (i in 0...3) {
+			var option = new UISprite();
+			option.type = PAUSE_OPTION;
+			option.changeID(i);
+			option.y = 160 + (160 * i);
+			uiBuf.addElement(option);
+		}
 	}
 
 	/**************************************************************************************

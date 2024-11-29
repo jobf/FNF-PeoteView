@@ -100,9 +100,22 @@ class UISprite implements Element {
 		return type == COUNTDOWN_POPUP;
 	}
 
+    var isPauseOption(get, never):Bool;
+
+	inline function get_isPauseOption() {
+		return type == PAUSE_OPTION;
+	}
+
 	var curID(default, null):Int;
 
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
+
+	// This makes it so we don't have create a separate submenu for it and leave it in the top of the playfield (where all the ui is).
+	private static var hardcoded_pause_option_values(default, null):Array<Array<Int>> = [
+		[0, 600, 300, 75],
+		[0, 675, 300, 75],
+		[300, 600, 300, 150]
+	];
 
 	static function init(program:Program, name:String, texture:Texture) {
 		// creates a texture-layer named "name"
@@ -177,6 +190,14 @@ class UISprite implements Element {
 			id &= 0x1;
 		}
 
+		if (isPauseOption) {
+			var option:Array<Int> = hardcoded_pause_option_values[id];
+			xValue = option[0];
+			yValue = option[1];
+			wValue = option[2];
+			hValue = option[3];
+		}
+
 		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue)) {
 			w = clipWidth = clipSizeX = wValue;
 			h = clipHeight = clipSizeY = hValue;
@@ -196,4 +217,5 @@ enum abstract UISpriteType(cpp.UInt8) {
 	var HEALTH_BAR;
 	var HEALTH_ICON;
 	var COUNTDOWN_POPUP;
+	var PAUSE_OPTION;
 }

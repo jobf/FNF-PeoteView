@@ -23,6 +23,8 @@ class Main extends Application
 	// ------------------- SAMPLE STARTS HERE ---------------------
 	// ------------------------------------------------------------
 
+	static var conductor:Conductor;
+
 	var peoteView:PeoteView;
 
 	var bottomDisplay:CustomDisplay;
@@ -30,7 +32,6 @@ class Main extends Application
 	var topDisplay:CustomDisplay;
 
 	var playField:PlayField;
-	static var conductor:Conductor;
 
 	var _started:Bool;
 
@@ -47,6 +48,7 @@ class Main extends Application
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
+			TextureSystem.createTexture("pauseOptionShiz", "assets/ui/pauseOptionShiz.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
@@ -54,10 +56,9 @@ class Main extends Application
 
 			// Coming soon...
 
-			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x333333FF);
+			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0xFF00FFFF);
 
 			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
-			topDisplay.hide();
 
 			peoteView.start();
 
