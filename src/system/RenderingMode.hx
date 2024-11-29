@@ -9,7 +9,7 @@ import lime.graphics.opengl.GL;
 class RenderingMode {
 	static var process:Process;
 	private static var ffmpegExists(default, null):Bool;
-	static var enabled:Bool = true;
+	static var enabled:Bool = false;
 
 	static var peoteView:PeoteView;
 	static var playField:PlayField;
