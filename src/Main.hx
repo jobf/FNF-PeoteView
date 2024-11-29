@@ -161,10 +161,11 @@ class Main extends Application
 		return Timestamp.get();
 	}
 
-	var process:Process;
+	//////// RENDERING MODE STUFF ////////
 
+	var process:Process;
 	var ffmpegExists:Bool;
-	static var ffmpegMode:Bool = true;
+	static var ffmpegMode:Bool = false;
 
 	private function initRender()
 	{
@@ -173,41 +174,42 @@ class Main extends Application
 			return;
 		}
 
-		if (!FileSystem.exists('assets/gameRenders/')) { // In case you delete the gameRenders folder
-			trace('gameRenders folder not found! Re-creating it...');
-            FileSystem.createDirectory('assets/gameRenders');
+		if (!FileSystem.exists('assets/videos/rendered/')) { // In case you delete the videos/rendered folder
+			trace('videos/rendered folder not found! Re-creating it...');
+            FileSystem.createDirectory('assets/videos/rendered');
         }
 
 		ffmpegExists = true;
 
 		process = new Process('ffmpeg', [
-			'-v', 'quiet',
-			'-y',
-			'-f', 'rawvideo',
-			'-pix_fmt', 'rgba',
-			'-s', peoteView.width + 'x' + peoteView.height,
-			'-r', '60',
-			'-display_hflip', '-display_rotation', '180', // This is here because 
-			'-i', '-',
-			'-vcodec', 'libx264',
-			'-crf', '1',
-			'-preset', 'ultrafast',
-			'-c:a', 'copy',
-			'assets/gameRenders/' + playField.chart.header.title + '.mp4']);
+			'-v', 'quiet', '-y', // START
+			'-f', 'rawvideo', // FILTER
+			'-pix_fmt', 'rgba', // PIXEL FORMAT
+			'-s', peoteView.width + 'x' + peoteView.height, // DIMENSIONS
+			'-r', '60', // FRAMERATE
+			'-display_hflip', '-display_rotation', '180', // This is here because the original output is mirrored and upside down
+			'-i', '-', // INPUT INIT
+			'-vcodec', 'libx264', // ENCODER
+			'-crf', '9', // CRF
+			'-preset', 'ultrafast', // PRESET
+			'-c:a', 'copy', // COPY
+			'-tune', 'fastdecode', // TUNE
+			'assets/videos/rendered/' + playField.chart.header.title + '.mp4' // END (FILEPATH)
+		]);
 	}
 
-	var bytes:haxe.io.UInt8Array;
+	var bytes:haxe.io.Int32Array;
 	private function pipeFrame()
 	{
 		if (!ffmpegMode || !ffmpegExists || process == null)
 			return;
 
 		if (bytes == null) {
-			bytes = new haxe.io.UInt8Array(peoteView.width * peoteView.height * 4);
+			bytes = new haxe.io.Int32Array(peoteView.width * peoteView.height);
 		}
 
-		peoteView.gl.readPixels(0, 0, peoteView.width, peoteView.height, GL.RGBA, GL.UNSIGNED_BYTE, bytes);
-		process.stdin.write(bytes.getData().bytes);
+		peoteView.gl.readPixels_Int32(0, 0, peoteView.width, peoteView.height, GL.RGBA, GL.UNSIGNED_BYTE, bytes);
+		process.stdin.write(untyped bytes.bytes);
 	}
 
 	public function stopRender()
@@ -223,6 +225,8 @@ class Main extends Application
 			process.kill();
 		}
 	}
+
+	//////////////////////////////////////
 
 	// ------------------------------------------------------------
 	// -------------------- SAMPLE ENDS HERE ----------------------

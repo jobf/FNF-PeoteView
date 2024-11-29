@@ -14,6 +14,7 @@ class PlayField {
 
 	var disposed(default, null):Bool;
 	var paused(default, null):Bool;
+	var botplay:Bool;
 
 	/**************************************************************************************
 										  CONSTRUCTOR
@@ -334,7 +335,9 @@ class PlayField {
 		var sustain = note.child;
 		var sustainExists = sustain != null;
 
-		if (rec.playable) {
+		var playable = rec.playable && !botplay;
+
+		if (playable) {
 			if (!isHit) {
 				var noteToHit = notesToHit[fullIndex];
 				var noteToHitExists = noteToHit != null;
@@ -421,7 +424,7 @@ class PlayField {
 				if (pos > position + (sustain.length * 100) - 75 && !sustain.held && !note.missed) {
 					sustain.held = true;
 					if (rec.confirmed()) {
-						if (rec.playable) rec.press();
+						if (playable) rec.press();
 						else rec.reset();
 					}
 					notesBuf.updateElement(rec);
@@ -436,7 +439,7 @@ class PlayField {
 	}
 
 	function keyPress(code:KeyCode, mod) {
-		if (disposed) return;
+		if (disposed || botplay) return;
 
 		if (!keybindMap.exists(code)) {
 			return;
@@ -495,7 +498,7 @@ class PlayField {
 	}
 
 	function keyRelease(code:KeyCode, mod) {
-		if (disposed) return;
+		if (disposed || botplay) return;
 
 		if (!keybindMap.exists(code)) {
 			return;
