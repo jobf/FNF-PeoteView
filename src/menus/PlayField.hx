@@ -1218,25 +1218,29 @@ class PlayField {
 		onStartSong.add((chart:Chart) -> {
 			Sys.println('Song activity is on');
 
-			for (inst in instrumentals) {
-				inst.time = 0;
-				inst.play();
+			if (!Main.ffmpegMode) {
+				for (inst in instrumentals) {
+					inst.time = 0;
+					inst.play();
+				}
+	
+				for (voices in voicesTracks) {
+					voices.time = 0;
+					voices.play();
+				}
+	
+				songStarted = true;
+				songEnded = false;
 			}
-
-			for (voices in voicesTracks) {
-				voices.time = 0;
-				voices.play();
-			}
-
-			songStarted = true;
-			songEnded = false;
 		});
 
 		onStopSong.add((chart:Chart) -> {
 			Sys.println('Song activity is off');
 
-			songEnded = true;
-			songStarted = false;
+			if (!Main.ffmpegMode) {
+				songEnded = true;
+				songStarted = false;
+			}
 		});
 	}
 
@@ -1425,7 +1429,7 @@ class PlayField {
 	}
 
 	inline function measureHit(measure:Float) {
-		if (songStarted && !songEnded) {
+		if (measure >= 0) {
 			display.zoom += 0.015;
 		}
 	}

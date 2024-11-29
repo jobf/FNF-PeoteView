@@ -4,11 +4,15 @@ import haxe.CallStack;
 import lime.app.Application;
 import lime.ui.Window;
 import lime.ui.KeyCode;
+import sys.io.Process;
+import sys.FileSystem;
+import haxe.io.Bytes;
+import lime.graphics.opengl.GL;
 
 @:publicFields
 class Main extends Application
 {
-	override function onWindowCreate():Void
+	override function onWindowCreate()
 	{
 		switch (window.context.type)
 		{
@@ -25,9 +29,9 @@ class Main extends Application
 
 	var peoteView:PeoteView;
 
-	var bottomDisplay:Display;
-	var middleDisplay:Display;
-	var topDisplay:Display;
+	var bottomDisplay:CustomDisplay;
+	var middleDisplay:CustomDisplay;
+	var topDisplay:CustomDisplay;
 
 	var playField:PlayField;
 	static var conductor:Conductor;
@@ -49,14 +53,14 @@ class Main extends Application
 			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
-			bottomDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			bottomDisplay.hide();
 
 			// Coming soon...
 
-			middleDisplay = new Display(0, 0, window.width, window.height, 0x333333FF);
+			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x333333FF);
 
-			topDisplay = new Display(0, 0, window.width, window.height, 0x00000000);
+			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			topDisplay.hide();
 
 			peoteView.start();
@@ -80,6 +84,10 @@ class Main extends Application
 			_started = true;
 
 			window.onResize.add(resize);
+
+			if (ffmpegMode) {
+				initRender();
+			}
 		}, 100);
 	}
 
@@ -110,7 +118,7 @@ class Main extends Application
 	var newDeltaTime:Float = 0;
 	var timeStamp:Float = 0;
 
-	override function update(deltaTime:Int):Void {
+	override function update(deltaTime:Int) {
 		Tools.profileFrame();
 
 		if (_started) {
@@ -118,7 +126,15 @@ class Main extends Application
 
 			newDeltaTime = (ts - timeStamp) * 1000;
 
+			if (ffmpegMode) {
+				newDeltaTime = 1000 / Application.current.window.frameRate;
+			}
+
 			if (!playField.disposed && !playField.paused) {
+				if (ffmpegMode) {
+					pipeFrame();
+				}
+
 				playField.update(newDeltaTime);
 			}
 
@@ -143,6 +159,69 @@ class Main extends Application
 
 	inline function stamp() {
 		return Timestamp.get();
+	}
+
+	var process:Process;
+
+	var ffmpegExists:Bool;
+	static var ffmpegMode:Bool = true;
+
+	private function initRender()
+	{
+		if (!FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end)) {
+			Sys.println('Rendering Mode System - "ffmpeg${#if windows '.exe' #end}" not found! Is it located at the current working directory?');
+			return;
+		}
+
+		if (!FileSystem.exists('assets/gameRenders/')) { // In case you delete the gameRenders folder
+			trace('gameRenders folder not found! Re-creating it...');
+            FileSystem.createDirectory('assets/gameRenders');
+        }
+
+		ffmpegExists = true;
+
+		process = new Process('ffmpeg', [
+			'-v', 'quiet',
+			'-y',
+			'-f', 'rawvideo',
+			'-pix_fmt', 'rgba',
+			'-s', peoteView.width + 'x' + peoteView.height,
+			'-r', '60',
+			'-display_hflip', '-display_rotation', '180', // This is here because 
+			'-i', '-',
+			'-vcodec', 'libx264',
+			'-crf', '1',
+			'-preset', 'ultrafast',
+			'-c:a', 'copy',
+			'assets/gameRenders/' + playField.chart.header.title + '.mp4']);
+	}
+
+	var bytes:haxe.io.UInt8Array;
+	private function pipeFrame()
+	{
+		if (!ffmpegMode || !ffmpegExists || process == null)
+			return;
+
+		if (bytes == null) {
+			bytes = new haxe.io.UInt8Array(peoteView.width * peoteView.height * 4);
+		}
+
+		peoteView.gl.readPixels(0, 0, peoteView.width, peoteView.height, GL.RGBA, GL.UNSIGNED_BYTE, bytes);
+		process.stdin.write(bytes.getData().bytes);
+	}
+
+	public function stopRender()
+	{
+		if (!ffmpegMode)
+			return;
+
+		if (process != null) {
+			if (process.stdin != null)
+				process.stdin.close();
+
+			process.close();
+			process.kill();
+		}
 	}
 
 	// ------------------------------------------------------------
