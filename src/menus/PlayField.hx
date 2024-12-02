@@ -47,6 +47,8 @@ class PlayField {
 	var practiceMode:Bool;
 
 	var onStartSong:Event<Chart->Void>;
+	var onPauseSong:Event<Chart->Void>;
+	var onResumeSong:Event<Chart->Void>;
 	var onStopSong:Event<Chart->Void>;
 	var onDeath:Event<Chart->Void>;
 
@@ -183,8 +185,8 @@ class PlayField {
 		return notesBuf.getElement(id + numOfReceptors);
 	}
 
-	function setTime(value:Float) {
-		if (disposed || !songStarted || songEnded) return;
+	function setTime(value:Float, playAgain:Bool = false) {
+		if (disposed || !songStarted || songEnded || paused) return;
 
 		if (value < 0) {
 			value = 0;
@@ -193,22 +195,24 @@ class PlayField {
 		songPosition = value;
 
 		for (inst in instrumentals) {
+			if (playAgain) {
+				inst.play();
+			}
 			inst.time = songPosition;
 			inst.update();
 		}
 
 		for (voices in voicesTracks) {
+			if (playAgain) {
+				voices.play();
+			}
 			voices.time = songPosition;
 			voices.update();
 		}
 
 		hideRatingPopup();
 
-		for (i in 0...numOfReceptors) {
-			var rec = notesBuf.getElement(i);
-			rec.reset();
-			notesBuf.updateElement(rec);
-		}
+		resetReceptors();
 
 		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
@@ -220,10 +224,9 @@ class PlayField {
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
-			note.x = 999999999;
 
 			var sustain = note.child;
-			if (sustain != null) {
+			if (sustain != null && sustain.c.aF != 0) {
 				sustain.c.aF = 0;
 				sustain.x = 999999999;
 				sustain.w = sustain.length;
@@ -231,9 +234,12 @@ class PlayField {
 				sustainsBuf.updateElement(sustain);
 			}
 
-			note.missed = false;
-			note.c.aF = 0;
-			notesBuf.updateElement(note);
+			if (note.c.aF != 0) {
+				note.c.aF = 0;
+				note.x = 999999999;
+				note.missed = false;
+				notesBuf.updateElement(note);
+			}
 		}
 
 		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
@@ -421,7 +427,7 @@ class PlayField {
 	}
 
 	function keyPress(code:KeyCode, mod) {
-		if (disposed || botplay) return;
+		if (disposed || botplay || paused) return;
 
 		if (!keybindMap.exists(code)) {
 			return;
@@ -470,7 +476,7 @@ class PlayField {
 	}
 
 	function keyRelease(code:KeyCode, mod) {
-		if (disposed || botplay) return;
+		if (disposed || botplay || paused) return;
 
 		if (!keybindMap.exists(code)) {
 			return;
@@ -631,6 +637,8 @@ class PlayField {
 		strumlinePlayableMap = [false, true];
 
 		onStartSong = new Event<Chart->Void>();
+		onPauseSong = new Event<Chart->Void>();
+		onResumeSong = new Event<Chart->Void>();
 		onStopSong = new Event<Chart->Void>();
 		onDeath = new Event<Chart->Void>();
 
@@ -1272,6 +1280,8 @@ class PlayField {
 			}
 		}
 
+		resetReceptors();
+
 		display.zoom = 1;
 		openPauseScreen();
 	}
@@ -1284,15 +1294,7 @@ class PlayField {
 
 		paused = false;
 
-		if (!RenderingMode.enabled && songStarted) {
-			for (inst in instrumentals) {
-				inst.play();
-			}
-
-			for (voices in voicesTracks) {
-				voices.play();
-			}
-		}
+		setTime(songPosition, true);
 
 		display.zoom = 1;
 		closePauseScreen();
@@ -1466,6 +1468,14 @@ class PlayField {
 
 		if (RenderingMode.enabled) {
 			RenderingMode.stopRender();
+		}
+	}
+
+	function resetReceptors() {
+		for (i in 0...numOfReceptors) {
+			var rec = notesBuf.getElement(i);
+			rec.reset();
+			notesBuf.updateElement(rec);
 		}
 	}
 }
