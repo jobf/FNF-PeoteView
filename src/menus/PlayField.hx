@@ -151,7 +151,7 @@ class PlayField {
 
 	var scrollSpeed(default, set):Float = 1.0;
 
-	inline function set_scrollSpeed(value:Float) {
+	function set_scrollSpeed(value:Float) {
 		spawnDist = Math.floor(160000 / value);
 		despawnDist = Math.floor(40000 / Math.min(value, 1.0));
 		hitbox = 200 * scrollSpeed;
@@ -224,9 +224,10 @@ class PlayField {
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
+			note.x = 999999999;
 
 			var sustain = note.child;
-			if (sustain != null && sustain.c.aF != 0) {
+			if (sustain != null) {
 				sustain.c.aF = 0;
 				sustain.x = 999999999;
 				sustain.w = sustain.length;
@@ -234,12 +235,9 @@ class PlayField {
 				sustainsBuf.updateElement(sustain);
 			}
 
-			if (note.c.aF != 0) {
-				note.c.aF = 0;
-				note.x = 999999999;
-				note.missed = false;
-				notesBuf.updateElement(note);
-			}
+			note.missed = false;
+			note.c.aF = 0;
+			notesBuf.updateElement(note);
 		}
 
 		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
@@ -1033,19 +1031,19 @@ class PlayField {
 											 AUDIO
 	**************************************************************************************/
 
-	var instrumentals:Map<String, Sound> = [];
-	var voicesTracks:Map<String, Sound> = [];
+	var instrumentals:Array<Sound> = [];
+	var voicesTracks:Array<Sound> = [];
 
 	function loadAudio() {
 		var inst = new Sound();
 		inst.fromFile(chart.header.instDir);
 
-		instrumentals.set("base", inst);
+		instrumentals.push(inst);
 
 		var voices = new Sound();
 		voices.fromFile(chart.header.voicesDir);
 
-		voicesTracks.set("base", voices);
+		voicesTracks.push(voices);
 	}
 
 	/**************************************************************************************
@@ -1151,7 +1149,7 @@ class PlayField {
 			return;
 		}
 
-		var firstInst = instrumentals["base"];
+		var firstInst = instrumentals[0];
 
 		// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
 		if (songStarted && !RenderingMode.enabled) {
@@ -1321,6 +1319,14 @@ class PlayField {
 	function hitNote(note:ChartNote, timing:Int) {
 		//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
 
+		// Turn the vocals assigned by a lane back on
+
+		var voicesTrack = voicesTracks[note.lane];
+		if (voicesTrack == null) voicesTrack = voicesTracks[0];
+		if (voicesTrack != null) {
+			voicesTrack.volume = 1;
+		}
+
 		// Don't execute ratings if an opponent note has executed it
 
 		if (!strumlinePlayableMap[note.lane]) {
@@ -1377,6 +1383,14 @@ class PlayField {
 	inline function missNote(note:ChartNote) {
 		//Sys.println('Miss ${note.index}, ${note.lane}');
 
+		// Mute the vocals assigned by a lane
+
+		var voicesTrack = voicesTracks[note.lane];
+		if (voicesTrack == null) voicesTrack = voicesTracks[0];
+		if (voicesTrack != null) {
+			voicesTrack.volume = 0;
+		}
+
 		// Hurt the health
 
 		health -= 0.025;
@@ -1386,12 +1400,15 @@ class PlayField {
 		}
 
 		// Zero the combo
+
 		combo = 0;
 
 		// Hurt the score
+
 		score -= 50;
 
 		// Increment the misses
+
 		++misses;
 	}
 
