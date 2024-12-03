@@ -212,6 +212,10 @@ class PlayField {
 
 		hideRatingPopup();
 
+		resetNotes();
+	}
+
+	function resetNotes() {
 		resetReceptors();
 
 		// Clear the list of note inputs and sustain inputs. This is required!
@@ -241,6 +245,7 @@ class PlayField {
 		}
 
 		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
+		// That'll fix a bug sgwlfnf (aka me) has discovered when he set the game to fullscreen.
 
 		spawnPosTop = spawnPosBottom = 0;
 	}
@@ -1151,15 +1156,6 @@ class PlayField {
 
 		var firstInst = instrumentals[0];
 
-		// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
-		if (songStarted && !RenderingMode.enabled) {
-			for (vocals in voicesTracks) {
-				if (vocals.time - firstInst.time > 10) {
-					vocals.time = firstInst.time;
-				}
-			}
-		}
-
 		scoreTxt.text = 'Score: $score, Misses: $misses';
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
@@ -1279,7 +1275,6 @@ class PlayField {
 		}
 
 		resetReceptors();
-
 		display.zoom = 1;
 		openPauseScreen();
 	}
@@ -1293,7 +1288,6 @@ class PlayField {
 		paused = false;
 
 		setTime(songPosition, true);
-
 		display.zoom = 1;
 		closePauseScreen();
 	}
@@ -1301,12 +1295,32 @@ class PlayField {
 	// Callback stuff
 
 	inline function beatHit(beat:Float) {
-		if (beat < 0) {
-			countdownDisp.countdownTick(Math.floor(4 + beat));
-		}
-
 		if (beat == 0 && !songStarted) {
 			onStartSong.dispatch(chart);
+		}
+
+		if (beat < 0) {
+			countdownDisp.countdownTick(Math.floor(4 + beat));
+		} else {
+			// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
+			// Unpausing the game can fuck up the sync between the instrumentals and the vocals.
+			// This is because they're literally streamed which can delay the playback process.
+			// So, here's a bandaid fix for it.
+
+			// Oh yeah and this also simulates gradual resync that activates if the song is more than 1 ms off
+			if (songStarted && !RenderingMode.enabled) {
+				for (inst in instrumentals) {
+					if (inst.time - songPosition > 1) {
+						inst.time -= (inst.time - songPosition) * 0.25;
+					}
+				}
+
+				for (vocals in voicesTracks) {
+					if (vocals.time - songPosition > 1) {
+						vocals.time -= (vocals.time - songPosition) * 0.25;
+					}
+				}
+			}
 		}
 	}
 
@@ -1491,8 +1505,10 @@ class PlayField {
 	function resetReceptors() {
 		for (i in 0...numOfReceptors) {
 			var rec = notesBuf.getElement(i);
-			rec.reset();
-			notesBuf.updateElement(rec);
+			if (rec.idle()) {
+				rec.reset();
+				notesBuf.updateElement(rec);
+			}
 		}
 	}
 }
