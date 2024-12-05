@@ -14,7 +14,9 @@ The chart format is an entire folder of everything you need for your custom fnf 
 
 The biggest thing in the chart format. It's a binary file containing 8 bytes per note in a sorted list. It's also designed to be as efficient as possible which is why I rewrote it to not use the HxBigIO haxelib and experiment with the standard c libraries (stdio and iostream) for the first time. One of them were already in haxe's cpp package but 80% of the necessary functions were written. So, I decided to make my own version with all the functions needed for stdio, and create iostream (located in the custom.cpp package).
 
-Here's how the chart data works:
+Here's how the chart note works:
+
+___________________________ ___________________________ ___________________________
 
 - Position
 
@@ -66,6 +68,8 @@ pos 200 300
 cam 0 45
 ```
 
+___________________________ ___________________________ ___________________________
+
 There's clearly a lot of info there but it's nice to separate it from the chart file.
 
 ### The song's event file
@@ -92,7 +96,7 @@ pos 203720.9302325582 shake 5 tween true duration 0.5 axis 0
 
 7 built-in events total.
 
-Let's go through each of them.
+Here's how each of them work:
 
 ___________________________ ___________________________ ___________________________
 
