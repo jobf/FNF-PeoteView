@@ -1,6 +1,6 @@
 # Welcome!
 
-FNF' in Peote-View, otherwise known as "Funkin' View" is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public) which offers ultra-performant gameplay and an incredibly flexible codebase, and is currently aiming to become the new standard of FNF modding.
+Funkin' View (AKA FNF' in Peote-View) is a successor of [Friday Night Funkin' Zenith](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public) which offers ultra-performant gameplay and an incredibly flexible codebase, and is currently aiming to become the new standard of FNF modding.
 
 This project just got started, so expect this repository to be very active!
 
@@ -44,7 +44,7 @@ And you're all set up! Just run `lime test (your platform)` and it works!
 
 - Halfwat
 
-(AKA JF)
+(AKA jobf)
 
 : Helped me learn how peote-view works, wrote the sprite clipping sample for peote-view, and more.
 
@@ -52,8 +52,8 @@ And you're all set up! Just run `lime test (your platform)` and it works!
 
 (AKA Semmis, maitag, or simply Sylvio Sell)
 
+: Wrote peote-view, and wrote the `slices` shader sample for the sustain note.
+
 - MKI
 
-- : Generated the miniaudio bindings via genkit (listed above)
-
-: Wrote peote-view, and wrote the `slices` shader sample for the sustain note.
+: Generated the miniaudio bindings via genkit (listed above)
