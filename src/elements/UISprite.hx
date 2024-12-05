@@ -1,4 +1,5 @@
-// Note to self: I did a stress test on that sprites by rendering 4000 and it turns out the bigger the texture dimensions are the slower it runs
+// Note to self: I did a stress test on this by rendering 4000 and it turns out the bigger the texture dimensions the slower it runs
+// You're rendering more pixels
 
 package elements;
 

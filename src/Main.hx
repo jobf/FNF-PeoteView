@@ -102,12 +102,6 @@ class Main extends Application
 				playField.latencyCompensation -= 10;
 			case KeyCode.RIGHT_BRACKET:
 				playField.latencyCompensation += 10;
-			case KeyCode.RETURN:
-				if (playField.paused) {
-					playField.resume();
-				} else {
-					playField.pause();
-				}
 			default:
 		}
 	}

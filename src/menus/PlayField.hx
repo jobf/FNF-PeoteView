@@ -3,6 +3,7 @@ package menus;
 import lime.ui.KeyCode;
 import lime.app.Event;
 import lime.app.Application;
+import haxe.Timer;
 
 /**
 	The UI and note system.
@@ -479,6 +480,14 @@ class PlayField {
 	}
 
 	function keyRelease(code:KeyCode, mod) {
+		if (code == KeyCode.RETURN) {
+			if (paused) {
+				resume();
+			} else {
+				pause();
+			}
+		}
+
 		if (disposed || botplay || paused) return;
 
 		if (!keybindMap.exists(code)) {
@@ -1081,14 +1090,9 @@ class PlayField {
 
 		var notes = chart.file;
 
-		// Create a while loop instead that accepts Int64's cause haxe's for loop syntax sugar doesn't have it
-		#if FV_BIG_BYTES
 		var i:Int64 = 0;
 		var len:Int64 = notes.length;
 		while (i < len)
-		#else
-		for (i in 0...notes.length)
-		#end
 		{
 			var note = notes.getNote(i);
 
@@ -1114,7 +1118,7 @@ class PlayField {
 				noteSpr.child = susSpr;
 			}
 
-			#if FV_BIG_BYTES i++; #end
+			i++;
 		}
 
 		numOfNotes = notesBuf.length - numOfReceptors;

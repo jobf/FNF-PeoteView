@@ -1,52 +1,86 @@
+// NOTE: I just now figured that fucker out finally when I was fixing the issue that happens on stdio fread.
+// This is the pure haxe version of HxBigIO's BigBytes by Chris AKA Dimensionscape
+
 package music.chart;
 
-@dox(hide)
-typedef _Number = #if FV_BIG_BYTES Int64 #else Int #end;
+import cpp.Int64;
+import haxe.Int64 as HaxeInt64;
+import cpp.SizeT;
+import cpp.FILE;
+import cpp.Pointer;
+import cpp.NativeArray;
+import cpp.Native;
+import custom.cpp.*;
 
 /**
-	The chart's file.
-	This abstracts over `Bytes`/`BigBytes`.
+    The chart data from a file.
 **/
 @:publicFields
-abstract File (
-	// This is the type selection.
-	#if FV_BIG_BYTES
-	hx.io.BigBytes
-	#else
-	haxe.io.Bytes
-	#end
-)
-{
-	/**
-		Gets how many notes in the chart file there are in total.
-	**/
-	var length(get, never):_Number;
+class File {
+    static inline var CHUNK_SIZE:Int = 67108864;
 
-	/**
-		The length getter.
-	**/
-	inline function get_length():_Number {
-		return this.length >> 3;
-	}
+    private var data(default, null):Array<Array<Int64>>;
+    private var file(default, null):FILE;
 
-	/**
-		Creates a chart file.
-		@param path The chart path you want to load the data from.
-	**/
-	inline function new(path:String) {
-		#if FV_BIG_BYTES
-		this = hx.io.BigBytes.fromFile(path);
-		#else
-		this = sys.io.File.getBytes(path);
-		#end
-	}
+    var length(default, null):HaxeInt64;
 
-	/**
-		Gets the chart note from the index of this chart file.
-		@param id The id you want to access the note from.
-		@returns ChartNote
-	**/
-	inline function getNote(id:_Number):ChartNote {
-		return this.getInt64(id << 3);
-	}
+    function new(inFile:String) {
+        // Open the file
+
+        file = Stdio.fopen(inFile, untyped "rb");
+
+        // Calculate the file size
+
+        Iostream._fseeki64(file, 0, 2);
+
+        var len:HaxeInt64 = HaxeInt64.div(Iostream._ftelli64(file), 8);
+
+        length = len;
+
+        Iostream._fseeki64(file, 0, 0);
+
+        data = [];
+
+        // Now do the processing
+
+        if (len > CHUNK_SIZE) {
+            var size:SizeT = CHUNK_SIZE;
+    
+            //while (len > 0) { // This throws a weird compilation error of "Cannot compare cpp.Int64 and cpp.Int64"
+            while (size > 0) {
+                size = HaxeInt64.toInt(len);
+    
+                if (size == 0) {
+                    break;
+                }
+    
+                if (len > CHUNK_SIZE) {
+                    size = CHUNK_SIZE;
+                }
+    
+                var chunk:Array<Int64> = NativeArray.create(size);
+    
+                data.push(chunk);
+    
+                var buf:Pointer<Int64> = Pointer.ofArray(chunk);
+                Stdio.fread(buf.raw, 8, size, file);
+    
+                len -= size;
+            }
+        } else {
+            var shortLen = len.low;
+            var chunk:Array<Int64> = NativeArray.create(shortLen);
+
+            data.push(chunk);
+
+            var buf:Pointer<Int64> = Pointer.ofArray(chunk);
+            Stdio.fread(buf.raw, 8, shortLen, file);
+        }
+    }
+
+    function getNote(atIndex:Int64):ChartNote {
+        var index = HaxeInt64.divMod(atIndex, CHUNK_SIZE);
+        var atChunk = data[index.quotient.low];
+        return atChunk[index.modulus.low];
+    }
 }
