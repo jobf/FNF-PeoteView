@@ -12,76 +12,76 @@ import cpp.NativeArray;
 import cpp.Native;
 import custom.cpp.*;
 /**
-    The chart data retrieved from a file.
-    For now, the maximum possible note count for a chart file instance is around 2^56 (72,057,593,501,057,025). This is because `Array` has a varying max element that depends on the size of each one.
-    That will be changed in the near future.
+	The chart data retrieved from a file.
+	For now, the maximum possible note count for a chart file instance is around 2^56 (72,057,593,501,057,025). This is because `Array` has a varying max element that depends on the size of each one.
+	That will be changed in the near future.
 **/
 @:publicFields
 class File {
-    static inline var CHUNK_SIZE:Int = 268435455;
+	static inline var CHUNK_SIZE:Int = 268435455;
 
-    private var data(default, null):Array<Array<Int64>>;
-    private var file(default, null):FILE;
+	private var data(default, null):Array<Array<Int64>>;
+	private var file(default, null):FILE;
 
-    var length(default, null):HaxeInt64;
+	var length(default, null):HaxeInt64;
 
-    function new(inFile:String) {
-        // Open the file
+	function new(inFile:String) {
+		// Open the file
 
-        file = Stdio.fopen(inFile, untyped "rb");
+		file = Stdio.fopen(inFile, untyped "rb");
 
-        // Calculate the file size
+		// Calculate the file size
 
-        Iostream._fseeki64(file, 0, 2);
+		Iostream._fseeki64(file, 0, 2);
 
-        var len:HaxeInt64 = HaxeInt64.div(Iostream._ftelli64(file), 8);
+		var len:HaxeInt64 = HaxeInt64.div(Iostream._ftelli64(file), 8);
 
-        length = len;
+		length = len;
 
-        Iostream._fseeki64(file, 0, 0);
+		Iostream._fseeki64(file, 0, 0);
 
-        data = [];
+		data = [];
 
-        // Now do the processing
+		// Now do the processing
 
-        if (len > CHUNK_SIZE) {
-            var size:SizeT = CHUNK_SIZE;
-    
-            //while (len > 0) { // This throws a weird compilation error of "Cannot compare cpp.Int64 and cpp.Int64"
-            while (size > 0) {
-                size = HaxeInt64.toInt(len);
-    
-                if (size == 0) {
-                    break;
-                }
-    
-                if (len > CHUNK_SIZE) {
-                    size = CHUNK_SIZE;
-                }
-    
-                var chunk:Array<Int64> = NativeArray.create(size);
-    
-                data.push(chunk);
-    
-                var buf:Pointer<Int64> = Pointer.ofArray(chunk);
-                Stdio.fread(buf.raw, 8, size, file);
-    
-                len -= size;
-            }
-        } else {
-            var shortLen = len.low;
-            var chunk:Array<Int64> = NativeArray.create(shortLen);
+		if (len > CHUNK_SIZE) {
+			var size:SizeT = CHUNK_SIZE;
 
-            data.push(chunk);
+			//while (len > 0) { // This throws a weird compilation error of "Cannot compare cpp.Int64 and cpp.Int64"
+			while (size > 0) {
+				size = HaxeInt64.toInt(len);
 
-            var buf:Pointer<Int64> = Pointer.ofArray(chunk);
-            Stdio.fread(buf.raw, 8, shortLen, file);
-        }
-    }
+				if (size == 0) {
+					break;
+				}
 
-    function getNote(atIndex:Int64):ChartNote {
-        var index = HaxeInt64.divMod(atIndex, CHUNK_SIZE);
-        var atChunk = data[index.quotient.low];
-        return atChunk[index.modulus.low];
-    }
+				if (len > CHUNK_SIZE) {
+					size = CHUNK_SIZE;
+				}
+
+				var chunk:Array<Int64> = NativeArray.create(size);
+
+				data.push(chunk);
+
+				var buf:Pointer<Int64> = Pointer.ofArray(chunk);
+				Stdio.fread(buf.raw, 8, size, file);
+
+				len -= size;
+			}
+		} else {
+			var shortLen = len.low;
+			var chunk:Array<Int64> = NativeArray.create(shortLen);
+
+			data.push(chunk);
+
+			var buf:Pointer<Int64> = Pointer.ofArray(chunk);
+			Stdio.fread(buf.raw, 8, shortLen, file);
+		}
+	}
+
+	function getNote(atIndex:Int64):ChartNote {
+		var index = HaxeInt64.divMod(atIndex, CHUNK_SIZE);
+		var atChunk = data[index.quotient.low];
+		return atChunk[index.modulus.low];
+	}
 }
