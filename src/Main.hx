@@ -52,7 +52,6 @@ class Main extends Application
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
-			bottomDisplay.hide();
 
 			// Coming soon...
 
@@ -62,9 +61,9 @@ class Main extends Application
 
 			peoteView.start();
 
-			peoteView.addDisplay(bottomDisplay);
-			peoteView.addDisplay(middleDisplay);
-			peoteView.addDisplay(topDisplay);
+			bottomDisplay.init(peoteView);
+			middleDisplay.init(peoteView);
+			topDisplay.init(peoteView);
 
 			conductor = new Conductor();
 
@@ -130,6 +129,10 @@ class Main extends Application
 			}
 
 			timeStamp = stamp();
+
+			bottomDisplay.updateFrameBuffer();
+			middleDisplay.updateFrameBuffer();
+			topDisplay.updateFrameBuffer();
 		}
 
 		Tools.profileFrame();
