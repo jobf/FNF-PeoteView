@@ -7,13 +7,14 @@ import lime.graphics.opengl.GL;
 
 @:publicFields
 class RenderingMode {
+	private static var ffmpegExists(default, null):Bool;
+
 	static var process:Process;
 	static var encoder:Process;
-	private static var ffmpegExists(default, null):Bool;
 	static var enabled:Bool = false;
 
 	static var peoteView:PeoteView;
-	static var playField:PlayField;
+	static var songName:String;
 
 	static function initRender(entryPoint:Main)
 	{
@@ -34,8 +35,8 @@ class RenderingMode {
 		ffmpegExists = true;
 
 		peoteView = entryPoint.peoteView;
-		playField = entryPoint.playField;
-		playField.botplay = true;
+		entryPoint.playField.botplay = true;
+		songName = entryPoint.playField.chart.header.title;
 
 		process = new Process('ffmpeg', [
 			'-v', 'quiet', '-y', // START
@@ -50,7 +51,7 @@ class RenderingMode {
 			'-preset', 'ultrafast', // PRESET
 			'-c:a', 'copy', // COPY,
 			'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
-			'assets/videos/rendered/' + playField.chart.header.title + '_raw.mp4' // END (FILEPATH)
+			'assets/videos/rendered/' + songName + '_raw.mp4' // END (FILEPATH)
 		]);
 	}
 
@@ -85,16 +86,16 @@ class RenderingMode {
 			Sys.command('ffmpeg', [
 				'-y', // START
 				'-i', // INPUT INIT
-				'assets/videos/rendered/' + playField.chart.header.title + '_raw.mp4',
+				'assets/videos/rendered/' + songName + '_raw.mp4',
 				'-vcodec', 'libx264', // ENCODER
 				'-crf', '18', // CRF
 				'-preset', 'ultrafast', // PRESET
 				'-movflags', '+faststart', // MOVFLAGS
 				'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
-				'assets/videos/rendered/' + playField.chart.header.title + '.mp4' // END (FILEPATH)
+				'assets/videos/rendered/' + songName + '.mp4' // END (FILEPATH)
 			]);
 			Sys.println("Rendering Mode System - Encoding done!");
-			FileSystem.deleteFile('assets/videos/rendered/' + playField.chart.header.title + '_raw.mp4');
+			FileSystem.deleteFile('assets/videos/rendered/' + songName + '_raw.mp4');
 		}
 	}
 }

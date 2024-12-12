@@ -13,7 +13,7 @@ import cpp.Native;
 import custom.cpp.*;
 /**
 	The chart data retrieved from a file.
-	For now, the maximum possible note count for a chart file instance is around 2^56 (72,057,593,501,057,025). This is because `Array` has a varying max element that depends on the size of each one.
+	For now, the maximum possible note count for a chart file instance is around 2^56 (72,057,593,501,057,025). This is because `Array` has a max element count that depends on the element's size.
 	That will be changed in the near future.
 **/
 @:publicFields
