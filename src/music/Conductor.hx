@@ -1,10 +1,9 @@
 package music;
 
 import lime.app.Event;
-import haxe.EntryPoint;
 
 /**
-	The conductor. Steps, beats, and measures use floats because this class was carried over from fnf zenith's.
+	The conductor. Steps, beats, and measures use floats because this class was carried over from the original version from fnf zenith.
 	Also, time signature changing math was implemented here.
 	Revamped math by sword_352: https://github.com/Sword352
 **/

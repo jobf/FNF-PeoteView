@@ -11,11 +11,15 @@ import cpp.Pointer;
 import cpp.NativeArray;
 import cpp.Native;
 import custom.cpp.*;
+
 /**
 	The chart data retrieved from a file.
 	For now, the maximum possible note count for a chart file instance is around 2^56 (72,057,593,501,057,025). This is because `Array` has a max element count that depends on the element's size.
 	That will be changed in the near future.
 **/
+@:cppFileCode("
+#define _FILE_OFFSET_BITS 64
+")
 @:publicFields
 class File {
 	static inline var CHUNK_SIZE:Int = 268435455;
