@@ -28,9 +28,9 @@ import cpp.SizeT;
 @:include("stdio.h")
 @:include("iostream")
 extern class Iostream {
-    @:native("_ftelli64")
+    @:native(#if windows "_ftelli64" #else "ftello64" #end)
     static function _ftelli64(file:FILE):SizeT;
 
-    @:native("_fseeki64")
+    @:native(#if windows "_fseeki64" #else "fseek64" #end)
     static function _fseeki64(file:FILE, offset:SizeT, origin:Int):Int;
 }
