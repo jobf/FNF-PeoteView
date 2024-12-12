@@ -10,8 +10,7 @@ class RenderingMode {
 	private static var ffmpegExists(default, null):Bool;
 
 	static var process:Process;
-	static var encoder:Process;
-	static var enabled:Bool = false;
+	static var enabled:Bool = true;
 
 	static var peoteView:PeoteView;
 	static var songName:String;
@@ -34,6 +33,8 @@ class RenderingMode {
 
 		ffmpegExists = true;
 
+		Sys.println("Rendering Mode System - Initializing...");
+
 		peoteView = entryPoint.peoteView;
 		entryPoint.playField.botplay = true;
 		songName = entryPoint.playField.chart.header.title;
@@ -51,8 +52,10 @@ class RenderingMode {
 			'-preset', 'ultrafast', // PRESET
 			'-c:a', 'copy', // COPY,
 			'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
-			'assets/videos/rendered/' + songName + '_raw.mp4' // END (FILEPATH)
+			'assets/videos/rendered/' + songName + '.mp4' // END (FILEPATH)
 		]);
+
+		Sys.println("Rendering Mode System - Done!");
 	}
 
 	static var bytes:haxe.io.UInt8Array;
@@ -81,20 +84,7 @@ class RenderingMode {
 			process.close();
 			process.kill();
 
-			Sys.println("Rendering Mode System - Encoding...");
-
-			Sys.command('ffmpeg', [
-				'-y', // START
-				'-i', // INPUT INIT
-				'assets/videos/rendered/' + songName + '_raw.mp4',
-				'-vcodec', 'libx264', // ENCODER
-				'-crf', '18', // CRF
-				'-preset', 'ultrafast', // PRESET
-				'-movflags', '+faststart', // MOVFLAGS
-				'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
-				'assets/videos/rendered/' + songName + '.mp4' // END (FILEPATH)
-			]);
-			Sys.println("Rendering Mode System - Encoding done!");
+			Sys.println("Rendering Mode System - Finished!");
 			FileSystem.deleteFile('assets/videos/rendered/' + songName + '_raw.mp4');
 		}
 	}
