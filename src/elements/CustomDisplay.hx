@@ -1,4 +1,4 @@
-package  elements;
+package elements;
 
 @:publicFields
 class CustomDisplay extends Display {
