@@ -2,8 +2,6 @@ package menus;
 
 import lime.ui.KeyCode;
 import lime.app.Event;
-import lime.app.Application;
-import haxe.Timer;
 
 /**
 	The UI and note system.
@@ -11,7 +9,7 @@ import haxe.Timer;
 **/
 @:publicFields
 class PlayField {
-	var display(default, null):Display;
+	var display(default, null):CustomDisplay;
 
 	var disposed(default, null):Bool;
 	var paused(default, null):Bool;
@@ -25,7 +23,7 @@ class PlayField {
 		chart = new Chart('assets/songs/$songName');
 	}
 
-	function init(display:Display, downScroll:Bool) {
+	function init(display:CustomDisplay, downScroll:Bool) {
 		this.downScroll = downScroll;
 		this.display = display;
 
@@ -700,7 +698,7 @@ class PlayField {
 			var map = strumlineMap[j];
 			for (i in 0...map.length) {
 				var strum = map[i];
-				var rec = new Note(0, downScroll ? display.height - 150 : 50, 0, 0);
+				var rec = new Note(0, downScroll ? Main.INITIAL_HEIGHT - 150 : 50, 0, 0);
 				rec.r = strum[0];
 				rec.x = Math.floor(strum[1]);
 				rec.scale = strum[2];
@@ -1081,7 +1079,7 @@ class PlayField {
 		Main.conductor.onBeat.add(beatHit);
 		Main.conductor.onMeasure.add(measureHit);
 
-		countdownDisp = new CountdownDisplay(display, uiBuf);
+		countdownDisp = new CountdownDisplay(uiBuf);
 
 		var dimensions = sustainDimensions;
 
@@ -1148,8 +1146,8 @@ class PlayField {
 	function update(deltaTime:Float) {
 		if (disposed || paused) return;
 
-		if (display.zoom != 1) {
-			display.zoom -= (display.zoom - 1) * 0.15;
+		if (display.fov != 1) {
+			display.fov -= (display.fov - 1) * 0.15;
 		}
 
 		// Trigger a game over
@@ -1279,7 +1277,7 @@ class PlayField {
 		}
 
 		resetReceptors();
-		display.zoom = 1;
+		display.fov = 1;
 		openPauseScreen();
 	}
 
@@ -1292,7 +1290,7 @@ class PlayField {
 		paused = false;
 
 		setTime(songPosition, true);
-		display.zoom = 1;
+		display.fov = 1;
 		closePauseScreen();
 	}
 
@@ -1330,7 +1328,7 @@ class PlayField {
 
 	inline function measureHit(measure:Float) {
 		if (measure >= 0) {
-			display.zoom += 0.015;
+			display.fov += 0.03;
 		}
 	}
 

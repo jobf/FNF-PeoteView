@@ -27,17 +27,11 @@ class CountdownDisplay {
 	var suffix:String = "";
 
 	/**
-		The display reference of this class.
-	**/
-	var display:Display;
-
-	/**
 		Constructs a countdown display from chart.
-		@param display The underlying display that is required to add the underlying program.
+		@param buffer The buffer you want to add your countdown display at.
 	**/
-	function new(display:Display, buffer:Buffer<UISprite>) {
+	function new(buffer:Buffer<UISprite>) {
 		this.buffer = buffer;
-		this.display = display;
 
 		sprite = new UISprite();
 		sprite.type = COUNTDOWN_POPUP;
@@ -102,7 +96,7 @@ class CountdownDisplay {
 	}
 
 	inline function _screenCenter() {
-		sprite.x = (display.width - sprite.w) >> 1;
-		sprite.y = (display.height - sprite.h) >> 1;
+		sprite.x = (Main.INITIAL_WIDTH - sprite.w) >> 1;
+		sprite.y = (Main.INITIAL_HEIGHT - sprite.h) >> 1;
 	}
 }

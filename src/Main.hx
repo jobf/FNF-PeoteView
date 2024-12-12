@@ -8,6 +8,9 @@ import lime.ui.KeyCode;
 @:publicFields
 class Main extends Application
 {
+	static inline var INITIAL_WIDTH = 1280;
+	static inline var INITIAL_HEIGHT = 720;
+
 	override function onWindowCreate()
 	{
 		switch (window.context.type)
@@ -66,6 +69,8 @@ class Main extends Application
 			peoteView.addDisplay(middleDisplay);
 			peoteView.addDisplay(topDisplay);
 
+			resize(peoteView.width, peoteView.height);
+
 			conductor = new Conductor();
 
 			playField = new PlayField(Sys.args()[0]);
@@ -81,6 +86,7 @@ class Main extends Application
 			_started = true;
 
 			window.onResize.add(resize);
+			window.onFullscreen.add(fullscreen);
 
 			if (RenderingMode.enabled) {
 				RenderingMode.initRender(this);
@@ -136,16 +142,28 @@ class Main extends Application
 	}
 
 	function resize(w:Int, h:Int) {
+		var scale = h / INITIAL_HEIGHT;
+
+		Sys.println(scale);
+
 		peoteView.resize(w, h);
 
 		bottomDisplay.width = w;
 		bottomDisplay.height = h;
+		bottomDisplay.scale = scale;
 
 		middleDisplay.width = w;
 		middleDisplay.height = h;
+		middleDisplay.scale = scale;
 
 		topDisplay.width = w;
 		topDisplay.height = h;
+		middleDisplay.scale = scale;
+	}
+
+	inline function fullscreen() {
+		var display = Application.current.window.displayMode;
+		resize(display.width, display.height);
 	}
 
 	inline function stamp() {
