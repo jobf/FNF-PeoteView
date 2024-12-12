@@ -25,6 +25,7 @@ package custom.cpp;
 import cpp.FILE;
 import cpp.SizeT;
 
+@:include("stdio.h")
 @:include("iostream")
 extern class Iostream {
     @:native("_ftelli64")

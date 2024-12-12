@@ -17,8 +17,12 @@ class RenderingMode {
 
 	static function initRender(entryPoint:Main)
 	{
-		if (!FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end)) {
-			Sys.println('Rendering Mode System - "ffmpeg${#if windows '.exe' #end}" not found! Is it located at the current working directory?');
+		var ffmpeg = "ffmmpeg";
+		#if windows
+		ffmpeg += ".exe";
+		#end
+		if (!FileSystem.exists(ffmpeg)) {
+			Sys.println('Rendering Mode System - $ffmpeg not found! Is it located at the current working directory?');
 			return;
 		}
 
