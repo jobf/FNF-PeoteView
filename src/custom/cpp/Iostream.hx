@@ -31,6 +31,6 @@ extern class Iostream {
     @:native(#if windows "_ftelli64" #else "ftello64" #end)
     static function _ftelli64(file:FILE):SizeT;
 
-    @:native(#if windows "_fseeki64" #else "fseek64" #end)
+    @:native(#if windows "_fseeki64" #else "fseeko64" #end)
     static function _fseeki64(file:FILE, offset:SizeT, origin:Int):Int;
 }
