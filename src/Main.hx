@@ -8,6 +8,11 @@ import lime.ui.KeyCode;
 @:publicFields
 class Main extends Application
 {
+	/**
+	 * FNF's standard resolution is 720p.
+	 * Resizing the window won't make the game look crispier
+	 * unless you create a higher resolution version of your images.
+	**/
 	static inline var INITIAL_WIDTH = 1280;
 	static inline var INITIAL_HEIGHT = 720;
 
