@@ -17,7 +17,7 @@ class RenderingMode {
 
 	static function initRender(entryPoint:Main)
 	{
-		var ffmpeg = "ffmmpeg";
+		var ffmpeg = "ffmpeg";
 		#if windows
 		ffmpeg += ".exe";
 		#end
