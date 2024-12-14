@@ -10,7 +10,7 @@ class CustomDisplay extends Display {
 		if (value != scale) {
 			scale = value;
 			zoom = value * fov;
-			scroll.update();
+			updateScroll();
 		}
 		return value;
 	}
@@ -21,7 +21,7 @@ class CustomDisplay extends Display {
 		if (value != fov) {
 			fov = value;
 			zoom = fov * scale;
-			scroll.update();
+			updateScroll();
 		}
 		return value;
 	}
@@ -32,7 +32,7 @@ class CustomDisplay extends Display {
 		scroll.update = updateScroll;
 	}
 
-	function updateScroll() {
+	inline function updateScroll() {
 		var scrollShiftMult = zoom - scale;
 		xOffset = scroll.x - ((Main.INITIAL_WIDTH >> 1) * scrollShiftMult);
 		yOffset = scroll.y - ((Main.INITIAL_HEIGHT >> 1) * scrollShiftMult);

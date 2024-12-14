@@ -36,13 +36,13 @@ class File {
 
 		// Calculate the file size
 
-		Iostream._fseeki64(file, 0, 2);
+		Iostream.fseeki64(file, 0, 2);
 
-		var len:HaxeInt64 = HaxeInt64.div(Iostream._ftelli64(file), 8);
+		var len:HaxeInt64 = HaxeInt64.div(Iostream.ftelli64(file), 8);
 
 		length = len;
 
-		Iostream._fseeki64(file, 0, 0);
+		Iostream.fseeki64(file, 0, 0);
 
 		data = [];
 

@@ -149,8 +149,6 @@ class Main extends Application
 	function resize(w:Int, h:Int) {
 		var scale = h / INITIAL_HEIGHT;
 
-		Sys.println(scale);
-
 		peoteView.resize(w, h);
 
 		bottomDisplay.width = w;
