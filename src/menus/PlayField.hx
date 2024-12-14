@@ -764,25 +764,31 @@ class PlayField {
 	function updateComboNumbers() {
 		if (disposed) return;
 
-		var num:Float = combo;
+		var numStr = Int128.toStr(combo);
 
-		for (i in 0...10) {
+		for (i in 0...comboNumbers.length) {
 			var comboNumber = comboNumbers[i];
 
 			if (comboNumber == null) continue;
 
-			var digit = Math.floor(num) % 10;
+			var digit = numStr.charCodeAt(i <= numStr.length ? (numStr.length - 1) - i : numStr.length - 1) - 48;
 
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.c.aF = (Math.floor(num) != 0) ? ratingPopup.c.aF : 0.0;
+			comboNumber.c.aF = ratingPopup.c.aF;
+
+			// Shit code logic here but ehhhhhhhh
+
+			if (i > 2) {
+				if (i >= numStr.length) {
+					comboNumber.c.aF = 0.0;
+				}
+			}
 
 			if (comboNumber.curID != digit) {
-				comboNumber.changeID(digit);
+				comboNumber.changeID(i >= numStr.length ? 0 : digit);
 			}
 
 			uiBuf.updateElement(comboNumber);
-
-			num *= 0.1;
 		}
 	}
 
@@ -913,16 +919,15 @@ class PlayField {
 		ratingPopup.c.aF = 0.0;
 		uiBuf.addElement(ratingPopup);
 
-		comboNumbers.resize(10);
-
 		// COMBO NUMBERS SETUP
-		for (i in 0...10) {
-			var comboNumber = comboNumbers[i] = new UISprite();
+		for (i in 0...39) {
+			var comboNumber = new UISprite();
 			comboNumber.type = COMBO_NUMBER;
 			comboNumber.changeID(0);
 			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
 			comboNumber.c.aF = 0.0;
+			comboNumbers.push(comboNumber);
 			uiBuf.addElement(comboNumber);
 		}
 
@@ -1132,7 +1137,7 @@ class PlayField {
 
 	var score:Int128 = 0;
 	var misses:Int128 = 0;
-	var combo:Int;
+	var combo:Int128 = 0;
 
 	var songPosition:Float;
 
