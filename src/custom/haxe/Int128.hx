@@ -161,8 +161,7 @@ abstract Int128(__Int128) from __Int128 to __Int128 {
 			str = Int64.toStr(i1.modulus.toInt64()) + str;
 
 			if (i > Int128Helper.UNDECILLION) {
-				i1 = Int128.divMod(i1.quotient, Int128Helper.QUINTILLION);
-				str = Std.string(i1.modulus.low.low) + str;
+				str = Std.string(Int64.divMod(i1.quotient.low, Int128Helper.QUINTILLION.low).modulus.low) + str;
 			}
 		}
 

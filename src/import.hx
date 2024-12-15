@@ -8,7 +8,7 @@ import music.*;
 import music.chart.*;
 import music.internal.*;
 import music.internal.ma.*;
-import menus.*;
+import structures.*;
 import system.*;
 import system.internal.*;
 import tests.*;

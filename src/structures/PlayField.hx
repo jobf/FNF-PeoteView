@@ -1,11 +1,11 @@
-package menus;
+package structures;
 
 import lime.ui.KeyCode;
 import lime.app.Event;
 
 /**
 	The UI and note system.
-	This includes audio which present the [instrumentals] and [voicesTracks].
+	This includes audio which represent the [instrumentals] and [voicesTracks].
 **/
 @:publicFields
 class PlayField {
@@ -246,7 +246,7 @@ class PlayField {
 		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
 		// That'll fix a bug sgwlfnf (aka me) has discovered when he set the game to fullscreen.
 
-		spawnPosTop = spawnPosBottom = 0;
+		spawnPosBottom = spawnPosTop = 0;
 	}
 
 	function cullTop(pos:Int64) {
@@ -776,8 +776,6 @@ class PlayField {
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
 			comboNumber.c.aF = ratingPopup.c.aF;
 
-			// Shit code logic here but ehhhhhhhh
-
 			if (i > 2) {
 				if (i >= numStr.length) {
 					comboNumber.c.aF = 0.0;
@@ -1294,7 +1292,7 @@ class PlayField {
 
 		paused = false;
 
-		setTime(songPosition, true);
+		setTime(songPosition, true); // This will be removed soon
 		display.fov = 1;
 		closePauseScreen();
 	}
@@ -1317,14 +1315,14 @@ class PlayField {
 			// Oh yeah and this also simulates gradual resync that activates if the song is more than 1 ms off
 			if (songStarted && !RenderingMode.enabled) {
 				for (inst in instrumentals) {
-					if (inst.time - songPosition > 1) {
-						inst.time -= (inst.time - songPosition) * 0.25;
+					if (inst.time - songPosition > 5) {
+						inst.time = songPosition;
 					}
 				}
 
 				for (vocals in voicesTracks) {
-					if (vocals.time - songPosition > 1) {
-						vocals.time -= (vocals.time - songPosition) * 0.25;
+					if (vocals.time - songPosition > 5) {
+						vocals.time = songPosition;
 					}
 				}
 			}
