@@ -105,7 +105,9 @@ class Sound {
         Miniaudio.ma_data_source_get_data_format(_dataSource, null, null, cpp.Pointer.addressOf(_sampleRate).ptr, null, 0);
 
         if (result != MaResult.MA_SUCCESS) {
-            Sys.println("[Sound system] Failed to initialize sound");
+            if (path != "") {
+                Sys.println('[Sound system] Failed to initialize sound named "$path"');
+            }
             return;
         }
     }

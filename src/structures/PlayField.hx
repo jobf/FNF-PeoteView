@@ -58,13 +58,7 @@ class PlayField {
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
-	// Behind the note system
-	private var sustainProg(default, null):Program;
-	private var sustainsBuf(default, null):Buffer<Sustain>;
-
-	// Above the note system
-	private var notesProg(default, null):Program;
-	private var notesBuf(default, null):Buffer<Note>;
+	private var noteSystem(default, null):NoteSystem;
 
 	private var sustainDimensions:Array<Int> = [];
 
@@ -148,40 +142,12 @@ class PlayField {
 	var numOfNotes:Int;
 	var precalculatedIndexThing:Array<Int> = [];
 
-	var scrollSpeed(default, set):Float = 1.0;
-
-	function set_scrollSpeed(value:Float) {
-		spawnDist = Math.floor(160000 / value);
-		despawnDist = Math.floor(40000 / Math.min(value, 1.0));
-		hitbox = 200 * scrollSpeed;
-		return scrollSpeed = value;
-	}
-
-	private var notesToHit(default, null):Array<Note> = [];
-	private var sustainsToHold(default, null):Array<Sustain> = [];
-	private var botHitsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
-	private var playerHitsToCheck(default, null):Array<Bool> = []; // For preventing a key press check from continuing if you hit a note
-
-	private var spawnPosBottom(default, null):Int;
-	private var spawnPosTop(default, null):Int;
-	private var spawnDist(default, null):Int = 160000;
-	private var despawnDist(default, null):Int = 30000;
-
-	private var curTopNote(default, null):Note;
-	private var curBottomNote(default, null):Note;
-
 	var hitbox:Float = 200;
 
-	inline function addNote(note:Note) {
-		notesBuf.addElement(note);
-	}
+	var scrollSpeed(default, set):Float = 1.0;
 
-	inline function addSustain(sustain:Sustain) {
-		sustainsBuf.addElement(sustain);
-	}
-
-	inline function getNote(id:Int) {
-		return notesBuf.getElement(id + numOfReceptors);
+	inline function set_scrollSpeed(value:Float) {
+		return noteSystem.setScrollSpeed(scrollSpeed = value);
 	}
 
 	function setTime(value:Float, playAgain:Bool = false) {
@@ -211,225 +177,11 @@ class PlayField {
 
 		hideRatingPopup();
 
-		resetNotes();
-	}
-
-	function resetNotes() {
-		resetReceptors();
-
-		// Clear the list of note inputs and sustain inputs. This is required!
-		notesToHit.resize(0);
-		sustainsToHold.resize(0);
-		playerHitsToCheck.resize(0);
-		notesToHit.resize(numOfReceptors);
-		sustainsToHold.resize(numOfReceptors);
-		playerHitsToCheck.resize(numOfReceptors);
-
-		for (i in spawnPosBottom...spawnPosTop) {
-			var note = getNote(i);
-			note.x = 999999999;
-
-			var sustain = note.child;
-			if (sustain != null) {
-				sustain.c.aF = 0;
-				sustain.x = 999999999;
-				sustain.w = sustain.length;
-				sustain.held = false;
-				sustainsBuf.updateElement(sustain);
-			}
-
-			note.missed = false;
-			note.c.aF = 0;
-			notesBuf.updateElement(note);
-		}
-
-		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
-		// That'll fix a bug sgwlfnf (aka me) has discovered when he set the game to fullscreen.
-
-		spawnPosBottom = spawnPosTop = 0;
-	}
-
-	function cullTop(pos:Int64) {
-		if (disposed) return;
-
-		curTopNote = getNote(spawnPosTop);
-
-		while (spawnPosTop != numOfNotes && (curTopNote.data.position - pos).low < spawnDist) {
-			spawnPosTop++;
-			curTopNote.x = 999999999;
-
-			var sustain = curTopNote.child;
-
-			if (sustain != null) {
-				sustain.c.aF = Sustain.defaultAlpha;
-				sustain.w = sustain.length;
-				sustain.x = 999999999;
-				sustainsBuf.updateElement(sustain);
-				sustain.held = false;
-			}
-
-			curTopNote.missed = false;
-			curTopNote.c.aF = 1;
-			notesBuf.updateElement(curTopNote);
-
-			curTopNote = getNote(spawnPosTop);
-		}
-	}
-
-	function cullBottom(pos:Int64) {
-		if (disposed) return;
-
-		curBottomNote = getNote(spawnPosBottom);
-
-		while (spawnPosBottom != numOfNotes /* We subtract one because we want to make sure that */ &&
-			((pos -
-			(
-				((curBottomNote.data.duration << 2) + curBottomNote.data.duration) * 100
-			)) -
-			curBottomNote.data.position).low > despawnDist) {
-			spawnPosBottom++;
-
-			curBottomNote.x = 999999999;
-
-			var sustain = curBottomNote.child;
-			var sustainExists = sustain != null;
-
-			if (sustainExists) {
-				sustain.x = 999999999;
-				sustain.c.aF = Sustain.defaultAlpha;
-				sustainsBuf.updateElement(sustain);
-				sustain.held = false;
-			}
-
-			curBottomNote.missed = false;
-			curBottomNote.c.aF = 1;
-			notesBuf.updateElement(curBottomNote);
-
-			curBottomNote = getNote(spawnPosBottom);
-		}
-	}
-
-	function updateNotes(pos:Int64) {
-		if (disposed) return;
-
-		for (i in spawnPosBottom...spawnPosTop) {
-			updateNote(pos, getNote(i));
-		}
-	}
-
-	// Do not fuck with this EVER
-	private function updateNote(pos:Int64, note:Note) {
-		var data = note.data;
-		var index = data.index;
-		var lane = data.lane;
-
-		var fullIndex = index + precalculatedIndexThing[lane];
-
-		var position = data.position;
-
-		var rec = notesBuf.getElement(fullIndex);
-
-		var diff = (Int64.toInt(position - pos) * 0.01) * scrollSpeed;
-		var leftover = Math.floor(Int64.toInt(pos - position) * 0.01);
-
-		var isHit = note.c.aF == 0;
-
-		note.x = rec.x;
-		note.y = rec.y + (Math.floor(diff) * (downScroll ? -1 : 1));
-
-		var sustain = note.child;
-		var sustainExists = sustain != null;
-
-		var playable = rec.playable && !botplay;
-
-		if (playable) {
-			if (!isHit) {
-				var noteToHit = notesToHit[fullIndex];
-				var noteToHitExists = noteToHit != null;
-				var hitPos = noteToHitExists ? noteToHit.data.position : 0;
-
-				if ((!note.missed && diff < hitbox && !noteToHitExists) ||
-					(noteToHitExists && pos - hitPos > (position - hitPos) >> 1)) {
-					notesToHit[fullIndex] = note;
-				}
-
-				if (diff < -hitbox && !note.missed) {
-					note.c.aF = 0.5;
-					note.missed = true;
-
-					onNoteMiss.dispatch(data);
-
-					if (sustainExists && !sustain.held) {
-						sustain.c.aF = Sustain.defaultMissAlpha;
-						sustain.held = true;
-						onSustainRelease.dispatch(data);
-					}
-
-					notesToHit[fullIndex] = null;
-
-					hideRatingPopup();
-				}
-			}
-		} else {
-			if (botHitsToCheck[fullIndex]) {
-				if (!rec.idle()) {
-					rec.reset();
-					notesBuf.updateElement(rec);
-					botHitsToCheck[fullIndex] = false;
-				}
-			}
-
-			if (!isHit && diff < 0) {
-				note.c.aF = 0;
-				sustainsToHold[fullIndex] = sustain;
-
-				if (!rec.confirmed()) {
-					rec.confirm();
-					notesBuf.updateElement(rec);
-				}
-
-				if (sustainExists) {
-					sustain.followNote(rec);
-					sustain.w = sustain.length - leftover;
-					if (sustain.w < 0) sustain.w = 0;
-				}
-
-				onNoteHit.dispatch(data, 0);
-				botHitsToCheck[fullIndex] = !sustainExists;
-			}
-		}
-
-		if (sustainExists) {
-			sustain.speed = scrollSpeed;
-
-			if (!isHit) {
-				sustain.followNote(note);
-			} else if (sustain.c.aF != 0) {
-				if (sustain.w > 0) {
-					sustain.followNote(rec);
-					sustain.w = sustain.length - leftover;
-					if (sustain.w < 0) sustain.w = 0;
-				}
-
-				if (pos > position + (sustain.length * 100) - 75 && !sustain.held && !note.missed) {
-					sustain.held = true;
-					if (rec.confirmed()) {
-						if (playable) rec.press();
-						else rec.reset();
-					}
-					notesBuf.updateElement(rec);
-					onSustainComplete.dispatch(data);
-				}
-			}
-
-			sustainsBuf.updateElement(sustain);
-		}
-
-		notesBuf.updateElement(note);
+		noteSystem.resetNotes();
 	}
 
 	function keyPress(code:KeyCode, mod) {
-		if (disposed || botplay || paused) return;
+		if (disposed || botplay || RenderingMode.enabled || paused) return;
 
 		if (!keybindMap.exists(code)) {
 			return;
@@ -439,40 +191,20 @@ class PlayField {
 		var lane = map[1];
 		var index = map[0] + precalculatedIndexThing[lane];
 
-		if (playerHitsToCheck[index]) {
+		if (noteSystem.playerHitsToCheck[index]) {
 			return;
 		}
 
-		var rec = notesBuf.getElement(index);
+		var rec = noteSystem.getReceptor(index);
 
 		if (!rec.playable) {
 			return;
 		}
 
-		playerHitsToCheck[index] = true;
+		noteSystem.playerHitsToCheck[index] = true;
 
-		var noteToHit = notesToHit[index];
-
-		if (noteToHit != null && !noteToHit.missed && noteToHit.c.aF != 0) {
-			if (!rec.confirmed()) {
-				rec.confirm();
-				notesBuf.updateElement(rec);
-			}
-
-			noteToHit.c.aF = 0;
-			sustainsToHold[index] = noteToHit.child;
-
-			var data = noteToHit.data;
-
-			onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - Tools.betterInt64FromFloat((songPosition + latencyCompensation) * 100), 100)));
-
-			notesToHit[index] = null;
-		} else {
-			if (!rec.pressed()) {
-				rec.press();
-				notesBuf.updateElement(rec);
-			}
-		}
+		var noteToHit = noteSystem.notesToHit[index];
+		noteSystem.hitDetectNote(noteToHit, rec, index);
 
 		onKeyPress.dispatch(code);
 	}
@@ -486,7 +218,7 @@ class PlayField {
 			}
 		}
 
-		if (disposed || botplay || paused) return;
+		if (disposed || botplay || RenderingMode.enabled || paused) return;
 
 		if (!keybindMap.exists(code)) {
 			return;
@@ -496,31 +228,16 @@ class PlayField {
 		var lane = map[1];
 		var index = map[0] + precalculatedIndexThing[lane];
 
-		playerHitsToCheck[index] = false;
+		noteSystem.playerHitsToCheck[index] = false;
 
-		var rec = notesBuf.getElement(index);
+		var rec = noteSystem.getReceptor(index);
 
 		if (!rec.playable) {
 			return;
 		}
 
-		var sustain = sustainsToHold[index];
-
-		if (sustain != null && (sustain.c.aF != 0 && sustain.w > 100)) {
-			sustain.c.aF = Sustain.defaultMissAlpha;
-			sustain.held = true;
-
-			onSustainRelease.dispatch(sustain.parent.data);
-
-			sustainsToHold[index] = null;
-
-			hideRatingPopup();
-		}
-
-		if (!rec.idle()) {
-			rec.reset();
-			notesBuf.updateElement(rec);
-		}
+		var sustainToRelease = noteSystem.sustainsToHold[index];
+		noteSystem.releaseDetectSustain(sustainToRelease, rec, index);
 
 		onKeyRelease.dispatch(code);
 	}
@@ -665,47 +382,7 @@ class PlayField {
 			else precalculatedIndexThing.push(0);
 		}
 
-		notesToHit.resize(numOfReceptors);
-		sustainsToHold.resize(numOfReceptors);
-
-		// Note to self: set the texture size exactly to the image's size
-
-		// NOTE SHEET SETUP
-
-		notesBuf = new Buffer<Note>(16384, 16384, false);
-		notesProg = new Program(notesBuf);
-		notesProg.blendEnabled = true;
-
-		TextureSystem.setTexture(notesProg, "noteTex", "noteTex");
-
-		var tex1 = TextureSystem.getTexture("noteTex");
-
-		// SUSTAIN SETUP
-		sustainsBuf = new Buffer<Sustain>(16384, 16384, false);
-		sustainProg = new Program(sustainsBuf);
-		sustainProg.blendEnabled = true;
-
-		var tex2 = TextureSystem.getTexture("sustainTex");
-
-		Sustain.init(sustainProg, "sustainTex", tex2);
-		sustainDimensions.push(tex2.width);
-		sustainDimensions.push(tex2.height);
-
-		display.addProgram(sustainProg);
-		display.addProgram(notesProg);
-
-		for (j in 0...strumlineMap.length) {
-			var map = strumlineMap[j];
-			for (i in 0...map.length) {
-				var strum = map[i];
-				var rec = new Note(0, downScroll ? Main.INITIAL_HEIGHT - 150 : 50, 0, 0);
-				rec.r = strum[0];
-				rec.x = Math.floor(strum[1]);
-				rec.scale = strum[2];
-				rec.playable = strumlinePlayableMap[j];
-				notesBuf.addElement(rec);
-			}
-		}
+		noteSystem = new NoteSystem(numOfReceptors, this);
 	}
 
 	/**************************************************************************************
@@ -978,7 +655,7 @@ class PlayField {
 
 		scoreTxt = new Text(0, 0);
 
-		watermarkTxt = new Text(0, 0, "FV TEST BUILD - Keybinds: -/= to change time, F8 to flip bar, and [/] to adjust latency by 10ms");
+		watermarkTxt = new Text(0, 0, "-/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay");
 		watermarkTxt.x = 2;
 
 		scoreTxtProg = new Program(scoreTxt.buffer);
@@ -1072,57 +749,23 @@ class PlayField {
 		Finalize the playfield.
 	**/
 	function finishPlayfield(display:Display) {
+		var conductor = Main.conductor;
+
 		var timeSig = chart.header.timeSig;
-		Main.conductor.changeBpmAt(0, chart.header.bpm, timeSig[0], timeSig[1]);
+		conductor.changeBpmAt(0, chart.header.bpm, timeSig[0], timeSig[1]);
 
 		scrollSpeed = chart.header.speed;
 
-		songPosition = -Main.conductor.crochet * 4.5;
+		songPosition = -conductor.crochet * 4.5;
 
-		Main.conductor.onBeat.add(beatHit);
-		Main.conductor.onMeasure.add(measureHit);
+		conductor.onBeat.add(beatHit);
+		conductor.onMeasure.add(measureHit);
 
 		countdownDisp = new CountdownDisplay(uiBuf);
 
-		var dimensions = sustainDimensions;
+		noteSystem.init(chart.file);
 
-		var sW = dimensions[0];
-		var sH = dimensions[1];
-
-		var notes = chart.file;
-
-		var i:Int64 = 0;
-		var len:Int64 = notes.length;
-		while (i < len)
-		{
-			var note = notes.getNote(i);
-
-			var strum = strumlineMap[note.lane][note.index];
-
-			var noteSpr = new Note(999999999, 0, 0, 0);
-			noteSpr.data = note;
-			noteSpr.toNote();
-			noteSpr.r = strum[0];
-			noteSpr.scale = strum[2];
-			addNote(noteSpr);
-
-			if (note.duration > 5) {
-				var susSpr = new Sustain(999999999, 0, sW, sH);
-				susSpr.length = ((note.duration << 2) + note.duration) - 25;
-				susSpr.w = susSpr.length;
-				susSpr.r = downScroll ? -90 : 90;
-				susSpr.scale = noteSpr.scale;
-				susSpr.c.aF = Sustain.defaultAlpha;
-				addSustain(susSpr);
-
-				susSpr.parent = noteSpr;
-				noteSpr.child = susSpr;
-			}
-
-			i++;
-		}
-
-		numOfNotes = notesBuf.length - numOfReceptors;
+		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
 
 		onNoteHit.add(hitNote);
 		onNoteMiss.add(missNote);
@@ -1165,7 +808,7 @@ class PlayField {
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 
-		watermarkTxt.text = 'FV TEST BUILD | - and = to change time | F8 to flip bar | [ and ] to adjust latency (${latencyCompensation}ms)';
+		watermarkTxt.text = 'FV TEST BUILD | - -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay (${latencyCompensation}ms)';
 
 		if (songPosition > firstInst.length && !songEnded) {
 			onStopSong.dispatch(chart);
@@ -1185,9 +828,7 @@ class PlayField {
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
 		// NOTE SYSTEM
-		cullTop(pos);
-		cullBottom(pos);
-		updateNotes(pos);
+		noteSystem.update(pos);
 
 		// UI SYSTEM
 		updateRatingPopup(deltaTime);
@@ -1232,14 +873,12 @@ class PlayField {
 		}
 		healthIcons = null;
 
-		display.removeProgram(notesProg);
-		display.removeProgram(sustainProg);
+		noteSystem.dispose();
+
 		display.removeProgram(uiProg);
 		display.removeProgram(scoreTxtProg);
 		display.removeProgram(watermarkTxtProg);
 
-		notesProg = null;
-		sustainProg = null;
 		uiProg = null;
 		scoreTxtProg = null;
 		watermarkTxtProg = null;
@@ -1279,7 +918,7 @@ class PlayField {
 			}
 		}
 
-		resetReceptors();
+		noteSystem.resetReceptors();
 		display.fov = 1;
 		openPauseScreen();
 	}
@@ -1504,16 +1143,6 @@ class PlayField {
 
 		if (RenderingMode.enabled) {
 			RenderingMode.stopRender();
-		}
-	}
-
-	function resetReceptors() {
-		for (i in 0...numOfReceptors) {
-			var rec = notesBuf.getElement(i);
-			if (rec.idle()) {
-				rec.reset();
-				notesBuf.updateElement(rec);
-			}
 		}
 	}
 }

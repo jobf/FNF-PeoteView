@@ -10,7 +10,7 @@ class RenderingMode {
 	private static var ffmpegExists(default, null):Bool;
 
 	static var process:Process;
-	static var enabled:Bool = false;
+	static var enabled:Bool = true;
 
 	static var peoteView:PeoteView;
 	static var songName:String;
@@ -22,7 +22,7 @@ class RenderingMode {
 		ffmpeg += ".exe";
 		#end
 		if (!FileSystem.exists(ffmpeg)) {
-			Sys.println('Rendering Mode System - $ffmpeg not found! Is it located at the current working directory?');
+			throw 'Rendering Mode System - $ffmpeg not found! Is it located at the current working directory?';
 			return;
 		}
 
@@ -36,7 +36,6 @@ class RenderingMode {
 		Sys.println("Rendering Mode System - Initializing...");
 
 		peoteView = entryPoint.peoteView;
-		entryPoint.playField.botplay = true;
 		songName = entryPoint.playField.chart.header.title;
 
 		process = new Process('ffmpeg', [
@@ -85,7 +84,6 @@ class RenderingMode {
 			process.kill();
 
 			Sys.println("Rendering Mode System - Finished!");
-			FileSystem.deleteFile('assets/videos/rendered/' + songName + '_raw.mp4');
 		}
 	}
 }
