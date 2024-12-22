@@ -809,6 +809,7 @@ class PlayField {
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 
 		watermarkTxt.text = 'FV TEST BUILD | - -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay (${latencyCompensation}ms)';
+		watermarkTxt.scale = 0.7;
 
 		if (songPosition > firstInst.length && !songEnded) {
 			onStopSong.dispatch(chart);

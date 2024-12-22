@@ -9,7 +9,7 @@ class Text {
 	var text(default, set):String;
 
 	function set_text(str:String) {
-		if (str == text) {
+		if (str == text && _scale == scale) {
 			return text;
 		}
 
@@ -42,11 +42,13 @@ class Text {
 
 			spr.clipX = data.position.x + padding;
 			spr.clipY = data.position.y + padding;
-			spr.w = spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
-			spr.h = spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
-			spr.x = x + data.char.offset.x + advanceX;
-			spr.y = y + data.char.offset.y;
-			advanceX += data.char.advanceX;
+			spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
+			spr.w = Math.floor(spr.clipWidth * scale);
+			spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
+			spr.h = Math.floor(spr.clipHeight * scale);
+			spr.x = x + Math.floor(data.char.offset.x * scale) + advanceX;
+			spr.y = y + Math.floor(data.char.offset.y * scale);
+			advanceX += Math.floor(data.char.advanceX * scale);
 
 			if (height < spr.h) {
 				height = spr.h;
@@ -58,6 +60,7 @@ class Text {
 		}
 
 		width = advanceX;
+		_scale = scale;
 
 		return text = str;
 	}
@@ -93,6 +96,21 @@ class Text {
 
 		return y = value;
 	}
+
+	var scale(default, set):Float = 1.0;
+
+	function set_scale(value:Float) {
+		if (value == scale) {
+			return scale;
+		}
+
+		scale = value;
+		this.text = text;
+
+		return scale = value;
+	}
+
+	var _scale(default, null):Float = 1.0;
 
 	var width(default, null):Int;
 
