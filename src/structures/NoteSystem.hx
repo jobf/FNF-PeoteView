@@ -6,7 +6,7 @@ package structures;
 @:publicFields
 @:access(structures.PlayField)
 class NoteSystem {
-    // Behind the note system
+	// Behind the note system
 	var sustainProg(default, null):Program;
 	var sustainsBuf(default, null):Buffer<Sustain>;
 
@@ -25,22 +25,22 @@ class NoteSystem {
 	var spawnDist(default, null):Int = 160000;
 	var despawnDist(default, null):Int = 30000;
 
-    inline function setScrollSpeed(value:Float) {
-        spawnDist = Math.floor(160000 / value);
+	inline function setScrollSpeed(value:Float) {
+		spawnDist = Math.floor(160000 / value);
 		despawnDist = Math.floor(40000 / Math.min(value, 1.0));
 		parent.hitbox = 200 * value;
 		return value;
-    }
+	}
 
 	var curTopNote(default, null):Note;
 	var curBottomNote(default, null):Note;
 
-    var parent(default, null):PlayField;
+	var parent(default, null):PlayField;
 
-    function new(numOfReceptors:Int, parent:PlayField) {
-        this.parent = parent;
+	function new(numOfReceptors:Int, parent:PlayField) {
+		this.parent = parent;
 
-        notesToHit.resize(numOfReceptors);
+		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
 
 		notesBuf = new Buffer<Note>(2048, 2048, false);
@@ -77,15 +77,15 @@ class NoteSystem {
 				notesBuf.addElement(rec);
 			}
 		}
-    }
+	}
 
-    function init(notes:File) {
+	function init(notes:File) {
 		var dimensions = parent.sustainDimensions;
 
 		var sW = dimensions[0];
 		var sH = dimensions[1];
 
-        var i:Int64 = 0;
+		var i:Int64 = 0;
 		var len:Int64 = notes.length;
 		while (i < len)
 		{
@@ -115,16 +115,16 @@ class NoteSystem {
 
 			i++;
 		}
-    }
+	}
 
-    function update(pos:Int64) {
-        cullTop(pos);
+	function update(pos:Int64) {
+		cullTop(pos);
 		cullBottom(pos);
 		updateNotes(pos);
-    }
+	}
 
-    function hitDetectNote(noteToHit:Note, rec:Note, index:Int) {
-        if (noteToHit != null && !noteToHit.missed && noteToHit.c.aF != 0) {
+	function hitDetectNote(noteToHit:Note, rec:Note, index:Int) {
+		if (noteToHit != null && !noteToHit.missed && noteToHit.c.aF != 0) {
 			if (!rec.confirmed()) {
 				rec.confirm();
 				notesBuf.updateElement(rec);
@@ -135,7 +135,7 @@ class NoteSystem {
 
 			var data = noteToHit.data;
 
-            var posWithLatency = Tools.betterInt64FromFloat((parent.songPosition + parent.latencyCompensation) * 100);
+			var posWithLatency = Tools.betterInt64FromFloat((parent.songPosition + parent.latencyCompensation) * 100);
 			parent.onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - posWithLatency, 100)));
 
 			notesToHit[index] = null;
@@ -145,10 +145,10 @@ class NoteSystem {
 				notesBuf.updateElement(rec);
 			}
 		}
-    }
+	}
 
-    function releaseDetectSustain(sustainToRelease:Sustain, rec:Note, index:Int) {
-        if (sustainToRelease != null && (sustainToRelease.c.aF != 0 && sustainToRelease.w > 100)) {
+	function releaseDetectSustain(sustainToRelease:Sustain, rec:Note, index:Int) {
+		if (sustainToRelease != null && (sustainToRelease.c.aF != 0 && sustainToRelease.w > 100)) {
 			sustainToRelease.c.aF = Sustain.defaultMissAlpha;
 			sustainToRelease.held = true;
 
@@ -163,7 +163,7 @@ class NoteSystem {
 			rec.reset();
 			notesBuf.updateElement(rec);
 		}
-    }
+	}
 
 	inline function addNote(note:Note) {
 		notesBuf.addElement(note);
@@ -177,9 +177,9 @@ class NoteSystem {
 		return notesBuf.getElement(id + parent.numOfReceptors);
 	}
 
-    inline function getReceptor(id:Int) {
-        return notesBuf.getElement(id % parent.numOfReceptors);
-    }
+	inline function getReceptor(id:Int) {
+		return notesBuf.getElement(id % parent.numOfReceptors);
+	}
 
 	function resetNotes() {
 		if (parent.disposed) return;
@@ -407,10 +407,10 @@ class NoteSystem {
 		notesBuf.updateElement(note);
 	}
 
-    function dispose() {
+	function dispose() {
 		parent.display.removeProgram(notesProg);
 		parent.display.removeProgram(sustainProg);
 		notesProg = null;
 		sustainProg = null;
-    }
+	}
 }

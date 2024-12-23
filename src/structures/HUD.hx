@@ -6,7 +6,7 @@ package structures;
 @:publicFields
 @:access(structures.PlayField)
 class HUD {
-    var countdownDisp:CountdownDisplay;
+	var countdownDisp:CountdownDisplay;
 
 	var uiBuf(default, null):Buffer<UISprite>;
 	var uiProg(default, null):Program;
@@ -32,13 +32,13 @@ class HUD {
 	var healthBarWS:Int;
 	var healthBarHS:Int;
 
-    var parent:PlayField;
+	var parent:PlayField;
 
-    /**
+	/**
 		Create the playfield UI.
 	**/
 	function new(display:Display, parent:PlayField) {
-        this.parent = parent;
+		this.parent = parent;
 
 		healthBarWS = UISprite.healthBarDimensions[2];
 		healthBarHS = UISprite.healthBarDimensions[3];
@@ -144,24 +144,26 @@ class HUD {
 		display.addProgram(uiProg);
 
 		countdownDisp = new CountdownDisplay(uiBuf);
+
+		createPauseScreen();
 	}
 
-    function update(deltaTime:Float) {
+	function update(deltaTime:Float) {
 		updateRatingPopup(deltaTime);
 		updateComboNumbers();
 		updateHealthBar();
 		updateHealthIcons();
 		countdownDisp.update(deltaTime);
 
-        scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
+		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 
 		watermarkTxt.text = 'FV TEST BUILD | - -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay (${parent.latencyCompensation}ms)';
 		watermarkTxt.scale = 0.7;
-    }
+	}
 
-    /**
+	/**
 		Updates the rating popup.
 	**/
 	function updateRatingPopup(deltaTime:Float) {
@@ -217,7 +219,7 @@ class HUD {
 	function updateHealthBar() {
 		if (parent.disposed) return;
 
-        var health = parent.health;
+		var health = parent.health;
 
 		var part1 = healthBarParts[0];
 
@@ -315,7 +317,7 @@ class HUD {
 	}
 
 	/**
-        The pause screen.
+		The pause screen.
 	**/
 
 	var pauseBG(default, null):UISprite;
@@ -357,8 +359,8 @@ class HUD {
 		}
 	}
 
-    function dispose() {
-        countdownDisp.dispose();
+	function dispose() {
+		countdownDisp.dispose();
 		countdownDisp = null;
 
 		uiBuf.removeElement(ratingPopup);
@@ -379,7 +381,7 @@ class HUD {
 		}
 		healthIcons = null;
 
-        var display = parent.display;
+		var display = parent.display;
 
 		display.removeProgram(uiProg);
 		display.removeProgram(scoreTxtProg);
@@ -388,5 +390,5 @@ class HUD {
 		uiProg = null;
 		scoreTxtProg = null;
 		watermarkTxtProg = null;
-    }
+	}
 }

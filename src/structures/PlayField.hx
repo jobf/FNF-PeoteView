@@ -434,7 +434,6 @@ class PlayField {
 		conductor.onMeasure.add(measureHit);
 
 		noteSystem.init(chart.file);
-		hud.createPauseScreen();
 
 		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
 
