@@ -3,7 +3,8 @@ package system;
 import lime.ui.KeyCode;
 
 /**
-	The keybind map for the playfield.
+	The keybind map.
+	This is a helper class for the playfield's strumline initialization.
 **/
 @:publicFields
 class KeybindMap {
@@ -47,7 +48,7 @@ class KeybindMap {
 	function new(mania:Int, parent:PlayField) {
 		this.parent = parent;
 
-		map = keybindMaps[mania > 9 ? 8 : mania < 1 ? 0 : mania - 1];
+		map = keybindMaps[mania > 9 ? 8 : mania <= 1 ? 0 : mania - 1];
 
 		// This shit is fucking unbearable as FUCK
 		// It's why it's in its own class
@@ -56,8 +57,8 @@ class KeybindMap {
 				strumlineRotation = [90];
 
 				strumline = [
-					[[50, 1.05]],
-					[[678, 1.05]]
+					[[90, 50, 1.05]],
+					[[90, 678, 1.05]]
 				];
 
 			case 2:
