@@ -64,66 +64,33 @@ class PlayField {
 	// CUSTOMIZATION SECTION //
 
 	var keybindMaps:Array<Map<KeyCode, Array<Int>>> = [
-	[],
-	[],
-	[],
-	[
-		KeyCode.A => [0, 1],
-		KeyCode.S => [1, 1],
-		KeyCode.W => [2, 1],
-		KeyCode.D => [3, 1],
-		KeyCode.LEFT => [0, 1],
-		KeyCode.DOWN => [1, 1],
-		KeyCode.UP => [2, 1],
-		KeyCode.RIGHT => [3, 1]
-	],
-	[
-		KeyCode.A => [0, 1],
-		KeyCode.S => [1, 1],
-		KeyCode.SPACE => [2, 1],
-		KeyCode.W => [3, 1],
-		KeyCode.D => [4, 1],
-		KeyCode.LEFT => [0, 1],
-		KeyCode.DOWN => [1, 1],
-		KeyCode.UP => [3, 1],
-		KeyCode.RIGHT => [4, 1]
-	],
-	[
-		KeyCode.S => [0, 1],
-		KeyCode.D => [1, 1],
-		KeyCode.F => [2, 1],
-		KeyCode.J => [3, 1],
-		KeyCode.K => [4, 1],
-		KeyCode.L => [5, 1]
-	],
-	[
-		KeyCode.S => [0, 1],
-		KeyCode.D => [1, 1],
-		KeyCode.F => [2, 1],
-		KeyCode.SPACE => [3, 1],
-		KeyCode.J => [4, 1],
-		KeyCode.K => [5, 1],
-		KeyCode.L => [6, 1]
-	], [
-		KeyCode.A => [0, 1],
-		KeyCode.S => [1, 1],
-		KeyCode.D => [2, 1],
-		KeyCode.F => [3, 1],
-		KeyCode.H => [4, 1],
-		KeyCode.J => [5, 1],
-		KeyCode.K => [6, 1],
-		KeyCode.L => [7, 1]
-	], [
-		KeyCode.A => [0, 1],
-		KeyCode.S => [1, 1],
-		KeyCode.D => [2, 1],
-		KeyCode.F => [3, 1],
-		KeyCode.SPACE => [4, 1],
-		KeyCode.H => [5, 1],
-		KeyCode.J => [6, 1],
-		KeyCode.K => [7, 1],
-		KeyCode.L => [8, 1]
-	]];
+		// 1 KEY
+		[KeyCode.SPACE => [0, 1]],
+		// 2 KEY
+		[KeyCode.A => [0, 1], KeyCode.D => [1, 1],
+		KeyCode.LEFT => [0, 1], KeyCode.RIGHT => [1, 1]],
+		// 3 KEY
+		[KeyCode.A => [0, 1], KeyCode.SPACE => [1, 1], KeyCode.D => [2, 1],
+		KeyCode.LEFT => [0, 1], KeyCode.RIGHT => [2, 1]],
+		// 4 KEY
+		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.W => [2, 1], KeyCode.D => [3, 1],
+		KeyCode.LEFT => [0, 1], KeyCode.DOWN => [1, 1], KeyCode.UP => [2, 1], KeyCode.RIGHT => [3, 1]],
+		// 5 KEY
+		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.SPACE => [2, 1], KeyCode.W => [3, 1], KeyCode.D => [4, 1],
+		KeyCode.LEFT => [0, 1], KeyCode.DOWN => [1, 1], KeyCode.UP => [3, 1], KeyCode.RIGHT => [4, 1]],
+		// 6 KEY
+		[KeyCode.S => [0, 1], KeyCode.D => [1, 1], KeyCode.F => [2, 1],
+		KeyCode.J => [3, 1], KeyCode.K => [4, 1], KeyCode.L => [5, 1]],
+		// 7 KEY
+		[KeyCode.S => [0, 1], KeyCode.D => [1, 1], KeyCode.F => [2, 1], KeyCode.SPACE => [3, 1],
+		KeyCode.J => [4, 1], KeyCode.K => [5, 1], KeyCode.L => [6, 1]],
+		// 8 KEY
+		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.D => [2, 1], KeyCode.F => [3, 1],
+		KeyCode.H => [4, 1], KeyCode.J => [5, 1], KeyCode.K => [6, 1], KeyCode.L => [7, 1]],
+		// 9 KEY
+		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.D => [2, 1], KeyCode.F => [3, 1], KeyCode.SPACE => [4, 1],
+		KeyCode.H => [5, 1], KeyCode.J => [6, 1], KeyCode.K => [7, 1], KeyCode.L => [8, 1]]
+	];
 
 	var keybindMap:Map<KeyCode, Array<Int>>;
 
