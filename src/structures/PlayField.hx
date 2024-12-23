@@ -214,7 +214,7 @@ class PlayField {
 
 		if (mania > 16) mania = 16;
 
-		keybindMap = keybindMaps[mania > 9 ? 8 : mania < 4 ? 3 : mania - 1];
+		keybindMap = keybindMaps[mania > 9 ? 8 : mania - 1];
 
 		// This shit is fucking unbearable as FUCK
 		// But it's fine for now since it supports a max of 16 keys
