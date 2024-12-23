@@ -501,37 +501,6 @@ class PlayField {
 	}
 
 	/**
-		Disposes the playfield.
-	**/
-	function dispose() {
-		disposed = true;
-
-		onNoteHit = null;
-		onNoteMiss = null;
-		onSustainComplete = null;
-		onSustainRelease = null;
-
-		noteSystem.dispose();
-		hud.dispose();
-
-		for (inst in instrumentals) {
-			inst.dispose();
-			inst = null;
-		}
-		instrumentals = null;
-
-		for (voices in voicesTracks) {
-			voices.dispose();
-			voices = null;
-		}
-		voicesTracks = null;
-
-		songEnded = true;
-
-		GC.run();
-	}
-
-	/**
 		Pauses the playfield.
 	**/
 	function pause() {
@@ -566,8 +535,6 @@ class PlayField {
 		display.fov = 1;
 		hud.closePauseScreen();
 	}
-
-	// Callback stuff
 
 	inline function beatHit(beat:Float) {
 		if (beat == 0 && !songStarted) {
@@ -775,5 +742,36 @@ class PlayField {
 		if (RenderingMode.enabled) {
 			RenderingMode.stopRender();
 		}
+	}
+
+	/**
+		Disposes the playfield.
+	**/
+	function dispose() {
+		disposed = true;
+
+		onNoteHit = null;
+		onNoteMiss = null;
+		onSustainComplete = null;
+		onSustainRelease = null;
+
+		noteSystem.dispose();
+		hud.dispose();
+
+		for (inst in instrumentals) {
+			inst.dispose();
+			inst = null;
+		}
+		instrumentals = null;
+
+		for (voices in voicesTracks) {
+			voices.dispose();
+			voices = null;
+		}
+		voicesTracks = null;
+
+		songEnded = true;
+
+		GC.run();
 	}
 }
