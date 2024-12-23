@@ -28,8 +28,6 @@ class PlayField {
 		this.display = display;
 
 		create(display, chart.header.mania);
-		loadAudio();
-		finishPlayfield(display);
 	}
 
 	/**************************************************************************************
@@ -56,57 +54,16 @@ class PlayField {
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
+	var keybindMap(default, null):KeybindMap;
 	var noteSystem(default, null):NoteSystem;
 	var hud(default, null):HUD;
 
 	private var sustainDimensions:Array<Int> = [];
 
-	// CUSTOMIZATION SECTION //
-
-	var keybindMaps:Array<Map<KeyCode, Array<Int>>> = [
-		// 1 KEY
-		[KeyCode.SPACE => [0, 1]],
-		// 2 KEY
-		[KeyCode.A => [0, 1], KeyCode.D => [1, 1],
-		KeyCode.LEFT => [0, 1], KeyCode.RIGHT => [1, 1]],
-		// 3 KEY
-		[KeyCode.A => [0, 1], KeyCode.SPACE => [1, 1], KeyCode.D => [2, 1],
-		KeyCode.LEFT => [0, 1], KeyCode.RIGHT => [2, 1]],
-		// 4 KEY
-		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.W => [2, 1], KeyCode.D => [3, 1],
-		KeyCode.LEFT => [0, 1], KeyCode.DOWN => [1, 1], KeyCode.UP => [2, 1], KeyCode.RIGHT => [3, 1]],
-		// 5 KEY
-		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.SPACE => [2, 1], KeyCode.W => [3, 1], KeyCode.D => [4, 1],
-		KeyCode.LEFT => [0, 1], KeyCode.DOWN => [1, 1], KeyCode.UP => [3, 1], KeyCode.RIGHT => [4, 1]],
-		// 6 KEY
-		[KeyCode.S => [0, 1], KeyCode.D => [1, 1], KeyCode.F => [2, 1],
-		KeyCode.J => [3, 1], KeyCode.K => [4, 1], KeyCode.L => [5, 1]],
-		// 7 KEY
-		[KeyCode.S => [0, 1], KeyCode.D => [1, 1], KeyCode.F => [2, 1], KeyCode.SPACE => [3, 1],
-		KeyCode.J => [4, 1], KeyCode.K => [5, 1], KeyCode.L => [6, 1]],
-		// 8 KEY
-		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.D => [2, 1], KeyCode.F => [3, 1],
-		KeyCode.H => [4, 1], KeyCode.J => [5, 1], KeyCode.K => [6, 1], KeyCode.L => [7, 1]],
-		// 9 KEY
-		[KeyCode.A => [0, 1], KeyCode.S => [1, 1], KeyCode.D => [2, 1], KeyCode.F => [3, 1], KeyCode.SPACE => [4, 1],
-		KeyCode.H => [5, 1], KeyCode.J => [6, 1], KeyCode.K => [7, 1], KeyCode.L => [8, 1]]
-	];
-
-	var keybindMap:Map<KeyCode, Array<Int>>;
-
-	var strumlineRotationMap:Array<Int>;
-
-	var strumlineMap:Array<Array<Array<Float>>>;
-
-	var strumlinePlayableMap:Array<Bool>;
-
 	var flipHealthBar:Bool;
-
-	///////////////////////////
 
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
-	var precalculatedIndexThing:Array<Int> = [];
 
 	var hitbox:Float = 200;
 
@@ -153,9 +110,9 @@ class PlayField {
 			return;
 		}
 
-		var map = keybindMap[code];
+		var map = keybindMap.get(code);
 		var lane = map[1];
-		var index = map[0] + precalculatedIndexThing[lane];
+		var index = map[0] + keybindMap.strumlineIndexes[lane];
 
 		if (noteSystem.playerHitsToCheck[index]) {
 			return;
@@ -190,9 +147,9 @@ class PlayField {
 			return;
 		}
 
-		var map = keybindMap[code];
+		var map = keybindMap.get(code);
 		var lane = map[1];
-		var index = map[0] + precalculatedIndexThing[lane];
+		var index = map[0] + keybindMap.strumlineIndexes[lane];
 
 		noteSystem.playerHitsToCheck[index] = false;
 
@@ -214,121 +171,6 @@ class PlayField {
 
 		if (mania > 16) mania = 16;
 
-		keybindMap = keybindMaps[mania > 9 ? 8 : mania - 1];
-
-		// This shit is fucking unbearable as FUCK
-		// But it's fine for now since it supports a max of 16 keys
-		switch (mania) {
-			case 5:
-				strumlineRotationMap = [0, -90, 90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...5) [strumlineRotationMap[i], 50 + (97 * i), 0.9]],
-					[for (i in 0...5) [strumlineRotationMap[i], 678 + (97 * i), 0.9]]
-				];
-
-			case 6:
-				strumlineRotationMap = [0, -90, 180, 0, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...6) [strumlineRotationMap[i], 50 + (83 * i), 0.83]],
-					[for (i in 0...6) [strumlineRotationMap[i], 676 + (83 * i), 0.83]]
-				];
-
-			case 7:
-				strumlineRotationMap = [0, -90, 180, 90, 0, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...7) [strumlineRotationMap[i], 50 + (75 * i), 0.77]],
-					[for (i in 0...7) [strumlineRotationMap[i], 668 + (75 * i), 0.77]]
-				];
-
-			case 8:
-				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...8) [strumlineRotationMap[i], 50 + (70 * i), 0.68]],
-					[for (i in 0...8) [strumlineRotationMap[i], 663 + (70 * i), 0.68]]
-				];
-
-			case 9:
-				strumlineRotationMap = [0, -90, 90, 180, 90, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...9) [strumlineRotationMap[i], 50 + (56 * i), 0.64]],
-					[for (i in 0...9) [strumlineRotationMap[i], 655 + (56 * i), 0.64]]
-				];
-
-			case 10:
-				strumlineRotationMap = [0, -90, 90, 180, -90, 90, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...10) [strumlineRotationMap[i], 47 + (53 * i), 0.59]],
-					[for (i in 0...10) [strumlineRotationMap[i], 645 + (53 * i), 0.59]]
-				];
-
-			case 11:
-				strumlineRotationMap = [0, -90, 90, 180, 0, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...11) [strumlineRotationMap[i], 44 + (50 * i), 0.57]],
-					[for (i in 0...11) [strumlineRotationMap[i], 639 + (50 * i), 0.57]]
-				];
-
-			case 12:
-				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...12) [strumlineRotationMap[i], 40 + (47 * i), 0.4777]],
-					[for (i in 0...12) [strumlineRotationMap[i], 631 + (47 * i), 0.4777]]
-				];
-
-			case 13:
-				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 90, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...13) [strumlineRotationMap[i], 38 + (42 * i), 0.432]],
-					[for (i in 0...13) [strumlineRotationMap[i], 628 + (42 * i), 0.432]]
-				];
-
-			case 14:
-				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 180, 0, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...14) [strumlineRotationMap[i], 36 + (41 * i), 0.42]],
-					[for (i in 0...14) [strumlineRotationMap[i], 627 + (41 * i), 0.42]]
-				];
-
-			case 15:
-				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 180, 90, 0, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...15) [strumlineRotationMap[i], 34 + (39 * i), 0.405]],
-					[for (i in 0...15) [strumlineRotationMap[i], 626 + (39 * i), 0.405]]
-				];
-
-			case 16:
-				strumlineRotationMap = [0, -90, 90, 180, 0, -90, 180, -90, 90, 0, 90, 180, 0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...16) [strumlineRotationMap[i], 30 + (37 * i), 0.375]],
-					[for (i in 0...16) [strumlineRotationMap[i], 626 + (37 * i), 0.375]]
-				];
-
-			default:
-				strumlineRotationMap = [0, -90, 90, 180];
-
-				strumlineMap = [
-					[for (i in 0...4) [strumlineRotationMap[i], 50 + (112 * i), 1]],
-					[for (i in 0...4) [strumlineRotationMap[i], 680 + (112 * i), 1]]
-				];
-
-		}
-
-		if (strumlineMap.length > 4) strumlineMap.resize(4);
-
-		strumlinePlayableMap = [false, true];
-
 		onStartSong = new Event<Chart->Void>();
 		onPauseSong = new Event<Chart->Void>();
 		onResumeSong = new Event<Chart->Void>();
@@ -342,14 +184,12 @@ class PlayField {
 		onKeyPress = new Event<KeyCode->Void>();
 		onKeyRelease = new Event<KeyCode->Void>();
 
-		for (i in 0...strumlineMap.length) {
-			numOfReceptors += strumlineMap[i].length;
-			if (i != 0) precalculatedIndexThing.push(strumlineMap[i-1].length);
-			else precalculatedIndexThing.push(0);
-		}
-
+		keybindMap = new KeybindMap(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
 		hud = new HUD(display, this);
+
+		loadAudio();
+		finishPlayfield(display);
 	}
 
 	/**************************************************************************************
@@ -552,7 +392,7 @@ class PlayField {
 
 		// Don't execute ratings if an opponent note has executed it
 
-		if (!strumlinePlayableMap[note.lane]) {
+		if (!keybindMap.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
 			if (health < 0.05) {
@@ -638,7 +478,7 @@ class PlayField {
 	inline function completeSustain(note:ChartNote) {
 		//Sys.println('Complete ${note.index}, ${note.lane}');
 
-		if (!strumlinePlayableMap[note.lane]) {
+		if (!keybindMap.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
 			if (health < 0.05) {

@@ -65,15 +65,18 @@ class NoteSystem {
 		parent.display.addProgram(sustainProg);
 		parent.display.addProgram(notesProg);
 
-		for (j in 0...parent.strumlineMap.length) {
-			var map = parent.strumlineMap[j];
+		var keybindMap = parent.keybindMap;
+		var strumlineMap = keybindMap.strumline;
+
+		for (j in 0...strumlineMap.length) {
+			var map = strumlineMap[j];
 			for (i in 0...map.length) {
 				var strum = map[i];
 				var rec = new Note(0, parent.downScroll ? Main.INITIAL_HEIGHT - 150 : 50, 0, 0);
 				rec.r = strum[0];
 				rec.x = Math.floor(strum[1]);
 				rec.scale = strum[2];
-				rec.playable = parent.strumlinePlayableMap[j];
+				rec.playable = keybindMap.strumlinePlayable[j];
 				notesBuf.addElement(rec);
 			}
 		}
@@ -91,7 +94,7 @@ class NoteSystem {
 		{
 			var note = notes.getNote(i);
 
-			var strum = parent.strumlineMap[note.lane][note.index];
+			var strum = parent.keybindMap.strumline[note.lane][note.index];
 
 			var noteSpr = new Note(999999999, 0, 0, 0);
 			noteSpr.data = note;
@@ -302,7 +305,7 @@ class NoteSystem {
 		var index = data.index;
 		var lane = data.lane;
 
-		var fullIndex = index + parent.precalculatedIndexThing[lane];
+		var fullIndex = index + parent.keybindMap.strumlineIndexes[lane];
 
 		var position = data.position;
 
