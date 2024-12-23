@@ -27,15 +27,13 @@ class PlayField {
 		this.downScroll = downScroll;
 		this.display = display;
 
-		createNoteSystem(display, chart.header.mania);
-		createHUD(display);
+		create(display, chart.header.mania);
 		loadAudio();
 		finishPlayfield(display);
-		createPauseScreen();
 	}
 
 	/**************************************************************************************
-										  NOTE SYSTEM
+										 NOTES AND HUD
 	**************************************************************************************/
 
 	// The actual input system logic, very different from other fnf engines since this is peote-view. (Pretty similar to the last FNF Zenith note system rewrite but it's better)
@@ -58,7 +56,8 @@ class PlayField {
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
-	private var noteSystem(default, null):NoteSystem;
+	var noteSystem(default, null):NoteSystem;
+	var hud(default, null):HUD;
 
 	private var sustainDimensions:Array<Int> = [];
 
@@ -175,7 +174,7 @@ class PlayField {
 			voices.update();
 		}
 
-		hideRatingPopup();
+		hud.hideRatingPopup();
 
 		noteSystem.resetNotes();
 	}
@@ -242,7 +241,7 @@ class PlayField {
 		onKeyRelease.dispatch(code);
 	}
 
-	function createNoteSystem(display:Display, mania:Int = 4) {
+	function create(display:Display, mania:Int = 4) {
 		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
 		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
 
@@ -383,341 +382,14 @@ class PlayField {
 		}
 
 		noteSystem = new NoteSystem(numOfReceptors, this);
+		hud = new HUD(display, this);
 	}
 
 	/**************************************************************************************
 										   UI SYSTEM
 	**************************************************************************************/
 
-	var countdownDisp:CountdownDisplay;
-
-	private var uiBuf(default, null):Buffer<UISprite>;
-	private var uiProg(default, null):Program;
-	private var scoreTxtProg(default, null):Program;
-	private var watermarkTxtProg(default, null):Program;
-
-	var scoreTxt:Text;
-	var watermarkTxt:Text;
-
-	var ratingPopup:UISprite;
-	var comboNumbers:Array<UISprite> = [];
-
-	var healthBarParts:Array<UISprite> = [];
-	var healthBarBG:UISprite;
-
-	var healthIcons:Array<UISprite> = [];
-	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
-	var healthIconColors:Array<Array<Color>> = [
-		[Color.RED1, Color.RED1, Color.RED1, Color.RED1, Color.RED1, Color.RED1],
-		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
-	];
-
-	var healthBarWS:Int;
-	var healthBarHS:Int;
-
 	var health:Float = 0.5;
-
-	/**
-		Updates the rating popup.
-	**/
-	function updateRatingPopup(deltaTime:Float) {
-		if (disposed) return;
-
-		if (ratingPopup == null) return;
-
-		if (ratingPopup.c.aF != 0) {
-			ratingPopup.c.aF -= ratingPopup.c.aF * (deltaTime * 0.005);
-		}
-
-		if (ratingPopup.y != 320) {
-			ratingPopup.y -= (ratingPopup.y - 320) * (deltaTime * 0.0125);
-			uiBuf.updateElement(ratingPopup);
-		}
-	}
-
-	/**
-		Updates the combo numbers.
-	**/
-	function updateComboNumbers() {
-		if (disposed) return;
-
-		var numStr = Int128.toStr(combo);
-
-		for (i in 0...comboNumbers.length) {
-			var comboNumber = comboNumbers[i];
-
-			if (comboNumber == null) continue;
-
-			var digit = numStr.charCodeAt(i <= numStr.length ? (numStr.length - 1) - i : numStr.length - 1) - 48;
-
-			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.c.aF = ratingPopup.c.aF;
-
-			if (i > 2) {
-				if (i >= numStr.length) {
-					comboNumber.c.aF = 0.0;
-				}
-			}
-
-			if (comboNumber.curID != digit) {
-				comboNumber.changeID(i >= numStr.length ? 0 : digit);
-			}
-
-			uiBuf.updateElement(comboNumber);
-		}
-	}
-
-	/**
-		Updates the health bar.
-	**/
-	function updateHealthBar() {
-		if (disposed) return;
-
-		var part1 = healthBarParts[0];
-
-		if (part1 == null) return;
-
-		var healthIconColor = healthIconColors[flipHealthBar ? 1 : 0];
-
-		//part1.c = healthIconColor[0];
-
-		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
-		part1.x = healthBarBG.x + healthBarWS;
-
-		if (part1.w < 0) part1.w = 0;
-
-		uiBuf.updateElement(part1);
-
-		var part2 = healthBarParts[1];
-
-		if (part2 == null) return;
-
-		var healthIconColor = healthIconColors[flipHealthBar ? 0 : 1];
-
-		//part2.c = healthIconColor[0];
-
-		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
-		part2.x = (healthBarBG.x + part1.w) + healthBarWS;
-
-		if (part2.w < 0) part2.w = 0;
-
-		uiBuf.updateElement(part2);
-	}
-
-	/**
-		Updates the health icons.
-	**/
-	function updateHealthIcons() {
-		if (disposed) return;
-
-		var part1 = healthBarParts[1];
-
-		if (part1 == null) return;
-
-		var health = health;
-		var icons = healthIcons;
-		var ids = healthIconIDs;
-
-		var oppIcon = icons[0];
-		var plrIcon = icons[1];
-
-		var oppIcon = healthIcons[0];
-		oppIcon.x = part1.x - 118;
-
-		var plrIcon = healthIcons[1];
-		plrIcon.x = part1.x - 18;
-
-		var oppIco = flipHealthBar ? plrIcon : oppIcon;
-		var plrIco = flipHealthBar ? oppIcon : plrIcon;
-
-		if (health > 0.75) {
-			oppIco.changeID(ids[0][1]);
-		} else {
-			oppIco.changeID(ids[0][0]);
-		}
-
-		if (health < 0.25) {
-			plrIco.changeID(ids[1][1]);
-		} else {
-			plrIco.changeID(ids[1][0]);
-		}
-
-		uiBuf.updateElement(oppIcon);
-		uiBuf.updateElement(plrIcon);
-	}
-
-	/**
-		Hides the rating popup.
-	**/
-	inline function hideRatingPopup() {
-		if (disposed) return;
-
-		ratingPopup.c.aF = 0.0;
-		uiBuf.updateElement(ratingPopup);
-	}
-
-	/**
-		Wakes up the rating popup.
-	**/
-	inline function respondWithRatingID(id:Int) {
-		if (disposed) return;
-
-		ratingPopup.c.aF = 1.0;
-		ratingPopup.y = 300;
-		ratingPopup.changeID(id);
-		uiBuf.updateElement(ratingPopup);
-	}
-
-	/**
-		Create the playfield UI.
-	**/
-	function createHUD(display:Display) {
-		healthBarWS = UISprite.healthBarDimensions[2];
-		healthBarHS = UISprite.healthBarDimensions[3];
-
-		uiBuf = new Buffer<UISprite>(2048, 2048, false);
-		uiProg = new Program(uiBuf);
-		uiProg.blendEnabled = true;
-
-		var tex = TextureSystem.getTexture("uiTex");
-
-		UISprite.init(uiProg, "uiTex", tex);
-
-		UISprite.setPixelThenUpdateTex(tex, 2, 1, Color.RED);
-
-		// RATING POPUP SETUP
-		ratingPopup = new UISprite();
-		ratingPopup.type = RATING_POPUP;
-		ratingPopup.changeID(0);
-		ratingPopup.x = 500;
-		ratingPopup.y = 360;
-		ratingPopup.c.aF = 0.0;
-		uiBuf.addElement(ratingPopup);
-
-		// COMBO NUMBERS SETUP
-		for (i in 0...39) {
-			var comboNumber = new UISprite();
-			comboNumber.type = COMBO_NUMBER;
-			comboNumber.changeID(0);
-			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
-			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.c.aF = 0.0;
-			comboNumbers.push(comboNumber);
-			uiBuf.addElement(comboNumber);
-		}
-
-		// HEALTH BAR SETUP
-		healthBarBG = new UISprite();
-		healthBarBG.type = HEALTH_BAR;
-		healthBarBG.changeID(0);
-		healthBarBG.x = 275;
-		healthBarBG.y = downScroll ? 90 : 630;
-
-		// HEALTH BAR PART SETUP
-		for (i in 0...2) {
-			var part = healthBarParts[i] = new UISprite();
-			part.type = HEALTH_BAR_PART;
-			part.changeID(i);
-			part.h = healthBarBG.h - (healthBarHS << 1);
-			part.y = healthBarBG.y + healthBarHS;
-
-			var healthIconColor = healthIconColors[i];
-			//part.c = healthIconColor[0];
-
-			uiBuf.addElement(part);
-		}
-
-		uiBuf.addElement(healthBarBG);
-
-		updateHealthBar();
-
-		// HEALTH ICONS SETUP
-
-		var x = healthBarBG.x + (healthBarBG.w >> 1);
-
-		var oppIcon = healthIcons[0] = new UISprite();
-		oppIcon.type = HEALTH_ICON;
-		oppIcon.changeID(healthIconIDs[0][0]);
-
-		var plrIcon = healthIcons[1] = new UISprite();
-		plrIcon.type = HEALTH_ICON;
-		plrIcon.changeID(healthIconIDs[1][0]);
-
-		oppIcon.y = plrIcon.y = healthBarBG.y - 75;
-		plrIcon.flip = 1;
-
-		uiBuf.addElement(oppIcon);
-		uiBuf.addElement(plrIcon);
-
-		updateHealthIcons();
-
-		// TEXT SETUP
-
-		scoreTxt = new Text(0, 0);
-
-		watermarkTxt = new Text(0, 0, "-/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay");
-		watermarkTxt.x = 2;
-
-		scoreTxtProg = new Program(scoreTxt.buffer);
-		scoreTxtProg.blendEnabled = true;
-
-		watermarkTxtProg = new Program(watermarkTxt.buffer);
-		watermarkTxtProg.blendEnabled = true;
-
-		TextureSystem.setTexture(scoreTxtProg, 'vcrTex', 'vcrTex');
-
-		display.addProgram(scoreTxtProg);
-
-		TextureSystem.setTexture(watermarkTxtProg, 'vcrTex', 'vcrTex');
-
-		display.addProgram(watermarkTxtProg);
-		watermarkTxt.y = watermarkTxtProg.displays[0].height - (watermarkTxt.height + 2);
-
-		display.addProgram(uiProg);
-	}
-
-	/**************************************************************************************
-									  PAUSE SCREEN SYSTEM                                  
-	**************************************************************************************/
-
-	var pauseBG(default, null):UISprite;
-	var pauseOptions(default, null):Array<UISprite> = [];
-
-	function createPauseScreen() {
-		pauseBG = new UISprite();
-
-		pauseBG.type = HEALTH_BAR_PART;
-		pauseBG.changeID(0);
-		pauseBG.w = display.width;
-		pauseBG.h = display.height;
-		pauseBG.c.aF = 0.5;
-
-		var currentY = 160;
-		for (i in 0...3) {
-			var option = new UISprite();
-			option.type = PAUSE_OPTION;
-			option.changeID(i);
-			option.y = currentY;
-			currentY += option.h + 2;
-			pauseOptions.push(option);
-		}
-	}
-
-	function openPauseScreen() {
-		uiBuf.addElement(pauseBG);
-
-		for (i in 0...pauseOptions.length) {
-			uiBuf.addElement(pauseOptions[i]);
-		}
-	}
-
-	function closePauseScreen() {
-		uiBuf.removeElement(pauseBG);
-
-		for (i in 0...pauseOptions.length) {
-			uiBuf.removeElement(pauseOptions[i]);
-		}
-	}
 
 	/**************************************************************************************
 											 AUDIO
@@ -761,9 +433,8 @@ class PlayField {
 		conductor.onBeat.add(beatHit);
 		conductor.onMeasure.add(measureHit);
 
-		countdownDisp = new CountdownDisplay(uiBuf);
-
 		noteSystem.init(chart.file);
+		hud.createPauseScreen();
 
 		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
 
@@ -804,13 +475,6 @@ class PlayField {
 
 		var firstInst = instrumentals[0];
 
-		scoreTxt.text = 'Score: $score, Misses: $misses';
-		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
-		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
-
-		watermarkTxt.text = 'FV TEST BUILD | - -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay (${latencyCompensation}ms)';
-		watermarkTxt.scale = 0.7;
-
 		if (songPosition > firstInst.length && !songEnded) {
 			onStopSong.dispatch(chart);
 		}
@@ -832,12 +496,7 @@ class PlayField {
 		noteSystem.update(pos);
 
 		// UI SYSTEM
-		updateRatingPopup(deltaTime);
-		updateComboNumbers();
-		updateHealthBar();
-		updateHealthIcons();
-
-		countdownDisp.update(deltaTime);
+		hud.update(deltaTime);
 
 		songPosition -= latencyCompensation;
 	}
@@ -853,36 +512,8 @@ class PlayField {
 		onSustainComplete = null;
 		onSustainRelease = null;
 
-		countdownDisp.dispose();
-		countdownDisp = null;
-
-		uiBuf.removeElement(ratingPopup);
-		ratingPopup = null;
-
-		for (i in 0...comboNumbers.length) {
-			uiBuf.removeElement(comboNumbers[i]);
-			comboNumbers[i] = null;
-		}
-		comboNumbers = null;
-
-		uiBuf.removeElement(healthBarBG);
-		healthBarBG = null;
-
-		for (i in 0...healthIcons.length) {
-			uiBuf.removeElement(healthIcons[i]);
-			healthIcons[i] = null;
-		}
-		healthIcons = null;
-
 		noteSystem.dispose();
-
-		display.removeProgram(uiProg);
-		display.removeProgram(scoreTxtProg);
-		display.removeProgram(watermarkTxtProg);
-
-		uiProg = null;
-		scoreTxtProg = null;
-		watermarkTxtProg = null;
+		hud.dispose();
 
 		for (inst in instrumentals) {
 			inst.dispose();
@@ -913,7 +544,7 @@ class PlayField {
 			for (inst in instrumentals) {
 				inst.stop();
 			}
-	
+
 			for (voices in voicesTracks) {
 				voices.stop();
 			}
@@ -921,7 +552,7 @@ class PlayField {
 
 		noteSystem.resetReceptors();
 		display.fov = 1;
-		openPauseScreen();
+		hud.openPauseScreen();
 	}
 
 	/**
@@ -934,7 +565,7 @@ class PlayField {
 
 		setTime(songPosition, true); // This will be removed soon
 		display.fov = 1;
-		closePauseScreen();
+		hud.closePauseScreen();
 	}
 
 	// Callback stuff
@@ -945,7 +576,7 @@ class PlayField {
 		}
 
 		if (beat < 0) {
-			countdownDisp.countdownTick(Math.floor(4 + beat));
+			hud.countdownDisp.countdownTick(Math.floor(4 + beat));
 		} else {
 			// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
 			// Unpausing the game can fuck up the sync between the instrumentals and the vocals.
@@ -1015,27 +646,27 @@ class PlayField {
 		var absTiming = Math.abs(timing);
 
 		if (absTiming > 60) {
-			respondWithRatingID(3);
+			hud.respondWithRatingID(3);
 			score += 50;
 
 			return;
 		}
 
 		if (absTiming > 45) {
-			respondWithRatingID(2);
+			hud.respondWithRatingID(2);
 			score += 100;
 
 			return;
 		}
 
 		if (absTiming > 30) {
-			respondWithRatingID(1);
+			hud.respondWithRatingID(1);
 			score += 200;
 
 			return;
 		}
 
-		respondWithRatingID(0);
+		hud.respondWithRatingID(0);
 		score += 400;
 	}
 

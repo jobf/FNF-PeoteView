@@ -5,13 +5,13 @@ class Note implements Element
 	// position in pixel (relative to upper left corner of Display)
 	@varying @custom @formula("ox * scale") public var ox:Int;
 	@varying @custom @formula("oy * scale") public var oy:Int;
-	@varying @custom public var scale:Float = 1.0;
 	@posX @formula("x + px + ox") public var x:Int;
 	@posY @formula("y + py + oy") public var y:Int;
 
 	// size in pixel
 	@varying @sizeX @formula("w * scale") public var w:Int = 100;
 	@varying @sizeY @formula("h * scale") public var h:Int = 100;
+	@varying @custom public var scale:Float = 1.0;
 
 	@rotation public var r:Float;
 

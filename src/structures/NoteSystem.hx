@@ -43,7 +43,7 @@ class NoteSystem {
         notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
 
-		notesBuf = new Buffer<Note>(16384, 16384, false);
+		notesBuf = new Buffer<Note>(2048, 2048, false);
 		notesProg = new Program(notesBuf);
 		notesProg.blendEnabled = true;
 
@@ -52,7 +52,7 @@ class NoteSystem {
 		var tex1 = TextureSystem.getTexture("noteTex");
 
 		// SUSTAIN SETUP
-		sustainsBuf = new Buffer<Sustain>(16384, 16384, false);
+		sustainsBuf = new Buffer<Sustain>(2048, 2048, false);
 		sustainProg = new Program(sustainsBuf);
 		sustainProg.blendEnabled = true;
 
@@ -117,7 +117,7 @@ class NoteSystem {
 		}
     }
 
-    inline function update(pos:Int64) {
+    function update(pos:Int64) {
         cullTop(pos);
 		cullBottom(pos);
 		updateNotes(pos);
@@ -156,7 +156,7 @@ class NoteSystem {
 
 			sustainsToHold[index] = null;
 
-			parent.hideRatingPopup();
+			parent.hud.hideRatingPopup();
 		}
 
 		if (!rec.idle()) {
@@ -346,7 +346,7 @@ class NoteSystem {
 
 					notesToHit[fullIndex] = null;
 
-					parent.hideRatingPopup();
+					parent.hud.hideRatingPopup();
 				}
 			}
 		} else {
