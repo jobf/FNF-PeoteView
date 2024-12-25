@@ -63,10 +63,6 @@ class TextureSystem {
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
 
-		if (key == "uiTex" && UISprite.data == null) {
-			UISprite.data = textureData;
-		}
-
 		var texture = new Texture(textureData.width, textureData.height, null, {
 			format: textureData.format,
 			powerOfTwo: false,

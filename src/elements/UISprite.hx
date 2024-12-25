@@ -187,25 +187,6 @@ class UISprite implements Element {
 
 		curID = id;
     }
-
-	static var data:TextureData;
-	static function setPixelThenUpdateTex(tex:Texture, row:Int, id:Int, c:Color) {
-		id &= 0x1;
-
-		var rowY = 450 + row;
-		switch (id) {
-			case 0:
-				data.setColor_RGBA(600, rowY, c);
-				data.setColor_RGBA(601, rowY, c);
-				data.setColor_RGBA(602, rowY, c);
-			case 1:
-				data.setColor_RGBA(603, rowY, c);
-				data.setColor_RGBA(604, rowY, c);
-				data.setColor_RGBA(605, rowY, c);
-		}
-
-		tex.setData(data);
-	}
 }
 
 enum abstract UISpriteType(cpp.UInt8) {

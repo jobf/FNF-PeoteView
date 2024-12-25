@@ -32,6 +32,10 @@ class PlayField {
 	inline function set_downScroll(value:Bool) {
 		downScroll = value;
 		if (noteSystem != null) noteSystem.resetReceptors(false);
+		if (hud != null) {
+			hud.updateHealthBar();
+			hud.updateHealthIcons();
+		}
 		return value;
 	}
 
@@ -105,6 +109,8 @@ class PlayField {
 		hud = new HUD(display, this);
 		audioSystem = new AudioSystem(chart);
 
+		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
+
 		finishPlayfield(display);
 	}
 
@@ -123,10 +129,6 @@ class PlayField {
 
 		conductor.onBeat.add(beatHit);
 		conductor.onMeasure.add(measureHit);
-
-		noteSystem.init(chart.file);
-
-		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
 
 		onNoteHit.add(hitNote);
 		onNoteMiss.add(missNote);

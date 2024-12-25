@@ -37,8 +37,6 @@ class NoteSystem {
 
 	var parent(default, null):PlayField;
 
-	private var sustainDimensions:Array<Int> = [];
-
 	function new(numOfReceptors:Int, parent:PlayField) {
 		this.parent = parent;
 
@@ -58,14 +56,18 @@ class NoteSystem {
 		sustainProg = new Program(sustainsBuf);
 		sustainProg.blendEnabled = true;
 
+		var sustainDimensions:Array<Int> = [];
+
 		var tex2 = TextureSystem.getTexture("sustainTex");
 
 		Sustain.init(sustainProg, "sustainTex", tex2);
 		sustainDimensions.push(tex2.width);
 		sustainDimensions.push(tex2.height);
 
-		parent.display.addProgram(sustainProg);
-		parent.display.addProgram(notesProg);
+		var display = parent.display;
+
+		display.addProgram(sustainProg);
+		display.addProgram(notesProg);
 
 		var input = parent.inputSystem;
 		var strumlineMap = input.strumline;
@@ -82,20 +84,18 @@ class NoteSystem {
 				notesBuf.addElement(rec);
 			}
 		}
-	}
 
-	function init(notes:File) {
 		var dimensions = sustainDimensions;
 
 		var sW = dimensions[0];
 		var sH = dimensions[1];
 
+		var notes:File = parent.chart.file;
 		var i:Int64 = 0;
 		var len:Int64 = notes.length;
 		while (i < len)
 		{
 			var note = notes.getNote(i);
-
 			var strum = parent.inputSystem.strumline[note.lane][note.index];
 
 			var noteSpr = new Note(999999999, 0, 0, 0);
@@ -134,15 +134,12 @@ class NoteSystem {
 				rec.confirm();
 				notesBuf.updateElement(rec);
 			}
-
 			noteToHit.c.aF = 0;
 			sustainsToHold[index] = noteToHit.child;
 
 			var data = noteToHit.data;
-
 			var posWithLatency = Tools.betterInt64FromFloat((parent.songPosition + parent.latencyCompensation) * 100);
 			parent.onNoteHit.dispatch(data, Int64.toInt(Int64.div(data.position - posWithLatency, 100)));
-
 			notesToHit[index] = null;
 		} else {
 			if (!rec.pressed()) {
@@ -156,11 +153,8 @@ class NoteSystem {
 		if (sustainToRelease != null && (sustainToRelease.c.aF != 0 && sustainToRelease.w > 100)) {
 			sustainToRelease.c.aF = Sustain.defaultMissAlpha;
 			sustainToRelease.held = true;
-
 			parent.onSustainRelease.dispatch(sustainToRelease.parent.data);
-
 			sustainsToHold[index] = null;
-
 			parent.hud.hideRatingPopup();
 		}
 
@@ -191,7 +185,6 @@ class NoteSystem {
 
 		resetReceptors();
 
-		// Clear the list of note inputs and sustain inputs. This is required!
 		notesToHit.resize(0);
 		sustainsToHold.resize(0);
 		playerHitsToCheck.resize(0);
@@ -264,7 +257,7 @@ class NoteSystem {
 
 		curBottomNote = getNote(spawnPosBottom);
 
-		while (spawnPosBottom != parent.numOfNotes /* We subtract one because we want to make sure that */ &&
+		while (spawnPosBottom != parent.numOfNotes &&
 			((pos -
 			(
 				((curBottomNote.data.duration << 2) + curBottomNote.data.duration) * 100
@@ -305,16 +298,13 @@ class NoteSystem {
 		var data = note.data;
 		var index = data.index;
 		var lane = data.lane;
-
 		var fullIndex = index + parent.inputSystem.strumlineIndexes[lane];
-
 		var position = data.position;
 
 		var rec = notesBuf.getElement(fullIndex);
 
 		var diff = (Int64.toInt(position - pos) * 0.01) * parent.scrollSpeed;
 		var leftover = Math.floor(Int64.toInt(pos - position) * 0.01);
-
 		var isHit = note.c.aF == 0;
 
 		note.x = rec.x;
@@ -322,7 +312,6 @@ class NoteSystem {
 
 		var sustain = note.child;
 		var sustainExists = sustain != null;
-
 		var playable = rec.playable && !(parent.botplay || RenderingMode.enabled);
 
 		if (playable) {

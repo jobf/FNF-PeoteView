@@ -51,8 +51,6 @@ class HUD {
 
 		UISprite.init(uiProg, "uiTex", tex);
 
-		UISprite.setPixelThenUpdateTex(tex, 2, 1, Color.RED);
-
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
 		ratingPopup.type = RATING_POPUP;
@@ -79,7 +77,6 @@ class HUD {
 		healthBarBG.type = HEALTH_BAR;
 		healthBarBG.changeID(0);
 		healthBarBG.x = 275;
-		healthBarBG.y = parent.downScroll ? 90 : 630;
 
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
@@ -125,21 +122,17 @@ class HUD {
 
 		watermarkTxt = new Text(0, 0, "-/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay");
 		watermarkTxt.x = 2;
+		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
 
 		scoreTxtProg = new Program(scoreTxt.buffer);
 		scoreTxtProg.blendEnabled = true;
-
 		watermarkTxtProg = new Program(watermarkTxt.buffer);
 		watermarkTxtProg.blendEnabled = true;
 
 		TextureSystem.setTexture(scoreTxtProg, 'vcrTex', 'vcrTex');
-
 		display.addProgram(scoreTxtProg);
-
 		TextureSystem.setTexture(watermarkTxtProg, 'vcrTex', 'vcrTex');
-
 		display.addProgram(watermarkTxtProg);
-		watermarkTxt.y = watermarkTxtProg.displays[0].height - (watermarkTxt.height + 2);
 
 		display.addProgram(uiProg);
 
@@ -158,7 +151,6 @@ class HUD {
 		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
-
 		watermarkTxt.text = 'FV TEST BUILD | - -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay (${parent.latencyCompensation}ms)';
 		watermarkTxt.scale = 0.7;
 	}
@@ -205,9 +197,7 @@ class HUD {
 				}
 			}
 
-			if (comboNumber.curID != digit) {
-				comboNumber.changeID(i >= numStr.length ? 0 : digit);
-			}
+			if (comboNumber.curID != digit) comboNumber.changeID(i >= numStr.length ? 0 : digit);
 
 			uiBuf.updateElement(comboNumber);
 		}
@@ -218,6 +208,9 @@ class HUD {
 	**/
 	function updateHealthBar() {
 		if (parent.disposed) return;
+
+		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
+		uiBuf.updateElement(healthBarBG);
 
 		var health = parent.health;
 
@@ -278,17 +271,11 @@ class HUD {
 		var oppIco = parent.flipHealthBar ? plrIcon : oppIcon;
 		var plrIco = parent.flipHealthBar ? oppIcon : plrIcon;
 
-		if (health > 0.75) {
-			oppIco.changeID(ids[0][1]);
-		} else {
-			oppIco.changeID(ids[0][0]);
-		}
+		if (health > 0.75) oppIco.changeID(ids[0][1]);
+		else oppIco.changeID(ids[0][0]);
 
-		if (health < 0.25) {
-			plrIco.changeID(ids[1][1]);
-		} else {
-			plrIco.changeID(ids[1][0]);
-		}
+		if (health < 0.25) plrIco.changeID(ids[1][1]);
+		else plrIco.changeID(ids[1][0]);
 
 		uiBuf.updateElement(oppIcon);
 		uiBuf.updateElement(plrIcon);

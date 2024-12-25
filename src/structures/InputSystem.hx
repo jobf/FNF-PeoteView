@@ -55,10 +55,7 @@ class InputSystem {
 			case 1:
 				strumlineRotation = [90];
 
-				strumline = [
-					[[90, 50, 1.05]],
-					[[90, 678, 1.05]]
-				];
+				strumline = [[[90, 50, 1.05]], [[90, 678, 1.05]]];
 
 			case 2:
 				strumlineRotation = [0, 180];
