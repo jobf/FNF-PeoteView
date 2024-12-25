@@ -4,8 +4,7 @@ import lime.ui.KeyCode;
 import lime.app.Event;
 
 /**
-	The UI and note system.
-	This includes audio which represent the [instrumentals] and [voicesTracks].
+	The home of the gameplay state.
 **/
 @:publicFields
 class PlayField {
@@ -23,23 +22,23 @@ class PlayField {
 		chart = new Chart('assets/songs/$songName');
 	}
 
-	function init(display:CustomDisplay, downScroll:Bool) {
-		this.downScroll = downScroll;
+	function init(display:CustomDisplay) {
 		this.display = display;
-
 		create(display, chart.header.mania);
 	}
 
-	/**************************************************************************************
-										 NOTES AND HUD
-	**************************************************************************************/
+	var downScroll(default, set):Bool;
 
-	// The actual input system logic, very different from other fnf engines since this is peote-view. (Pretty similar to the last FNF Zenith note system rewrite but it's better)
-	// Do not touch any part of this area unless you know it's critical.
-	// This is a huge ass system which took only 2 days to fully complete.
+	inline function set_downScroll(value:Bool) {
+		downScroll = value;
+		if (noteSystem != null) noteSystem.resetReceptors(false);
+		return value;
+	}
 
-	var downScroll(default, null):Bool;
 	var practiceMode:Bool;
+
+	var songStarted(default, null):Bool;
+	var songEnded(default, null):Bool;
 
 	var onStartSong:Event<Chart->Void>;
 	var onPauseSong:Event<Chart->Void>;
@@ -54,11 +53,16 @@ class PlayField {
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
-	var keybindMap(default, null):KeybindMap;
+	var inputSystem(default, null):InputSystem;
 	var noteSystem(default, null):NoteSystem;
 	var hud(default, null):HUD;
+	var audioSystem(default, null):AudioSystem;
 
-	private var sustainDimensions:Array<Int> = [];
+	var scrollSpeed(default, set):Float = 1.0;
+
+	inline function set_scrollSpeed(value:Float) {
+		return noteSystem.setScrollSpeed(scrollSpeed = value);
+	}
 
 	var flipHealthBar:Bool;
 
@@ -67,102 +71,14 @@ class PlayField {
 
 	var hitbox:Float = 200;
 
-	var scrollSpeed(default, set):Float = 1.0;
-
-	inline function set_scrollSpeed(value:Float) {
-		return noteSystem.setScrollSpeed(scrollSpeed = value);
-	}
-
 	function setTime(value:Float, playAgain:Bool = false) {
 		if (disposed || !songStarted || songEnded || paused) return;
 
-		if (value < 0) {
-			value = 0;
-		}
-
+		if (value < 0) value = 0;
 		songPosition = value;
-
-		for (inst in instrumentals) {
-			if (playAgain) {
-				inst.play();
-			}
-			inst.time = songPosition;
-			inst.update();
-		}
-
-		for (voices in voicesTracks) {
-			if (playAgain) {
-				voices.play();
-			}
-			voices.time = songPosition;
-			voices.update();
-		}
-
+		audioSystem.setTime(songPosition);
 		hud.hideRatingPopup();
-
 		noteSystem.resetNotes();
-	}
-
-	function keyPress(code:KeyCode, mod) {
-		if (disposed || botplay || RenderingMode.enabled || paused) return;
-
-		if (!keybindMap.exists(code)) {
-			return;
-		}
-
-		var map = keybindMap.get(code);
-		var lane = map[1];
-		var index = map[0] + keybindMap.strumlineIndexes[lane];
-
-		if (noteSystem.playerHitsToCheck[index]) {
-			return;
-		}
-
-		var rec = noteSystem.getReceptor(index);
-
-		if (!rec.playable) {
-			return;
-		}
-
-		noteSystem.playerHitsToCheck[index] = true;
-
-		var noteToHit = noteSystem.notesToHit[index];
-		noteSystem.hitDetectNote(noteToHit, rec, index);
-
-		onKeyPress.dispatch(code);
-	}
-
-	function keyRelease(code:KeyCode, mod) {
-		if (code == KeyCode.RETURN) {
-			if (paused) {
-				resume();
-			} else {
-				pause();
-			}
-		}
-
-		if (disposed || botplay || RenderingMode.enabled || paused) return;
-
-		if (!keybindMap.exists(code)) {
-			return;
-		}
-
-		var map = keybindMap.get(code);
-		var lane = map[1];
-		var index = map[0] + keybindMap.strumlineIndexes[lane];
-
-		noteSystem.playerHitsToCheck[index] = false;
-
-		var rec = noteSystem.getReceptor(index);
-
-		if (!rec.playable) {
-			return;
-		}
-
-		var sustainToRelease = noteSystem.sustainsToHold[index];
-		noteSystem.releaseDetectSustain(sustainToRelease, rec, index);
-
-		onKeyRelease.dispatch(code);
 	}
 
 	function create(display:Display, mania:Int = 4) {
@@ -184,48 +100,16 @@ class PlayField {
 		onKeyPress = new Event<KeyCode->Void>();
 		onKeyRelease = new Event<KeyCode->Void>();
 
-		keybindMap = new KeybindMap(mania, this);
+		inputSystem = new InputSystem(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
 		hud = new HUD(display, this);
+		audioSystem = new AudioSystem(chart);
 
-		loadAudio();
 		finishPlayfield(display);
 	}
 
-	/**************************************************************************************
-										   UI SYSTEM
-	**************************************************************************************/
-
-	var health:Float = 0.5;
-
-	/**************************************************************************************
-											 AUDIO
-	**************************************************************************************/
-
-	var instrumentals:Array<Sound> = [];
-	var voicesTracks:Array<Sound> = [];
-
-	function loadAudio() {
-		var inst = new Sound();
-		inst.fromFile(chart.header.instDir);
-
-		instrumentals.push(inst);
-
-		var voices = new Sound();
-		voices.fromFile(chart.header.voicesDir);
-
-		voicesTracks.push(voices);
-	}
-
-	/**************************************************************************************
-									 THE REST OF THIS SHIT
-	**************************************************************************************/
-
-	var songStarted(default, null):Bool;
-	var songEnded(default, null):Bool;
-
 	/**
-		Finalize the playfield.
+		Finish creating the playfield.
 	**/
 	function finishPlayfield(display:Display) {
 		var conductor = Main.conductor;
@@ -258,10 +142,9 @@ class PlayField {
 	var combo:Int128 = 0;
 
 	var songPosition:Float;
-
-	var chart:Chart;
-
+	var health:Float = 0.5;
 	var latencyCompensation:Int;
+	var chart:Chart;
 
 	/**
 		Update the playfield.
@@ -270,39 +153,23 @@ class PlayField {
 		if (disposed || paused) return;
 
 		if (display.fov != 1) {
-			display.fov -= (display.fov - 1) * 0.15;
+			display.fov -= (display.fov - 1) * (deltaTime * 10);
 		}
 
-		// Trigger a game over
 		if (health < 0 && !disposed) {
 			onDeath.dispatch(chart);
 			return;
 		}
 
-		var firstInst = instrumentals[0];
-
-		if (songPosition > firstInst.length && !songEnded) {
-			onStopSong.dispatch(chart);
-		}
-
-		if (!songStarted || songEnded || RenderingMode.enabled) {
-			songPosition += deltaTime;
-		} else {
-			firstInst.update();
-			songPosition = firstInst.time;
-		}
-
-		Main.conductor.time = songPosition + latencyCompensation;
+		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
 		songPosition += latencyCompensation;
 
-		var pos = Tools.betterInt64FromFloat(songPosition * 100);
-
-		// NOTE SYSTEM
 		noteSystem.update(pos);
-
-		// UI SYSTEM
 		hud.update(deltaTime);
+		audioSystem.update(this, deltaTime);
+
+		Main.conductor.time = songPosition + latencyCompensation;
 
 		songPosition -= latencyCompensation;
 	}
@@ -314,17 +181,7 @@ class PlayField {
 		if (disposed || paused) return;
 
 		paused = true;
-
-		if (!RenderingMode.enabled) {
-			for (inst in instrumentals) {
-				inst.stop();
-			}
-
-			for (voices in voicesTracks) {
-				voices.stop();
-			}
-		}
-
+		if (!RenderingMode.enabled) audioSystem.stop();
 		noteSystem.resetReceptors();
 		display.fov = 1;
 		hud.openPauseScreen();
@@ -337,40 +194,14 @@ class PlayField {
 		if (disposed || !paused) return;
 
 		paused = false;
-
-		setTime(songPosition, true); // This will be removed soon
+		if (!RenderingMode.enabled) audioSystem.play();
 		display.fov = 1;
 		hud.closePauseScreen();
 	}
 
 	inline function beatHit(beat:Float) {
-		if (beat == 0 && !songStarted) {
-			onStartSong.dispatch(chart);
-		}
-
-		if (beat < 0) {
-			hud.countdownDisp.countdownTick(Math.floor(4 + beat));
-		} else {
-			// We just have to resync the vocals with the old method cause miniaudio sounds are almost perfectly synced with others.
-			// Unpausing the game can fuck up the sync between the instrumentals and the vocals.
-			// This is because they're literally streamed which can delay the playback process.
-			// So, here's a bandaid fix for it.
-
-			// Oh yeah and this also simulates gradual resync that activates if the song is more than 1 ms off
-			if (songStarted && !RenderingMode.enabled) {
-				for (inst in instrumentals) {
-					if (inst.time - songPosition > 5) {
-						inst.time = songPosition;
-					}
-				}
-
-				for (vocals in voicesTracks) {
-					if (vocals.time - songPosition > 5) {
-						vocals.time = songPosition;
-					}
-				}
-			}
-		}
+		if (beat == 0 && !songStarted) onStartSong.dispatch(chart);
+		if (beat < 0) hud.countdownDisp.countdownTick(Math.floor(4 + beat));
 	}
 
 	inline function measureHit(measure:Float) {
@@ -380,62 +211,44 @@ class PlayField {
 	}
 
 	function hitNote(note:ChartNote, timing:Int) {
-		//Sys.println('Hit ${note.index}, ${note.lane} - Timing: $timing');
-
-		// Turn the vocals assigned by a lane back on
-
-		var voicesTrack = voicesTracks[note.lane];
-		if (voicesTrack == null) voicesTrack = voicesTracks[0];
+		var voicesTrack = audioSystem.voices[note.lane];
+		if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
 		if (voicesTrack != null) {
 			voicesTrack.volume = 1;
 		}
 
-		// Don't execute ratings if an opponent note has executed it
-
-		if (!keybindMap.strumlinePlayable[note.lane]) {
+		if (!inputSystem.strumlinePlayable[note.lane]) {
 			health -= 0.025;
-
 			if (health < 0.05) {
 				health = 0.05;
 			}
-
 			return;
 		}
 
-		// Add the health
+		++combo;
 
 		health += 0.025;
-
 		if (health > 1) {
 			health = 1;
 		}
-
-		// Accumulate the combo and start determining the rating judgement
-
-		++combo;
-
-		// This shows you how ratings work
 
 		var absTiming = Math.abs(timing);
 
 		if (absTiming > 60) {
 			hud.respondWithRatingID(3);
 			score += 50;
-
 			return;
 		}
 
 		if (absTiming > 45) {
 			hud.respondWithRatingID(2);
 			score += 100;
-
 			return;
 		}
 
 		if (absTiming > 30) {
 			hud.respondWithRatingID(1);
 			score += 200;
-
 			return;
 		}
 
@@ -444,17 +257,11 @@ class PlayField {
 	}
 
 	inline function missNote(note:ChartNote) {
-		//Sys.println('Miss ${note.index}, ${note.lane}');
-
-		// Mute the vocals assigned by a lane
-
-		var voicesTrack = voicesTracks[note.lane];
-		if (voicesTrack == null) voicesTrack = voicesTracks[0];
+		var voicesTrack = audioSystem.voices[note.lane];
+		if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
 		if (voicesTrack != null) {
 			voicesTrack.volume = 0;
 		}
-
-		// Hurt the health
 
 		health -= 0.025;
 
@@ -462,23 +269,13 @@ class PlayField {
 			health = 0.05;
 		}
 
-		// Zero the combo
-
 		combo = 0;
-
-		// Hurt the score
-
 		score -= 50;
-
-		// Increment the misses
-
 		++misses;
 	}
 
 	inline function completeSustain(note:ChartNote) {
-		//Sys.println('Complete ${note.index}, ${note.lane}');
-
-		if (!keybindMap.strumlinePlayable[note.lane]) {
+		if (!inputSystem.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
 			if (health < 0.05) {
@@ -487,8 +284,6 @@ class PlayField {
 
 			return;
 		}
-
-		// Add the health
 
 		health += 0.025;
 
@@ -498,9 +293,6 @@ class PlayField {
 	}
 
 	inline function releaseSustain(note:ChartNote) {
-		//Sys.println('Release ${note.index}, ${note.lane}');
-
-		// Zero the combo
 		combo = 0;
 	}
 
@@ -508,15 +300,7 @@ class PlayField {
 		Sys.println('Song activity is on');
 
 		if (!RenderingMode.enabled) {
-			for (inst in instrumentals) {
-				inst.time = 0;
-				inst.play();
-			}
-
-			for (voices in voicesTracks) {
-				voices.time = 0;
-				voices.play();
-			}
+			audioSystem.play();
 		}
 
 		songStarted = true;
@@ -527,13 +311,7 @@ class PlayField {
 		Sys.println('Song activity is off');
 
 		if (!RenderingMode.enabled) {
-			for (inst in instrumentals) {
-				inst.stop();
-			}
-
-			for (voices in voicesTracks) {
-				voices.stop();
-			}
+			audioSystem.stop();
 		} else {
 			RenderingMode.stopRender();
 		}
@@ -564,21 +342,9 @@ class PlayField {
 
 		noteSystem.dispose();
 		hud.dispose();
-
-		for (inst in instrumentals) {
-			inst.dispose();
-			inst = null;
-		}
-		instrumentals = null;
-
-		for (voices in voicesTracks) {
-			voices.dispose();
-			voices = null;
-		}
-		voicesTracks = null;
+		audioSystem.dispose();
 
 		songEnded = true;
-
 		GC.run();
 	}
 }

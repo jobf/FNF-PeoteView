@@ -79,11 +79,11 @@ class Main extends Application
 			conductor = new Conductor();
 
 			playField = new PlayField(Sys.args()[0]);
-			playField.init(middleDisplay, true);
+			playField.init(middleDisplay);
 
-			window.onKeyDown.add(playField.keyPress);
+			playField.downScroll = true;
+
 			window.onKeyDown.add(changeTime);
-			window.onKeyUp.add(playField.keyRelease);
 
 			GC.run(10);
 			GC.enable(false);
@@ -110,11 +110,14 @@ class Main extends Application
 			case KeyCode.F8:
 				playField.flipHealthBar = !playField.flipHealthBar;
 			case KeyCode.LEFT_BRACKET:
-				playField.latencyCompensation -= 10;
+				if (playField.songStarted)
+					playField.latencyCompensation -= 10;
 			case KeyCode.RIGHT_BRACKET:
-				playField.latencyCompensation += 10;
+				if (playField.songStarted)
+					playField.latencyCompensation += 10;
 			case KeyCode.B:
-				playField.botplay = !playField.botplay;
+				if (playField.songStarted)
+					playField.botplay = !playField.botplay;
 			default:
 		}
 	}

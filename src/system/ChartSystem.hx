@@ -23,7 +23,7 @@ class ChartSystem
 
 		var stage = input.readLine().split(": ")[1].trim();
 		var instDir = input.readLine().split(": ")[1].trim();
-		var voicesDir = input.readLine().split(": ")[1].trim();
+		var voicesDirs = input.readLine().split(": ")[1].trim().split(", ");
 
 		var mania = Std.parseInt(input.readLine().split(": ")[1].trim());
 		var difficulty = Std.parseInt(input.readLine().split(": #")[1].trim()) - 1;
@@ -38,13 +38,14 @@ class ChartSystem
 			var role:CharacterRole = split[1];
 
 			var posSplit = input.readLine().replace("pos ", "").split(" ");
-			var x = Std.parseFloat(posSplit[0]);
-			var y = Std.parseFloat(posSplit[1]);
+			var posX = Std.parseFloat(posSplit[0]);
+			var posY = Std.parseFloat(posSplit[1]);
+
 			var camSplit = input.readLine().replace("cam ", "").split(" ");
 			var camX = Std.parseFloat(camSplit[0]);
 			var camY = Std.parseFloat(camSplit[1]);
 
-			var character:Character = {name: name, role: role, x: x, y: y, camX: camX, camY: camY};
+			var character:Character = {name: name, role: role, x: posX, y: posY, camX: camX, camY: camY};
 			characterData.push(character);
 		}
 
@@ -57,7 +58,7 @@ class ChartSystem
 			timeSig: timeSig,
 			stage: stage,
 			instDir: instDir,
-			voicesDir: voicesDir,
+			voicesDirs: voicesDirs,
 			mania: mania,
 			difficulty: difficulty,
 			characters: characterData

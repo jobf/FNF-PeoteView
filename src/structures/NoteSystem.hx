@@ -37,6 +37,8 @@ class NoteSystem {
 
 	var parent(default, null):PlayField;
 
+	private var sustainDimensions:Array<Int> = [];
+
 	function new(numOfReceptors:Int, parent:PlayField) {
 		this.parent = parent;
 
@@ -59,14 +61,14 @@ class NoteSystem {
 		var tex2 = TextureSystem.getTexture("sustainTex");
 
 		Sustain.init(sustainProg, "sustainTex", tex2);
-		parent.sustainDimensions.push(tex2.width);
-		parent.sustainDimensions.push(tex2.height);
+		sustainDimensions.push(tex2.width);
+		sustainDimensions.push(tex2.height);
 
 		parent.display.addProgram(sustainProg);
 		parent.display.addProgram(notesProg);
 
-		var keybindMap = parent.keybindMap;
-		var strumlineMap = keybindMap.strumline;
+		var input = parent.inputSystem;
+		var strumlineMap = input.strumline;
 
 		for (j in 0...strumlineMap.length) {
 			var map = strumlineMap[j];
@@ -76,14 +78,14 @@ class NoteSystem {
 				rec.r = strum[0];
 				rec.x = Math.floor(strum[1]);
 				rec.scale = strum[2];
-				rec.playable = keybindMap.strumlinePlayable[j];
+				rec.playable = input.strumlinePlayable[j];
 				notesBuf.addElement(rec);
 			}
 		}
 	}
 
 	function init(notes:File) {
-		var dimensions = parent.sustainDimensions;
+		var dimensions = sustainDimensions;
 
 		var sW = dimensions[0];
 		var sH = dimensions[1];
@@ -94,7 +96,7 @@ class NoteSystem {
 		{
 			var note = notes.getNote(i);
 
-			var strum = parent.keybindMap.strumline[note.lane][note.index];
+			var strum = parent.inputSystem.strumline[note.lane][note.index];
 
 			var noteSpr = new Note(999999999, 0, 0, 0);
 			noteSpr.data = note;
@@ -221,13 +223,12 @@ class NoteSystem {
 		spawnPosBottom = spawnPosTop = 0;
 	}
 
-	function resetReceptors() {
+	function resetReceptors(resetAnims:Bool = true) {
 		for (i in 0...parent.numOfReceptors) {
 			var rec = notesBuf.getElement(i);
-			if (rec.idle()) {
-				rec.reset();
-				notesBuf.updateElement(rec);
-			}
+			if (rec.idle()) rec.reset();
+			rec.y = parent.downScroll ? Main.INITIAL_HEIGHT - 150 : 50;
+			notesBuf.updateElement(rec);
 		}
 	}
 
@@ -305,7 +306,7 @@ class NoteSystem {
 		var index = data.index;
 		var lane = data.lane;
 
-		var fullIndex = index + parent.keybindMap.strumlineIndexes[lane];
+		var fullIndex = index + parent.inputSystem.strumlineIndexes[lane];
 
 		var position = data.position;
 

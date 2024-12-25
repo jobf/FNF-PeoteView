@@ -51,9 +51,9 @@ class Header {
 	var instDir:String;
 
 	/**
-		The song's voices directory.
+		The song's voices directory array.
 	**/
-	var voicesDir:String;
+	var voicesDirs:Array<String>;
 
 	/**
 		The song's key count.
@@ -74,6 +74,6 @@ class Header {
 		Returns a string representation of the chart header.
 	**/
 	function toString() {
-		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, characters => ${[for (character in characters) character.toString()]} }';
+		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, characters => ${[for (character in characters) character.toString()]}, instDir => $instDir, voicesDirs => $voicesDirs }';
 	}
 }

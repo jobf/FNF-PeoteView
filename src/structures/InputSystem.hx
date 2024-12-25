@@ -1,13 +1,12 @@
-package system;
+package structures;
 
 import lime.ui.KeyCode;
 
 /**
-	The keybind map.
-	This is a helper class for the playfield's strumline initialization.
+	The input for the playfield.
 **/
 @:publicFields
-class KeybindMap {
+class InputSystem {
 	var keybindMaps:Array<Map<KeyCode, Array<Int>>> = [
 		// 1 KEY
 		[KeyCode.SPACE => [0, 1]],
@@ -192,6 +191,10 @@ class KeybindMap {
 			if (i != 0) strumlineIndexes.push(strumline[i-1].length);
 			else strumlineIndexes.push(0);
 		}
+
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.add(press);
+		window.onKeyUp.add(release);
 	}
 
 	inline function exists(keyCode:Int) {
@@ -200,5 +203,77 @@ class KeybindMap {
 
 	inline function get(keyCode:Int) {
 		return untyped map.get(keyCode);
+	}
+
+	function press(code:KeyCode, _:Int) {
+		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
+
+		if (!exists(code)) {
+			return;
+		}
+
+		var map = get(code);
+		var lane = map[1];
+		var index = map[0] + strumlineIndexes[lane];
+
+		var noteSystem = parent.noteSystem;
+
+		if (noteSystem.playerHitsToCheck[index]) {
+			return;
+		}
+
+		var rec = noteSystem.getReceptor(index);
+
+		if (!rec.playable) {
+			return;
+		}
+
+		noteSystem.playerHitsToCheck[index] = true;
+
+		var noteToHit = noteSystem.notesToHit[index];
+		noteSystem.hitDetectNote(noteToHit, rec, index);
+
+		parent.onKeyPress.dispatch(code);
+	}
+
+	function release(code:KeyCode, _:Int) {
+		if (code == KeyCode.RETURN) {
+			if (parent.paused) {
+				parent.resume();
+			} else {
+				parent.pause();
+			}
+		}
+
+		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
+
+		if (!exists(code)) {
+			return;
+		}
+
+		var map = get(code);
+		var lane = map[1];
+		var index = map[0] + strumlineIndexes[lane];
+
+		var noteSystem = parent.noteSystem;
+
+		noteSystem.playerHitsToCheck[index] = false;
+
+		var rec = noteSystem.getReceptor(index);
+
+		if (!rec.playable) {
+			return;
+		}
+
+		var sustainToRelease = noteSystem.sustainsToHold[index];
+		noteSystem.releaseDetectSustain(sustainToRelease, rec, index);
+
+		parent.onKeyRelease.dispatch(code);
+	}
+
+	function dispose() {
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.remove(press);
+		window.onKeyUp.remove(release);
 	}
 }
