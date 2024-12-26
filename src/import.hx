@@ -3,6 +3,7 @@ import peote.view.*;
 import peote.view.intern.*;
 
 // GAME
+import atlas.*;
 import elements.*;
 import music.*;
 import music.chart.*;

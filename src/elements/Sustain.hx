@@ -1,5 +1,8 @@
 package elements;
 
+/**
+	The sustain note of the note sprite.
+**/
 class Sustain implements Element
 {
 	// position in pixel (relative to upper left corner of Display)

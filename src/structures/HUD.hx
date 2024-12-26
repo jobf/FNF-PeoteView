@@ -77,6 +77,7 @@ class HUD {
 		healthBarBG.type = HEALTH_BAR;
 		healthBarBG.changeID(0);
 		healthBarBG.x = 275;
+		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
 
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
@@ -87,7 +88,6 @@ class HUD {
 			part.y = healthBarBG.y + healthBarHS;
 
 			var healthIconColor = healthIconColors[i];
-			//part.c = healthIconColor[0];
 
 			uiBuf.addElement(part);
 		}
@@ -120,8 +120,9 @@ class HUD {
 
 		scoreTxt = new Text(0, 0);
 
-		watermarkTxt = new Text(0, 0, "-/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay");
+		watermarkTxt = new Text(0, 0, "FV TEST BUILD | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (0ms)");
 		watermarkTxt.x = 2;
+		watermarkTxt.scale = 0.7;
 		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
 
 		scoreTxtProg = new Program(scoreTxt.buffer);
@@ -146,13 +147,8 @@ class HUD {
 		updateComboNumbers();
 		updateHealthBar();
 		updateHealthIcons();
+		updateScoreText();
 		countdownDisp.update(deltaTime);
-
-		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
-		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
-		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
-		watermarkTxt.text = 'FV TEST BUILD | - -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, and B to toggle botplay (${parent.latencyCompensation}ms)';
-		watermarkTxt.scale = 0.7;
 	}
 
 	/**
@@ -220,10 +216,11 @@ class HUD {
 
 		var healthIconColor = healthIconColors[parent.flipHealthBar ? 1 : 0];
 
-		//part1.c = healthIconColor[0];
+		part1.c = healthIconColor[0];
 
 		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (parent.flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
 		part1.x = healthBarBG.x + healthBarWS;
+		part1.y = healthBarBG.y + healthBarHS;
 
 		if (part1.w < 0) part1.w = 0;
 
@@ -235,10 +232,11 @@ class HUD {
 
 		var healthIconColor = healthIconColors[parent.flipHealthBar ? 0 : 1];
 
-		//part2.c = healthIconColor[0];
+		part2.c = healthIconColor[0];
 
 		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
 		part2.x = (healthBarBG.x + part1.w) + healthBarWS;
+		part2.y = healthBarBG.y + healthBarHS;
 
 		if (part2.w < 0) part2.w = 0;
 
@@ -268,6 +266,8 @@ class HUD {
 		var plrIcon = healthIcons[1];
 		plrIcon.x = part1.x - 18;
 
+		oppIcon.y = plrIcon.y = healthBarBG.y - 75;
+
 		var oppIco = parent.flipHealthBar ? plrIcon : oppIcon;
 		var plrIco = parent.flipHealthBar ? oppIcon : plrIcon;
 
@@ -279,6 +279,15 @@ class HUD {
 
 		uiBuf.updateElement(oppIcon);
 		uiBuf.updateElement(plrIcon);
+	}
+
+	/**
+		Updates the score text and watermark text.
+	**/
+	function updateScoreText() {
+		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
+		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
+		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 	}
 
 	/**

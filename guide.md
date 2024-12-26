@@ -68,6 +68,17 @@ pos 200 300
 cam 0 45
 ```
 
+The difficulty map:
+
+#1 - Easy
+#2 - Normal
+#3 - Hard
+#4 - Expert
+#5 - Insane
+#6 - Blasphemous
+#7 - Echo
+#8 - Custom
+
 ___________________________ ___________________________ ___________________________
 
 There's clearly a lot of info there but it's nice to separate it from the chart file.

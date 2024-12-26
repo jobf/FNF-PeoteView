@@ -1,5 +1,8 @@
 package elements;
 
+/**
+	The note sprite of the note system. This is also used for the receptor.
+**/
 class Note implements Element
 {
 	// position in pixel (relative to upper left corner of Display)

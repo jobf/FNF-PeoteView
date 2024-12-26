@@ -11,11 +11,11 @@ class SoundGroup {
 	var grp:cpp.Star<MaSoundGroup>;
 
 	function new() {
-		cpp.vm.Gc.doNotKill(this);
-
 		grp = MaSoundGroup.create();
 
-		var result = Miniaudio.ma_sound_group_init(Sound.engine, #if FV_STREAM 1 | #end 4 | 0x00002000 | 0x00004000, null, grp);
+		cpp.vm.Gc.doNotKill(this);
+
+		var result = Miniaudio.ma_sound_group_init(Sound.engine, 0, null, grp);
 
 		if (result != MaResult.MA_SUCCESS) {
 			Sys.println("[Sound system] Failed to initialize sound group");

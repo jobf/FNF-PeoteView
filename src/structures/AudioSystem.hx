@@ -6,33 +6,38 @@ package structures;
 @:publicFields
 @:access(structures.PlayField)
 class AudioSystem {
-    var inst:Sound;
-    var voices:Array<Sound> = [];
-    var grp:SoundGroup;
+	var inst:Sound;
+	var voices:Array<Sound> = [];
 
-    function new(chart:Chart) {
-        grp = new SoundGroup();
-
-        inst = new Sound();
-		inst.fromFile(chart.header.instDir, grp);
+	function new(chart:Chart) {
+		inst = new Sound();
+		inst.fromFile(chart.header.instDir);
 
 		for (voicesDir in chart.header.voicesDirs) {
 			var voicesInstance = new Sound();
-			voicesInstance.fromFile(voicesDir, grp);
-            voices.push(voicesInstance);
+			voicesInstance.fromFile(voicesDir);
+			voices.push(voicesInstance);
 		}
-    }
+	}
 
-    function play() {
-        grp.play();
-    }
+	function play() {
+		inst.play();
 
-    function stop() {
-        grp.stop();
-    }
+		for (voicesTrack in voices) {
+			voicesTrack.play();
+		}
+	}
 
-    function update(playField:PlayField, deltaTime:Float) {
-        if (playField.songPosition > inst.length && !playField.songEnded) {
+	function stop() {
+		inst.stop();
+
+		for (voicesTrack in voices) {
+			voicesTrack.stop();
+		}
+	}
+
+	function update(playField:PlayField, deltaTime:Float) {
+		if (playField.songPosition > inst.length && !playField.songEnded) {
 			playField.onStopSong.dispatch(playField.chart);
 		}
 
@@ -42,17 +47,23 @@ class AudioSystem {
 			inst.update();
 			playField.songPosition = inst.time;
 		}
-    }
+	}
 
-    function setTime(timeInSec:Float) {
-        var time:cpp.Int64 = Tools.betterInt64FromFloat(timeInSec * 1000);
-		Miniaudio.ma_sound_group_set_start_time_in_milliseconds(grp.grp, untyped time);
-    }
+	function setTime(time:Float) {
+		inst.time = time;
 
-    function dispose() {
-        grp.dispose();
-        inst = null;
-        voices.resize(0);
-        voices = null;
-    }
+		for (voicesTrack in voices) {
+			voicesTrack.time = time;
+		}
+	}
+
+	function dispose() {
+		inst.dispose();
+		inst = null;
+		for (voicesTrack in voices) {
+			voicesTrack.dispose();
+		}
+		voices.resize(0);
+		voices = null;
+	}
 }

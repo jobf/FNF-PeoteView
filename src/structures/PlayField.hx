@@ -9,47 +9,66 @@ import lime.app.Event;
 @:publicFields
 class PlayField {
 	var display(default, null):CustomDisplay;
-
-	var disposed(default, null):Bool;
-	var paused(default, null):Bool;
-	var botplay:Bool;
-
-	/**************************************************************************************
-										  CONSTRUCTOR
-	**************************************************************************************/
+	var view(default, null):CustomDisplay;
 
 	function new(songName:String) {
 		chart = new Chart('assets/songs/$songName');
 	}
 
-	function init(display:CustomDisplay) {
+	function init(display:CustomDisplay, view:CustomDisplay) {
 		this.display = display;
+		this.view = view;
 		create(display, chart.header.mania);
 	}
 
-	var downScroll(default, set):Bool;
+	var score:Int128 = 0;
+	var misses:Int128 = 0;
+	var combo:Int128 = 0;
+	var numOfReceptors:Int;
+	var numOfNotes:Int;
+	var health:Float = 0.5;
+	var latencyCompensation(default, set):Int;
+	inline function set_latencyCompensation(value:Int) {
+		hud.watermarkTxt.text = 'FV TEST BUILD | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (${value}ms)';
+		return latencyCompensation = value;
+	}
 
+	var scrollSpeed(default, set):Float = 1.0;
+	inline function set_scrollSpeed(value:Float) {
+		return noteSystem.setScrollSpeed(scrollSpeed = value);
+	}
+	var downScroll(default, set):Bool;
 	inline function set_downScroll(value:Bool) {
 		downScroll = value;
-		if (noteSystem != null) noteSystem.resetReceptors(false);
+		if (noteSystem != null) {
+			noteSystem.resetReceptors(false);
+			noteSystem.updateNotes(Tools.betterInt64FromFloat((songPosition + latencyCompensation) * 100));
+		}
 		if (hud != null) {
 			hud.updateHealthBar();
 			hud.updateHealthIcons();
+			hud.updateScoreText();
 		}
 		return value;
 	}
-
 	var practiceMode:Bool;
-
 	var songStarted(default, null):Bool;
 	var songEnded(default, null):Bool;
+	var disposed(default, null):Bool;
+	var paused(default, null):Bool;
+	var botplay:Bool;
+
+	var inputSystem(default, null):InputSystem;
+	var noteSystem(default, null):NoteSystem;
+	var hud(default, null):HUD;
+	var audioSystem(default, null):AudioSystem;
+	var field(default, null):Field;
 
 	var onStartSong:Event<Chart->Void>;
 	var onPauseSong:Event<Chart->Void>;
 	var onResumeSong:Event<Chart->Void>;
 	var onStopSong:Event<Chart->Void>;
 	var onDeath:Event<Chart->Void>;
-
 	var onNoteHit:Event<ChartNote->Int->Void>;
 	var onNoteMiss:Event<ChartNote->Void>;
 	var onSustainComplete:Event<ChartNote->Void>;
@@ -57,22 +76,7 @@ class PlayField {
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
-	var inputSystem(default, null):InputSystem;
-	var noteSystem(default, null):NoteSystem;
-	var hud(default, null):HUD;
-	var audioSystem(default, null):AudioSystem;
-
-	var scrollSpeed(default, set):Float = 1.0;
-
-	inline function set_scrollSpeed(value:Float) {
-		return noteSystem.setScrollSpeed(scrollSpeed = value);
-	}
-
 	var flipHealthBar:Bool;
-
-	var numOfReceptors:Int;
-	var numOfNotes:Int;
-
 	var hitbox:Float = 200;
 
 	function setTime(value:Float, playAgain:Bool = false) {
@@ -85,11 +89,19 @@ class PlayField {
 		noteSystem.resetNotes();
 	}
 
+	var songPosition:Float;
+	var chart:Chart;
+
+	/**
+	 * Creates the playfield.
+	 * @param display 
+	 * @param mania 
+	 */
 	function create(display:Display, mania:Int = 4) {
+		if (mania > 16) mania = 16;
+
 		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
 		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
-
-		if (mania > 16) mania = 16;
 
 		onStartSong = new Event<Chart->Void>();
 		onPauseSong = new Event<Chart->Void>();
@@ -108,25 +120,15 @@ class PlayField {
 		noteSystem = new NoteSystem(numOfReceptors, this);
 		hud = new HUD(display, this);
 		audioSystem = new AudioSystem(chart);
+		field = new Field(this);
 
 		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
-
-		finishPlayfield(display);
-	}
-
-	/**
-		Finish creating the playfield.
-	**/
-	function finishPlayfield(display:Display) {
-		var conductor = Main.conductor;
-
-		var timeSig = chart.header.timeSig;
-		conductor.changeBpmAt(0, chart.header.bpm, timeSig[0], timeSig[1]);
-
 		scrollSpeed = chart.header.speed;
 
+		var conductor = Main.conductor;
+		var timeSig = chart.header.timeSig;
+		conductor.changeBpmAt(0, chart.header.bpm, timeSig[0], timeSig[1]);
 		songPosition = -conductor.crochet * 4.5;
-
 		conductor.onBeat.add(beatHit);
 		conductor.onMeasure.add(measureHit);
 
@@ -139,23 +141,14 @@ class PlayField {
 		onDeath.add(gameOver);
 	}
 
-	var score:Int128 = 0;
-	var misses:Int128 = 0;
-	var combo:Int128 = 0;
-
-	var songPosition:Float;
-	var health:Float = 0.5;
-	var latencyCompensation:Int;
-	var chart:Chart;
-
 	/**
-		Update the playfield.
+		Updates the playfield.
 	**/
 	function update(deltaTime:Float) {
 		if (disposed || paused) return;
 
 		if (display.fov != 1) {
-			display.fov -= (display.fov - 1) * (deltaTime * 10);
+			display.fov -= (display.fov - 1) * (deltaTime * 0.01);
 		}
 
 		if (health < 0 && !disposed) {
@@ -163,15 +156,16 @@ class PlayField {
 			return;
 		}
 
-		var pos = Tools.betterInt64FromFloat(songPosition * 100);
+		audioSystem.update(this, deltaTime);
 
 		songPosition += latencyCompensation;
 
+		Main.conductor.time = songPosition;
+
+		var pos = Tools.betterInt64FromFloat(songPosition * 100);
+
 		noteSystem.update(pos);
 		hud.update(deltaTime);
-		audioSystem.update(this, deltaTime);
-
-		Main.conductor.time = songPosition + latencyCompensation;
 
 		songPosition -= latencyCompensation;
 	}
@@ -183,7 +177,7 @@ class PlayField {
 		if (disposed || paused) return;
 
 		paused = true;
-		if (!RenderingMode.enabled) audioSystem.stop();
+		if (!RenderingMode.enabled && songStarted) audioSystem.stop();
 		noteSystem.resetReceptors();
 		display.fov = 1;
 		hud.openPauseScreen();
@@ -196,7 +190,8 @@ class PlayField {
 		if (disposed || !paused) return;
 
 		paused = false;
-		if (!RenderingMode.enabled) audioSystem.play();
+		if (!RenderingMode.enabled && songStarted && !songEnded) audioSystem.play();
+		noteSystem.resetReceptors();
 		display.fov = 1;
 		hud.closePauseScreen();
 	}

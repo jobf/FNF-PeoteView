@@ -82,7 +82,7 @@ class Sound {
 		}
 	}
 
-	inline function new() {
+	function new() {
 		sound = MaSound.create();
 
 		// BUGFIX
@@ -93,16 +93,10 @@ class Sound {
 		cpp.vm.Gc.doNotKill(this);
 	}
 
-	function fromFile(path:String, grp:SoundGroup = null) {
-		var soundGroup:cpp.Star<MaSoundGroup> = null;
-
-		if (grp != null) {
-			soundGroup = grp.grp;
-		}
-
+	function fromFile(path:String) {
 		var result = Miniaudio.ma_sound_init_from_file(engine, path,
 		//MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION
-		#if FV_STREAM 1 | #end 4 | 0x00002000 | 0x00004000, soundGroup, null, sound);
+		1 | 4 | 0x00002000 | 0x00004000, null, null, sound);
 
 		Miniaudio.ma_sound_get_length_in_seconds(sound, cpp.Pointer.addressOf(_length).ptr);
 		_length *= 1000;
@@ -119,7 +113,7 @@ class Sound {
 	}
 
 	function play() {
-		_programPos = -Timestamp.get() + _playhead.program;
+		_programPos = -Timestamp.get() + (time * 0.001);
 
 		var result = Miniaudio.ma_sound_start(sound);
 

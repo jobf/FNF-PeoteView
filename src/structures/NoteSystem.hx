@@ -372,6 +372,7 @@ class NoteSystem {
 		}
 
 		if (sustainExists) {
+			sustain.r = parent.downScroll ? -90 : 90;
 			sustain.speed = parent.scrollSpeed;
 
 			if (!isHit) {

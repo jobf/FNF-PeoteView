@@ -79,7 +79,7 @@ class Main extends Application
 			conductor = new Conductor();
 
 			playField = new PlayField(Sys.args()[0]);
-			playField.init(middleDisplay);
+			playField.init(middleDisplay, bottomDisplay);
 
 			playField.downScroll = true;
 
@@ -118,6 +118,9 @@ class Main extends Application
 			case KeyCode.B:
 				if (playField.songStarted)
 					playField.botplay = !playField.botplay;
+			case KeyCode.M:
+				if (playField.songStarted)
+					playField.downScroll = !playField.downScroll;
 			default:
 		}
 	}

@@ -17,11 +17,6 @@ class Sprite implements Element
 	@posY @formula("y + py") var y:Int;
 
 	/**
-		The sprite's z index.
-	**/
-	@zIndex var z:Int;
-
-	/**
 		The sprite's width.
 	**/
 	@sizeX var w:Int;
@@ -92,7 +87,6 @@ class Sprite implements Element
 	function new(x:Int = 0, y:Int = 0, z:Int = 0) {
 		this.x = x;
 		this.y = y;
-		this.z = z;
 	}
 
 	/**
