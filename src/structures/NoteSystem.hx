@@ -185,12 +185,7 @@ class NoteSystem {
 
 		resetReceptors();
 
-		notesToHit.resize(0);
-		sustainsToHold.resize(0);
-		playerHitsToCheck.resize(0);
-		notesToHit.resize(parent.numOfReceptors);
-		sustainsToHold.resize(parent.numOfReceptors);
-		playerHitsToCheck.resize(parent.numOfReceptors);
+		resetInputs();
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			var note = getNote(i);
@@ -214,6 +209,15 @@ class NoteSystem {
 		// That'll fix a bug sgwlfnf (aka me) has discovered when he set the game to fullscreen.
 
 		spawnPosBottom = spawnPosTop = 0;
+	}
+
+	function resetInputs() {
+		notesToHit.resize(0);
+		sustainsToHold.resize(0);
+		playerHitsToCheck.resize(0);
+		notesToHit.resize(parent.numOfReceptors);
+		sustainsToHold.resize(parent.numOfReceptors);
+		playerHitsToCheck.resize(parent.numOfReceptors);
 	}
 
 	function resetReceptors(resetAnims:Bool = true) {

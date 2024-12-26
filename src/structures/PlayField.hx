@@ -56,7 +56,12 @@ class PlayField {
 	var songEnded(default, null):Bool;
 	var disposed(default, null):Bool;
 	var paused(default, null):Bool;
-	var botplay:Bool;
+	var botplay(default, set):Bool;
+
+	inline function set_botplay(value:Bool) {
+		if (noteSystem != null) noteSystem.resetInputs();
+		return botplay = value;
+	}
 
 	var inputSystem(default, null):InputSystem;
 	var noteSystem(default, null):NoteSystem;

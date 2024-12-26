@@ -31,13 +31,13 @@ class Field {
 
         parent.onNoteHit.add(function(note, timing) {
             var char = (note.lane == 0 ? dad : bf);
-            char.playAnimation(singPoses[note.index]);
+            char.playAnimation(singPoses[note.index % 4]);
             char.finishAnim = "BF idle dance";
         });
 
         parent.onNoteMiss.add(function(note) {
             var char = (note.lane == 0 ? dad : bf);
-            char.playAnimation(missPoses[note.index]);
+            char.playAnimation(missPoses[note.index % 4]);
             char.finishAnim = "BF idle dance";
         });
 
