@@ -132,7 +132,7 @@ class Sound {
 		}
 	}
 
-	private function setTime(timeInSec:cpp.Float64, grp:SoundGroup = null) {
+	private function setTime(timeInSec:cpp.Float64) {
 		Miniaudio.ma_sound_seek_to_pcm_frame(sound, untyped (sampleRate * timeInSec));
 
 		_programPos = -Timestamp.get() + timeInSec;
@@ -140,7 +140,7 @@ class Sound {
 		return timeInSec;
 	}
 
-	inline function update() {
+	function update() {
 		var result:Float = 0;
 
 		if (playing) {
@@ -156,7 +156,7 @@ class Sound {
 				case PROGRAM:
 					result = _playhead.program;
 				default:
-					_playhead.program -= (_playhead.program - _playhead.driver) * 0.02;
+					_playhead.program -= (_playhead.program - _playhead.driver) * 0.125;
 					result = _playhead.program;
 			}
 

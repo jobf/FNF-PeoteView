@@ -353,6 +353,7 @@ class PlayField {
 		noteSystem.dispose();
 		hud.dispose();
 		audioSystem.dispose();
+		field.dispose();
 
 		songEnded = true;
 		GC.run();

@@ -56,8 +56,6 @@ class Field {
 
         bf.update(deltaTime);
         buf.updateElement(bf);
-
-        parent.view.fov = 0.25;
     }
 
     function dispose() {
