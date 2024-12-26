@@ -182,9 +182,13 @@ class Actor extends ActorElement
 
 		var xOffset = config.frameX == null ? 0 : config.frameX;
 		var yOffset = config.frameY == null ? 0 : config.frameY;
+		var flipX = config.flipX == null ? false : config.flipX;
+		var flipY = config.flipY == null ? false : config.flipY;
 
 		this.w = width;
 		this.h = height;
+		this.flipX = flipX;
+		this.flipY = flipY;
 		this.clipX = config.x + xOffset;
 		this.clipY = config.y + yOffset;
 		this.clipWidth = width;
@@ -221,35 +225,35 @@ class ActorElement implements Element {
 	@texSizeX private var clipSizeX:Int = 1;
 	@texSizeY private var clipSizeY:Int = 1;
 
-	@varying @custom var _flipX:Float = 1.0;
-	@varying @custom var _flipY:Float = 1.0;
-	@varying @custom var _mirror:Float = 1.0;
+	@varying @custom @formula("_mirror == 1 ? (_flipX == 0 ? 1 : 0) : _flipX") var _flipX:Int = 0;
+	@varying @custom var _flipY:Int = 0;
+	@varying @custom var _mirror:Int = 0;
 
 	var flipX(default, set):Bool;
 
 	inline function set_flipX(value:Bool):Bool {
-		_flipX = value ? -1.0 : 1.0;
+		_flipX = value ? 1 : 0;
 		return flipX = value;
 	}
 
 	var flipY(default, set):Bool;
 
 	inline function set_flipY(value:Bool):Bool {
-		_flipY = value ? -1.0 : 1.0;
+		_flipY = value ? 1 : 0;
 		return flipY = value;
 	}
 
 	var mirror(default, set):Bool;
 
 	inline function set_mirror(value:Bool):Bool {
-		_mirror = value ? -1.0 : 1.0;
+		_mirror = value ? 1 : 0;
 		return mirror = value;
 	}
 
-	@posX @formula("x + off_x + px + adjust_x + (w * ((-_flipX - 1.0) * 0.5)) + (w * ((-_mirror - 1.0) * 0.5))") var x:Int;
-	@posY @formula("y + off_y + py + adjust_y + (h * ((-_flipY - 1.0) * 0.5))") var y:Int;
-	@sizeX @formula("(w * scale) * _flipX * _mirror") var w:Int;
-	@sizeY @formula("(h * scale) * _flipY") var h:Int;
+	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1 ? _flipX : -_flipX))") var x:Int;
+	@posY @formula("y + off_y + py + adjust_y + (h * _flipY)") var y:Int;
+	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1 : 1)") var w:Int;
+	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1 : 1)") var h:Int;
 
 	@pivotX @formula("(w < 0 ? -w : w) * 0.5") var px:Int;
 	@pivotY @formula("(h < 0 ? -h : h) * 0.5") var py:Int;

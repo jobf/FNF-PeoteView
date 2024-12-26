@@ -22,7 +22,7 @@ class Field {
 
         dad = new Actor("bf", 100, 100, 24);
         dad.playAnimation("BF idle dance");
-        dad.flipX = true;
+        dad.mirror = true;
         Actor.buffer.addElement(dad);
 
         bf = new Actor("bf", 500, 100, 24);
@@ -56,6 +56,8 @@ class Field {
 
         bf.update(deltaTime);
         buf.updateElement(bf);
+
+        parent.view.fov = 0.25;
     }
 
     function dispose() {
