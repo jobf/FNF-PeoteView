@@ -23,6 +23,7 @@ class Actor extends ActorElement
 
 	static var buffer:Buffer<ActorElement>;
 	static var program:Program;
+	static var initialized(default, null):Bool;
 
 	static var tex(default, null):Texture;
 	var name(default, null):String;
@@ -36,29 +37,6 @@ class Actor extends ActorElement
 		buffer = new Buffer<ActorElement>(128, 128, true);
 		program = new Program(buffer);
 		program.blendEnabled = true;
-
-		/*program.injectIntoFragmentShader('
-			vec4 flipTex( int textureID, float flipX, float flipY, float mirror )
-			{
-				vec2 coord = vTexCoord;
-
-				if (flipX != 0.0) {
-					coord.x = 1.0 - coord.x;
-				}
-
-				if (flipY != 0.0) {
-					coord.y = 1.0 - coord.y;
-				}
-
-				if (mirror != 0.0) {
-					coord.x = 1.0 - coord.x;
-				}
-
-				return getTextureColor( textureID, coord );
-			}
-		');
-
-		program.setColorFormula('c * flipTex(chars_ID, _flipX, _flipY, _mirror)');*/
 
 		view.addProgram(program);
 	}
@@ -98,6 +76,33 @@ class Actor extends ActorElement
 		changeFrame();
 
 		program.addTexture(tex, "chars");
+
+		if (!initialized) {
+			program.injectIntoFragmentShader('
+				vec4 flipTex( int textureID, float _flipX, float _flipY, float _mirror )
+				{
+					vec2 coord = vTexCoord;
+
+					if (_flipX != 0.0) {
+						coord.x = 1.0 - coord.x;
+					}
+
+					if (_flipY != 0.0) {
+						coord.y = 1.0 - coord.y;
+					}
+
+					if (_mirror != 0.0) {
+						coord.x = 1.0 - coord.x;
+					}
+
+					return getTextureColor( textureID, coord );
+				}
+			');
+
+			program.setColorFormula('c * flipTex(chars_ID, _flipX, _flipY, _mirror)');
+
+			initialized = true;
+		}
 	}
 
 	function dispose() {
@@ -127,6 +132,35 @@ class Actor extends ActorElement
 	// This is here to improve readability
 	inline function pathExists(type:CharacterPathType) {
 		return sys.FileSystem.exists(path(type));
+	}
+
+	// The rest
+
+	@varying @custom var _flipX(default, null):Float = 0.0;
+
+	var flipX(default, set):Bool;
+
+	inline function set_flipX(value:Bool) {
+		_flipX = value ? 1.0 : 0.0;
+		return flipX = value;
+	}
+
+	@varying @custom var _flipY(default, null):Float = 0.0;
+
+	var flipY(default, set):Bool;
+
+	inline function set_flipY(value:Bool) {
+		_flipX = value ? 1.0 : 0.0;
+		return flipY = value;
+	}
+
+	@varying @custom var _mirror(default, null):Float = 0.0;
+
+	var mirror(default, set):Bool;
+
+	inline function set_mirror(value:Bool) {
+		_mirror = value ? 1.0 : 0.0;
+		return mirror = value;
 	}
 
 	// Now for the animation stuff
@@ -216,35 +250,6 @@ class Actor extends ActorElement
 	function changeFrame() {
 		configure(atlas.subTextures[startingFrameIndex + frameIndex]);
 	}
-
-	// The rest
-
-	/*@varying @custom private var _flipX(default, null):Float = 0.0;
-
-	var flipX(default, set):Bool;
-
-	inline function set_flipX(value:Bool) {
-		_flipX = value ? 1.0 : 0.0;
-		return flipX = value;
-	}
-
-	@varying @custom private var _flipY(default, null):Float = 0.0;
-
-	var flipY(default, set):Bool;
-
-	inline function set_flipY(value:Bool) {
-		_flipX = value ? 1.0 : 0.0;
-		return flipY = value;
-	}
-
-	@varying @custom private var _mirror(default, null):Float = 0.0;
-
-	var mirror(default, set):Bool;
-
-	inline function set_mirror(value:Bool) {
-		_mirror = value ? 1.0 : 0.0;
-		return mirror = value;
-	}*/
 }
 
 /**
@@ -287,6 +292,8 @@ class ActorElement implements Element {
 	@varying @custom var adjust_x:Int;
 	@varying @custom var adjust_y:Int;
 	@varying @custom var scale:Float = 1.0;
+
+	@color var c:Color;
 
 	function new(x:Int = 0, y:Int = 0) {
 		this.x = x;
