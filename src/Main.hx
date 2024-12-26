@@ -59,12 +59,11 @@ class Main extends Application
 			TextureSystem.createTexture("pauseOptionShiz", "assets/ui/pauseOptionShiz.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
-			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
-			bottomDisplay.hide();
+			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0xFFFF00FF);
 
 			// Coming soon...
 
-			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x111111FF);
+			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 
 			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 

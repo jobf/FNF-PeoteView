@@ -11,24 +11,31 @@
 
 package tests;
 
+import atlas.SparrowAtlas.SubTexture;
+
 /**
     Actor element object meant to be in the field of the gameplay state.
 **/
 @:publicFields
 class Actor extends ActorElement
 {
+    // Stuff for initialization and shit
+
     static var buffer:Buffer<ActorElement>;
     static var program:Program;
 
     var tex(default, null):Texture;
     var name(default, null):String;
     var atlas(default, null):ActorAtlas;
+    var loop:Bool;
 
     static function init(parent:PlayField) {
         var view = parent.view;
 
         buffer = new Buffer<ActorElement>(128, 128, true);
         program = new Program(buffer);
+        program.blendEnabled = true;
+
         view.addProgram(program);
     }
 
@@ -41,10 +48,11 @@ class Actor extends ActorElement
         view.removeProgram(program);
     }
 
-    function new(name:String) {
-        super();
+    function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24) {
+        super(x, y);
 
         this.name = name;
+        setFps(fps);
 
         if (pathExists(IMAGE)) {
             var bytes = sys.io.File.getBytes(path(IMAGE));
@@ -93,6 +101,72 @@ class Actor extends ActorElement
     inline function pathExists(type:CharacterPathType) {
         return sys.FileSystem.exists(path(type));
     }
+
+    // Now for the animation stuff
+    // Part of the code is originally from jobf's sparrow atlas demo on peote-view
+
+	private var frames:Array<SubTexture>;
+    private var startingFrameIndex:Int;
+    private var endingFrameIndex:Int;
+    private var animationRunning:Bool;
+	private var frameIndex:Int;
+	private var fps:Float;
+	private var frameDurationMs:Float;
+	private var frameTimeRemaining:Float;
+
+	function setFps(fps:Float) {
+		this.fps = fps;
+		frameDurationMs = 1000.0 / fps;
+		frameTimeRemaining = frameDurationMs;
+	}
+
+	function playAnimation(startingFrame:Int, endingFrame:Int) {
+        startingFrameIndex = startingFrame;
+        endingFrameIndex = endingFrame;
+		frameIndex = 0;
+        animationRunning = true;
+	}
+
+    inline function stopAnimation() {
+        animationRunning = false;
+    }
+
+	function update(deltaTime:Float) {
+        if (!animationRunning) return;
+        if (atlas.sparrow != null) {
+            if (frameIndex >= endingFrameIndex - startingFrameIndex) {
+                animationRunning = false;
+                return;
+            }
+
+            frameTimeRemaining -= deltaTime;
+    
+            if (frameTimeRemaining <= 0) {
+                if (loop) frameIndex = (frameIndex + 1) % (endingFrameIndex - startingFrameIndex);
+                else frameIndex++;
+                configure(x, y, atlas.getAtlas().subTextures[startingFrameIndex + frameIndex]);
+                frameTimeRemaining = frameDurationMs;
+            }
+        } else {
+            // TODO
+        }
+	}
+
+	public function configure(x:Int, y:Int, config:SubTexture) {
+		var width = config.frameWidth == null ? config.width : config.frameWidth;
+		var height = config.frameHeight == null ? config.height : config.frameHeight;
+		var xOffset = config.frameX == null ? 0 : config.frameX;
+		var yOffset = config.frameY == null ? 0 : config.frameY;
+
+		this.off_x = x;
+		this.off_y = y;
+		this.w = width;
+		this.h = height;
+		this.clipX = config.x + xOffset;
+		this.clipY = config.y + yOffset;
+		this.clipWidth = width;
+		this.clipHeight = height;
+	}
 }
 
 /**
@@ -120,21 +194,21 @@ class ActorElement implements Element {
 	@texSizeX private var clipSizeX:Int = 1;
 	@texSizeY private var clipSizeY:Int = 1;
 
-    @posX @formula("x + off_x + px") var x:Float;
-    @posY @formula("y + off_y + py") var y:Float;
-    @sizeX @formula("w * scale") var w:Float;
-    @sizeY @formula("h * scale") var h:Float;
+    @posX @formula("x + off_x + px") var x:Int;
+    @posY @formula("y + off_y + py") var y:Int;
+    @sizeX @formula("w * scale") var w:Int;
+    @sizeY @formula("h * scale") var h:Int;
 
 	@pivotX @formula("w * 0.5") var px:Int;
 	@pivotY @formula("h * 0.5") var py:Int;
 
     @rotation var r:Float;
 
-    @varying @custom var off_x:Float;
-    @varying @custom var off_y:Float;
+    @varying @custom @formula("off_x * scale") var off_x:Int;
+    @varying @custom @formula("off_y * scale") var off_y:Int;
     @varying @custom var scale:Float = 1.0;
 
-    function new(x:Float = 0.0, y:Float = 0.0) {
+    function new(x:Int = 0, y:Int = 0) {
         this.x = x;
         this.y = y;
     }
@@ -172,6 +246,7 @@ class ActorAtlas {
     }
 
     static function parseSparrow(path:String):ActorAtlas {
-        return {sparrow: SparrowAtlas.parse(path), animate: null};
+        var content = sys.io.File.getContent(path);
+        return {sparrow: SparrowAtlas.parse(content), animate: null};
     }
 }

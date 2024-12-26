@@ -151,6 +151,10 @@ class PlayField {
 			display.fov -= (display.fov - 1) * (deltaTime * 0.01);
 		}
 
+		if (view.fov != 1) {
+			view.fov -= (view.fov - 1) * (deltaTime * 0.01);
+		}
+
 		if (health < 0 && !disposed) {
 			onDeath.dispatch(chart);
 			return;
@@ -166,6 +170,7 @@ class PlayField {
 
 		noteSystem.update(pos);
 		hud.update(deltaTime);
+		field.update(deltaTime);
 
 		songPosition -= latencyCompensation;
 	}
@@ -180,6 +185,7 @@ class PlayField {
 		if (!RenderingMode.enabled && songStarted) audioSystem.stop();
 		noteSystem.resetReceptors();
 		display.fov = 1;
+		view.fov = 1;
 		hud.openPauseScreen();
 	}
 
@@ -193,6 +199,7 @@ class PlayField {
 		if (!RenderingMode.enabled && songStarted && !songEnded) audioSystem.play();
 		noteSystem.resetReceptors();
 		display.fov = 1;
+		view.fov = 1;
 		hud.closePauseScreen();
 	}
 
@@ -204,6 +211,7 @@ class PlayField {
 	inline function measureHit(measure:Float) {
 		if (measure >= 0) {
 			display.fov += 0.03;
+			view.fov += 0.015;
 		}
 	}
 

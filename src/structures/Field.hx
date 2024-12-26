@@ -16,13 +16,15 @@ class Field {
 
         Actor.init(parent);
 
-        bf = new Actor("bf");
+        bf = new Actor("bf", 100, 100, 24);
+        bf.playAnimation(301, 313);
         Actor.buffer.addElement(bf);
     }
 
     function update(deltaTime:Float) {
         var buf = Actor.buffer;
-        
+
+        bf.update(deltaTime);
         buf.updateElement(bf);
     }
 
