@@ -5,28 +5,57 @@ package atlas;
 class SparrowAtlas {
 	var imagePath:String;
 	var subTextures:Array<SubTexture>;
+	var animMap:Map<String, Array<Int>>;
 
 	static function parse(text:String):SparrowAtlas {
 		var xml = Xml.parse(text);
 		var root = xml.firstElement();
+		var subTexs:Array<SubTexture> = [];
+		var aMap:Map<String, Array<Int>> = [];
+		var curName:String = "";
+
+		aMap[curName] = [0, 0];
+
+		var index:Int = 0;
+		var started:Bool = false;
+		for (element in root.elementsNamed("SubTexture")) {
+			var name = element.get("name");
+			var x = Std.parseInt(element.get("x"));
+			var y = Std.parseInt(element.get("y"));
+			var width = Std.parseInt(element.get("width"));
+			var height = Std.parseInt(element.get("height"));
+			var frameX = Std.parseInt(element.get("frameX"));
+			var frameY = Std.parseInt(element.get("frameY"));
+			var frameWidth = Std.parseInt(element.get("frameWidth"));
+			var frameHeight = Std.parseInt(element.get("frameHeight"));
+			var flipX = element.exists("flipX") ? element.get("flipX") == "true" : null;
+			var flipY = element.exists("flipY") ? element.get("flipY") == "true" : null;
+			var rotated = element.exists("rotated") ? element.get("rotated") == "true" : null;
+
+			var nameStripped = name.substring(0, name.length - 4);
+			if (curName != nameStripped) {
+				if (started) {
+					aMap[curName][1] = index - 1;
+				} else {
+					started = true;
+				}
+				curName = nameStripped;
+				aMap[curName] = [index, index];
+			}
+
+			subTexs.push({name: name, x: x, y: y, width: width, height: height, frameX: frameX, frameY: frameY, frameWidth: frameWidth, frameHeight: frameHeight, flipX: flipX, flipY: flipY, rotated: rotated});
+
+			index++;
+		}
+
+		aMap[curName][1] = index;
+
 		return {
 			imagePath: root.get("imagePath"),
-			subTextures: [for (element in root.elementsNamed("SubTexture")) {
-				name: element.get("name"),
-				x: Std.parseInt(element.get("x")),
-				y: Std.parseInt(element.get("y")),
-				width: Std.parseInt(element.get("width")),
-				height: Std.parseInt(element.get("height")),
-				frameX: Std.parseInt(element.get("frameX")),
-				frameY: Std.parseInt(element.get("frameY")),
-				frameWidth: Std.parseInt(element.get("frameWidth")),
-				frameHeight: Std.parseInt(element.get("frameHeight")),
-				flipX: element.exists("flipX") ? element.get("flipX") == "true" : null,
-				flipY: element.exists("flipY") ? element.get("flipY") == "true" : null,
-				rotated: element.exists("rotated") ? element.get("rotated") == "true" : null
-			}]
+			subTextures: subTexs,
+			animMap: aMap
 		}
-	}	
+	}
 }
 
 @:publicFields

@@ -24,10 +24,11 @@ class Actor extends ActorElement
     static var buffer:Buffer<ActorElement>;
     static var program:Program;
 
-    var tex(default, null):Texture;
+    static var tex(default, null):Texture;
     var name(default, null):String;
-    var atlas(default, null):ActorAtlas;
-    var loop:Bool;
+    var atlas(default, null):SparrowAtlas;
+
+    var finishAnim:String = "";
 
     static function init(parent:PlayField) {
         var view = parent.view;
@@ -35,6 +36,29 @@ class Actor extends ActorElement
         buffer = new Buffer<ActorElement>(128, 128, true);
         program = new Program(buffer);
         program.blendEnabled = true;
+
+		/*program.injectIntoFragmentShader('
+			vec4 flipTex( int textureID, float flipX, float flipY, float mirror )
+			{
+				vec2 coord = vTexCoord;
+
+				if (flipX != 0.0) {
+					coord.x = 1.0 - coord.x;
+				}
+
+				if (flipY != 0.0) {
+					coord.y = 1.0 - coord.y;
+				}
+
+				if (mirror != 0.0) {
+					coord.x = 1.0 - coord.x;
+				}
+
+				return getTextureColor( textureID, coord );
+			}
+		');
+
+		program.setColorFormula('c * flipTex(chars_ID, _flipX, _flipY, _mirror)');*/
 
         view.addProgram(program);
     }
@@ -58,23 +82,26 @@ class Actor extends ActorElement
             var bytes = sys.io.File.getBytes(path(IMAGE));
             var pngData = TextureData.fromFormatPNG(bytes);
             tex = Texture.fromData(pngData);
+            tex.smoothExpand = tex.smoothShrink = true;
         } else {
             throw "Image doesn't exist: " + path(IMAGE);
         }
 
         if (pathExists(XML)) {
-            atlas = ActorAtlas.parseSparrow(path(XML));
+            atlas = SparrowAtlas.parse(sys.io.File.getContent(path(XML)));
         } else if (pathExists(JSON)) {
             atlas = null; // TODO
         } else {
             throw "Atlas data doesn't exist: " + path(NONE);
         }
 
-        program.addTexture(tex, name);
+        changeFrame();
+
+        program.addTexture(tex, "chars");
     }
 
     function dispose() {
-        program.removeTexture(tex, name);
+        program.removeTexture(tex, "chars");
         tex.dispose();
         tex = null;
     }
@@ -108,11 +135,13 @@ class Actor extends ActorElement
 	private var frames:Array<SubTexture>;
     private var startingFrameIndex:Int;
     private var endingFrameIndex:Int;
-    private var animationRunning:Bool;
 	private var frameIndex:Int;
 	private var fps:Float;
 	private var frameDurationMs:Float;
 	private var frameTimeRemaining:Float;
+    private var loop:Bool;
+
+    var animationRunning(default, null):Bool;
 
 	function setFps(fps:Float) {
 		this.fps = fps;
@@ -120,11 +149,13 @@ class Actor extends ActorElement
 		frameTimeRemaining = frameDurationMs;
 	}
 
-	function playAnimation(startingFrame:Int, endingFrame:Int) {
-        startingFrameIndex = startingFrame;
-        endingFrameIndex = endingFrame;
+	function playAnimation(name:String, loop:Bool = false) {
+        var animMap = atlas.animMap[name];
+        startingFrameIndex = animMap[0];
+        endingFrameIndex = animMap[1];
 		frameIndex = 0;
         animationRunning = true;
+        this.loop = loop;
 	}
 
     inline function stopAnimation() {
@@ -133,9 +164,13 @@ class Actor extends ActorElement
 
 	function update(deltaTime:Float) {
         if (!animationRunning) return;
-        if (atlas.sparrow != null) {
+        if (atlas != null) {
             if (frameIndex >= endingFrameIndex - startingFrameIndex) {
                 animationRunning = false;
+                if (finishAnim != "") {
+                    playAnimation(finishAnim);
+                    finishAnim = "";
+                }
                 return;
             }
 
@@ -144,7 +179,7 @@ class Actor extends ActorElement
             if (frameTimeRemaining <= 0) {
                 if (loop) frameIndex = (frameIndex + 1) % (endingFrameIndex - startingFrameIndex);
                 else frameIndex++;
-                configure(x, y, atlas.getAtlas().subTextures[startingFrameIndex + frameIndex]);
+                changeFrame();
                 frameTimeRemaining = frameDurationMs;
             }
         } else {
@@ -167,6 +202,39 @@ class Actor extends ActorElement
 		this.clipWidth = width;
 		this.clipHeight = height;
 	}
+
+    function changeFrame() {
+        configure(x, y, atlas.subTextures[startingFrameIndex + frameIndex]);
+    }
+
+    // The rest
+
+	/*@varying @custom private var _flipX(default, null):Float = 0.0;
+
+    var flipX(default, set):Bool;
+
+    inline function set_flipX(value:Bool) {
+        _flipX = value ? 1.0 : 0.0;
+        return flipX = value;
+    }
+
+	@varying @custom private var _flipY(default, null):Float = 0.0;
+
+    var flipY(default, set):Bool;
+
+    inline function set_flipY(value:Bool) {
+        _flipX = value ? 1.0 : 0.0;
+        return flipY = value;
+    }
+
+	@varying @custom private var _mirror(default, null):Float = 0.0;
+
+    var mirror(default, set):Bool;
+
+    inline function set_mirror(value:Bool) {
+        _mirror = value ? 1.0 : 0.0;
+        return mirror = value;
+    }*/
 }
 
 /**
@@ -211,42 +279,5 @@ class ActorElement implements Element {
     function new(x:Int = 0, y:Int = 0) {
         this.x = x;
         this.y = y;
-    }
-}
-
-/**
-    Character path type.
-**/
-enum abstract CharacterPathType(cpp.UInt8) {
-    var IMAGE;
-    var INFO;
-    var XML;
-    var JSON;
-    var NONE;
-}
-
-/**
-    Actor atlas.
-    You choose between sparrow atlas and animate atlas.
-**/
-@:publicFields
-@:structInit
-class ActorAtlas {
-    var sparrow(default, null):SparrowAtlas;
-    var animate(default, null):Dynamic;
-
-    function getAtlas() {
-        if (sparrow != null) {
-            return sparrow;
-        } else if (animate != null) {
-            return animate;
-        } else {
-            return null;
-        }
-    }
-
-    static function parseSparrow(path:String):ActorAtlas {
-        var content = sys.io.File.getContent(path);
-        return {sparrow: SparrowAtlas.parse(content), animate: null};
     }
 }
