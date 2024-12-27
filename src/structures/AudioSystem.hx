@@ -8,14 +8,18 @@ package structures;
 class AudioSystem {
 	var inst:Sound;
 	var voices:Array<Sound> = [];
+	var grp:SoundGroup;
 
 	function new(chart:Chart) {
+		grp = new SoundGroup();
+		grp.play();
+
 		inst = new Sound();
-		inst.fromFile(chart.header.instDir);
+		inst.fromFile(chart.header.instDir, grp);
 
 		for (voicesDir in chart.header.voicesDirs) {
 			var voicesInstance = new Sound();
-			voicesInstance.fromFile(voicesDir);
+			voicesInstance.fromFile(voicesDir, grp);
 			voices.push(voicesInstance);
 		}
 	}
@@ -37,7 +41,7 @@ class AudioSystem {
 	}
 
 	function update(playField:PlayField, deltaTime:Float) {
-		if (playField.songPosition > inst.length && !playField.songEnded) {
+		if (inst.finished && !playField.songEnded) {
 			playField.onStopSong.dispatch(playField.chart);
 		}
 
@@ -58,6 +62,8 @@ class AudioSystem {
 	}
 
 	function dispose() {
+		grp.dispose();
+		grp = null;
 		inst.dispose();
 		inst = null;
 		for (voicesTrack in voices) {

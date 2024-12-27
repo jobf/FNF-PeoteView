@@ -43,7 +43,7 @@ class NoteSystem {
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
 
-		notesBuf = new Buffer<Note>(2048, 2048, false);
+		notesBuf = new Buffer<Note>(512, 512, false);
 		notesProg = new Program(notesBuf);
 		notesProg.blendEnabled = true;
 
@@ -52,7 +52,7 @@ class NoteSystem {
 		var tex1 = TextureSystem.getTexture("noteTex");
 
 		// SUSTAIN SETUP
-		sustainsBuf = new Buffer<Sustain>(2048, 2048, false);
+		sustainsBuf = new Buffer<Sustain>(512, 512, false);
 		sustainProg = new Program(sustainsBuf);
 		sustainProg.blendEnabled = true;
 

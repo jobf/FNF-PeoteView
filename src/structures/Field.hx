@@ -23,22 +23,32 @@ class Field {
         dad = new Actor("bf", 100, 100, 24);
         dad.playAnimation("BF idle dance");
         dad.mirror = true;
+        dad.startingShakeFrame = 0;
+        dad.endingShakeFrame = 1;
+        dad.finishAnim = "BF idle dance";
         Actor.buffer.addElement(dad);
 
         bf = new Actor("bf", 500, 100, 24);
         bf.playAnimation("BF idle dance");
+        bf.startingShakeFrame = 0;
+        bf.endingShakeFrame = 1;
+        bf.finishAnim = "BF idle dance";
         Actor.buffer.addElement(bf);
 
         parent.onNoteHit.add(function(note, timing) {
-            var char = (note.lane == 0 ? dad : bf);
-            char.playAnimation(singPoses[note.index % 4]);
-            char.finishAnim = "BF idle dance";
+            sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
         });
 
         parent.onNoteMiss.add(function(note) {
-            var char = (note.lane == 0 ? dad : bf);
-            char.playAnimation(missPoses[note.index % 4]);
-            char.finishAnim = "BF idle dance";
+            sing(note.index, (note.lane == 0 ? dad : bf), true, false);
+        });
+
+        parent.onSustainComplete.add(function(note) {
+            sing(note.index, (note.lane == 0 ? dad : bf), false, false, true);
+        });
+
+        parent.onSustainRelease.add(function(note) {
+            sing(note.index, (note.lane == 0 ? dad : bf), true, false);
         });
 
         Main.conductor.onBeat.add(function(beat) {
@@ -56,6 +66,12 @@ class Field {
 
         bf.update(deltaTime);
         buf.updateElement(bf);
+    }
+
+    function sing(index:Int, char:Actor, miss:Bool = false, shake:Bool = false, skipAnimation:Bool = false) {
+        var poses = (miss ? missPoses : singPoses);
+        if (!skipAnimation) char.playAnimation(poses[index % poses.length]);
+        char.shake = shake;
     }
 
     function dispose() {

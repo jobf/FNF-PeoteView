@@ -16,6 +16,9 @@ class Main extends Application
 	static inline var INITIAL_WIDTH = 1280;
 	static inline var INITIAL_HEIGHT = 720;
 
+	// Internal variable for checking if the game has booted up
+	private var _started(default, null):Bool;
+
 	override function onWindowCreate()
 	{
 		switch (window.context.type)
@@ -28,20 +31,22 @@ class Main extends Application
 	}
 
 	// ------------------------------------------------------------
-	// ------------------- SAMPLE STARTS HERE ---------------------
+	// --------------------- GAME STARTS HERE ---------------------
 	// ------------------------------------------------------------
 
-	static var conductor:Conductor;
-
+	// STARTING POINT
 	var peoteView:PeoteView;
 
+	// MUSIC
+	static var conductor:Conductor;
+
+	// DISPLAYS
 	var bottomDisplay:CustomDisplay;
 	var middleDisplay:CustomDisplay;
 	var topDisplay:CustomDisplay;
 
+	// STATES
 	var playField:PlayField;
-
-	var _started:Bool;
 
 	public function startSample(window:Window)
 	{
@@ -82,46 +87,22 @@ class Main extends Application
 
 			playField.downScroll = true;
 
-			window.onKeyDown.add(changeTime);
-
 			GC.run(10);
 			GC.enable(false);
-
-			_started = true;
 
 			window.onResize.add(resize);
 			window.onFullscreen.add(fullscreen);
 
+			#if FV_DEBUG
+			DeveloperStuff.init(window, this);
+			#end
+
 			if (RenderingMode.enabled) {
 				RenderingMode.initRender(this);
 			}
+
+			_started = true;
 		}, 100);
-	}
-
-	function changeTime(code:KeyCode, mod) {
-		if (!_started) return;
-
-		switch (code) {
-			case KeyCode.EQUALS:
-				playField.setTime(playField.songPosition + 2000);
-			case KeyCode.MINUS:
-				playField.setTime(playField.songPosition - 2000);
-			case KeyCode.F8:
-				playField.flipHealthBar = !playField.flipHealthBar;
-			case KeyCode.LEFT_BRACKET:
-				if (playField.songStarted)
-					playField.latencyCompensation -= 10;
-			case KeyCode.RIGHT_BRACKET:
-				if (playField.songStarted)
-					playField.latencyCompensation += 10;
-			case KeyCode.B:
-				if (playField.songStarted)
-					playField.botplay = !playField.botplay;
-			case KeyCode.M:
-				if (playField.songStarted)
-					playField.downScroll = !playField.downScroll;
-			default:
-		}
 	}
 
 	var newDeltaTime:Float = 0;

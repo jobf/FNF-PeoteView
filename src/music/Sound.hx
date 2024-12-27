@@ -93,23 +93,23 @@ class Sound {
 		cpp.vm.Gc.doNotKill(this);
 	}
 
-	function fromFile(path:String) {
+	function fromFile(path:String, ?grp:SoundGroup) {
 		var result = Miniaudio.ma_sound_init_from_file(engine, path,
-		//MA_SOUND_FLAG_STREAM | MA_SOUND_FLAG_NO_PITCH | MA_SOUND_FLAG_NO_SPATIALIZATION
-		1 | 4 | 0x00002000 | 0x00004000, null, null, sound);
+		0x00000001 | 0x00000002 | 0x00002000, grp != null ? grp.grp : null, null, sound);
+
+		if (result != MaResult.MA_SUCCESS) {
+			if (path != "") {
+				Sys.println('[Sound system] Failed to initialize sound named "$path"');
+				Sys.println(result);
+			}
+			return;
+		}
 
 		Miniaudio.ma_sound_get_length_in_seconds(sound, cpp.Pointer.addressOf(_length).ptr);
 		_length *= 1000;
 
 		_dataSource = Miniaudio.ma_sound_get_data_source(sound);
 		Miniaudio.ma_data_source_get_data_format(_dataSource, null, null, cpp.Pointer.addressOf(_sampleRate).ptr, null, 0);
-
-		if (result != MaResult.MA_SUCCESS) {
-			if (path != "") {
-				Sys.println('[Sound system] Failed to initialize sound named "$path"');
-			}
-			return;
-		}
 	}
 
 	function play() {
@@ -156,7 +156,9 @@ class Sound {
 				case PROGRAM:
 					result = _playhead.program;
 				default:
-					_playhead.program -= (_playhead.program - _playhead.driver) * 0.125;
+					var subtract = (_playhead.program - _playhead.driver) * 0.025;
+					_playhead.program -= subtract;
+					_programPos -= subtract;
 					result = _playhead.program;
 			}
 
@@ -168,7 +170,7 @@ class Sound {
 				result = length;
 			}
 		} else {
-			result = length;
+			result = length * 0.001;
 		}
 
 		_time = result * 1000.0;

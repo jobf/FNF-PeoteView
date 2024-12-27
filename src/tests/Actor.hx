@@ -73,15 +73,11 @@ class Actor extends ActorElement
 			throw "Atlas data doesn't exist: " + path(NONE);
 		}
 
-		changeFrame();
-
-		program.addTexture(tex, "chars");
+		program.addTexture(tex, name);
 	}
 
 	function dispose() {
-		program.removeTexture(tex, "chars");
-		tex.dispose();
-		tex = null;
+		program.removeTexture(tex, name);
 	}
 
 	function path(type:CharacterPathType) {
@@ -119,6 +115,10 @@ class Actor extends ActorElement
 	private var frameTimeRemaining:Float;
 	private var loop:Bool;
 
+	var shake:Bool;
+	var startingShakeFrame:Int;
+	var endingShakeFrame:Int;
+
 	var animationRunning(default, null):Bool;
 
 	function setFps(fps:Float) {
@@ -134,15 +134,14 @@ class Actor extends ActorElement
 		frameIndex = 0;
 		animationRunning = true;
 		this.loop = loop;
+		changeFrame();
 	}
 
 	inline function stopAnimation() {
-		animationRunning = false;
-		loop = false;
+		animationRunning = loop = false;
 	}
 
-	function update(deltaTime:Float) {
-		if (!animationRunning) return;
+	inline function endOfAnimation():Bool {
 		if (frameIndex >= endingFrameIndex - startingFrameIndex) {
 			loop = false;
 			animationRunning = false;
@@ -150,14 +149,27 @@ class Actor extends ActorElement
 				playAnimation(finishAnim);
 				finishAnim = "";
 			}
-			return;
+			return true;
 		}
+		return false;
+	}
 
+	function update(deltaTime:Float) {
+		if (!animationRunning) return;
 		frameTimeRemaining -= deltaTime;
 
 		if (frameTimeRemaining <= 0) {
 			if (loop) frameIndex = (frameIndex + 1) % (endingFrameIndex - startingFrameIndex);
 			else frameIndex++;
+
+			if (shake && frameIndex > endingShakeFrame) {
+				frameIndex = startingShakeFrame;
+			}
+
+			if (endOfAnimation()) {
+				return;
+			}
+
 			changeFrame();
 			frameTimeRemaining = frameDurationMs;
 		}

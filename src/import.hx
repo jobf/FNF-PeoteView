@@ -5,6 +5,7 @@ import peote.view.intern.*;
 // GAME
 import atlas.*;
 import elements.*;
+#if FV_DEBUG import debug.*; #end
 import music.*;
 import music.chart.*;
 import music.internal.*;
