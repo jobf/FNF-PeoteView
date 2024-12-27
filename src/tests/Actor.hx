@@ -44,10 +44,10 @@ class Actor extends ActorElement
 	static function uninit(parent:PlayField) {
 		var view = parent.view;
 
+		view.removeProgram(program);
 		program = null;
 		buffer.clear();
 		buffer = null;
-		view.removeProgram(program);
 	}
 
 	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24) {

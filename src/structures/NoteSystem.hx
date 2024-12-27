@@ -42,6 +42,7 @@ class NoteSystem {
 
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
+		trace(numOfReceptors);
 
 		notesBuf = new Buffer<Note>(512, 512, false);
 		notesProg = new Program(notesBuf);
@@ -230,13 +231,37 @@ class NoteSystem {
 			incrementAmount = 200000000;
 		}
 
-		while (file.getNote(Math.floor(Math.min(spawnPosTop += incrementAmount, Int64.toInt(len - 1)))).position < Tools.betterInt64FromFloat(parent.songPosition * 100) - spawnDist) {}
-		while (file.getNote(Math.floor(Math.min(spawnPosTop--, Int64.toInt(len - 1)))).position > Tools.betterInt64FromFloat(parent.songPosition * 100) - spawnDist) {}
+		var decrementAmount = 2;
+
+		if (len > 100) {
+			decrementAmount = 5;
+		} else if (len > 1000) {
+			decrementAmount = 50;
+		} else if (len > 10000) {
+			decrementAmount = 500;
+		} else if (len > 100000) {
+			decrementAmount = 5000;
+		} else if (len > 1000000) {
+			decrementAmount = 50000;
+		} else if (len > 10000000) {
+			decrementAmount = 500000;
+		} else if (len > 100000000) {
+			decrementAmount = 5000000;
+		} else if (len > 1000000000) {
+			decrementAmount = 50000000;
+		}
+
+		if (spawnPosTop > incrementAmount) {
+			while (file.getNote(Math.floor(Math.min(spawnPosTop += incrementAmount, Int64.toInt(len - 1)))).position < Tools.betterInt64FromFloat(parent.songPosition * 100) - spawnDist) {}
+			while (file.getNote(Math.floor(Math.min(spawnPosTop--, Int64.toInt(len - 1)))).position > Tools.betterInt64FromFloat(parent.songPosition * 100) - spawnDist) {}
+		}
 
 		spawnPosBottom = spawnPosTop;
 
-		while (file.getNote(Math.floor(Math.min(spawnPosBottom -= incrementAmount, Int64.toInt(len - 1)))).position > Tools.betterInt64FromFloat(parent.songPosition * 100)) {}
-		while (file.getNote(Math.floor(Math.min(spawnPosBottom++, Int64.toInt(len - 1)))).position < Tools.betterInt64FromFloat(parent.songPosition * 100)) {}
+		if (spawnPosBottom > decrementAmount) {
+			while (file.getNote(Math.floor(Math.min(spawnPosBottom -= decrementAmount, Int64.toInt(len - 1)))).position > Tools.betterInt64FromFloat(parent.songPosition * 100)) {}
+			while (file.getNote(Math.floor(Math.min(spawnPosBottom++, Int64.toInt(len - 1)))).position < Tools.betterInt64FromFloat(parent.songPosition * 100)) {}
+		}
 
 		// The end (thank god)
 	}
@@ -252,8 +277,8 @@ class NoteSystem {
 
 	function resetReceptors(resetAnims:Bool = true) {
 		for (i in 0...parent.numOfReceptors) {
-			var rec = notesBuf.getElement(i);
-			if (!rec.idle()) rec.reset();
+			var rec = getReceptor(i);
+			if (!rec.idle() && resetAnims) rec.reset();
 			rec.y = parent.downScroll ? Main.INITIAL_HEIGHT - 150 : 50;
 			notesBuf.updateElement(rec);
 		}

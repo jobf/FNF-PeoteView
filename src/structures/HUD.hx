@@ -28,7 +28,7 @@ class HUD {
 	var healthIcons:Array<UISprite> = [];
 	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
 	var healthIconColors:Array<Array<Color>> = [
-		[Color.RED1, Color.RED1, Color.RED1, Color.RED1, Color.RED1, Color.RED1],
+		[Color.RED1, Color.BLUE, Color.YELLOW, Color.RED3, Color.GREY2, Color.CYAN],
 		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
 	];
 
@@ -89,8 +89,10 @@ class HUD {
 			part.changeID(i);
 			part.h = healthBarBG.h - (healthBarHS << 1);
 			part.y = healthBarBG.y + healthBarHS;
+			part.gradientMode = 1.0;
 
 			var healthIconColor = healthIconColors[i];
+			part.setAllColors(healthIconColor);
 
 			uiBuf.addElement(part);
 		}
@@ -219,7 +221,7 @@ class HUD {
 
 		var healthIconColor = healthIconColors[parent.flipHealthBar ? 1 : 0];
 
-		part1.c = healthIconColor[0];
+		part1.setAllColors(healthIconColor);
 
 		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (parent.flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
 		part1.x = healthBarBG.x + healthBarWS;
@@ -235,7 +237,7 @@ class HUD {
 
 		var healthIconColor = healthIconColors[parent.flipHealthBar ? 0 : 1];
 
-		part2.c = healthIconColor[0];
+		part2.setAllColors(healthIconColor);
 
 		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
 		part2.x = (healthBarBG.x + part1.w) + healthBarWS;

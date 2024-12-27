@@ -1,4 +1,4 @@
-// Note to self: I did a stress test on this by rendering 4000 and it turns out the bigger the texture dimensions the slower it runs
+// Note to self: 2 months into funkin view development, I did a stress test on this by rendering 4000 and it turns out the bigger the texture dimensions the slower it runs
 // You're rendering more pixels
 
 package elements;
@@ -26,11 +26,26 @@ class UISprite implements Element {
 	@texSizeY var clipSizeY:Int = 200;
 
 	@color var c:Color = 0xFFFFFFFF;
+	@color var c1:Color = 0xFFFFFFFF;
+	@color var c2:Color = 0xFFFFFFFF;
+	@color var c3:Color = 0xFFFFFFFF;
+	@color var c4:Color = 0xFFFFFFFF;
+	@color var c5:Color = 0xFFFFFFFF;
+	@color var c6:Color = 0xFFFFFFFF;
+
+	inline function setAllColors(colors:Array<Color>) {
+		c1 = colors[0];
+		c2 = colors[1];
+		c3 = colors[2];
+		c4 = colors[3];
+		c5 = colors[4];
+		c6 = colors[5];
+	}
 
 	static var healthBarDimensions:Array<Int> = [];
 
-	@varying @custom var gradientMode:Float = 0.0;
 	@varying @custom var flip:Float = 0.0;
+	@varying @custom var gradientMode:Float = 0.0;
 
 	var type:UISpriteType = NONE;
 
@@ -86,7 +101,7 @@ class UISprite implements Element {
 
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
 
-	// This makes it so we don't have create a separate submenu for it and leave it in the top of the playfield (where all the ui is).
+	// This makes it so we don't have create a separate spritesheet for it and leave it in the ui spritesheet.
 	private static var hardcoded_pause_option_values(default, null):Array<Array<Int>> = [
 		[0, 600, 300, 75],
 		[0, 675, 300, 75],
@@ -99,19 +114,42 @@ class UISprite implements Element {
 		program.blendEnabled = true;
 
 		program.injectIntoFragmentShader('
-			vec4 flipTex( int textureID, float flip )
+			vec4 flipTexWithGrad( int textureID, float flip, float gradientMode, vec4 c, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6 )
 			{
 				vec2 coord = vTexCoord;
 
-				if (flip != 0.0) {
-					coord.x = 1.0 - coord.x;
+				if (gradientMode == 0.0) {
+					if (flip != 0.0) {
+						coord.x = 1.0 - coord.x;
+					}
+					return getTextureColor( textureID, coord ) * c;
 				}
 
-				return getTextureColor( textureID, coord );
+				// Source: https://www.shadertoy.com/view/dsy3RV (Old code)
+
+				float y = coord.y;
+
+				float step1 = 0.0;
+				float step2 = 0.19666666666666666666666;
+				float step3 = 0.36333333333333333333333;
+				float step4 = 0.59;
+				float step5 = 0.8133333333333333333333;
+				float step6 = 1.0;
+
+				vec4 color = c1;
+
+				// this is reverse order from visual order
+				color = mix(color, c2, smoothstep(step1, step2, y));
+				color = mix(color, c3, smoothstep(step2, step3, y));
+				color = mix(color, c4, smoothstep(step3, step4, y));
+				color = mix(color, c5, smoothstep(step4, step5, y));
+				color = mix(color, c6, smoothstep(step5, step6, y));
+
+				return color;
 			}
 		');
 
-		program.setColorFormula('c * flipTex(${name}_ID, flip)');
+		program.setColorFormula('flipTexWithGrad(${name}_ID, flip, gradientMode, c, c1, c2, c3, c4, c5, c6)');
 	}
 
 	function new() {}
