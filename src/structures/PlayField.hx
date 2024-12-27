@@ -29,7 +29,7 @@ class PlayField {
 	var health:Float = 0.5;
 	var latencyCompensation(default, set):Int;
 	inline function set_latencyCompensation(value:Int) {
-		hud.watermarkTxt.text = 'FV TEST BUILD | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (${value}ms)';
+		hud.watermarkTxt.text = 'FV TEST BUILD' #if FV_DEBUG + ' | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (${value}ms)' #end;
 		return latencyCompensation = value;
 	}
 

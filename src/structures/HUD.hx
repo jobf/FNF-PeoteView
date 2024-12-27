@@ -125,7 +125,7 @@ class HUD {
 
 		scoreTxt = new Text(0, 0);
 
-		watermarkTxt = new Text(0, 0, "FV TEST BUILD | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (0ms)");
+		watermarkTxt = new Text(0, 0, 'FV TEST BUILD' #if FV_DEBUG + ' | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (0ms)' #end);
 		watermarkTxt.x = 2;
 		watermarkTxt.scale = 0.7;
 		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
