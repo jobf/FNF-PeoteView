@@ -20,7 +20,7 @@ class Field {
 
 		Actor.init(parent);
 
-		dad = new Actor("bf", 100, 100, 24);
+		dad = new Actor("bf", 225, 250, 24);
 		dad.playAnimation("BF idle dance");
 		dad.mirror = true;
 		dad.startingShakeFrame = 0;
@@ -28,7 +28,7 @@ class Field {
 		dad.finishAnim = "BF idle dance";
 		Actor.buffer.addElement(dad);
 
-		bf = new Actor("bf", 500, 100, 24);
+		bf = new Actor("bf", 625, 250, 24);
 		bf.playAnimation("BF idle dance");
 		bf.startingShakeFrame = 0;
 		bf.endingShakeFrame = 1;
@@ -37,6 +37,8 @@ class Field {
 
 		parent.onNoteHit.add(function(note, timing) {
 			sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
+
+			targetCamera.x = note.lane == 0 ? -50 : 50; // Prototype camera logic I have for now
 		});
 
 		parent.onNoteMiss.add(function(note) {
@@ -56,10 +58,24 @@ class Field {
 			if (!dad.animationRunning && canBop) dad.playAnimation("BF idle dance");
 			if (!bf.animationRunning && canBop) bf.playAnimation("BF idle dance");
 		});
+
+		parent.view.scroll.y = -(-100);
+		targetCamera.x = 0;
+		targetCamera.y = 0;
 	}
+
+	var targetCamera:Point = {x: 0, y: 0};
 
 	function update(deltaTime:Float) {
 		var buf = Actor.buffer;
+
+		inline function lerp(a:Float, b:Float, ratio:Float):Float
+			return a + ratio * (b - a);
+
+		var sc = parent.view.scroll;
+		var ratio = deltaTime * 0.01;
+		parent.view.scroll.x = sc.x + ratio * (-targetCamera.x - sc.x);
+		parent.view.scroll.y = sc.y + ratio * (-targetCamera.y - sc.y);
 
 		dad.update(deltaTime);
 		buf.updateElement(dad);
