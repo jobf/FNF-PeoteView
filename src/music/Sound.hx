@@ -157,7 +157,7 @@ class Sound {
 				default:
 					// Sync
 					if (_playhead.program > _playhead.driver) {
-						var subtract = (_playhead.program - _playhead.driver) * 0.25;
+						var subtract = _playhead.program - _playhead.driver;
 						_playhead.program -= subtract;
 						_programPos -= subtract;
 					}
