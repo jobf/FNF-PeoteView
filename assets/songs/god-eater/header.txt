@@ -1,6 +1,6 @@
 Title: GOD-EATER
-Arist: N/A
-Genre: N/A
+Arist: srPerez
+Genre: Unknown
 Speed: 0.99
 BPM: 200
 Time Signature: 4/4

@@ -1,5 +1,8 @@
 package structures;
 
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
+
 /**
 	The playfield's HUD.
 **/
@@ -318,6 +321,7 @@ class HUD {
 
 	var pauseBG(default, null):UISprite;
 	var pauseOptions(default, null):Array<UISprite> = [];
+	var pauseOptionSelected(default, null):Int = 0;
 
 	function createPauseScreen() {
 		pauseBG = new UISprite();
@@ -339,12 +343,53 @@ class HUD {
 		}
 	}
 
+	function updatePauseScreen(code:KeyCode, mod:KeyModifier) {
+		switch (code) {
+			case -1: // This is here so the pause screen can update the first time when opening it
+			case KeyCode.DOWN:
+				pauseOptionSelected++;
+				if (pauseOptionSelected >= pauseOptions.length) {
+					pauseOptionSelected = 0;
+				}
+			case KeyCode.UP:
+				pauseOptionSelected--;
+				if (pauseOptionSelected < 0) {
+					pauseOptionSelected = pauseOptions.length - 1;
+				}
+			case KeyCode.RETURN:
+				switch (pauseOptionSelected) {
+					case 0:
+						parent.resume();
+						return;
+					case 1:
+					case 2:
+						Sys.exit(-1);
+				}
+			default:
+				return;
+		}
+
+		for (i in 0...pauseOptions.length) {
+			var pauseOption = pauseOptions[i];
+			if (i == pauseOptionSelected) pauseOption.c = 0xFFFF00FF;
+			else pauseOption.c = 0xFFFFFFFF;
+			uiBuf.updateElement(pauseOption);
+		}
+	}
+
 	function openPauseScreen() {
 		uiBuf.addElement(pauseBG);
 
 		for (i in 0...pauseOptions.length) {
 			uiBuf.addElement(pauseOptions[i]);
 		}
+
+		updatePauseScreen(-1, -1);
+
+		haxe.Timer.delay(() -> {
+			var window = lime.app.Application.current.window;
+			window.onKeyDown.add(updatePauseScreen);
+		}, 200);
 	}
 
 	function closePauseScreen() {
@@ -353,6 +398,9 @@ class HUD {
 		for (i in 0...pauseOptions.length) {
 			uiBuf.removeElement(pauseOptions[i]);
 		}
+
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.remove(updatePauseScreen);
 	}
 
 	function dispose() {

@@ -203,6 +203,8 @@ class InputSystem {
 	}
 
 	function press(code:KeyCode, _:Int) {
+		if (code == KeyCode.RETURN && !parent.paused) parent.pause();
+
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
 
 		if (!exists(code)) {
@@ -234,14 +236,6 @@ class InputSystem {
 	}
 
 	function release(code:KeyCode, _:Int) {
-		if (code == KeyCode.RETURN) {
-			if (parent.paused) {
-				parent.resume();
-			} else {
-				parent.pause();
-			}
-		}
-
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
 
 		if (!exists(code)) {

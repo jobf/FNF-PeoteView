@@ -113,9 +113,9 @@ class Sound {
 	}
 
 	function play() {
-		_programPos = -Timestamp.get() + (time * 0.001);
-
 		var result = Miniaudio.ma_sound_start(sound);
+
+		_programPos = -Timestamp.get() + _playhead.driver;
 
 		if (result != MaResult.MA_SUCCESS) {
 			Sys.println("[Sound system] Failed to play sound");
@@ -144,8 +144,7 @@ class Sound {
 		var result:Float = 0;
 
 		if (playing) {
-			var stamp = Timestamp.get();
-			_playhead.program = _programPos + stamp;
+			_playhead.program = _programPos + Timestamp.get();
 
 			Miniaudio.ma_sound_get_cursor_in_seconds(sound, cpp.Pointer.addressOf(_driverPos).ptr);
 			_playhead.driver = Math.floor(_driverPos * 1000) * 0.001;
@@ -156,9 +155,12 @@ class Sound {
 				case PROGRAM:
 					result = _playhead.program;
 				default:
-					var subtract = (_playhead.program - _playhead.driver) * 0.025;
-					_playhead.program -= subtract;
-					_programPos -= subtract;
+					// Sync
+					if (_playhead.program > _playhead.driver) {
+						var subtract = (_playhead.program - _playhead.driver) * 0.25;
+						_playhead.program -= subtract;
+						_programPos -= subtract;
+					}
 					result = _playhead.program;
 			}
 
