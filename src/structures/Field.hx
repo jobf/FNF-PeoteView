@@ -59,7 +59,7 @@ class Field {
 			if (!bf.animationRunning && canBop) bf.playAnimation("BF idle dance");
 		});
 
-		parent.view.scroll.y = -(-100);
+		parent.view.scroll.y = -100;
 		targetCamera.x = 0;
 		targetCamera.y = 0;
 	}
@@ -74,8 +74,8 @@ class Field {
 
 		var sc = parent.view.scroll;
 		var ratio = deltaTime * 0.01;
-		parent.view.scroll.x = sc.x + ratio * (-targetCamera.x - sc.x);
-		parent.view.scroll.y = sc.y + ratio * (-targetCamera.y - sc.y);
+		parent.view.scroll.x = sc.x + ratio * (targetCamera.x - sc.x);
+		parent.view.scroll.y = sc.y + ratio * (targetCamera.y - sc.y);
 
 		dad.update(deltaTime);
 		buf.updateElement(dad);

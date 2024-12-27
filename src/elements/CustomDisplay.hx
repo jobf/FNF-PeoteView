@@ -34,7 +34,7 @@ class CustomDisplay extends Display {
 
 	inline function updateScroll() {
 		var scrollShiftMult = zoom - scale;
-		xOffset = scroll.x - ((Main.INITIAL_WIDTH >> 1) * scrollShiftMult);
-		yOffset = scroll.y - ((Main.INITIAL_HEIGHT >> 1) * scrollShiftMult);
+		xOffset = -scroll.x - ((Main.INITIAL_WIDTH >> 1) * scrollShiftMult);
+		yOffset = -scroll.y - ((Main.INITIAL_HEIGHT >> 1) * scrollShiftMult);
 	}
 }
