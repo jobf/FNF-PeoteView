@@ -92,6 +92,7 @@ class PlayField {
 		audioSystem.setTime(songPosition);
 		hud.hideRatingPopup();
 		noteSystem.resetNotes();
+		field.resetCharacters();
 	}
 
 	var songPosition:Float;

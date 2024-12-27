@@ -149,15 +149,22 @@ class Sound {
 			Miniaudio.ma_sound_get_cursor_in_seconds(sound, cpp.Pointer.addressOf(_driverPos).ptr);
 			_playhead.driver = Math.floor(_driverPos * 1000) * 0.001;
 
+			var prog = _playhead.program;
+			var driv = _playhead.driver;
+
 			switch (playbackTrackingMethod) {
 				case DRIVER:
-					result = _playhead.driver;
+					result = driv;
 				case PROGRAM:
-					result = _playhead.program;
+					result = prog;
 				default:
 					// Sync
-					if (_playhead.program > _playhead.driver) {
-						var subtract = _playhead.program - _playhead.driver;
+					if (prog > driv) {
+						var multiply = 0.125;
+						if (prog - driv > 25) multiply = 0.25;
+						else if (prog - driv > 50) multiply = 0.5;
+						else if (prog - driv > 100) multiply = 1.0;
+						var subtract = (prog - driv) * multiply;
 						_playhead.program -= subtract;
 						_programPos -= subtract;
 					}

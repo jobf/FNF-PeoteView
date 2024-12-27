@@ -205,10 +205,40 @@ class NoteSystem {
 			notesBuf.updateElement(note);
 		}
 
-		// TODO: Make it so that you don't have to go through every single note before you reach the specific position.
-		// That'll fix a bug sgwlfnf (aka me) has discovered when he set the game to fullscreen.
+		var file = parent.chart.file;
+		var len = file.length;
 
-		spawnPosBottom = spawnPosTop = 0;
+		// This is the mess part and shit in which I've optimized
+
+		var incrementAmount = 10;
+
+		if (len > 100) {
+			incrementAmount = 20;
+		} else if (len > 1000) {
+			incrementAmount = 200;
+		} else if (len > 10000) {
+			incrementAmount = 2000;
+		} else if (len > 100000) {
+			incrementAmount = 20000;
+		} else if (len > 1000000) {
+			incrementAmount = 200000;
+		} else if (len > 10000000) {
+			incrementAmount = 2000000;
+		} else if (len > 100000000) {
+			incrementAmount = 20000000;
+		} else if (len > 1000000000) {
+			incrementAmount = 200000000;
+		}
+
+		while (file.getNote(Math.floor(Math.min(spawnPosTop += incrementAmount, Int64.toInt(len - 1)))).position < Tools.betterInt64FromFloat(parent.songPosition * 100) - spawnDist) {}
+		while (file.getNote(Math.floor(Math.min(spawnPosTop--, Int64.toInt(len - 1)))).position > Tools.betterInt64FromFloat(parent.songPosition * 100) - spawnDist) {}
+
+		spawnPosBottom = spawnPosTop;
+
+		while (file.getNote(Math.floor(Math.min(spawnPosBottom -= incrementAmount, Int64.toInt(len - 1)))).position > Tools.betterInt64FromFloat(parent.songPosition * 100)) {}
+		while (file.getNote(Math.floor(Math.min(spawnPosBottom++, Int64.toInt(len - 1)))).position < Tools.betterInt64FromFloat(parent.songPosition * 100)) {}
+
+		// The end (thank god)
 	}
 
 	function resetInputs() {
@@ -223,7 +253,7 @@ class NoteSystem {
 	function resetReceptors(resetAnims:Bool = true) {
 		for (i in 0...parent.numOfReceptors) {
 			var rec = notesBuf.getElement(i);
-			if (rec.idle()) rec.reset();
+			if (!rec.idle()) rec.reset();
 			rec.y = parent.downScroll ? Main.INITIAL_HEIGHT - 150 : 50;
 			notesBuf.updateElement(rec);
 		}

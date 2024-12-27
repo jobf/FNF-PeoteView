@@ -41,7 +41,7 @@ class AudioSystem {
 	}
 
 	function update(playField:PlayField, deltaTime:Float) {
-		if (inst.finished && !playField.songEnded) {
+		if ((inst.finished || (RenderingMode.enabled && playField.songPosition > inst.length)) && !playField.songEnded) {
 			playField.onStopSong.dispatch(playField.chart);
 		}
 
