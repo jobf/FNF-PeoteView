@@ -18,8 +18,11 @@ class Text {
 		trace('str ' + str);
 		trace('text ' + text);
 
-		if(text != null){
+		text = str;
+
+		if(text != null) {
 			// why is text null?
+			// because you must set it before doing this for loop
 			for (i in str.length...text.length) {
 				var elem = buffer.getElement(i);
 				if (elem != null) {
@@ -71,7 +74,7 @@ class Text {
 		width = advanceX;
 		_scale = scale;
 
-		return text = str;
+		return str;
 	}
 
 	var x(default, set):Int;
@@ -135,7 +138,6 @@ class Text {
 		this.text = text;
 		this.x = x;
 		this.y = y;
-		
 	}
 }
 
