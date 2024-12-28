@@ -14,7 +14,7 @@ class Main extends Application
 	override function onPreloadComplete() {	
 		var peoteView = new PeoteView(window);
 
-		TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
+		TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png", true);
 		
 		var display = new Display(0, 0, window.width, window.height);
 		peoteView.addDisplay(display);

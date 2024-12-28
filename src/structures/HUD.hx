@@ -133,8 +133,10 @@ class HUD {
 
 		scoreTxtProg = new Program(scoreTxt.buffer);
 		scoreTxtProg.blendEnabled = true;
+		scoreTxtProg.setFragmentFloatPrecision("medium", true);
 		watermarkTxtProg = new Program(watermarkTxt.buffer);
 		watermarkTxtProg.blendEnabled = true;
+		watermarkTxtProg.setFragmentFloatPrecision("medium", true);
 
 		TextureSystem.setTexture(scoreTxtProg, 'vcrTex', 'vcrTex');
 		display.addProgram(scoreTxtProg);
@@ -294,8 +296,8 @@ class HUD {
 			return a + ratio * (b - a);
 
 		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
-		scoreTxt.scale += 0.01;
-		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
+		scoreTxt.scale = lerp(scoreTxt.scale, 1.0, deltaTime * 0.02);
+		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 	}
 

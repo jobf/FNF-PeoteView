@@ -55,12 +55,12 @@ class TextureSystem {
 		@param key The texture's key.
 		@param path The texture path.
 	**/
-	static function createTexture(key:String, path:String) {
+	static function createTexture(key:String, path:String, disableAntialiasing:Bool = false) {
 		if (pool.exists(key)) {
 			return;
 		}
 
-		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing;
+		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing && !disableAntialiasing;
 
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
@@ -84,12 +84,12 @@ class TextureSystem {
 		@param key The texture's key.
 		@param path The texture path.
 	**/
-	static function createTiledTexture(key:String, path:String, tX:Int = 1, tY:Int = 1) {
+	static function createTiledTexture(key:String, path:String, tX:Int = 1, tY:Int = 1, disableAntialiasing:Bool = false) {
 		if (pool.exists(key)) {
 			return;
 		}
 
-		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing;
+		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing && !disableAntialiasing;
 
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
@@ -115,12 +115,12 @@ class TextureSystem {
 		@param key The multitexture's key.
 		@param paths The texture paths.
 	**/
-	static function createMultiTexture(key:String, paths:Array<String>) {
+	static function createMultiTexture(key:String, paths:Array<String>, disableAntialiasing:Bool = false) {
 		if (pool.exists(key)) {
 			return;
 		}
 
-		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing;
+		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing && !disableAntialiasing;
 
 		var texturesToPush:Array<TextureData> = [];
 

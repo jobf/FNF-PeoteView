@@ -62,7 +62,7 @@ class Main extends Application
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
-			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png");
+			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png", true);
 			TextureSystem.createTexture("pauseOptionShiz", "assets/ui/pauseOptionShiz.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 

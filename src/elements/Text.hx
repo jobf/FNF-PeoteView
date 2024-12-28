@@ -1,22 +1,21 @@
 package elements;
 
+import elements.text.*;
+
 /**
 	The text buffer class.
 **/
 @:publicFields
 class Text {
-	var buffer:Buffer<Sprite>;
+	var buffer:Buffer<TextCharSprite>;
 	var text(default, set):String;
 
 	function set_text(str:String) {
-		if (str == text && _scale == scale) {
+		if (str == text) {
 			return text;
 		}
 
-		var advanceX:Int = 0;
-
-		trace('str ' + str);
-		trace('text ' + text);
+		var advanceX:Float = 0;
 
 		text = str;
 
@@ -45,19 +44,19 @@ class Text {
 			var spr = buffer.getElement(i);
 
 			if (spr == null) {
-				spr = new Sprite();
+				spr = new TextCharSprite();
 				buffer.addElement(spr);
 			}
 
 			spr.clipX = data.position.x + padding;
 			spr.clipY = data.position.y + padding;
 			spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
-			spr.w = Math.floor(spr.clipWidth * scale);
+			spr.w = (spr.clipWidth * scale);
 			spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
-			spr.h = Math.floor(spr.clipHeight * scale);
-			spr.x = x + Math.floor(data.char.offset.x * scale) + advanceX;
-			spr.y = y + Math.floor(data.char.offset.y * scale);
-			advanceX += Math.floor(data.char.advanceX * scale);
+			spr.h = (spr.clipHeight * scale);
+			spr.x = x + (data.char.offset.x * scale) + advanceX;
+			spr.y = y + (data.char.offset.y * scale);
+			advanceX += (data.char.advanceX * scale);
 
 			if (height < spr.h) {
 				height = spr.h;
@@ -68,18 +67,14 @@ class Text {
 			}
 		}
 
-		var test = buffer.getElement(0);
-		trace('text spr w ${test.w}');
-
 		width = advanceX;
-		_scale = scale;
 
 		return str;
 	}
 
-	var x(default, set):Int;
+	var x(default, set):Float;
 
-	function set_x(value:Int) {
+	function set_x(value:Float) {
 		if (value == x) {
 			return x;
 		}
@@ -93,9 +88,9 @@ class Text {
 		return x = value;
 	}
 
-	var y(default, set):Int;
+	var y(default, set):Float;
 
-	function set_y(value:Int) {
+	function set_y(value:Float) {
 		if (value == y) {
 			return y;
 		}
@@ -117,42 +112,61 @@ class Text {
 		}
 
 		scale = value;
-		this.text = text;
 
-		return scale = value;
+		var advanceX:Float = 0;
+
+		for (i in 0...text.length) {
+			var code = text.charCodeAt(i) - 32;
+
+			if (code > 95) {
+				code = 0;
+			}
+
+			var data = parsedTextAtlasData[code];
+			var padding = data.padding;
+
+			var spr = buffer.getElement(i);
+
+			spr.clipX = data.position.x + padding;
+			spr.clipY = data.position.y + padding;
+			spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
+			spr.w = (spr.clipWidth * scale);
+			spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
+			spr.h = (spr.clipHeight * scale);
+			spr.x = x + (data.char.offset.x * scale) + advanceX;
+			spr.y = y + (data.char.offset.y * scale);
+			advanceX += (data.char.advanceX * scale);
+
+			if (height < spr.h) {
+				height = spr.h;
+			}
+
+			if (spr != null) {
+				buffer.updateElement(spr);
+			}
+		}
+
+		width = advanceX;
+		_scale = scale;
+
+		return value;
 	}
 
 	var _scale(default, null):Float = 1.0;
 
-	var width(default, null):Int;
+	var width(default, null):Float;
 
-	var height(default, null):Int;
+	var height(default, null):Float;
 
-	static var parsedTextAtlasData:Array<FontCharacterInfo>;
+	static var parsedTextAtlasData:Array<TextCharData>;
 
-	function new(x:Int, y:Int, text:String = "Sample text") {
+	function new(x:Float, y:Float, text:String = "Sample text") {
 		var data = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json"));
 		parsedTextAtlasData = data.sprites;
-		buffer = new Buffer<Sprite>(64, 64, false);
+		buffer = new Buffer<TextCharSprite>(64, 64, false);
 
 		this.text = text;
 		this.x = x;
 		this.y = y;
-	}
-}
-
-private typedef FontCharacterInfo = {
-	position:{
-		x:Int,
-		y:Int
-	},
-	sourceSize:{
-		width:Int,
-		height:Int
-	},
-	padding:Int,
-	char:{
-		advanceX:Int,
-		offset:{x:Int, y:Int}
 	}
 }
