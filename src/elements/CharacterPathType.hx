@@ -1,4 +1,4 @@
-package tests;
+package elements;
 
 /**
     Character path type.

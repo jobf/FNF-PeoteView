@@ -9,7 +9,7 @@
  LM, DM, UM, RD, XM
 **/
 
-package tests;
+package elements;
 
 import atlas.SparrowAtlas.SubTexture;
 
