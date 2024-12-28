@@ -42,7 +42,6 @@ class NoteSystem {
 
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
-		trace(numOfReceptors);
 
 		notesBuf = new Buffer<Note>(512, 512, false);
 		notesProg = new Program(notesBuf);
