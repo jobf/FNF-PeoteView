@@ -1,7 +1,6 @@
-// NOTE: I just now figured that fucker out finally when I was fixing the issue that happens on stdio fread.
 // This is the pure haxe version of HxBigIO's BigBytes by Chris AKA Dimensionscape
 
-package music.chart;
+package data.chart;
 
 import cpp.Int64;
 import haxe.Int64 as HaxeInt64;

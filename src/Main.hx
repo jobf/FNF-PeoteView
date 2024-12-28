@@ -50,6 +50,8 @@ class Main extends Application
 
 	public function startSample(window:Window)
 	{
+		SaveData.init();
+
 		Sound.init();
 
 		peoteView = new PeoteView(window);
@@ -64,7 +66,7 @@ class Main extends Application
 			TextureSystem.createTexture("pauseOptionShiz", "assets/ui/pauseOptionShiz.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
-			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0xFFFF00FF);
+			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x666666FF);
 
 			// Coming soon...
 

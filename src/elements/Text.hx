@@ -116,7 +116,7 @@ class Text {
 
 	var height(default, null):Int;
 
-	static var parsedTextAtlasData:Array<FontAtlasSprite>;
+	static var parsedTextAtlasData:Array<FontCharacterInfo>;
 
 	function new(x:Int, y:Int, text:String = "Score: 1000000000000") {
 		parsedTextAtlasData = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json")).sprites;
@@ -128,7 +128,7 @@ class Text {
 	}
 }
 
-private typedef FontAtlasSprite = {
+private typedef FontCharacterInfo = {
 	position:{
 		x:Int,
 		y:Int

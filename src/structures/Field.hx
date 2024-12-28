@@ -69,9 +69,6 @@ class Field {
 	function update(deltaTime:Float) {
 		var buf = Actor.buffer;
 
-		inline function lerp(a:Float, b:Float, ratio:Float):Float
-			return a + ratio * (b - a);
-
 		var sc = parent.view.scroll;
 		var ratio = deltaTime * 0.01;
 		parent.view.scroll.x = sc.x + ratio * (targetCamera.x - sc.x);

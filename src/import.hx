@@ -4,12 +4,11 @@ import peote.view.intern.*;
 
 // GAME
 import atlas.*;
+import data.chart.*;
+import data.options.*;
 import elements.*;
 #if FV_DEBUG import debug.*; #end
 import music.*;
-import music.chart.*;
-import music.internal.*;
-import music.internal.ma.*;
 import structures.*;
 import system.*;
 import system.internal.*;

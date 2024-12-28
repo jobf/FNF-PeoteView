@@ -1,4 +1,4 @@
-package music.chart;
+package data.chart;
 
 /**
 	The song's character role.

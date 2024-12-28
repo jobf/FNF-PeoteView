@@ -1,0 +1,46 @@
+{
+    "tagline": "Vanilla settings used internally for Funkin' View. We strictly don't recommend changing those settings except the descriptions.",
+    "categories": [
+        {
+            "name": "Controls",
+            "type": "Controls",
+            "options": []
+        },
+        {
+            "name": "Preferences",
+            "type": "None",
+            "options": [
+                {
+                    "name": "Antialiasing",
+                    "type": "toggle",
+                    "defV": "true"
+                },
+                {
+                    "name": "Downscroll",
+                    "type": "toggle",
+                    "defV": "false"
+                },
+                {
+                    "name": "Hide HUD",
+                    "type": "toggle",
+                    "defV": "false"
+                },
+                {
+                    "name": "Note Splashes",
+                    "type": "toggle",
+                    "defV": "true"
+                },
+                {
+                    "name": "Smooth Healthbar",
+                    "type": "toggle",
+                    "defV": "true"
+                },
+                {
+                    "name": "Antialiasing",
+                    "type": "toggle",
+                    "defV": "true"
+                },
+            ]
+        }
+    ]
+}

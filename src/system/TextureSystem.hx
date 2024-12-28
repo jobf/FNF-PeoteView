@@ -60,14 +60,16 @@ class TextureSystem {
 			return;
 		}
 
+		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing;
+
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
 
 		var texture = new Texture(textureData.width, textureData.height, null, {
 			format: textureData.format,
 			powerOfTwo: false,
-			smoothExpand: true,
-			smoothShrink: true
+			smoothExpand: antialiasing,
+			smoothShrink: antialiasing
 		});
 		texture.setData(textureData);
 
@@ -85,6 +87,8 @@ class TextureSystem {
 			return;
 		}
 
+		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing;
+
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
 
@@ -93,8 +97,8 @@ class TextureSystem {
 			tilesY: tY,
 			format: textureData.format,
 			powerOfTwo: false,
-			smoothExpand: true,
-			smoothShrink: true
+			smoothExpand: antialiasing,
+			smoothShrink: antialiasing
 		});
 		texture.setData(textureData);
 
@@ -111,6 +115,8 @@ class TextureSystem {
 		if (pool.exists(key)) {
 			return;
 		}
+
+		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing;
 
 		var texturesToPush:Array<TextureData> = [];
 
@@ -136,8 +142,8 @@ class TextureSystem {
 			slotsX: texturesToPush.length,
 			slotsY: 1,
 			powerOfTwo: false,
-			smoothExpand: true,
-			smoothShrink: true
+			smoothExpand: antialiasing,
+			smoothShrink: antialiasing
 		});
 
 		for (i in 0...texturesToPush.length) {

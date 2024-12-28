@@ -47,7 +47,7 @@ class PlayField {
 		if (hud != null) {
 			hud.updateHealthBar();
 			hud.updateHealthIcons();
-			hud.updateScoreText();
+			hud.updateScoreText(0.0);
 		}
 		return value;
 	}
@@ -215,7 +215,7 @@ class PlayField {
 	}
 
 	inline function measureHit(measure:Float) {
-		if (measure >= 0) {
+		if (measure >= 0 && SaveData.getCurrentSlot().preferences.cameraZooming) {
 			display.fov += 0.03;
 			view.fov += 0.015;
 		}
@@ -243,27 +243,33 @@ class PlayField {
 			health = 1;
 		}
 
+		var preferences = SaveData.getCurrentSlot().preferences;
+
+		if (hud != null && preferences.scoreTextBopping) {
+			hud.scoreTxt.scale = 1.1;
+		}
+
 		var absTiming = Math.abs(timing);
 
 		if (absTiming > 60) {
-			hud.respondWithRatingID(3);
+			if (preferences.ratingPopups) hud.respondWithRatingID(3);
 			score += 50;
 			return;
 		}
 
 		if (absTiming > 45) {
-			hud.respondWithRatingID(2);
+			if (preferences.ratingPopups) hud.respondWithRatingID(2);
 			score += 100;
 			return;
 		}
 
 		if (absTiming > 30) {
-			hud.respondWithRatingID(1);
+			if (preferences.ratingPopups) hud.respondWithRatingID(1);
 			score += 200;
 			return;
 		}
 
-		hud.respondWithRatingID(0);
+		if (preferences.ratingPopups) hud.respondWithRatingID(0);
 		score += 400;
 	}
 

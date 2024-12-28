@@ -1,4 +1,4 @@
-package music.chart;
+package data.chart;
 
 import sys.FileSystem;
 import haxe.io.Bytes;

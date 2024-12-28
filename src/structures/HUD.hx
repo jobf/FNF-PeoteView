@@ -152,7 +152,7 @@ class HUD {
 		updateComboNumbers();
 		updateHealthBar();
 		updateHealthIcons();
-		updateScoreText();
+		updateScoreText(deltaTime);
 		countdownDisp.update(deltaTime);
 	}
 
@@ -287,10 +287,14 @@ class HUD {
 	}
 
 	/**
-		Updates the score text and watermark text.
+		Updates the score text.
 	**/
-	function updateScoreText() {
+	function updateScoreText(deltaTime:Float) {
+		inline function lerp(a:Float, b:Float, ratio:Float):Float
+			return a + ratio * (b - a);
+
 		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
+		scoreTxt.scale = lerp(scoreTxt.scale, 1.0, (deltaTime * 0.001));
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) >> 1);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 	}
