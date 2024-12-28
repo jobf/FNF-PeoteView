@@ -10,6 +10,7 @@ import lime.ui.KeyModifier;
 @:access(structures.PlayField)
 class HUD {
 	var countdownDisp:CountdownDisplay;
+	var pauseScreen:PauseScreen;
 
 	var uiBuf(default, null):Buffer<UISprite>;
 	var uiProg(default, null):Program;
@@ -143,8 +144,7 @@ class HUD {
 		display.addProgram(uiProg);
 
 		countdownDisp = new CountdownDisplay(uiBuf);
-
-		createPauseScreen();
+		pauseScreen = new PauseScreen(this);
 	}
 
 	function update(deltaTime:Float) {
@@ -318,96 +318,14 @@ class HUD {
 	}
 
 	/**
-		The pause screen.
+		Dispose the hud.
 	**/
-
-	var pauseBG(default, null):UISprite;
-	var pauseOptions(default, null):Array<UISprite> = [];
-	var pauseOptionSelected(default, null):Int = 0;
-
-	function createPauseScreen() {
-		pauseBG = new UISprite();
-
-		pauseBG.type = HEALTH_BAR_PART;
-		pauseBG.changeID(0);
-		pauseBG.w = Main.INITIAL_WIDTH;
-		pauseBG.h = Main.INITIAL_HEIGHT;
-		pauseBG.c.aF = 0.5;
-
-		var currentY = 160;
-		for (i in 0...3) {
-			var option = new UISprite();
-			option.type = PAUSE_OPTION;
-			option.changeID(i);
-			option.y = currentY;
-			currentY += option.h + 2;
-			pauseOptions.push(option);
-		}
-	}
-
-	function updatePauseScreen(code:KeyCode, mod:KeyModifier) {
-		switch (code) {
-			case -1: // This is here so the pause screen can update the first time when opening it
-			case KeyCode.DOWN:
-				pauseOptionSelected++;
-				if (pauseOptionSelected >= pauseOptions.length) {
-					pauseOptionSelected = 0;
-				}
-			case KeyCode.UP:
-				pauseOptionSelected--;
-				if (pauseOptionSelected < 0) {
-					pauseOptionSelected = pauseOptions.length - 1;
-				}
-			case KeyCode.RETURN:
-				switch (pauseOptionSelected) {
-					case 0:
-						parent.resume();
-						return;
-					case 1:
-					case 2:
-						Sys.exit(-1);
-				}
-			default:
-				return;
-		}
-
-		for (i in 0...pauseOptions.length) {
-			var pauseOption = pauseOptions[i];
-			if (i == pauseOptionSelected) pauseOption.c = 0xFFFF00FF;
-			else pauseOption.c = 0xFFFFFFFF;
-			uiBuf.updateElement(pauseOption);
-		}
-	}
-
-	function openPauseScreen() {
-		uiBuf.addElement(pauseBG);
-
-		for (i in 0...pauseOptions.length) {
-			uiBuf.addElement(pauseOptions[i]);
-		}
-
-		updatePauseScreen(-1, -1);
-
-		haxe.Timer.delay(() -> {
-			var window = lime.app.Application.current.window;
-			window.onKeyDown.add(updatePauseScreen);
-		}, 200);
-	}
-
-	function closePauseScreen() {
-		uiBuf.removeElement(pauseBG);
-
-		for (i in 0...pauseOptions.length) {
-			uiBuf.removeElement(pauseOptions[i]);
-		}
-
-		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(updatePauseScreen);
-	}
-
 	function dispose() {
 		countdownDisp.dispose();
 		countdownDisp = null;
+
+		pauseScreen.dispose();
+		pauseScreen = null;
 
 		uiBuf.removeElement(ratingPopup);
 		ratingPopup = null;

@@ -192,7 +192,7 @@ class PlayField {
 		noteSystem.resetReceptors();
 		display.fov = 1;
 		view.fov = 1;
-		hud.openPauseScreen();
+		hud.pauseScreen.open();
 	}
 
 	/**
@@ -206,7 +206,7 @@ class PlayField {
 		noteSystem.resetReceptors();
 		display.fov = 1;
 		view.fov = 1;
-		hud.closePauseScreen();
+		hud.pauseScreen.close();
 	}
 
 	inline function beatHit(beat:Float) {
