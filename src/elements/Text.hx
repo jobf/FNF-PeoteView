@@ -15,11 +15,17 @@ class Text {
 
 		var advanceX:Int = 0;
 
-		for (i in str.length...text.length) {
-			var elem = buffer.getElement(i);
-			if (elem != null) {
-				elem.x = elem.y = -999999999;
-				buffer.updateElement(elem);
+		trace('str ' + str);
+		trace('text ' + text);
+
+		if(text != null){
+			// why is text null?
+			for (i in str.length...text.length) {
+				var elem = buffer.getElement(i);
+				if (elem != null) {
+					elem.x = elem.y = -999999999;
+					buffer.updateElement(elem);
+				}
 			}
 		}
 
@@ -60,6 +66,9 @@ class Text {
 				buffer.updateElement(spr);
 			}
 		}
+
+		var test = buffer.getElement(0);
+		trace('text spr w ${test.w}');
 
 		width = advanceX;
 		_scale = scale;
@@ -131,6 +140,7 @@ class Text {
 		this.text = text;
 		this.x = x;
 		this.y = y;
+		
 	}
 }
 
