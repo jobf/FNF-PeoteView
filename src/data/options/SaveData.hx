@@ -205,9 +205,8 @@ class SaveData {
 		var bytes:Bytes = File.getBytes('.dat');
 
 		for (i in 0...datas.length) {
-			var data:Save = Pointer.addressOf(datas[i]).ref;
-			data.graphics = bytes.getInt64(i * 8) & Int64.make(-1, 0xFFFFFF);
-			data.preferences = bytes.get(i + 7);
+			datas[i].graphics = bytes.getInt64(i * 8) & Int64.make(-1, 0xFFFFFF);
+			datas[i].preferences = bytes.get(i + 7);
 		}
 	}
 
@@ -215,7 +214,7 @@ class SaveData {
 		var bytes:Bytes = Bytes.alloc(8 * datas.length);
 
 		for (i in 0...datas.length) {
-			var data:Save = Pointer.addressOf(datas[i]).ref;
+			var data:Save = datas[i];
 			var id = i * 8;
 			bytes.setInt64(id, data.graphics); // Graphics
 			bytes.set(id - 1, data.preferences); // Preferences
