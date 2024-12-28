@@ -1,6 +1,7 @@
 package structures;
 
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 
 /**
 	The input for the playfield.
@@ -202,7 +203,7 @@ class InputSystem {
 		return untyped map.get(keyCode);
 	}
 
-	function press(code:KeyCode, _:Int) {
+	function press(code:KeyCode, mod:KeyModifier) {
 		if (code == KeyCode.RETURN && !parent.paused) parent.pause();
 
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
@@ -235,7 +236,7 @@ class InputSystem {
 		parent.onKeyPress.dispatch(code);
 	}
 
-	function release(code:KeyCode, _:Int) {
+	function release(code:KeyCode, mod:KeyModifier) {
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
 
 		if (!exists(code)) {
