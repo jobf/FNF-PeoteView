@@ -23,7 +23,6 @@ class Actor extends ActorElement
 
 	static var buffer:Buffer<ActorElement>;
 	static var program:Program;
-	static var initialized(default, null):Bool;
 
 	static var tex(default, null):Texture;
 	var name(default, null):String;
@@ -57,10 +56,8 @@ class Actor extends ActorElement
 		setFps(fps);
 
 		if (pathExists(IMAGE)) {
-			var bytes = sys.io.File.getBytes(path(IMAGE));
-			var pngData = TextureData.fromFormatPNG(bytes);
-			tex = Texture.fromData(pngData);
-			tex.smoothExpand = tex.smoothShrink = true;
+			TextureSystem.createTexture(name, path(IMAGE));
+			tex = TextureSystem.getTexture(name);
 		} else {
 			throw "Image doesn't exist: " + path(IMAGE);
 		}
@@ -73,7 +70,7 @@ class Actor extends ActorElement
 			throw "Atlas data doesn't exist: " + path(NONE);
 		}
 
-		program.addTexture(tex, name);
+		TextureSystem.setTexture(program, name, name);
 	}
 
 	function dispose() {

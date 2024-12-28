@@ -40,15 +40,17 @@ class Text {
 				buffer.addElement(spr);
 			}
 
+			var sc = (scale * globalScale);
+
 			spr.clipX = data.position.x + padding;
 			spr.clipY = data.position.y + padding;
 			spr.clipWidth = spr.clipSizeX = data.sourceSize.width;
-			spr.w = Math.floor(spr.clipWidth * scale);
+			spr.w = Math.floor(spr.clipWidth * sc);
 			spr.clipHeight = spr.clipSizeY = data.sourceSize.height;
-			spr.h = Math.floor(spr.clipHeight * scale);
-			spr.x = x + Math.floor(data.char.offset.x * scale) + advanceX;
-			spr.y = y + Math.floor(data.char.offset.y * scale);
-			advanceX += Math.floor(data.char.advanceX * scale);
+			spr.h = Math.floor(spr.clipHeight * sc);
+			spr.x = x + Math.floor(data.char.offset.x * sc) + advanceX;
+			spr.y = y + Math.floor(data.char.offset.y * sc);
+			advanceX += Math.floor(data.char.advanceX * sc);
 
 			if (height < spr.h) {
 				height = spr.h;
@@ -112,15 +114,19 @@ class Text {
 
 	var _scale(default, null):Float = 1.0;
 
+	var globalScale(default, null):Float = 1.0;
+
 	var width(default, null):Int;
 
 	var height(default, null):Int;
 
 	static var parsedTextAtlasData:Array<FontCharacterInfo>;
 
-	function new(x:Int, y:Int, text:String = "Score: 1000000000000") {
-		parsedTextAtlasData = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json")).sprites;
-		buffer = new Buffer<Sprite>(2048, 2048, false);
+	function new(x:Int, y:Int, text:String = "Sample text") {
+		var data = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json"));
+		globalScale = data.atlas.globalScale;
+		parsedTextAtlasData = data.sprites;
+		buffer = new Buffer<Sprite>(64, 64, false);
 
 		this.text = text;
 		this.x = x;

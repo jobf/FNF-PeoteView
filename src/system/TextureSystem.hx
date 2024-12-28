@@ -69,7 +69,9 @@ class TextureSystem {
 			format: textureData.format,
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
-			smoothShrink: antialiasing
+			smoothShrink: antialiasing,
+			mipmap: true,
+			smoothMipmap: true
 		});
 		texture.setData(textureData);
 
@@ -98,7 +100,9 @@ class TextureSystem {
 			format: textureData.format,
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
-			smoothShrink: antialiasing
+			smoothShrink: antialiasing,
+			mipmap: true,
+			smoothMipmap: true
 		});
 		texture.setData(textureData);
 
@@ -143,7 +147,9 @@ class TextureSystem {
 			slotsY: 1,
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
-			smoothShrink: antialiasing
+			smoothShrink: antialiasing,
+			mipmap: true,
+			smoothMipmap: true
 		});
 
 		for (i in 0...texturesToPush.length) {
