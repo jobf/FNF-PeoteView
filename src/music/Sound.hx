@@ -161,9 +161,9 @@ class Sound {
 					// Sync
 					if (prog > driv) {
 						var multiply = 0.125;
-						if (prog - driv > 25) multiply = 0.25;
-						else if (prog - driv > 50) multiply = 0.5;
-						else if (prog - driv > 100) multiply = 1.0;
+						if (prog - driv > 5) multiply = 0.25;
+						else if (prog - driv > 12.5) multiply = 0.5;
+						else if (prog - driv > 25) multiply = 1.0;
 						var subtract = (prog - driv) * multiply;
 						_playhead.program -= subtract;
 						_programPos -= subtract;

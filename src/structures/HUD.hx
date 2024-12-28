@@ -299,6 +299,9 @@ class HUD {
 		scoreTxt.scale = lerp(scoreTxt.scale, 1.0, deltaTime * 0.02);
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
+		scoreTxt.color = 0xFFDC8CFF;
+		scoreTxt.setMarkerPair('Score: ', 0xFFFFFFFF);
+		scoreTxt.setMarkerPair(', Misses: ', 0xFFFFFFFF);
 	}
 
 	/**

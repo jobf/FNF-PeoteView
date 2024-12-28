@@ -22,5 +22,7 @@ class TextCharSprite implements Element {
 	@texSizeX var clipSizeX:Int = 1;
 	@texSizeY var clipSizeY:Int = 1;
 
+	@color var c:Color = 0xFFFFFFFF;
+
 	function new() {}
 }

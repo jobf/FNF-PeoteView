@@ -56,6 +56,7 @@ class Text {
 			spr.h = (spr.clipHeight * scale);
 			spr.x = x + (data.char.offset.x * scale) + advanceX;
 			spr.y = y + (data.char.offset.y * scale);
+			spr.c = color;
 			advanceX += (data.char.advanceX * scale);
 
 			if (height < spr.h) {
@@ -157,6 +158,31 @@ class Text {
 	var width(default, null):Float;
 
 	var height(default, null):Float;
+
+	var color(default, set):Color = 0xFFFFFFFF;
+
+	function set_color(value:Color):Color {
+		for (i in 0...text.length) {
+			var spr = buffer.getElement(i);
+			spr.c = value;
+			if (spr != null) {
+				buffer.updateElement(spr);
+			}
+		}
+		return color = value;
+	}
+
+	function setMarkerPair(part:String, color:Color, outlineColor:Color = 0x00000000, outlineSize:Int = 0) {
+		var index = text.indexOf(part);
+
+		for (i in index...index + part.length) {
+			var spr = buffer.getElement(i);
+			spr.c = color;
+			if (spr != null) {
+				buffer.updateElement(spr);
+			}
+		}
+	}
 
 	static var parsedTextAtlasData:Array<TextCharData>;
 
