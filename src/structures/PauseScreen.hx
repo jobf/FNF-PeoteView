@@ -18,12 +18,10 @@ class PauseScreen {
 		this.parent = parent;
 
 		pauseBG = new UISprite();
-
-		pauseBG.type = HEALTH_BAR_PART;
-		pauseBG.changeID(0);
+		pauseBG.gradientMode = 1.0;
+		pauseBG.setAllColors([for (i in 0...6) 0x00000044]);
 		pauseBG.w = Main.INITIAL_WIDTH;
 		pauseBG.h = Main.INITIAL_HEIGHT;
-		pauseBG.c.aF = 0.5;
 
 		var currentY = 160;
 		for (i in 0...3) {
@@ -31,7 +29,7 @@ class PauseScreen {
 			option.type = PAUSE_OPTION;
 			option.changeID(i);
 			option.y = currentY;
-			currentY += option.h + 2;
+			currentY += Math.floor(option.h) + 2;
 			pauseOptions.push(option);
 		}
 	}
@@ -64,8 +62,8 @@ class PauseScreen {
 
 		for (i in 0...pauseOptions.length) {
 			var pauseOption = pauseOptions[i];
-			if (i == pauseOptionSelected) pauseOption.c = 0xFFFF00FF;
-			else pauseOption.c = 0xFFFFFFFF;
+			if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
+			else pauseOption.c = Color.WHITE;
 			parent.uiBuf.updateElement(pauseOption);
 		}
 	}

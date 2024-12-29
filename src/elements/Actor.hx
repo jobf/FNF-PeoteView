@@ -74,7 +74,7 @@ class Actor extends ActorElement
 	}
 
 	function dispose() {
-		program.removeTexture(tex, name);
+		atlas = null;
 	}
 
 	function path(type:CharacterPathType) {
@@ -175,22 +175,18 @@ class Actor extends ActorElement
 	public function configure(config:SubTexture) {
 		var width = 0;
 
-		if (config.frameWidth != 0) {
-			width = config.frameWidth;
-		} else if (config.width != 0) {
-			width = config.width;
-		}
+		var trimmed = config.frameX != 0 || config.frameY != 0 || config.frameWidth != 0 || config.frameHeight != 0;
+
+		if (trimmed) width = config.frameWidth;
+		else width = config.width;
 
 		var height = 0;
 
-		if (config.frameHeight != 0) {
-			height = config.frameHeight;
-		} else if (config.height != 0) {
-			height = config.height;
-		}
+		if (trimmed) height = config.frameHeight;
+		else height = config.height;
 
-		var xOffset = config.frameX == null ? 0 : config.frameX;
-		var yOffset = config.frameY == null ? 0 : config.frameY;
+		var xOffset = trimmed ? config.frameX : 0;
+		var yOffset = trimmed ? config.frameY : 0;
 		var flipX = config.flipX == null ? false : config.flipX;
 		var flipY = config.flipY == null ? false : config.flipY;
 
@@ -200,8 +196,8 @@ class Actor extends ActorElement
 		this.flipY = flipY;
 		this.clipX = config.x + xOffset;
 		this.clipY = config.y + yOffset;
-		this.clipWidth = width;
-		this.clipHeight = height;
+		this.clipWidth = this.w;
+		this.clipHeight = this.h;
 	}
 
 	function changeFrame() {

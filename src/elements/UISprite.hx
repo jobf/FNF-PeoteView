@@ -1,5 +1,6 @@
 // Note to self: 2 months into funkin view development, I did a stress test on this by rendering 4000 and it turns out the bigger the texture dimensions the slower it runs
 // You're rendering more pixels
+// Also EVERYTHING RELATED TO THE UI SHEET IN THE CLASS IS 100% HARDCODED.
 
 package elements;
 
@@ -10,8 +11,8 @@ class UISprite implements Element {
 	@posY var y:Float = 0.0;
 
 	// size in pixel
-	@sizeX var w:Int = 200;
-	@sizeY var h:Int = 200;
+	@sizeX var w:Float = 0.0;
+	@sizeY var h:Float = 0.0;
 
 	// extra tex attributes for clipping
 	@texX var clipX:Int = 0;
@@ -42,7 +43,7 @@ class UISprite implements Element {
 		c6 = colors[5];
 	}
 
-	static var healthBarDimensions:Array<Int> = [];
+	static var healthBarProperties:Array<Float> = [];
 
 	@varying @custom var flip:Float = 0.0;
 	@varying @custom var gradientMode:Float = 0.0;
@@ -53,6 +54,12 @@ class UISprite implements Element {
 
 	inline function get_isNone() {
 		return type == NONE;
+	}
+
+    var isMainMenuPart(get, never):Bool;
+
+	inline function get_isMainMenuPart() {
+		return type == MAIN_MENU_PART;
 	}
 
     var isRatingPopup(get, never):Bool;
@@ -71,12 +78,6 @@ class UISprite implements Element {
 
 	inline function get_isHealthBar() {
 		return type == HEALTH_BAR;
-	}
-
-    var isHealthBarPart(get, never):Bool;
-
-	inline function get_isHealthBarPart() {
-		return type == HEALTH_BAR_PART;
 	}
 
     var isHealthIcon(get, never):Bool;
@@ -168,24 +169,23 @@ class UISprite implements Element {
 		}
 
 		if (isHealthBar) {
-			wValue = healthBarDimensions[0];
-			hValue = healthBarDimensions[1];
+			wValue = Math.floor(healthBarProperties[0]);
+			hValue = Math.floor(healthBarProperties[1]);
 			yValue = 222;
 			id = 0;
 		}
 
-		if (isHealthIcon) {
+		if (isMainMenuPart) {
 			wValue = hValue = 150;
-			yValue = 750 + (150 * (id >> 3));
+			yValue = 750;
+			xValue = 150 * id;
 			id &= 0x7;
 		}
 
-		if (isHealthBarPart) {
-			xValue = 602 + (id << 1);
-			yValue = 600;
-			wValue = 0;
-			hValue = 6;
-			id = 0;
+		if (isHealthIcon) {
+			wValue = hValue = 150;
+			yValue = 900 + (150 * (id >> 3));
+			id &= 0x7;
 		}
 
 		if (isCountdownPopup) {
@@ -231,9 +231,9 @@ enum abstract UISpriteType(cpp.UInt8) {
 	var NONE;
 	var RATING_POPUP;
 	var COMBO_NUMBER;
+	var MAIN_MENU_PART;
 	var HEALTH_BAR;
 	var HEALTH_ICON;
-	var HEALTH_BAR_PART;
 	var COUNTDOWN_POPUP;
 	var PAUSE_OPTION;
 }

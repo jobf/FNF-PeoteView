@@ -66,19 +66,23 @@ class Main extends Application
 			TextureSystem.createTexture("pauseOptionShiz", "assets/ui/pauseOptionShiz.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
+			var stamp = haxe.Timer.stamp();
+			trace("Creating displays...");
+
 			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x666666FF);
-
-			// Coming soon...
-
 			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
-
 			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
+			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			peoteView.start();
+
+			var stamp = haxe.Timer.stamp();
+			trace("Adding displays...");
 
 			peoteView.addDisplay(bottomDisplay);
 			peoteView.addDisplay(middleDisplay);
 			peoteView.addDisplay(topDisplay);
+			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			resize(peoteView.width, peoteView.height);
 

@@ -106,7 +106,7 @@ class PlayField {
 	function create(display:Display, mania:Int = 4) {
 		if (mania > 16) mania = 16;
 
-		UISprite.healthBarDimensions = Tools.parseHealthBarConfig('assets/ui');
+		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
 		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
 
 		onStartSong = new Event<Chart->Void>();

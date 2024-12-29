@@ -10,8 +10,7 @@ package structures;
 @:publicFields
 class CountdownDisplay {
 	/**
-		The countdown display's buffer.
-		This holds one single sprite.
+		The countdown display's underlying buffer.
 	**/
 	var buffer:Buffer<UISprite>;
 
@@ -96,7 +95,7 @@ class CountdownDisplay {
 	}
 
 	inline function _screenCenter() {
-		sprite.x = (Main.INITIAL_WIDTH - sprite.w) >> 1;
-		sprite.y = (Main.INITIAL_HEIGHT - sprite.h) >> 1;
+		sprite.x = (Main.INITIAL_WIDTH - sprite.w) * 0.5;
+		sprite.y = (Main.INITIAL_HEIGHT - sprite.h) * 0.5;
 	}
 }

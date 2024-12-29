@@ -5,10 +5,10 @@ package elements.text;
 **/
 @:publicFields
 class TextCharSprite implements Element {
-	@posX  var x:Float;
-	@posY  var y:Float;
-	@sizeX var w:Float;
-	@sizeY var h:Float;
+	@posX @formula("x - os") var x:Float;
+	@posY @formula("y - os")  var y:Float;
+	@sizeX @formula("w + (os * 2.0)") var w:Float;
+	@sizeY @formula("h + (os * 2.0)") var h:Float;
 
 	// extra tex attributes for clipping
 	@texX var clipX:Int = 0;
@@ -23,6 +23,11 @@ class TextCharSprite implements Element {
 	@texSizeY var clipSizeY:Int = 1;
 
 	@color var c:Color = 0xFFFFFFFF;
+
+	// outline implementation
+
+	@color var oc:Color = 0x000000FF;
+	@varying @custom var os:Float = 0.0;
 
 	function new() {}
 }

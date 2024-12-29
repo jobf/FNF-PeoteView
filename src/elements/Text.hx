@@ -8,6 +8,9 @@ import elements.text.*;
 @:publicFields
 class Text {
 	var buffer:Buffer<TextCharSprite>;
+	var program:Program;
+	var display:Display;
+
 	var text(default, set):String;
 
 	function set_text(str:String) {
@@ -172,12 +175,14 @@ class Text {
 		return color = value;
 	}
 
-	function setMarkerPair(part:String, color:Color, outlineColor:Color = 0x00000000, outlineSize:Int = 0) {
+	function setMarkerPair(part:String, color:Color, outlineColor:Color = 0x000000FF, outlineSize:Float = 0) {
 		var index = text.indexOf(part);
 
 		for (i in index...index + part.length) {
 			var spr = buffer.getElement(i);
 			spr.c = color;
+			spr.oc = outlineColor;
+			spr.os = outlineSize;
 			if (spr != null) {
 				buffer.updateElement(spr);
 			}
@@ -186,13 +191,30 @@ class Text {
 
 	static var parsedTextAtlasData:Array<TextCharData>;
 
-	function new(x:Float, y:Float, text:String = "Sample text") {
+	function new(x:Float, y:Float, display:Display, text:String = "Sample text") {
 		var data = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json"));
 		parsedTextAtlasData = data.sprites;
 		buffer = new Buffer<TextCharSprite>(64, 64, false);
 
+		program = new Program(buffer);
+		program.blendEnabled = true;
+		program.setFragmentFloatPrecision("medium", true);
+
+		TextureSystem.setTexture(program, 'vcrTex', 'vcrTex');
+
+		this.display = display;
+		display.addProgram(program);
+
 		this.text = text;
 		this.x = x;
 		this.y = y;
+	}
+
+	function dispose() {
+		display.removeProgram(program);
+		display = null;
+		program = null;
+		buffer.clear();
+		buffer = null;
 	}
 }

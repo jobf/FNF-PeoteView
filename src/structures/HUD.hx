@@ -29,12 +29,14 @@ class HUD {
 	var healthIcons:Array<UISprite> = [];
 	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
 	var healthIconColors:Array<Array<Color>> = [
-		[Color.RED1, Color.BLUE, Color.YELLOW, Color.RED3, Color.GREY2, Color.CYAN],
+		[Color.WHITE, Color.BLUE, Color.YELLOW, Color.RED3, Color.GREY2, Color.CYAN],
 		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
 	];
 
-	var healthBarWS:Int;
-	var healthBarHS:Int;
+	var healthBarWS:Float;
+	var healthBarHS:Float;
+	var healthBarXA:Float;
+	var healthBarYA:Float;
 
 	var parent:PlayField;
 
@@ -44,10 +46,13 @@ class HUD {
 	function new(display:Display, parent:PlayField) {
 		this.parent = parent;
 
-		healthBarWS = UISprite.healthBarDimensions[2];
-		healthBarHS = UISprite.healthBarDimensions[3];
+		healthBarWS = UISprite.healthBarProperties[2];
+		healthBarHS = UISprite.healthBarProperties[3];
 
-		uiBuf = new Buffer<UISprite>(2048, 2048, false);
+		healthBarXA = UISprite.healthBarProperties[4];
+		healthBarYA = UISprite.healthBarProperties[5];
+
+		uiBuf = new Buffer<UISprite>(16, 16, false);
 		uiProg = new Program(uiBuf);
 		uiProg.blendEnabled = true;
 
@@ -86,10 +91,8 @@ class HUD {
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
 			var part = healthBarParts[i] = new UISprite();
-			part.type = HEALTH_BAR_PART;
-			part.changeID(i);
-			part.h = healthBarBG.h - (healthBarHS << 1);
-			part.y = healthBarBG.y + healthBarHS;
+			part.h = healthBarBG.h - healthBarHS;
+			part.y = healthBarBG.y + healthBarYA;
 			part.gradientMode = 1.0;
 
 			var healthIconColor = healthIconColors[i];
@@ -104,7 +107,7 @@ class HUD {
 
 		// HEALTH ICONS SETUP
 
-		var x = healthBarBG.x + (healthBarBG.w >> 1);
+		var x = healthBarBG.x + (healthBarBG.w * 0.5);
 
 		var oppIcon = healthIcons[0] = new UISprite();
 		oppIcon.type = HEALTH_ICON;
@@ -124,24 +127,12 @@ class HUD {
 
 		// TEXT SETUP
 
-		scoreTxt = new Text(0, 0);
+		scoreTxt = new Text(0, 0, display);
 
-		watermarkTxt = new Text(0, 0, 'FV TEST BUILD' #if FV_DEBUG + ' | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (0ms)' #end);
+		watermarkTxt = new Text(0, 0, display, 'FV TEST BUILD' #if FV_DEBUG + ' | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (0ms)' #end);
 		watermarkTxt.x = 2;
 		watermarkTxt.scale = 0.7;
 		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
-
-		scoreTxtProg = new Program(scoreTxt.buffer);
-		scoreTxtProg.blendEnabled = true;
-		scoreTxtProg.setFragmentFloatPrecision("medium", true);
-		watermarkTxtProg = new Program(watermarkTxt.buffer);
-		watermarkTxtProg.blendEnabled = true;
-		watermarkTxtProg.setFragmentFloatPrecision("medium", true);
-
-		TextureSystem.setTexture(scoreTxtProg, 'vcrTex', 'vcrTex');
-		display.addProgram(scoreTxtProg);
-		TextureSystem.setTexture(watermarkTxtProg, 'vcrTex', 'vcrTex');
-		display.addProgram(watermarkTxtProg);
 
 		display.addProgram(uiProg);
 
@@ -225,9 +216,9 @@ class HUD {
 
 		part1.setAllColors(healthIconColor);
 
-		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (parent.flipHealthBar ? 1 - health : health))) - (healthBarWS << 1);
-		part1.x = healthBarBG.x + healthBarWS;
-		part1.y = healthBarBG.y + healthBarHS;
+		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (parent.flipHealthBar ? 1 - health : health))) - (healthBarWS * 2.0);
+		part1.x = healthBarBG.x + healthBarXA;
+		part1.y = healthBarBG.y + healthBarYA;
 
 		if (part1.w < 0) part1.w = 0;
 
@@ -241,9 +232,9 @@ class HUD {
 
 		part2.setAllColors(healthIconColor);
 
-		part2.w = (healthBarBG.w - part1.w) - (healthBarWS << 1);
-		part2.x = (healthBarBG.x + part1.w) + healthBarWS;
-		part2.y = healthBarBG.y + healthBarHS;
+		part2.w = (healthBarBG.w - part1.w) - (healthBarWS * 2.0);
+		part2.x = (healthBarBG.x + part1.w) + healthBarXA;
+		part2.y = healthBarBG.y + healthBarYA;
 
 		if (part2.w < 0) part2.w = 0;
 
@@ -300,8 +291,8 @@ class HUD {
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 		scoreTxt.color = 0xFFDC8CFF;
-		scoreTxt.setMarkerPair('Score: ', 0xFFFFFFFF);
-		scoreTxt.setMarkerPair(', Misses: ', 0xFFFFFFFF);
+		scoreTxt.setMarkerPair('Score: ', Color.WHITE);
+		scoreTxt.setMarkerPair(', Misses: ', Color.WHITE);
 	}
 
 	/**
@@ -354,14 +345,9 @@ class HUD {
 		}
 		healthIcons = null;
 
-		var display = parent.display;
-
-		display.removeProgram(uiProg);
-		display.removeProgram(scoreTxtProg);
-		display.removeProgram(watermarkTxtProg);
+		scoreTxt.dispose();
+		watermarkTxt.dispose();
 
 		uiProg = null;
-		scoreTxtProg = null;
-		watermarkTxtProg = null;
 	}
 }

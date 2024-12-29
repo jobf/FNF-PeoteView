@@ -33,22 +33,26 @@ class Tools {
 	}
 
 	static function parseHealthBarConfig(path:String) {
-		var finalData:Array<Int> = [];
+		var finalData:Array<Float> = [];
 
 		var line = File.getContent('$path/healthBarConfig.txt');
 
 		var split = line.split(", ");
-		if (split.length != 4) throw "ARGUMENTS ARE NOT EQUAL TO FOUR!";
+		if (split.length != 6) throw "ARGUMENTS ARE NOT EQUAL TO SIX!";
 
-		var w = Std.parseInt(split[0].split(" ")[1]);
-		var h = Std.parseInt(split[1].split(" ")[1]);
-		var ws = Std.parseInt(split[2].split(" ")[1]);
-		var hs = Std.parseInt(split[3].split(" ")[1]);
+		var w = Std.parseFloat(split[0].split(" ")[1]);
+		var h = Std.parseFloat(split[1].split(" ")[1]);
+		var ws = Std.parseFloat(split[2].split(" ")[1]);
+		var hs = Std.parseFloat(split[3].split(" ")[1]);
+		var xa = Std.parseFloat(split[4].split(" ")[1]);
+		var ya = Std.parseFloat(split[5].split(" ")[1]);
 
 		finalData.push(w);
 		finalData.push(h);
 		finalData.push(ws);
 		finalData.push(hs);
+		finalData.push(xa);
+		finalData.push(ya);
 
 		return finalData;
 	}
