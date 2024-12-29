@@ -176,10 +176,11 @@ class UISprite implements Element {
 		}
 
 		if (isMainMenuPart) {
-			wValue = hValue = 150;
-			yValue = 750;
-			xValue = 150 * id;
-			id &= 0x7;
+			wValue = 150;
+			hValue = 75;
+			yValue = 750 + (75 * (id & 0x1));
+			xValue = 150 * (id >> 1);
+			id &= 0x1;
 		}
 
 		if (isHealthIcon) {

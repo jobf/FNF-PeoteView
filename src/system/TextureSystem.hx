@@ -60,7 +60,7 @@ class TextureSystem {
 			return;
 		}
 
-		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing && !disableAntialiasing;
+		var antialiasing = SaveData.state.preferences.antialiasing && !disableAntialiasing;
 
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
@@ -89,7 +89,7 @@ class TextureSystem {
 			return;
 		}
 
-		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing && !disableAntialiasing;
+		var antialiasing = SaveData.state.preferences.antialiasing && !disableAntialiasing;
 
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
@@ -120,7 +120,7 @@ class TextureSystem {
 			return;
 		}
 
-		var antialiasing = SaveData.getCurrentSlot().preferences.antialiasing && !disableAntialiasing;
+		var antialiasing = SaveData.state.preferences.antialiasing && !disableAntialiasing;
 
 		var texturesToPush:Array<TextureData> = [];
 

@@ -215,7 +215,7 @@ class PlayField {
 	}
 
 	inline function measureHit(measure:Float) {
-		if (measure >= 0 && SaveData.getCurrentSlot().preferences.cameraZooming) {
+		if (measure >= 0 && SaveData.state.preferences.cameraZooming) {
 			display.fov += 0.03;
 			view.fov += 0.015;
 		}
@@ -243,7 +243,7 @@ class PlayField {
 			health = 1;
 		}
 
-		var preferences = SaveData.getCurrentSlot().preferences;
+		var preferences = SaveData.state.preferences;
 
 		if (hud != null && preferences.scoreTextBopping) {
 			hud.scoreTxt.scale = 1.1;

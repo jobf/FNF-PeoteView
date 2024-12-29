@@ -46,6 +46,7 @@ class Main extends Application
 	var topDisplay:CustomDisplay;
 
 	// STATES
+	var mainMenu:MainMenu;
 	var playField:PlayField;
 
 	public function startSample(window:Window)
@@ -59,6 +60,7 @@ class Main extends Application
 		haxe.Timer.delay(function() {
 			var stamp = haxe.Timer.stamp();
 			trace("Preloading textures...");
+			TextureSystem.createTexture("mainMenuBGTex", "assets/ui/menuBG.png");
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
@@ -88,13 +90,7 @@ class Main extends Application
 
 			conductor = new Conductor();
 
-			playField = new PlayField(Sys.args()[0]);
-			playField.init(middleDisplay, bottomDisplay);
-
-			playField.downScroll = true;
-
-			GC.run(10);
-			GC.enable(false);
+			mainMenu = new MainMenu(middleDisplay, bottomDisplay);
 
 			window.onResize.add(resize);
 			window.onFullscreen.add(fullscreen);
@@ -109,6 +105,26 @@ class Main extends Application
 
 			_started = true;
 		}, 100);
+	}
+
+	public function switchMainMenuToPlayField() {
+		mainMenu.dispose();
+		mainMenu = null;
+		playField = new PlayField(Sys.args()[0]);
+		playField.init(middleDisplay, bottomDisplay);
+		playField.downScroll = SaveData.state.preferences.downScroll;
+
+		GC.run(10);
+		GC.enable(false);
+	}
+
+	public function switchPlayFieldToMainMenu() {
+		playField.dispose();
+		playField = null;
+		mainMenu = new MainMenu(middleDisplay, bottomDisplay);
+
+		GC.run(10);
+		GC.enable(false);
 	}
 
 	var newDeltaTime:Float = 0;
@@ -126,7 +142,11 @@ class Main extends Application
 				newDeltaTime = 1000 / 60;
 			}
 
-			if (!playField.disposed && !playField.paused) {
+			if (mainMenu != null && !mainMenu.disposed) {
+				mainMenu.update(deltaTime);
+			}
+
+			if (playField != null && !playField.disposed && !playField.paused) {
 				playField.update(newDeltaTime);
 
 				if (RenderingMode.enabled && !playField.songEnded) {

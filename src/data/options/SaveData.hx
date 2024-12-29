@@ -6,7 +6,6 @@ import sys.io.File;
 import sys.io.FileOutput;
 import sys.FileSystem;
 import haxe.ds.Vector;
-import cpp.Pointer;
 
 /**
 	The internal save data.
@@ -197,6 +196,12 @@ class SaveData {
 	private static var datas:Vector<Save> = new Vector<Save>(16, EMPTY_SAVE);
 	static var slot:cpp.UInt8 = 0;
 
+	static var state(get, never):Save;
+
+	inline static function get_state() {
+		return datas[slot];
+	}
+
 	static function init() {
 		if (!FileSystem.exists('.dat')) {
 			write();
@@ -223,9 +228,5 @@ class SaveData {
 		var output:FileOutput = File.write('.dat');
 		output.write(bytes);
 		output.close();
-	}
-
-	inline static function getCurrentSlot() {
-		return datas[slot];
 	}
 }
