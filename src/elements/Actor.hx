@@ -28,6 +28,8 @@ class Actor extends ActorElement
 	var name(default, null):String;
 	var atlas(default, null):SparrowAtlas;
 
+	var animRedirectionMap:Map<String, String>;
+
 	var finishAnim:String = "";
 
 	static function init(parent:PlayField) {
@@ -52,6 +54,10 @@ class Actor extends ActorElement
 	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24) {
 		super(x, y);
 
+		animRedirectionMap = new Map<String, String>();
+
+		
+
 		this.name = name;
 		setFps(fps);
 
@@ -74,7 +80,6 @@ class Actor extends ActorElement
 	}
 
 	function dispose() {
-		atlas = null;
 	}
 
 	function path(type:CharacterPathType) {
@@ -173,31 +178,25 @@ class Actor extends ActorElement
 	}
 
 	public function configure(config:SubTexture) {
-		var width = 0;
+		var width = config.width;
+		var height = config.height;
 
-		var trimmed = config.frameX != 0 || config.frameY != 0 || config.frameWidth != 0 || config.frameHeight != 0;
-
-		if (trimmed) width = config.frameWidth;
-		else width = config.width;
-
-		var height = 0;
-
-		if (trimmed) height = config.frameHeight;
-		else height = config.height;
-
-		var xOffset = trimmed ? config.frameX : 0;
-		var yOffset = trimmed ? config.frameY : 0;
+		var xOffset = config.frameX == null ? 0 : config.frameX;
+		var yOffset = config.frameY == null ? 0 : config.frameY;
 		var flipX = config.flipX == null ? false : config.flipX;
 		var flipY = config.flipY == null ? false : config.flipY;
 
-		this.w = width;
-		this.h = height;
+		off_x = -xOffset;
+		off_y = -yOffset;
+
+		w = width;
+		h = height;
 		this.flipX = flipX;
 		this.flipY = flipY;
-		this.clipX = config.x + xOffset;
-		this.clipY = config.y + yOffset;
-		this.clipWidth = this.w;
-		this.clipHeight = this.h;
+		clipX = config.x;
+		clipY = config.y;
+		clipWidth = w;
+		clipHeight = h;
 	}
 
 	function changeFrame() {

@@ -26,8 +26,8 @@ class SparrowAtlas {
 			var height = Std.parseInt(element.get("height"));
 			var frameX = Std.parseInt(element.get("frameX"));
 			var frameY = Std.parseInt(element.get("frameY"));
-			var frameWidth = Std.parseInt(element.get("frameWidth"));
-			var frameHeight = Std.parseInt(element.get("frameHeight"));
+			var frameWidth = element.exists("frameWidth") ? Std.parseInt(element.get("frameWidth")) : width;
+			var frameHeight = element.exists("frameHeight") ? Std.parseInt(element.get("frameHeight")) : height;
 			var flipX = element.exists("flipX") ? element.get("flipX") == "true" : null;
 			var flipY = element.exists("flipY") ? element.get("flipY") == "true" : null;
 			var rotated = element.exists("rotated") ? element.get("rotated") == "true" : null;
