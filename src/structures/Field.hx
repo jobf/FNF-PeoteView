@@ -99,5 +99,8 @@ class Field {
 		dad.dispose();
 		bf.dispose();
 		Actor.uninit(parent);
+
+		parent.view.scroll.x = parent.view.scroll.y = 0;
+		parent.view.fov = 1.0;
 	}
 }

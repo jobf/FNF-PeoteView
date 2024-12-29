@@ -112,7 +112,7 @@ class Main extends Application
 		mainMenu.dispose();
 		mainMenu = null;
 		playField = new PlayField(Sys.args()[0]);
-		playField.init(middleDisplay, bottomDisplay);
+		playField.init(this, middleDisplay, bottomDisplay);
 		playField.downScroll = SaveData.state.preferences.downScroll;
 
 		GC.run(10);

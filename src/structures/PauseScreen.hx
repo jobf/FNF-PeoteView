@@ -9,13 +9,15 @@ import lime.ui.KeyModifier;
 @:publicFields
 class PauseScreen {
 	var parent:HUD;
+	var main:Main;
 
 	var pauseBG(default, null):UISprite;
 	var pauseOptions(default, null):Array<UISprite> = [];
 	var pauseOptionSelected(default, null):Int = 0;
 
-	function new(parent:HUD) {
+	function new(parent:HUD, main:Main) {
 		this.parent = parent;
+		this.main = main;
 
 		pauseBG = new UISprite();
 		pauseBG.gradientMode = 1.0;
@@ -54,7 +56,7 @@ class PauseScreen {
 						return;
 					case 1:
 					case 2:
-						Sys.exit(-1);
+						main.switchPlayFieldToMainMenu();
 				}
 			default:
 				return;
@@ -95,6 +97,7 @@ class PauseScreen {
 	}
 
 	function dispose() {
+		close();
 		try {
 			parent.uiBuf.removeElement(pauseBG);
 		} catch (e) {}

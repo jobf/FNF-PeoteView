@@ -67,8 +67,11 @@ class MainMenu {
 		optionBuf.update();
 		backgroundBuf.updateElement(bg);
 
-		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(updateMenuOptions);
+
+		haxe.Timer.delay(() -> {
+			var window = lime.app.Application.current.window;
+			window.onKeyDown.add(updateMenuOptions);
+		}, 200);
 
 		updateMenuOptions(-1, -1);
 	}

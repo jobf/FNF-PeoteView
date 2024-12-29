@@ -15,10 +15,10 @@ class PlayField {
 		chart = new Chart('assets/songs/$songName');
 	}
 
-	function init(display:CustomDisplay, view:CustomDisplay) {
+	function init(main:Main, display:CustomDisplay, view:CustomDisplay) {
 		this.display = display;
 		this.view = view;
-		create(display, chart.header.mania);
+		create(main, display, chart.header.mania);
 	}
 
 	var score:Int128 = 0;
@@ -59,7 +59,6 @@ class PlayField {
 	var disposed(default, null):Bool;
 	var paused(default, null):Bool;
 	var botplay(default, set):Bool;
-
 	inline function set_botplay(value:Bool) {
 		if (noteSystem != null) noteSystem.resetInputs();
 		return botplay = value;
@@ -103,10 +102,11 @@ class PlayField {
 
 	/**
 	 * Creates the playfield.
-	 * @param display 
-	 * @param mania 
+	 * @param main The entry point.
+	 * @param display The ui display you want the playfield to go to.
+	 * @param mania The amount of keys you want for your fnf song. (This is configured by the song's header)
 	 */
-	function create(display:Display, mania:Int = 4) {
+	function create(main:Main, display:Display, mania:Int = 4) {
 		if (mania > 16) mania = 16;
 
 		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
@@ -127,7 +127,7 @@ class PlayField {
 
 		inputSystem = new InputSystem(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
-		hud = new HUD(display, this);
+		hud = new HUD(display, this, main);
 		audioSystem = new AudioSystem(chart);
 		field = new Field(this);
 
@@ -360,13 +360,34 @@ class PlayField {
 		Disposes the playfield.
 	**/
 	function dispose() {
+		ready = false;
 		disposed = true;
 
+		var conductor = Main.conductor;
+		conductor.onBeat.remove(beatHit);
+		conductor.onMeasure.remove(measureHit);
+
+		onNoteHit.remove(hitNote);
+		onNoteMiss.remove(missNote);
+		onSustainComplete.remove(completeSustain);
+		onSustainRelease.remove(releaseSustain);
+		onStartSong.remove(startSong);
+		onStopSong.remove(stopSong);
+		onDeath.remove(gameOver);
+
+		onStartSong = null;
+		onPauseSong = null;
+		onResumeSong = null;
+		onStopSong = null;
+		onDeath = null;
 		onNoteHit = null;
 		onNoteMiss = null;
 		onSustainComplete = null;
 		onSustainRelease = null;
+		onKeyPress = null;
+		onKeyRelease = null;
 
+		inputSystem.dispose();
 		noteSystem.dispose();
 		hud.dispose();
 		audioSystem.dispose();
@@ -374,7 +395,5 @@ class PlayField {
 
 		songEnded = true;
 		GC.run();
-
-		ready = false;
 	}
 }

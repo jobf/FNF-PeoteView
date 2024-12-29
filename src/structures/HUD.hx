@@ -43,7 +43,7 @@ class HUD {
 	/**
 		Create the playfield UI.
 	**/
-	function new(display:Display, parent:PlayField) {
+	function new(display:Display, parent:PlayField, main:Main) {
 		this.parent = parent;
 
 		healthBarWS = UISprite.healthBarProperties[2];
@@ -137,7 +137,7 @@ class HUD {
 		display.addProgram(uiProg);
 
 		countdownDisp = new CountdownDisplay(uiBuf);
-		pauseScreen = new PauseScreen(this);
+		pauseScreen = new PauseScreen(this, main);
 	}
 
 	function update(deltaTime:Float) {
@@ -330,18 +330,24 @@ class HUD {
 		uiBuf.removeElement(ratingPopup);
 		ratingPopup = null;
 
-		for (i in 0...comboNumbers.length) {
-			uiBuf.removeElement(comboNumbers[i]);
-			comboNumbers[i] = null;
+		while (comboNumbers.length != 0) {
+			var comboNumber = comboNumbers.pop();
+			uiBuf.removeElement(comboNumber);
 		}
 		comboNumbers = null;
 
 		uiBuf.removeElement(healthBarBG);
 		healthBarBG = null;
 
-		for (i in 0...healthIcons.length) {
-			uiBuf.removeElement(healthIcons[i]);
-			healthIcons[i] = null;
+		while (healthBarParts.length != 0) {
+			var healthBarPart = healthBarParts.pop();
+			uiBuf.removeElement(healthBarPart);
+		}
+		healthBarParts = null;
+
+		while (healthIcons.length != 0) {
+			var healthIcon = healthIcons.pop();
+			uiBuf.removeElement(healthIcon);
 		}
 		healthIcons = null;
 

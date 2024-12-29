@@ -204,7 +204,7 @@ class InputSystem {
 	}
 
 	function press(code:KeyCode, mod:KeyModifier) {
-		if (code == KeyCode.RETURN && !parent.paused) parent.pause();
+		if (code == KeyCode.RETURN && !parent.paused && parent.ready) parent.pause();
 
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
 
@@ -237,7 +237,7 @@ class InputSystem {
 	}
 
 	function release(code:KeyCode, mod:KeyModifier) {
-		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
+		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused && parent.ready) return;
 
 		if (!exists(code)) {
 			return;
