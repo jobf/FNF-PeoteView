@@ -50,7 +50,6 @@ class AudioSystem {
 		} else {
 			inst.update();
 			playField.songPosition = inst.time;
-			trace(inst.time);
 		}
 	}
 
