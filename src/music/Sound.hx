@@ -178,7 +178,7 @@ class Sound {
 			if (result > length) {
 				result = length;
 			}
-		} else {
+		} else if (finished) {
 			result = length * 0.001;
 		}
 

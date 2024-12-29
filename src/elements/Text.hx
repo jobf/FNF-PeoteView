@@ -20,11 +20,7 @@ class Text {
 
 		var advanceX:Float = 0;
 
-		text = str;
-
 		if(text != null) {
-			// why is text null?
-			// because you must set it before doing this for loop
 			for (i in str.length...text.length) {
 				var elem = buffer.getElement(i);
 				if (elem != null) {
@@ -33,6 +29,8 @@ class Text {
 				}
 			}
 		}
+
+		text = str;
 
 		for (i in 0...str.length) {
 			var code = str.charCodeAt(i) - 32;

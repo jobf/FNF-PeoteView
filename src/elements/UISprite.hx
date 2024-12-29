@@ -34,7 +34,7 @@ class UISprite implements Element {
 	@color var c5:Color = 0xFFFFFFFF;
 	@color var c6:Color = 0xFFFFFFFF;
 
-	inline function setAllColors(colors:Array<Color>) {
+	function setAllColors(colors:Array<Color>) {
 		c1 = colors[0];
 		c2 = colors[1];
 		c3 = colors[2];
@@ -176,11 +176,11 @@ class UISprite implements Element {
 		}
 
 		if (isMainMenuPart) {
-			wValue = 150;
+			wValue = 300;
 			hValue = 75;
 			yValue = 750 + (75 * (id & 0x1));
-			xValue = 150 * (id >> 1);
-			id &= 0x1;
+			xValue = 300 * (id >> 1);
+			id = 0;
 		}
 
 		if (isHealthIcon) {

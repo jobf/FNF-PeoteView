@@ -60,7 +60,7 @@ class Main extends Application
 		haxe.Timer.delay(function() {
 			var stamp = haxe.Timer.stamp();
 			trace("Preloading textures...");
-			TextureSystem.createTexture("mainMenuBGTex", "assets/ui/menuBG.png");
+			TextureSystem.createTexture("mainMenuBGTex", "assets/mainMenu/menuBG.png");
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
@@ -90,7 +90,8 @@ class Main extends Application
 
 			conductor = new Conductor();
 
-			mainMenu = new MainMenu(middleDisplay, bottomDisplay);
+			mainMenu = new MainMenu(this);
+			mainMenu.init(middleDisplay, bottomDisplay);
 
 			window.onResize.add(resize);
 			window.onFullscreen.add(fullscreen);
@@ -121,7 +122,8 @@ class Main extends Application
 	public function switchPlayFieldToMainMenu() {
 		playField.dispose();
 		playField = null;
-		mainMenu = new MainMenu(middleDisplay, bottomDisplay);
+		mainMenu = new MainMenu(this);
+		mainMenu.init(middleDisplay, bottomDisplay);
 
 		GC.run(10);
 		GC.enable(false);

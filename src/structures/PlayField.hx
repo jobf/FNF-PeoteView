@@ -37,6 +37,7 @@ class PlayField {
 	inline function set_scrollSpeed(value:Float) {
 		return noteSystem.setScrollSpeed(scrollSpeed = value);
 	}
+
 	var downScroll(default, set):Bool;
 	inline function set_downScroll(value:Bool) {
 		downScroll = value;
@@ -51,6 +52,7 @@ class PlayField {
 		}
 		return value;
 	}
+
 	var practiceMode:Bool;
 	var songStarted(default, null):Bool;
 	var songEnded(default, null):Bool;
@@ -83,6 +85,7 @@ class PlayField {
 
 	var flipHealthBar:Bool;
 	var hitbox:Float = 200;
+	var ready:Bool = false;
 
 	function setTime(value:Float, playAgain:Bool = false) {
 		if (disposed || !songStarted || songEnded || paused) return;
@@ -134,7 +137,6 @@ class PlayField {
 		var conductor = Main.conductor;
 		var timeSig = chart.header.timeSig;
 		conductor.changeBpmAt(0, chart.header.bpm, timeSig[0], timeSig[1]);
-		songPosition = -conductor.crochet * 4.5;
 		conductor.onBeat.add(beatHit);
 		conductor.onMeasure.add(measureHit);
 
@@ -145,6 +147,8 @@ class PlayField {
 		onStartSong.add(startSong);
 		onStopSong.add(stopSong);
 		onDeath.add(gameOver);
+
+		songPosition = -conductor.crochet * 4.5;
 	}
 
 	/**
@@ -152,6 +156,11 @@ class PlayField {
 	**/
 	function update(deltaTime:Float) {
 		if (disposed || paused) return;
+
+		if (!ready) {
+			ready = true;
+			return;
+		}
 
 		if (display.fov != 1) {
 			display.fov -= (display.fov - 1) * (deltaTime * 0.01);
@@ -339,11 +348,12 @@ class PlayField {
 
 	function gameOver(chart:Chart) {
 		Sys.println("Game Over");
-		dispose();
 
 		if (RenderingMode.enabled) {
 			RenderingMode.stopRender();
 		}
+
+		Sys.exit(0);
 	}
 
 	/**
@@ -364,5 +374,7 @@ class PlayField {
 
 		songEnded = true;
 		GC.run();
+
+		ready = false;
 	}
 }
