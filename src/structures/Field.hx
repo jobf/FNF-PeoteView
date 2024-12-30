@@ -6,14 +6,13 @@ package structures;
 **/
 @:publicFields
 class Field {
-	// Time for hell
 	var dad:Actor;
 	var bf:Actor;
 
 	var parent:PlayField;
 
-	static var singPoses:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
-	static var missPoses:Array<String> = ["singLEFTmiss", "singDOWNmiss", "singUPmiss", "singRIGHTmiss"];
+	static var singPoses:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT", "hey"];
+	static var missPoses:Array<String> = ["singLEFTmiss", "singDOWNmiss", "singUPmiss", "singRIGHTmiss", "singUPmiss"];
 
 	function new(parent:PlayField) {
 		this.parent = parent;
@@ -21,6 +20,7 @@ class Field {
 		Actor.init(parent);
 
 		dad = new Actor("bf", 225, 250, 24);
+		dad.mirror = !dad.mirror;
 		dad.playAnimation("idle");
 		dad.startingShakeFrame = 0;
 		dad.endingShakeFrame = 1;
@@ -32,7 +32,6 @@ class Field {
 		bf.startingShakeFrame = 0;
 		bf.endingShakeFrame = 1;
 		bf.finishAnim = "idle";
-		bf.mirror = !dad.mirror;
 		Actor.buffer.addElement(bf);
 
 		parent.onNoteHit.add(function(note, timing) {

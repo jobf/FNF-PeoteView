@@ -7,7 +7,6 @@ enum abstract CharacterPathType(cpp.UInt8) {
     var IMAGE;
     var XML;
     var JSON;
-    var PSYCH_DATA;
-    var FV_DATA;
+    var DATA;
     var NONE;
 }

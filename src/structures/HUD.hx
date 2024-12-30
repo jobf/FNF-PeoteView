@@ -5,6 +5,7 @@ import lime.ui.KeyModifier;
 
 /**
 	The playfield's HUD.
+	This is an internal structure and should only be used inside of the playfield NOT to be touched with.
 **/
 @:publicFields
 @:access(structures.PlayField)

@@ -9,7 +9,7 @@
  LM, DM, UM, RD, XM
 **/
 
-package elements;
+package elements.actor.sparrow;
 
 import atlas.SparrowAtlas.SubTexture;
 import elements.actor.*;
@@ -68,19 +68,15 @@ class Actor extends ActorElement
 
 		if (pathExists(XML)) {
 			atlas = SparrowAtlas.parse(sys.io.File.getContent(path(XML)));
-		} else if (pathExists(JSON)) {
-			atlas = null; // TODO
 		} else {
 			throw "Atlas data doesn't exist: " + path(NONE);
 		}
 
-		if (pathExists(PSYCH_DATA)) {
-			data = ActorData.fromPsychJSON(path(PSYCH_DATA));
-		} else if (pathExists(FV_DATA)) {
-			data = null; // TODO
+		if (pathExists(DATA)) {
+			data = ActorData.parse(path(DATA));
 		}
 
-		mirror = data.flip;
+		mirror = !data.flip;
 
 		TextureSystem.setTexture(program, name, name);
 	}
@@ -98,9 +94,7 @@ class Actor extends ActorElement
 				result += '/data.xml';
 			case JSON:
 				result += '/data.json';
-			case PSYCH_DATA:
-				result += '/charDataP.json';
-			case FV_DATA:
+			case DATA:
 				result += '/charData.json';
 			default:
 		}
@@ -150,6 +144,10 @@ class Actor extends ActorElement
 
 			name = animData.name;
 
+			adjust_x = -animData.offsets[0];
+			if (mirror) adjust_x = -adjust_x;
+			adjust_y = -animData.offsets[1];
+
 			var ind = animData.indices;
 
 			indicesMode = ind != null && ind.length != 0;
@@ -159,11 +157,9 @@ class Actor extends ActorElement
 				frameIndex = indices[0];
 			}
 
-			setFps(animData.fps);
+			loop = animData.loop;
 
-			adjust_x = -animData.offsets[0];
-			if (mirror) adjust_x = -adjust_x;
-			adjust_y = -animData.offsets[1];
+			setFps(animData.fps);
 		} else {
 			indicesMode = false;
 			indices = null;
@@ -174,6 +170,7 @@ class Actor extends ActorElement
 		endingFrameIndex = animMap[1];
 		animationRunning = true;
 		this.loop = loop;
+
 		changeFrame();
 	}
 
@@ -226,7 +223,7 @@ class Actor extends ActorElement
 		var flipY = config.flipY == null ? false : config.flipY;
 
 		off_x = -xOffset;
-		if (mirror) off_x = 0;
+		if (mirror) off_x += width % xOffset;
 		off_y = -yOffset;
 
 		w = width;
@@ -241,79 +238,5 @@ class Actor extends ActorElement
 
 	function changeFrame() {
 		configure(atlas.subTextures[startingFrameIndex + frameIndex]);
-	}
-}
-
-/**
-	Basic actor element.
-**/
-@:publicFields
-class ActorElement implements Element {
-	@texX var clipX:Int = 0;
-	@texY var clipY:Int = 0;
-	@texW var clipWidth(default, set):Int = 1;
-	@texH var clipHeight(default, set):Int = 1;
-
-	inline function set_clipWidth(value:Int) {
-		clipWidth = value;
-		clipSizeX = value;
-		return value;
-	}
-
-	inline function set_clipHeight(value:Int) {
-		clipHeight = value;
-		clipSizeY = value;
-		return value;
-	}
-
-	@texSizeX private var clipSizeX:Int = 1;
-	@texSizeY private var clipSizeY:Int = 1;
-
-	@varying @custom @formula("_mirror == 1 ? (_flipX == 0 ? 1 : 0) : _flipX") var _flipX:Int = 0;
-	@varying @custom var _flipY:Int = 0;
-	@varying @custom var _mirror:Int = 0;
-
-	var flipX(default, set):Bool;
-
-	inline function set_flipX(value:Bool):Bool {
-		_flipX = value ? 1 : 0;
-		return flipX = value;
-	}
-
-	var flipY(default, set):Bool;
-
-	inline function set_flipY(value:Bool):Bool {
-		_flipY = value ? 1 : 0;
-		return flipY = value;
-	}
-
-	var mirror(default, set):Bool;
-
-	inline function set_mirror(value:Bool):Bool {
-		_mirror = value ? 1 : 0;
-		return mirror = value;
-	}
-
-	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1 ? _flipX : -_flipX))") var x:Int;
-	@posY @formula("y + off_y + py + adjust_y + (h * _flipY)") var y:Int;
-	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1 : 1)") var w:Int;
-	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1 : 1)") var h:Int;
-
-	@pivotX @formula("(w < 0 ? -w : w) * 0.5") var px:Int;
-	@pivotY @formula("(h < 0 ? -h : h) * 0.5") var py:Int;
-
-	@rotation var r:Float;
-
-	@varying @custom @formula("off_x * scale") var off_x:Int;
-	@varying @custom @formula("off_y * scale") var off_y:Int;
-	@varying @custom var adjust_x:Int;
-	@varying @custom var adjust_y:Int;
-	@varying @custom var scale:Float = 1.0;
-
-	@color var c:Color = 0xFFFFFFFF;
-
-	function new(x:Int = 0, y:Int = 0) {
-		this.x = x;
-		this.y = y;
 	}
 }

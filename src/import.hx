@@ -7,6 +7,9 @@ import atlas.*;
 import data.chart.*;
 import data.options.*;
 import elements.*;
+import elements.actor.*;
+import elements.actor.sparrow.*;
+import elements.actor.animate.*;
 #if FV_DEBUG import debug.*; #end
 import music.*;
 import structures.*;

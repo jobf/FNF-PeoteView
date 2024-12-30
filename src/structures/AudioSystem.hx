@@ -2,24 +2,21 @@ package structures;
 
 /**
 	The auditory system for the playfield.
+	This is an internal structure and should only be used inside of the playfield NOT to be touched with.
 **/
 @:publicFields
 @:access(structures.PlayField)
 class AudioSystem {
 	var inst:Sound;
 	var voices:Array<Sound> = [];
-	var grp:SoundGroup;
 
 	function new(chart:Chart) {
-		grp = new SoundGroup();
-		grp.play();
-
 		inst = new Sound();
-		inst.fromFile(chart.header.instDir, grp);
+		inst.fromFile(chart.header.instDir);
 
 		for (voicesDir in chart.header.voicesDirs) {
 			var voicesInstance = new Sound();
-			voicesInstance.fromFile(voicesDir, grp);
+			voicesInstance.fromFile(voicesDir);
 			voices.push(voicesInstance);
 		}
 	}
@@ -62,12 +59,10 @@ class AudioSystem {
 	}
 
 	function dispose() {
-		grp.dispose();
-		grp = null;
 		inst.dispose();
 		inst = null;
-		for (voicesTrack in voices) {
-			voicesTrack.dispose();
+		while (voices.length != 0) {
+			voices.pop().dispose();
 		}
 		voices.resize(0);
 		voices = null;

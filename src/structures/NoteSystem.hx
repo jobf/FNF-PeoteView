@@ -2,21 +2,20 @@ package structures;
 
 /**
 	The note system.
+	This is an internal structure and should only be used inside of the playfield NOT to be touched with.
 **/
 @:publicFields
 @:access(structures.PlayField)
 class NoteSystem {
-	// Behind the note system
 	var sustainProg(default, null):Program;
 	var sustainsBuf(default, null):Buffer<Sustain>;
 
-	// Above the note system
 	var notesProg(default, null):Program;
 	var notesBuf(default, null):Buffer<Note>;
 
 	var notesToHit(default, null):Array<Note> = [];
 	var sustainsToHold(default, null):Array<Sustain> = [];
-	var botHitsToCheck(default, null):Array<Bool> = []; // For the receptor confirming to mock human input
+	var botHitsToCheck(default, null):Array<Bool> = [];
 	var playerHitsToCheck(default, null):Array<Bool> = []; // For preventing a key press check from continuing if you hit a note
 
 	var spawnPosBottom(default, null):Int;

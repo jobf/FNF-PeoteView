@@ -93,9 +93,9 @@ class Sound {
 		cpp.vm.Gc.doNotKill(this);
 	}
 
-	function fromFile(path:String, ?grp:SoundGroup) {
+	function fromFile(path:String) {
 		var result = Miniaudio.ma_sound_init_from_file(engine, path,
-		0x00000001 | 0x00000002 | 0x00002000, grp != null ? grp.grp : null, null, sound);
+		0x00000001 | 0x00002000, null, null, sound);
 
 		if (result != MaResult.MA_SUCCESS) {
 			if (path != "") {

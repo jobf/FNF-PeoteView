@@ -14,7 +14,11 @@ class ActorData {
 
 	var data:Map<String, ActorAnimationData>;
 
-	static function fromPsychJSON(path:String) {
+	/**
+	 * Converts a psych engine character data json to an `ActorData`.
+	 * @param path 
+	 */
+	static function parse(path:String) {
 		var content = sys.io.File.getContent(path);
 		var json = haxe.Json.parse(content);
 
