@@ -13,11 +13,11 @@ class MainMenu {
 	var display:CustomDisplay;
 	var view:CustomDisplay;
 
-	var optionBuf:Buffer<UISprite>;
-	var optionProg:Program;
+	static var optionBuf:Buffer<UISprite>;
+	static var optionProg:Program;
 
-	var backgroundBuf:Buffer<Sprite>;
-	var backgroundProg:Program;
+	static var backgroundBuf:Buffer<Sprite>;
+	static var backgroundProg:Program;
 
 	var optionSelected:Int = 0;
 
@@ -31,17 +31,27 @@ class MainMenu {
 		this.display = display;
 		this.view = view;
 
-		optionBuf = new Buffer<UISprite>(4);
-		optionProg = new Program(optionBuf);
-		optionProg.blendEnabled = true;
+		if (optionBuf == null) {
+			optionBuf = new Buffer<UISprite>(4);
+		}
+
+		if (optionProg == null) {
+			optionProg = new Program(optionBuf);
+			optionProg.blendEnabled = true;
+		}
 
 		var tex = TextureSystem.getTexture("uiTex");
 
 		UISprite.init(optionProg, "uiTex", tex);
 
-		backgroundBuf = new Buffer<Sprite>(1);
-		backgroundProg = new Program(backgroundBuf);
-		backgroundProg.blendEnabled = true;
+		if (backgroundBuf == null) {
+			backgroundBuf = new Buffer<Sprite>(1);
+		}
+
+		if (backgroundProg == null) {
+			backgroundProg = new Program(backgroundBuf);
+			backgroundProg.blendEnabled = true;
+		}
 
 		TextureSystem.setTexture(backgroundProg, "mainMenuBGTex", "mainMenuBGTex");
 
@@ -123,15 +133,11 @@ class MainMenu {
 
 		display.removeProgram(optionProg);
 		display = null;
-		optionProg = null;
 		optionBuf.clear();
-		optionBuf = null;
 
 		view.removeProgram(backgroundProg);
 		view = null;
-		backgroundProg = null;
 		backgroundBuf.clear();
-		backgroundBuf = null;
 
 		disposed = true;
 	}

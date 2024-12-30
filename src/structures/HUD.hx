@@ -14,9 +14,7 @@ class HUD {
 	var pauseScreen:PauseScreen;
 
 	var uiBuf(default, null):Buffer<UISprite>;
-	var uiProg(default, null):Program;
-	var scoreTxtProg(default, null):Program;
-	var watermarkTxtProg(default, null):Program;
+	static var uiProg(default, null):Program;
 
 	var scoreTxt:Text;
 	var watermarkTxt:Text;
@@ -53,9 +51,11 @@ class HUD {
 		healthBarXA = UISprite.healthBarProperties[4];
 		healthBarYA = UISprite.healthBarProperties[5];
 
-		uiBuf = new Buffer<UISprite>(16, 16, false);
-		uiProg = new Program(uiBuf);
-		uiProg.blendEnabled = true;
+		if (uiBuf == null) {
+			uiBuf = new Buffer<UISprite>(16, 16, false);
+			uiProg = new Program(uiBuf);
+			uiProg.blendEnabled = true;
+		}
 
 		var tex = TextureSystem.getTexture("uiTex");
 

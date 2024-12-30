@@ -8,7 +8,7 @@ import elements.text.*;
 @:publicFields
 class Text {
 	var buffer:Buffer<TextCharSprite>;
-	var program:Program;
+	static var program:Program;
 	var display:Display;
 
 	var text(default, set):String;
@@ -194,14 +194,19 @@ class Text {
 		parsedTextAtlasData = data.sprites;
 		buffer = new Buffer<TextCharSprite>(64, 64, false);
 
-		program = new Program(buffer);
-		program.blendEnabled = true;
-		program.setFragmentFloatPrecision("medium", true);
+		if (program == null) {
+			program = new Program(buffer);
+			program.blendEnabled = true;
+			program.setFragmentFloatPrecision("medium", true);
 
-		TextureSystem.setTexture(program, 'vcrTex', 'vcrTex');
+			TextureSystem.setTexture(program, 'vcrTex', 'vcrTex');
+		}
 
 		this.display = display;
-		display.addProgram(program);
+
+		if (!program.isIn(display)) {
+			display.addProgram(program);
+		}
 
 		this.text = text;
 		this.x = x;
@@ -209,10 +214,9 @@ class Text {
 	}
 
 	function dispose() {
-		display.removeProgram(program);
+		if (program.isIn(display)) {
+			display.removeProgram(program);
+		}
 		display = null;
-		program = null;
-		buffer.clear();
-		buffer = null;
 	}
 }

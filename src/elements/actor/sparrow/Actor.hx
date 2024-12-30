@@ -25,7 +25,6 @@ class Actor extends ActorElement
 	static var buffer:Buffer<ActorElement>;
 	static var program:Program;
 
-	static var tex(default, null):Texture;
 	static var charToUnits(default, null):Map<String, Int> = [];
 	var name(default, null):String;
 	var atlas(default, null):SparrowAtlas;
@@ -38,9 +37,14 @@ class Actor extends ActorElement
 	static function init(parent:PlayField) {
 		var view = parent.view;
 
-		buffer = new Buffer<ActorElement>(4, 4, true);
-		program = new Program(buffer);
-		program.blendEnabled = true;
+		if (buffer == null) {
+			buffer = new Buffer<ActorElement>(4, 4, true);
+		}
+
+		if (program == null) {
+			program = new Program(buffer);
+			program.blendEnabled = true;
+		}
 
 		view.addProgram(program);
 	}
@@ -55,12 +59,8 @@ class Actor extends ActorElement
 	}
 
 	static function uninit(parent:PlayField) {
-		var view = parent.view;
-
-		view.removeProgram(program);
-		program = null;
+		parent.view.removeProgram(program);
 		buffer.clear();
-		buffer = null;
 	}
 
 	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24) {

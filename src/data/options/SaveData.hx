@@ -150,23 +150,23 @@ abstract SaveData_Internal(Int64) from Int64 to Int64 {
 
 	inline function set(bitVal:Int, value:Bool) {
 		var gotten = get(bitVal);
-		return gotten != value ? (this ^= 1 << bitVal) == 1 : gotten;
+		return gotten != value ? (this ^= Int64.ofInt(1) << bitVal) == 1 : gotten;
 	}
 
-	inline function getWithBits(bitVal:Int, bits:Int):haxe.Int64 {
-		return (this >> bitVal) & ((1 << bits) - 1);
+	inline function getWithBits(bitVal:Int, bits:Int):Int64 {
+		return (this >> bitVal) & ((Int64.ofInt(1) << bits) - 1);
 	}
 
-	inline function setWithBits(bitVal:Int, bits:Int, value:haxe.Int64) {
-		var mask = ((1 << bits) - 1) << bitVal;
-		var cleared:haxe.Int64 = this & ~mask;
+	inline function setWithBits(bitVal:Int, bits:Int, value:Int64) {
+		var mask:Int64 = ((Int64.ofInt(1) << bits) - 1) << bitVal;
+		var cleared:Int64 = this & ~mask;
 		return this = cleared | ((value & ((1 << bits) - 1)) << bitVal);
 	}
 }
 
 @:publicFields
 class SaveData {
-	static var EMPTY_SAVE(default, null):SaveData_Internal = Int64.parseString("-16711856");
+	static var EMPTY_SAVE(default, null):SaveData_Internal = Int64.parseString("-71776943694938000");
 
 	private static var datas:Vector<SaveData_Internal> = new Vector<SaveData_Internal>(16, EMPTY_SAVE);
 	static var slot:cpp.UInt8 = 0;
