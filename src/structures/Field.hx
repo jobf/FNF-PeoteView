@@ -12,8 +12,8 @@ class Field {
 
 	var parent:PlayField;
 
-	static var singPoses:Array<String> = ["BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"];
-	static var missPoses:Array<String> = ["BF NOTE LEFT MISS", "BF NOTE DOWN MISS", "BF NOTE UP MISS", "BF NOTE RIGHT MISS"];
+	static var singPoses:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
+	static var missPoses:Array<String> = ["singLEFTmiss", "singDOWNmiss", "singUPmiss", "singRIGHTmiss"];
 
 	function new(parent:PlayField) {
 		this.parent = parent;
@@ -21,18 +21,18 @@ class Field {
 		Actor.init(parent);
 
 		dad = new Actor("bf", 225, 250, 24);
-		dad.playAnimation("BF idle dance");
-		dad.mirror = true;
+		dad.playAnimation("idle");
 		dad.startingShakeFrame = 0;
 		dad.endingShakeFrame = 1;
-		dad.finishAnim = "BF idle dance";
+		dad.finishAnim = "idle";
 		Actor.buffer.addElement(dad);
 
 		bf = new Actor("bf", 625, 250, 24);
-		bf.playAnimation("BF idle dance");
+		bf.playAnimation("idle");
 		bf.startingShakeFrame = 0;
 		bf.endingShakeFrame = 1;
-		bf.finishAnim = "BF idle dance";
+		bf.finishAnim = "idle";
+		bf.mirror = !dad.mirror;
 		Actor.buffer.addElement(bf);
 
 		parent.onNoteHit.add(function(note, timing) {
@@ -55,8 +55,8 @@ class Field {
 
 		Main.conductor.onBeat.add(function(beat) {
 			var canBop = beat % 2 == 0;
-			if (!dad.animationRunning && canBop) dad.playAnimation("BF idle dance");
-			if (!bf.animationRunning && canBop) bf.playAnimation("BF idle dance");
+			if (!dad.animationRunning && canBop) dad.playAnimation("idle");
+			if (!bf.animationRunning && canBop) bf.playAnimation("idle");
 		});
 
 		parent.view.scroll.y = -100;
@@ -82,10 +82,10 @@ class Field {
 	}
 
 	function resetCharacters() {
-		dad.playAnimation("BF idle dance");
+		dad.playAnimation("idle");
 		dad.shake = false;
 
-		bf.playAnimation("BF idle dance");
+		bf.playAnimation("idle");
 		bf.shake = false;
 	}
 

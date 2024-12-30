@@ -12,6 +12,7 @@
 package elements;
 
 import atlas.SparrowAtlas.SubTexture;
+import elements.actor.*;
 
 /**
 	Actor element object meant to be in the field of the gameplay state.
@@ -27,6 +28,7 @@ class Actor extends ActorElement
 	static var tex(default, null):Texture;
 	var name(default, null):String;
 	var atlas(default, null):SparrowAtlas;
+	var data(default, null):ActorData;
 
 	var animRedirectionMap:Map<String, String>;
 
@@ -54,10 +56,6 @@ class Actor extends ActorElement
 	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24) {
 		super(x, y);
 
-		animRedirectionMap = new Map<String, String>();
-
-		
-
 		this.name = name;
 		setFps(fps);
 
@@ -76,6 +74,14 @@ class Actor extends ActorElement
 			throw "Atlas data doesn't exist: " + path(NONE);
 		}
 
+		if (pathExists(PSYCH_DATA)) {
+			data = ActorData.fromPsychJSON(path(PSYCH_DATA));
+		} else if (pathExists(FV_DATA)) {
+			data = null; // TODO
+		}
+
+		mirror = data.flip;
+
 		TextureSystem.setTexture(program, name, name);
 	}
 
@@ -88,12 +94,14 @@ class Actor extends ActorElement
 		switch (type) {
 			case IMAGE:
 				result += '/sheet.png';
-			case INFO:
-				result += '/info.json';
 			case XML:
 				result += '/data.xml';
 			case JSON:
 				result += '/data.json';
+			case PSYCH_DATA:
+				result += '/charDataP.json';
+			case FV_DATA:
+				result += '/charData.json';
 			default:
 		}
 
@@ -116,6 +124,8 @@ class Actor extends ActorElement
 	private var frameDurationMs:Float;
 	private var frameTimeRemaining:Float;
 	private var loop:Bool;
+	private var indicesMode:Bool;
+	private var indices:Array<Int>;
 
 	var shake:Bool;
 	var startingShakeFrame:Int;
@@ -130,10 +140,38 @@ class Actor extends ActorElement
 	}
 
 	function playAnimation(name:String, loop:Bool = false) {
+		frameIndex = 0;
+
+		var animDataMap = data.data;
+		if (animDataMap.exists(name)) {
+			var oldName = name;
+
+			var animData = animDataMap[name];
+
+			name = animData.name;
+
+			var ind = animData.indices;
+
+			indicesMode = ind != null && ind.length != 0;
+
+			if (indicesMode) {
+				indices = ind;
+				frameIndex = indices[0];
+			}
+
+			setFps(animData.fps);
+
+			adjust_x = -animData.offsets[0];
+			if (mirror) adjust_x = -adjust_x;
+			adjust_y = -animData.offsets[1];
+		} else {
+			indicesMode = false;
+			indices = null;
+		}
+
 		var animMap = atlas.animMap[name];
 		startingFrameIndex = animMap[0];
 		endingFrameIndex = animMap[1];
-		frameIndex = 0;
 		animationRunning = true;
 		this.loop = loop;
 		changeFrame();
@@ -163,6 +201,7 @@ class Actor extends ActorElement
 		if (frameTimeRemaining <= 0) {
 			if (loop) frameIndex = (frameIndex + 1) % (endingFrameIndex - startingFrameIndex);
 			else frameIndex++;
+			if (indicesMode && indices != null) frameIndex = indices[frameIndex];
 
 			if (shake && frameIndex > endingShakeFrame) {
 				frameIndex = startingShakeFrame;
@@ -187,6 +226,7 @@ class Actor extends ActorElement
 		var flipY = config.flipY == null ? false : config.flipY;
 
 		off_x = -xOffset;
+		if (mirror) off_x = 0;
 		off_y = -yOffset;
 
 		w = width;
