@@ -24,6 +24,7 @@ class PlayField {
 	var score:Int128 = 0;
 	var misses:Int128 = 0;
 	var combo:Int128 = 0;
+	var accuracy:Array<Int128> = [0, 0];
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
 	var health:Float = 0.5;
@@ -246,6 +247,8 @@ class PlayField {
 		}
 
 		++combo;
+		++accuracy[0];
+		++accuracy[1];
 
 		health += 0.025;
 		if (health > 1) {
@@ -298,6 +301,7 @@ class PlayField {
 		combo = 0;
 		score -= 50;
 		++misses;
+		++accuracy[1];
 	}
 
 	inline function completeSustain(note:ChartNote) {

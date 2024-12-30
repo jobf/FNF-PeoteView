@@ -293,13 +293,19 @@ class HUD {
 		inline function lerp(a:Float, b:Float, ratio:Float):Float
 			return a + ratio * (b - a);
 
-		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}';
+		var acc2 = parent.accuracy[1];
+		if (acc2 == 0) acc2 = 1;
+		var acc:Int64 = Int64.toInt(((parent.accuracy[0] * 10000) / acc2).low);
+		var accDecimal:Int64 = acc % 100;
+
+		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}, Accuracy: ${(acc / 100) + (accDecimal != 0 ? ("." + (accDecimal < 10 ? "0" : "") + accDecimal) : "")}%';
 		scoreTxt.scale = lerp(scoreTxt.scale, 1.0, deltaTime * 0.02);
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
-		scoreTxt.color = 0xFFDC8CFF;
+		/*scoreTxt.color = 0xFFDC8CFF;
 		scoreTxt.setMarkerPair('Score: ', Color.WHITE);
 		scoreTxt.setMarkerPair(', Misses: ', Color.WHITE);
+		scoreTxt.setMarkerPair(', Accuracy: ', Color.WHITE);*/
 	}
 
 	/**
