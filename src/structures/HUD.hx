@@ -55,11 +55,10 @@ class HUD {
 			uiBuf = new Buffer<UISprite>(16, 16, false);
 			uiProg = new Program(uiBuf);
 			uiProg.blendEnabled = true;
+
+			var tex = TextureSystem.getTexture("uiTex");
+			UISprite.init(uiProg, "uiTex", tex); 
 		}
-
-		var tex = TextureSystem.getTexture("uiTex");
-
-		UISprite.init(uiProg, "uiTex", tex); 
 
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();

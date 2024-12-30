@@ -131,7 +131,7 @@ class PlayField {
 		hud = new HUD(display, this, main);
 		audioSystem = new AudioSystem(chart);
 
-		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
+		numOfNotes = NoteSystem.notesBuf.length - numOfReceptors;
 		scrollSpeed = chart.header.speed;
 
 		var conductor = Main.conductor;

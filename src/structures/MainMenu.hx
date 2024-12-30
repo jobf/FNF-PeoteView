@@ -38,11 +38,10 @@ class MainMenu {
 		if (optionProg == null) {
 			optionProg = new Program(optionBuf);
 			optionProg.blendEnabled = true;
+
+			var tex = TextureSystem.getTexture("uiTex");
+			UISprite.init(optionProg, "uiTex", tex);
 		}
-
-		var tex = TextureSystem.getTexture("uiTex");
-
-		UISprite.init(optionProg, "uiTex", tex);
 
 		if (backgroundBuf == null) {
 			backgroundBuf = new Buffer<Sprite>(1);
@@ -51,9 +50,9 @@ class MainMenu {
 		if (backgroundProg == null) {
 			backgroundProg = new Program(backgroundBuf);
 			backgroundProg.blendEnabled = true;
-		}
 
-		TextureSystem.setTexture(backgroundProg, "mainMenuBGTex", "mainMenuBGTex");
+			TextureSystem.setTexture(backgroundProg, "mainMenuBGTex", "mainMenuBGTex");
+		}
 
 		display.addProgram(optionProg);
 		view.addProgram(backgroundProg);

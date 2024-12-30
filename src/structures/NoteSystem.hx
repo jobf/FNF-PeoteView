@@ -7,11 +7,11 @@ package structures;
 @:publicFields
 @:access(structures.PlayField)
 class NoteSystem {
-	var sustainProg(default, null):Program;
-	var sustainsBuf(default, null):Buffer<Sustain>;
+	static var sustainProg(default, null):Program;
+	static var sustainsBuf(default, null):Buffer<Sustain>;
 
-	var notesProg(default, null):Program;
-	var notesBuf(default, null):Buffer<Note>;
+	static var notesProg(default, null):Program;
+	static var notesBuf(default, null):Buffer<Note>;
 
 	var notesToHit(default, null):Array<Note> = [];
 	var sustainsToHold(default, null):Array<Sustain> = [];
@@ -42,26 +42,33 @@ class NoteSystem {
 		notesToHit.resize(numOfReceptors);
 		sustainsToHold.resize(numOfReceptors);
 
-		notesBuf = new Buffer<Note>(512, 512, false);
-		notesProg = new Program(notesBuf);
-		notesProg.blendEnabled = true;
+		if (notesBuf == null) {
+			notesBuf = new Buffer<Note>(128, 128, false);
+		}
 
-		TextureSystem.setTexture(notesProg, "noteTex", "noteTex");
+		if (notesProg == null) {
+			notesProg = new Program(notesBuf);
+			notesProg.blendEnabled = true;
+	
+			TextureSystem.setTexture(notesProg, "noteTex", "noteTex");
+		}
 
-		var tex1 = TextureSystem.getTexture("noteTex");
-
-		// SUSTAIN SETUP
-		sustainsBuf = new Buffer<Sustain>(512, 512, false);
-		sustainProg = new Program(sustainsBuf);
-		sustainProg.blendEnabled = true;
+		if (sustainsBuf == null) {
+			sustainsBuf = new Buffer<Sustain>(128, 128, false);
+		}
 
 		var sustainDimensions:Array<Int> = [];
 
 		var tex2 = TextureSystem.getTexture("sustainTex");
-
-		Sustain.init(sustainProg, "sustainTex", tex2);
 		sustainDimensions.push(tex2.width);
 		sustainDimensions.push(tex2.height);
+
+		if (sustainProg == null) {
+			sustainProg = new Program(sustainsBuf);
+			sustainProg.blendEnabled = true;
+
+			Sustain.init(sustainProg, "sustainTex", tex2);
+		}
 
 		var display = parent.display;
 
@@ -461,7 +468,8 @@ class NoteSystem {
 	function dispose() {
 		parent.display.removeProgram(notesProg);
 		parent.display.removeProgram(sustainProg);
-		notesProg = null;
-		sustainProg = null;
+
+		notesBuf.clear();
+		sustainsBuf.clear();
 	}
 }
