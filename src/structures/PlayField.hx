@@ -64,11 +64,11 @@ class PlayField {
 		return botplay = value;
 	}
 
+	var field(default, null):Field;
 	var inputSystem(default, null):InputSystem;
 	var noteSystem(default, null):NoteSystem;
 	var hud(default, null):HUD;
 	var audioSystem(default, null):AudioSystem;
-	var field(default, null):Field;
 
 	var onStartSong:Event<Chart->Void>;
 	var onPauseSong:Event<Chart->Void>;
@@ -125,11 +125,11 @@ class PlayField {
 		onKeyPress = new Event<KeyCode->Void>();
 		onKeyRelease = new Event<KeyCode->Void>();
 
+		field = new Field(this);
 		inputSystem = new InputSystem(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
 		hud = new HUD(display, this, main);
 		audioSystem = new AudioSystem(chart);
-		field = new Field(this);
 
 		numOfNotes = noteSystem.notesBuf.length - numOfReceptors;
 		scrollSpeed = chart.header.speed;
@@ -224,7 +224,7 @@ class PlayField {
 	}
 
 	inline function measureHit(measure:Float) {
-		if (measure >= 0 && SaveData.state.preferences.cameraZooming) {
+		if (measure >= 0 && SaveData.state.cameraZooming) {
 			display.fov += 0.03;
 			view.fov += 0.015;
 		}
@@ -252,33 +252,33 @@ class PlayField {
 			health = 1;
 		}
 
-		var preferences = SaveData.state.preferences;
+		var preferences = SaveData.state;
 
-		if (hud != null && preferences.scoreTextBopping) {
+		if (hud != null && preferences.scoreTxtBopping) {
 			hud.scoreTxt.scale = 1.1;
 		}
 
 		var absTiming = Math.abs(timing);
 
 		if (absTiming > 60) {
-			if (preferences.ratingPopups) hud.respondWithRatingID(3);
+			if (preferences.ratingPopup) hud.respondWithRatingID(3);
 			score += 50;
 			return;
 		}
 
 		if (absTiming > 45) {
-			if (preferences.ratingPopups) hud.respondWithRatingID(2);
+			if (preferences.ratingPopup) hud.respondWithRatingID(2);
 			score += 100;
 			return;
 		}
 
 		if (absTiming > 30) {
-			if (preferences.ratingPopups) hud.respondWithRatingID(1);
+			if (preferences.ratingPopup) hud.respondWithRatingID(1);
 			score += 200;
 			return;
 		}
 
-		if (preferences.ratingPopups) hud.respondWithRatingID(0);
+		if (preferences.ratingPopup) hud.respondWithRatingID(0);
 		score += 400;
 	}
 

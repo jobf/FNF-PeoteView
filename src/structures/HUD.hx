@@ -59,7 +59,7 @@ class HUD {
 
 		var tex = TextureSystem.getTexture("uiTex");
 
-		UISprite.init(uiProg, "uiTex", tex);
+		UISprite.init(uiProg, "uiTex", tex); 
 
 		// RATING POPUP SETUP
 		ratingPopup = new UISprite();
@@ -89,6 +89,8 @@ class HUD {
 		healthBarBG.x = 275;
 		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
 
+		var actors_sparrow = parent.field.actors_sparrow;
+
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
 			var part = healthBarParts[i] = new UISprite();
@@ -96,8 +98,7 @@ class HUD {
 			part.y = healthBarBG.y + healthBarYA;
 			part.gradientMode = 1.0;
 
-			var healthIconColor = healthIconColors[i];
-			part.setAllColors(healthIconColor);
+			part.setAllColors(actors_sparrow[i].data.colors);
 
 			uiBuf.addElement(part);
 		}
@@ -109,6 +110,11 @@ class HUD {
 		// HEALTH ICONS SETUP
 
 		var x = healthBarBG.x + (healthBarBG.w * 0.5);
+
+		for (i in 0...2) {
+			var healthIconIndexes = actors_sparrow[i].data.healthIconIndexes;
+			healthIconIDs[i] = [healthIconIndexes[0], healthIconIndexes[1]];
+		}
 
 		var oppIcon = healthIcons[0] = new UISprite();
 		oppIcon.type = HEALTH_ICON;
@@ -208,12 +214,13 @@ class HUD {
 		uiBuf.updateElement(healthBarBG);
 
 		var health = parent.health;
+		var actors_sparrow = parent.field.actors_sparrow;
 
 		var part1 = healthBarParts[0];
 
 		if (part1 == null) return;
 
-		var healthIconColor = healthIconColors[parent.flipHealthBar ? 1 : 0];
+		var healthIconColor = actors_sparrow[parent.flipHealthBar ? 1 : 0].data.colors;
 
 		part1.setAllColors(healthIconColor);
 
@@ -229,7 +236,7 @@ class HUD {
 
 		if (part2 == null) return;
 
-		var healthIconColor = healthIconColors[parent.flipHealthBar ? 0 : 1];
+		var healthIconColor = actors_sparrow[parent.flipHealthBar ? 0 : 1].data.colors;
 
 		part2.setAllColors(healthIconColor);
 

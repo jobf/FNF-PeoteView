@@ -26,22 +26,32 @@ class Actor extends ActorElement
 	static var program:Program;
 
 	static var tex(default, null):Texture;
+	static var charToUnits(default, null):Map<String, Int> = [];
 	var name(default, null):String;
 	var atlas(default, null):SparrowAtlas;
 	var data(default, null):ActorData;
 
-	var animRedirectionMap:Map<String, String>;
-
 	var finishAnim:String = "";
+
+	@texUnit("chars") public var unit:Int = 0;
 
 	static function init(parent:PlayField) {
 		var view = parent.view;
 
-		buffer = new Buffer<ActorElement>(128, 128, true);
+		buffer = new Buffer<ActorElement>(4, 4, true);
 		program = new Program(buffer);
 		program.blendEnabled = true;
 
 		view.addProgram(program);
+	}
+
+	static function loadTexturesOf(chars:Array<String>) {
+		TextureSystem.createMultiTexture("chars", [for (i in 0...chars.length) {
+			var char = chars[i];
+			charToUnits[char] = i;
+			path(char, IMAGE);
+		}]);
+		TextureSystem.setTexture(program, "chars", "chars");
 	}
 
 	static function uninit(parent:PlayField) {
@@ -59,32 +69,22 @@ class Actor extends ActorElement
 		this.name = name;
 		setFps(fps);
 
-		if (pathExists(IMAGE)) {
-			TextureSystem.createTexture(name, path(IMAGE));
-			tex = TextureSystem.getTexture(name);
+		if (pathExists(name, XML)) {
+			atlas = SparrowAtlas.parse(sys.io.File.getContent(path(name, XML)));
 		} else {
-			throw "Image doesn't exist: " + path(IMAGE);
+			throw "Atlas data doesn't exist: " + path(name, NONE);
 		}
 
-		if (pathExists(XML)) {
-			atlas = SparrowAtlas.parse(sys.io.File.getContent(path(XML)));
-		} else {
-			throw "Atlas data doesn't exist: " + path(NONE);
+		if (pathExists(name, DATA)) {
+			data = ActorData.parse(path(name, DATA));
 		}
 
-		if (pathExists(DATA)) {
-			data = ActorData.parse(path(DATA));
-		}
+		unit = charToUnits[name];
 
 		mirror = !data.flip;
-
-		TextureSystem.setTexture(program, name, name);
 	}
 
-	function dispose() {
-	}
-
-	function path(type:CharacterPathType) {
+	static function path(name:String, type:CharacterPathType) {
 		var result = 'assets/characters/$name';
 
 		switch (type) {
@@ -103,8 +103,8 @@ class Actor extends ActorElement
 	}
 
 	// This is here to improve readability
-	inline function pathExists(type:CharacterPathType) {
-		return sys.FileSystem.exists(path(type));
+	static function pathExists(name:String, type:CharacterPathType) {
+		return sys.FileSystem.exists(path(name, type));
 	}
 
 	// Now for the animation stuff
@@ -230,7 +230,7 @@ class Actor extends ActorElement
 		h = height;
 		this.flipX = flipX;
 		this.flipY = flipY;
-		clipX = config.x;
+		clipX = config.x + TextureSystem.multitexLocMap["chars"][unit];
 		clipY = config.y;
 		clipWidth = w;
 		clipHeight = h;

@@ -1,6 +1,5 @@
 package data.options;
 
-import haxe.Int64;
 import haxe.io.Bytes;
 import sys.io.File;
 import sys.io.FileOutput;
@@ -14,189 +13,165 @@ import haxe.ds.Vector;
 @:noDebug
 #end
 @:publicFields
-@:structInit
-class Save {
-	var graphics:SaveGraphics;
-	var preferences:SavePreferences;
-}
-
-/**
-	The save data's graphics.
-	This wraps over a 56 bit integer.
-**/
-#if !debug
-@:noDebug
-#end
-@:publicFields
-abstract SaveGraphics(Int64) from Int64  to Int64 {
-	var framerate(get, set):Int;
-
-	inline function get_framerate():Int {
-		return this.low;
-	}
-
-	inline function set_framerate(value:Int) {
-		this = Int64.make(value, this.high);
-		return this.low;
-	}
-
-	var inputOffset(get, set):Int;
-
-	inline function get_inputOffset():Int {
-		return this.high & 0xFFFFFF;
-	}
-
-	inline function set_inputOffset(value:Int) {
-		this = Int64.make(this.low, value & 0xFFFFFF);
-		return this.high;
-	}
-}
-
-/**
-	The save data's preferences.
-	This wraps over an unsigned 8 bit integer.
-**/
-#if !debug
-@:noDebug
-#end
-@:publicFields
-abstract SavePreferences(cpp.UInt8) from cpp.UInt8 to cpp.UInt8 {
+abstract SaveData_Internal(Int64) from Int64 to Int64 {
 	var downScroll(get, set):Bool;
 
-	inline function get_downScroll():Bool {
-		return this & 1 != 1;
+	inline function get_downScroll() {
+		return get(0);
 	}
 
-	inline function set_downScroll(value:Bool):Bool {
-		if (downScroll != value) {
-			this ^= 1;
-		}
-
-		return value;
-	}
-
-	var antialiasing(get, set):Bool;
-
-	inline function get_antialiasing():Bool {
-		return (this >> 1) & 1 != 1;
-	}
-
-	inline function set_antialiasing(value:Bool):Bool {
-		if (antialiasing != value) {
-			this ^= 1 << 1;
-		}
-
-		return value;
+	inline function set_downScroll(value:Bool) {
+		return set(0, value);
 	}
 
 	var hideHUD(get, set):Bool;
 
-	inline function get_hideHUD():Bool {
-		return (this >> 2) & 1 != 1;
+	inline function get_hideHUD() {
+		return get(1);
 	}
 
-	inline function set_hideHUD(value:Bool):Bool {
-		if (hideHUD != value) {
-			this ^= 1 << 2;
-		}
-
-		return value;
-	}
-
-	var msdfRendering(get, set):Bool;
-
-	inline function get_msdfRendering():Bool {
-		return (this >> 3) & 1 != 1;
-	}
-
-	inline function set_msdfRendering(value:Bool):Bool {
-		if (msdfRendering != value) {
-			this ^= 1 << 3;
-		}
-
-		return value;
+	inline function set_hideHUD(value:Bool) {
+		return set(1, value);
 	}
 
 	var smoothHealthbar(get, set):Bool;
 
-	inline function get_smoothHealthbar():Bool {
-		return (this >> 4) & 1 != 1;
+	inline function get_smoothHealthbar() {
+		return get(2);
 	}
 
-	inline function set_smoothHealthbar(value:Bool):Bool {
-		if (smoothHealthbar != value) {
-			this ^= 1 << 4;
-		}
-
-		return value;
+	inline function set_smoothHealthbar(value:Bool) {
+		return set(2, value);
 	}
 
-	var ratingPopups(get, set):Bool;
+	var ratingPopup(get, set):Bool;
 
-	inline function get_ratingPopups():Bool {
-		return (this >> 5) & 1 != 1;
+	inline function get_ratingPopup() {
+		return get(3);
 	}
 
-	inline function set_ratingPopups(value:Bool):Bool {
-		if (ratingPopups != value) {
-			this ^= 1 << 5;
-		}
-
-		return value;
+	inline function set_ratingPopup(value:Bool) {
+		return set(3, value);
 	}
 
-	var scoreTextBopping(get, never):Bool;
+	var scoreTxtBopping(get, set):Bool;
 
-	inline function get_scoreTextBopping():Bool {
-		return (this >> 6) & 1 != 1;
+	inline function get_scoreTxtBopping() {
+		return get(4);
 	}
 
-	inline function set_scoreTextBopping(value:Bool):Bool {
-		if (scoreTextBopping != value) {
-			this ^= 1 << 6;
-		}
-
-		return value;
+	inline function set_scoreTxtBopping(value:Bool) {
+		return set(4, value);
 	}
 
-	var cameraZooming(get, never):Bool;
+	var cameraZooming(get, set):Bool;
 
-	inline function get_cameraZooming():Bool {
-		return (this >> 7) & 1 != 1;
+	inline function get_cameraZooming() {
+		return get(5);
 	}
 
-	inline function set_cameraZooming(value:Bool):Bool {
-		if (cameraZooming != value) {
-			this ^= 1 << 7;
-		}
-
-		return value;
+	inline function set_cameraZooming(value:Bool) {
+		return set(5, value);
 	}
 
-	function details() {
-		return 'Downscroll $downScroll
-Antialiasing $antialiasing
-Hide HUD $hideHUD
-MSDF Rendering $msdfRendering
-Smooth Healthbar $smoothHealthbar
-Rating Popups $ratingPopups
-Score Text Bopping $scoreTextBopping
-Camera Zooming $cameraZooming';
+	var iconBopping(get, set):Bool;
+
+	inline function get_iconBopping() {
+		return get(6);
+	}
+
+	inline function set_iconBopping(value:Bool) {
+		return set(6, value);
+	}
+
+	var inputOffset(get, set):Int;
+
+	inline function get_inputOffset() {
+		return getWithBits(7, 10).low;
+	}
+
+	inline function set_inputOffset(value:Int) {
+		return setWithBits(7, 10, value).low;
+	}
+
+	var frameRate(get, set):Int;
+
+	inline function get_frameRate() {
+		return getWithBits(17, 20).low;
+	}
+
+	inline function set_frameRate(value:Int) {
+		return setWithBits(17, 20, value).low;
+	}
+
+	var mipMapping(get, set):Bool;
+
+	inline function get_mipMapping() {
+		return get(37);
+	}
+
+	inline function set_mipMapping(value:Bool) {
+		return set(37, value);
+	}
+
+	var antialiasing(get, set):Bool;
+
+	inline function get_antialiasing() {
+		return get(38);
+	}
+
+	inline function set_antialiasing(value:Bool) {
+		return set(38, value);
+	}
+
+	var msdfRendering(get, set):Bool;
+
+	inline function get_msdfRendering() {
+		return get(39);
+	}
+
+	inline function set_msdfRendering(value:Bool) {
+		return set(39, value);
+	}
+
+	var customTitleBarColor(get, set):Int;
+
+	inline function get_customTitleBarColor() {
+		return getWithBits(40, 24).low;
+	}
+
+	inline function set_customTitleBarColor(value:Int) {
+		return setWithBits(40, 24, value).low;
+	}
+
+	inline function get(bitVal:Int) {
+		return (this >> bitVal) & 0x1 == 1;
+	}
+
+	inline function set(bitVal:Int, value:Bool) {
+		var gotten = get(bitVal);
+		return gotten != value ? (this ^= 1 << bitVal) == 1 : gotten;
+	}
+
+	inline function getWithBits(bitVal:Int, bits:Int):haxe.Int64 {
+		return (this >> bitVal) & ((1 << bits) - 1);
+	}
+
+	inline function setWithBits(bitVal:Int, bits:Int, value:haxe.Int64) {
+		var mask = ((1 << bits) - 1) << bitVal;
+		var cleared:haxe.Int64 = this & ~mask;
+		return this = cleared | ((value & ((1 << bits) - 1)) << bitVal);
 	}
 }
 
 @:publicFields
 class SaveData {
-	static var EMPTY_SAVE(default, null):Save = {
-		graphics: 0x0,
-		// Binary representation of this: 00010111
-		preferences: 0x17
-	};
+	static var EMPTY_SAVE(default, null):SaveData_Internal = Int64.parseString("-16711856");
 
-	private static var datas:Vector<Save> = new Vector<Save>(16, EMPTY_SAVE);
+	private static var datas:Vector<SaveData_Internal> = new Vector<SaveData_Internal>(16, EMPTY_SAVE);
 	static var slot:cpp.UInt8 = 0;
 
-	static var state(get, never):Save;
+	static var state(get, never):SaveData_Internal;
 
 	inline static function get_state() {
 		return datas[slot];
@@ -210,19 +185,18 @@ class SaveData {
 		var bytes:Bytes = File.getBytes('.dat');
 
 		for (i in 0...datas.length) {
-			datas[i].graphics = bytes.getInt64(i * 8) & Int64.make(-1, 0xFFFFFF);
-			datas[i].preferences = bytes.get(i + 7);
+			datas[i] = bytes.getInt64(0);
 		}
+
+		var window = lime.app.Application.current.window;
+		window.onClose.add(write);
 	}
 
 	static function write() {
 		var bytes:Bytes = Bytes.alloc(8 * datas.length);
 
 		for (i in 0...datas.length) {
-			var data:Save = datas[i];
-			var id = i * 8;
-			bytes.setInt64(id, data.graphics); // Graphics
-			bytes.set(id - 1, data.preferences); // Preferences
+			bytes.setInt64(i * 8, datas[i]); // Graphics
 		}
 
 		var output:FileOutput = File.write('.dat');

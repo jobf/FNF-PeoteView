@@ -6,20 +6,43 @@ package structures;
 **/
 @:publicFields
 class Field {
-	var dad:Actor;
-	var bf:Actor;
+	var actors_sparrow:Array<Actor>;
+
+	var dad(get, set):Actor;
+
+	inline function get_dad() {
+		return actors_sparrow[0];
+	}
+
+	inline function set_dad(actor:Actor) {
+		return actors_sparrow[0] = actor;
+	}
+
+	var bf(get, set):Actor;
+
+	inline function get_bf() {
+		return actors_sparrow[1];
+	}
+
+	inline function set_bf(actor:Actor) {
+		return actors_sparrow[1] = actor;
+	}
 
 	var parent:PlayField;
 
-	static var singPoses:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT", "hey"];
-	static var missPoses:Array<String> = ["singLEFTmiss", "singDOWNmiss", "singUPmiss", "singRIGHTmiss", "singUPmiss"];
+	static var singPoses:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
+	static var missPoses:Array<String> = ["singLEFTmiss", "singDOWNmiss", "singUPmiss", "singRIGHTmiss"];
 
 	function new(parent:PlayField) {
 		this.parent = parent;
 
 		Actor.init(parent);
+		Actor.loadTexturesOf(["dad", "bf"]);
 
-		dad = new Actor("bf", 225, 250, 24);
+		actors_sparrow = [];
+		actors_sparrow.resize(2);
+
+		dad = new Actor("dad", 225, 250, 24);
 		dad.mirror = !dad.mirror;
 		dad.playAnimation("idle");
 		dad.startingShakeFrame = 0;
@@ -95,8 +118,6 @@ class Field {
 	}
 
 	function dispose() {
-		dad.dispose();
-		bf.dispose();
 		Actor.uninit(parent);
 
 		parent.view.scroll.x = parent.view.scroll.y = 0;

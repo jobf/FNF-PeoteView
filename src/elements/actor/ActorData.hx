@@ -4,7 +4,7 @@ package elements.actor;
 @:publicFields
 class ActorData {
 	var flip:Bool;
-	var color:Array<Color>;
+	var colors:Array<Color>;
 	var scale:Float;
 
 	var healthIconIndexes:Array<Int>;
@@ -38,13 +38,16 @@ class ActorData {
 			});
 		}
 
+		var healthIconIDs = json.healthicon_ids;
+		if (healthIconIDs == null) healthIconIDs = [0, 1];
+
 		var c:Array<Int> = json.healthbar_colors;
-		var color:Color = Color.RGB(c[0], c[1], c[2]);
+		var colors:Color = Color.RGB(c[0], c[1], c[2]);
 		var result:ActorData = {
 			flip: json.flip_x,
-			color: [for (i in 0...6) color],
+			colors: [for (i in 0...6) colors],
 			scale: json.scale,
-			healthIconIndexes: [0, 1],
+			healthIconIndexes: healthIconIDs,
 			adjPos: json.position,
 			camPos: json.camera_position,
 			data: _data

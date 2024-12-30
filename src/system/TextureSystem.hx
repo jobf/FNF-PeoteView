@@ -16,6 +16,11 @@ class TextureSystem {
 	static var pool:Map<String, Texture> = [];
 
 	/**
+		The multitexture location map.
+	**/
+	static var multitexLocMap:Map<String, Array<Int>> = [];
+
+	/**
 		Get a pre-existing texture from pool.
 		@param key The texture to get from.
 	**/
@@ -60,7 +65,9 @@ class TextureSystem {
 			return;
 		}
 
-		var antialiasing = SaveData.state.preferences.antialiasing && !disableAntialiasing;
+		var currentSaveState = SaveData.state;
+		var antialiasing = currentSaveState.antialiasing && !disableAntialiasing;
+		var mipmapping = currentSaveState.mipMapping;
 
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
@@ -70,8 +77,8 @@ class TextureSystem {
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
 			smoothShrink: antialiasing,
-			mipmap: true,
-			smoothMipmap: true
+			mipmap: mipmapping,
+			smoothMipmap: mipmapping
 		});
 		texture.setData(textureData);
 
@@ -89,7 +96,9 @@ class TextureSystem {
 			return;
 		}
 
-		var antialiasing = SaveData.state.preferences.antialiasing && !disableAntialiasing;
+		var currentSaveState = SaveData.state;
+		var antialiasing = currentSaveState.antialiasing && !disableAntialiasing;
+		var mipmapping = currentSaveState.mipMapping;
 
 		var textureBytes = File.getBytes(path);
 		var textureData = TextureData.fromFormatPNG(textureBytes);
@@ -101,8 +110,8 @@ class TextureSystem {
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
 			smoothShrink: antialiasing,
-			mipmap: true,
-			smoothMipmap: true
+			mipmap: mipmapping,
+			smoothMipmap: mipmapping
 		});
 		texture.setData(textureData);
 
@@ -111,7 +120,6 @@ class TextureSystem {
 
 	/**
 		Create a multitexture and put it in the texture pool.
-		You should despise this function's code as it's just flat out intruiging to deal with.
 		@param key The multitexture's key.
 		@param paths The texture paths.
 	**/
@@ -120,12 +128,18 @@ class TextureSystem {
 			return;
 		}
 
-		var antialiasing = SaveData.state.preferences.antialiasing && !disableAntialiasing;
+		multitexLocMap[key] = [];
+
+		var currentSaveState = SaveData.state;
+		var antialiasing = currentSaveState.antialiasing && !disableAntialiasing;
+		var mipmapping = currentSaveState.mipMapping;
 
 		var texturesToPush:Array<TextureData> = [];
 
 		var totalTextureWidth:Int = 0;
 		var totalTextureHeight:Int = 0;
+
+		var textureLocX:Int = 0;
 
 		for (i in 0...paths.length) {
 			var textureBytes = File.getBytes(paths[i]);
@@ -142,14 +156,19 @@ class TextureSystem {
 			}
 		}
 
+		for (i in 0...paths.length) {
+			multitexLocMap[key].push(textureLocX);
+			textureLocX += totalTextureWidth;
+		}
+
 		var texture = new Texture(totalTextureWidth, totalTextureHeight, null, {
 			slotsX: texturesToPush.length,
 			slotsY: 1,
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
 			smoothShrink: antialiasing,
-			mipmap: true,
-			smoothMipmap: true
+			mipmap: mipmapping,
+			smoothMipmap: mipmapping
 		});
 
 		for (i in 0...texturesToPush.length) {
