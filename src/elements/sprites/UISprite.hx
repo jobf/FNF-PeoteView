@@ -7,11 +7,11 @@ package elements.sprites;
 @:publicFields
 class UISprite implements Element {
 	// position in pixel (relative to upper left corner of Display)
-	@posX @formula("x - (_flip != 0.0 ? w : 0.0)") var x:Float = 0.0;
+	@posX @formula("(_flip != 0.0 ? x - w : x)") var x:Float = 0.0;
 	@posY var y:Float = 0.0;
 
 	// size in pixel
-	@sizeX @formula("w * (_flip != 0.0 ? -1 : 1)") var w:Float = 0.0;
+	@sizeX @formula("(_flip != 0.0 ? w * -1.0 : w)") var w:Float = 0.0;
 	@sizeY var h:Float = 0.0;
 
 	// extra tex attributes for clipping
