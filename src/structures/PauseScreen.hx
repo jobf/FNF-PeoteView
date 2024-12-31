@@ -14,6 +14,8 @@ class PauseScreen {
 	static var pauseProg(default, null):Program;
 
 	var pauseOptions(default, null):Array<PauseSprite> = [];
+	var diffText(default, null):PauseSprite;
+
 	var pauseOptionSelected(default, null):Int = 0;
 	var opened(default, null):Bool;
 
@@ -41,7 +43,15 @@ class PauseScreen {
 			currentY += Math.floor(option.h) + 2;
 			pauseOptions.push(option);
 		}
+
+		diffText = new PauseSprite();
+		diffText.type = DIFF_TEXT;
+		diffText.changeID(5);
+		diffText.x = Main.INITIAL_WIDTH - diffText.w;
+		diffText.y = Main.INITIAL_HEIGHT - diffText.h;
 	}
+
+	var alphaLerp:Float = 0.0;
 
 	function update(deltaTime:Float) {
 		if (!opened && display.color.aF == 0) {
@@ -49,7 +59,9 @@ class PauseScreen {
 			return;
 		}
 
-		display.color.aF = Tools.lerp(display.color.aF, opened ? 0.5 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		alphaLerp = Tools.lerp(alphaLerp, opened ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+
+		display.color.aF = alphaLerp * 0.5;
 		display.color = display.color;
 
 		for (i in 0...pauseOptions.length) {
@@ -57,9 +69,12 @@ class PauseScreen {
 			var originalC = pauseOption.c;
 			if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
 			else pauseOption.c = Color.WHITE;
-			pauseOption.c.aF = display.color.aF * 2.0;
+			pauseOption.c.aF = alphaLerp;
 			if (originalC != pauseOption.c) pauseBuf.updateElement(pauseOption);
 		}
+
+		diffText.c.aF = alphaLerp;
+		pauseBuf.updateElement(diffText);
 	}
 
 	function selectOption(code:KeyCode, mod:KeyModifier) {
@@ -96,8 +111,12 @@ class PauseScreen {
 				var pauseOption = pauseOptions[i];
 				if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
 				else pauseOption.c = Color.WHITE;
+				pauseOption.c.aF = 0.0;
 				pauseBuf.addElement(pauseOptions[i]);
 			}
+
+			alphaLerp = diffText.c.aF = 0.0;
+			pauseBuf.addElement(diffText);
 		} catch (e) {}
 
 		haxe.Timer.delay(() -> {
@@ -121,21 +140,29 @@ class PauseScreen {
 		if (!pauseProg.isIn(display)) return;
 
 		for (i in 0...pauseOptions.length) {
-			pauseBuf.removeElement(pauseOptions[i]);
+			var pauseOption = pauseOptions[i];
+			pauseOption.c.aF = 0.0;
+			pauseBuf.removeElement(pauseOption);
 		}
 
+		pauseBuf.removeElement(diffText);
+
+		display.color = 0x00000000;
 		display.removeProgram(pauseProg);
 	}
 
 	function dispose() {
 		close();
 		shutDown();
-		display.color = 0x00000000;
 
-		while (pauseOptions.length != 0) {
-			var pauseOption = pauseOptions.pop();
-			if (opened) pauseBuf.removeElement(pauseOption);
-			pauseOption = null;
+		if (opened) {
+			while (pauseOptions.length != 0) {
+				var pauseOption = pauseOptions.pop();
+				pauseBuf.removeElement(pauseOption);
+				pauseOption = null;
+			}
+			pauseBuf.removeElement(diffText);
+			diffText = null;
 		}
 	}
 }

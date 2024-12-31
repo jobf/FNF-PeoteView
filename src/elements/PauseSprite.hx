@@ -52,14 +52,15 @@ class PauseSprite implements Element {
 	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
 
 	private static var hardcoded_difficulty_corner_text_values(default, null):Array<Array<Int>> = [
-		[0, 336, 85, 32],
-		[85, 336, 122, 32],
-		[207, 336, 82, 32],
-		[289, 336, 125, 32],
-		[414, 336, 113, 32],
-		[0, 371, 212, 32],
-		[212, 371, 113, 32],
-		[0, 371, 113, 32],
+		[0, 342, 85, 32],
+		[85, 342, 122, 32],
+		[207, 342, 82, 32],
+		[289, 342, 125, 32],
+		[414, 342, 113, 32],
+		[0, 374, 212, 32],
+		[212, 374, 113, 32],
+		[325, 374, 80, 32],
+		[405, 374, 80, 32]
 	];
 
 	static function init(program:Program, name:String, texture:Texture) {
@@ -78,7 +79,7 @@ class PauseSprite implements Element {
 
 		if (isPauseOption) {
 			wValue = 525;
-			hValue = 112;
+			hValue = 114;
 			yValue = hValue * id;
 		}
 
