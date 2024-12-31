@@ -50,29 +50,6 @@ class HUD {
 		healthBarXA = UISprite.healthBarProperties[4];
 		healthBarYA = UISprite.healthBarProperties[5];
 
-		// RATING POPUP SETUP
-		if (SaveData.state.ratingPopup) {
-			ratingPopup = new UISprite();
-			ratingPopup.type = RATING_POPUP;
-			ratingPopup.changeID(0);
-			ratingPopup.x = 500;
-			ratingPopup.y = 360;
-			ratingPopup.c.aF = 0.0;
-			uiBuf.addElement(ratingPopup);
-	
-			// COMBO NUMBERS SETUP
-			for (i in 0...39) {
-				var comboNumber = new UISprite();
-				comboNumber.type = COMBO_NUMBER;
-				comboNumber.changeID(0);
-				comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
-				comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-				comboNumber.c.aF = 0.0;
-				comboNumbers.push(comboNumber);
-				uiBuf.addElement(comboNumber);
-			}
-		}
-
 		// HEALTH BAR SETUP
 		healthBarBG = new UISprite();
 		healthBarBG.type = HEALTH_BAR;
@@ -116,7 +93,7 @@ class HUD {
 		plrIcon.changeID(healthIconIDs[1][0]);
 
 		oppIcon.y = plrIcon.y = healthBarBG.y - 75;
-		plrIcon.flip = 1;
+		plrIcon.flip = true;
 
 		uiBuf.addElement(oppIcon);
 		uiBuf.addElement(plrIcon);
@@ -131,6 +108,19 @@ class HUD {
 		watermarkTxt.x = 2;
 		watermarkTxt.scale = 0.7;
 		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
+
+		// RATING AND COMBO NUMBER POPUP SETUP
+		if (SaveData.state.ratingPopup) {
+			ratingPopup = new UISprite();
+			ratingPopup.type = RATING_POPUP;
+			ratingPopup.changeID(0);
+			ratingPopup.x = 500;
+			ratingPopup.y = 360;
+			ratingPopup.c.aF = 0.0;
+			uiBuf.addElement(ratingPopup);
+
+			for (i in 0...3) addComboNumber();
+		}
 	}
 
 	/**
@@ -188,6 +178,17 @@ class HUD {
 
 		var numStr = Int128.toStr(parent.combo);
 
+		var comboNumberStrLen = numStr.length;
+
+		if (comboNumberStrLen <= 3) comboNumberStrLen = 3;
+
+		while (comboNumbers.length < comboNumberStrLen) addComboNumber();
+
+		while (comboNumbers.length > comboNumberStrLen) {
+			var comboNumber = comboNumbers.pop();
+			uiBuf.removeElement(comboNumber);
+		}
+
 		for (i in 0...comboNumbers.length) {
 			var comboNumber = comboNumbers[i];
 
@@ -199,6 +200,7 @@ class HUD {
 			comboNumber.c.aF = ratingPopup.c.aF;
 
 			if (i > 2) {
+
 				if (i >= numStr.length) {
 					comboNumber.c.aF = 0.0;
 				}
@@ -207,6 +209,23 @@ class HUD {
 			if (comboNumber.curID != digit) comboNumber.changeID(i >= numStr.length ? 0 : digit);
 
 			uiBuf.updateElement(comboNumber);
+		}
+	}
+
+	/**
+		Adds a new combo number onto the ui buffer.
+	**/
+	function addComboNumber() {
+		if (SaveData.state.ratingPopup) {
+			// COMBO NUMBERS SETUP
+			var comboNumber = new UISprite();
+			comboNumber.type = COMBO_NUMBER;
+			comboNumber.changeID(0);
+			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * comboNumbers.length);
+			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
+			comboNumber.c.aF = 0.0;
+			comboNumbers.push(comboNumber);
+			uiBuf.addElement(comboNumber);
 		}
 	}
 
@@ -303,7 +322,7 @@ class HUD {
 		var accDecimal:Int64 = acc % 100;
 
 		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}, Accuracy: ${(acc / 100) + (accDecimal != 0 ? ("." + (accDecimal < 10 ? "0" : "") + accDecimal) : "")}%';
-		scoreTxt.scale = Tools.lerp(scoreTxt.scale, 1.0, deltaTime * 0.02);
+		scoreTxt.scale = (Tools.lerp(scoreTxt.scale, 1.0, deltaTime * 0.02):Single);
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 		/*scoreTxt.color = 0xFFDC8CFF;

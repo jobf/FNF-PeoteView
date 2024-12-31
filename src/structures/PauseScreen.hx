@@ -47,8 +47,8 @@ class PauseScreen {
 		diffText = new PauseSprite();
 		diffText.type = DIFF_TEXT;
 		diffText.changeID(5);
-		diffText.x = Main.INITIAL_WIDTH - diffText.w;
-		diffText.y = Main.INITIAL_HEIGHT - diffText.h;
+		diffText.x = Main.INITIAL_WIDTH - (diffText.w - 1);
+		diffText.y = 1;
 	}
 
 	var alphaLerp:Float = 0.0;

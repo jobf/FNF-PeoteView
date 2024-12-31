@@ -138,7 +138,7 @@ class PlayField implements State {
 		inputSystem = new InputSystem(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
 		HUD.init(display);
-		if (SaveData.state.hideHUD) hud = new HUD(display, this);
+		if (!SaveData.state.hideHUD) hud = new HUD(display, this);
 		audioSystem = new AudioSystem(chart);
 		countdownDisp = new CountdownDisplay(HUD.uiBuf);
 		PauseScreen.init(roof);
@@ -255,7 +255,7 @@ class PlayField implements State {
 			return;
 		}
 
-		++combo;
+		combo += 100;
 		++accuracy[0];
 		++accuracy[1];
 

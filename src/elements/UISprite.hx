@@ -7,11 +7,11 @@ package elements;
 @:publicFields
 class UISprite implements Element {
 	// position in pixel (relative to upper left corner of Display)
-	@posX var x:Float = 0.0;
+	@posX @formula("x - (_flip != 0.0 ? w : 0.0)") var x:Float = 0.0;
 	@posY var y:Float = 0.0;
 
 	// size in pixel
-	@sizeX var w:Float = 0.0;
+	@sizeX @formula("w * (_flip != 0.0 ? -1 : 1)") var w:Float = 0.0;
 	@sizeY var h:Float = 0.0;
 
 	// extra tex attributes for clipping
@@ -45,8 +45,19 @@ class UISprite implements Element {
 
 	static var healthBarProperties:Array<Float> = [];
 
-	@varying @custom var flip:Float = 0.0;
+	@varying @custom private var _flip:Float = 0.0;
 	@varying @custom var gradientMode:Float = 0.0;
+
+	var flip(get, set):Bool;
+
+	inline function get_flip() {
+		return _flip != 0.0;
+	}
+
+	inline function set_flip(value:Bool) {
+		_flip = value ? 1.0 : 0.0;
+		return value;
+	}
 
 	var type:UISpriteType = NONE;
 
@@ -115,16 +126,9 @@ class UISprite implements Element {
 		program.blendEnabled = true;
 
 		program.injectIntoFragmentShader('
-			vec4 flipTexWithGrad( int textureID, float flip, float gradientMode, vec4 c, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6 )
+			vec4 gradientOf6( int textureID, float gradientMode, vec4 c, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6 )
 			{
 				vec2 coord = vTexCoord;
-
-				if (gradientMode == 0.0) {
-					if (flip != 0.0) {
-						coord.x = 1.0 - coord.x;
-					}
-					return getTextureColor( textureID, coord ) * c;
-				}
 
 				// Source: https://www.shadertoy.com/view/dsy3RV (Old code)
 
@@ -150,7 +154,7 @@ class UISprite implements Element {
 			}
 		');
 
-		program.setColorFormula('flipTexWithGrad(${name}_ID, flip, gradientMode, c, c1, c2, c3, c4, c5, c6)');
+		program.setColorFormula('gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTextureColor(${name}_ID, vTexCoord) * c');
 	}
 
 	function new() {}
