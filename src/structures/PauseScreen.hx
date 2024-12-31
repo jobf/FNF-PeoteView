@@ -32,7 +32,7 @@ class PauseScreen {
 		}
 	}
 
-	function new() {
+	function new(difficulty:Difficulty) {
 		var currentY = 200;
 		for (i in 0...3) {
 			var option = new PauseSprite();
@@ -46,7 +46,7 @@ class PauseScreen {
 
 		diffText = new PauseSprite();
 		diffText.type = DIFF_TEXT;
-		diffText.changeID(5);
+		diffText.changeID(cast difficulty);
 		diffText.x = Main.INITIAL_WIDTH - (diffText.w - 1);
 		diffText.y = 1;
 	}

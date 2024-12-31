@@ -2,7 +2,7 @@
 // You're rendering more pixels
 // Also EVERYTHING RELATED TO THE UI SHEET IN THE CLASS IS 100% HARDCODED.
 
-package elements;
+package elements.sprites;
 
 @:publicFields
 class UISprite implements Element {
@@ -34,6 +34,18 @@ class UISprite implements Element {
 	@color var c5:Color = 0xFFFFFFFF;
 	@color var c6:Color = 0xFFFFFFFF;
 
+	@color private var alphaColor:Color = 0xFFFFFFFF;
+
+	var alpha(get, set):Float;
+
+	inline function get_alpha() {
+		return alphaColor.aF;
+	}
+
+	inline function set_alpha(value:Float) {
+		return alphaColor.aF = value;
+	}
+
 	function setAllColors(colors:Array<Color>) {
 		c1 = colors[0];
 		c2 = colors[1];
@@ -44,6 +56,7 @@ class UISprite implements Element {
 	}
 
 	static var healthBarProperties:Array<Float> = [];
+	static var timeBarProperties:Array<Float> = [];
 
 	@varying @custom private var _flip:Float = 0.0;
 	@varying @custom var gradientMode:Float = 0.0;
@@ -67,10 +80,10 @@ class UISprite implements Element {
 		return type == NONE;
 	}
 
-    var isMainMenuPart(get, never):Bool;
+    var isTimeBar(get, never):Bool;
 
-	inline function get_isMainMenuPart() {
-		return type == MAIN_MENU_PART;
+	inline function get_isTimeBar() {
+		return type == TIME_BAR;
 	}
 
     var isRatingPopup(get, never):Bool;
@@ -154,7 +167,7 @@ class UISprite implements Element {
 			}
 		');
 
-		program.setColorFormula('gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTextureColor(${name}_ID, vTexCoord) * c');
+		program.setColorFormula('(gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTextureColor(${name}_ID, vTexCoord)) * (c * alphaColor)');
 	}
 
 	function new() {}
@@ -179,17 +192,16 @@ class UISprite implements Element {
 			id = 0;
 		}
 
-		if (isMainMenuPart) {
-			wValue = 300;
-			hValue = 75;
-			yValue = 750 + (75 * (id & 0x1));
-			xValue = 300 * (id >> 1);
+		if (isTimeBar) {
+			wValue = Math.floor(timeBarProperties[0]);
+			hValue = Math.floor(timeBarProperties[1]);
+			yValue = 600;
 			id = 0;
 		}
 
 		if (isHealthIcon) {
 			wValue = hValue = 150;
-			yValue = 900 + (150 * (id >> 3));
+			yValue = 750 + (150 * (id >> 3));
 			id &= 0x7;
 		}
 
@@ -236,8 +248,8 @@ private enum abstract UISpriteType(cpp.UInt8) {
 	var NONE;
 	var RATING_POPUP;
 	var COMBO_NUMBER;
-	var MAIN_MENU_PART;
 	var HEALTH_BAR;
+	var TIME_BAR;
 	var HEALTH_ICON;
 	var COUNTDOWN_POPUP;
 	var PAUSE_OPTION;

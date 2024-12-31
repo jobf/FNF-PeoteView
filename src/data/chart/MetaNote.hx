@@ -1,21 +1,21 @@
-package elements;
+package data.chart;
 
 /**
-	The internal chart note.
+	The note from the chart.
 	Written by SomeGuyWhoLovesCoding, fixed and tweaked by Dimensionscape.
 **/
 #if !debug
 @:noDebug
 #end
 @:publicFields
-abstract ChartNote(Int64) from Int64 {
+abstract MetaNote(Int64) from Int64 {
 	/**
 		The position's bit mask.
 	**/
 	static var POSITION_MASK:Int64 = Int64.fromFloat(2199023255551);
 
 	/**
-		Construct a chart note.
+		Construct a meta note.
 		@param position The note's position.
 		@param duration The note's duration.
 		@param index The note's index.

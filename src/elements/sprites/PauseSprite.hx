@@ -1,7 +1,7 @@
 // EVERYTHING RELATED TO THE PAUSE SCREEN SHEET IN THE CLASS IS 100% HARDCODED.
 // This is a cheap copy of UISprite with less things in mind because it's meant for the pause screen.
 
-package elements;
+package elements.sprites;
 
 @:publicFields
 class PauseSprite implements Element {

@@ -38,7 +38,7 @@ class Note implements Element
 	/**
 		The data of this note sprite.
 	**/
-	public var data:ChartNote;
+	public var data:MetaNote;
 
 	/**
 		The child of this note sprite.

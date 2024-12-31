@@ -7,8 +7,23 @@ import elements.text.*;
 **/
 @:publicFields
 class Text {
-	var buffer:Buffer<TextCharSprite>;
-	static var program:Program;
+	static var buffers:Map<String, Buffer<TextCharSprite>> = [];
+	static var programs:Map<String, Program> = [];
+
+	var buffer(get, never):Buffer<TextCharSprite>;
+
+	inline function get_buffer() {
+		return buffers[_key];
+	}
+
+	var program(get, never):Program;
+
+	inline function get_program() {
+		return programs[_key];
+	}
+
+	var _key:String;
+
 	var display:Display;
 
 	var text(default, set):String;
@@ -20,7 +35,7 @@ class Text {
 
 		var advanceX:Float = 0;
 
-		if(text != null) {
+		if (text != null) {
 			for (i in str.length...text.length) {
 				var elem = buffer.getElement(i);
 				if (elem != null) {
@@ -43,11 +58,9 @@ class Text {
 			var padding = data.padding;
 
 			var spr = buffer.getElement(i);
+			var sprIsNull = spr == null;
 
-			if (spr == null) {
-				spr = new TextCharSprite();
-				buffer.addElement(spr);
-			}
+			if (spr == null) spr = new TextCharSprite();
 
 			spr.clipX = data.position.x + padding;
 			spr.clipY = data.position.y + padding;
@@ -64,9 +77,9 @@ class Text {
 				height = spr.h;
 			}
 
-			if (spr != null) {
-				buffer.updateElement(spr);
-			}
+			if (sprIsNull) buffer.addElement(spr);
+
+			buffer.updateElement(spr);
 		}
 
 		width = advanceX;
@@ -160,17 +173,43 @@ class Text {
 
 	var height(default, null):Float;
 
+	var alpha(default, set):Float = 1.0;
+
+	function set_alpha(value:Float):Float {
+		for (i in 0...text.length) {
+			var spr = buffer.getElement(i);
+			if (spr != null) {
+				spr.alpha = value;
+				buffer.updateElement(spr);
+			}
+		}
+		return alpha = value;
+	}
+
 	var color(default, set):Color = 0xFFFFFFFF;
 
 	function set_color(value:Color):Color {
 		for (i in 0...text.length) {
 			var spr = buffer.getElement(i);
-			spr.c = value;
 			if (spr != null) {
+				spr.c = value;
 				buffer.updateElement(spr);
 			}
 		}
 		return color = value;
+	}
+
+	var outlineColor(default, set):Color = 0x000000FF;
+
+	function set_outlineColor(value:Color):Color {
+		for (i in 0...text.length) {
+			var spr = buffer.getElement(i);
+			if (spr != null) {
+				spr.oc = value;
+				buffer.updateElement(spr);
+			}
+		}
+		return outlineColor = value;
 	}
 
 	function setMarkerPair(part:String, color:Color, outlineColor:Color = 0x000000FF, outlineSize:Float = 0) {
@@ -178,10 +217,10 @@ class Text {
 
 		for (i in index...index + part.length) {
 			var spr = buffer.getElement(i);
-			spr.c = color;
-			spr.oc = outlineColor;
-			spr.os = outlineSize;
 			if (spr != null) {
+				spr.c = color;
+				spr.oc = outlineColor;
+				spr.os = outlineSize;
 				buffer.updateElement(spr);
 			}
 		}
@@ -189,17 +228,25 @@ class Text {
 
 	static var parsedTextAtlasData:Array<TextCharData>;
 
-	function new(x:Float, y:Float, display:Display, text:String = "Sample text") {
+	function new(key:String, x:Float, y:Float, display:Display, text:String = "Sample text") {
+		if (text.length == 0) text = "Sample text";
+		_key = key;
+
 		var data = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json"));
 		parsedTextAtlasData = data.sprites;
-		buffer = new Buffer<TextCharSprite>(64, 64, false);
 
-		if (program == null) {
-			program = new Program(buffer);
+		if (buffers[key] == null) {
+			buffers[key] = new Buffer<TextCharSprite>(64, 64, false);
+		}
+
+		if (programs[key] == null) {
+			var program = new Program(buffer);
 			program.blendEnabled = true;
-			program.setFragmentFloatPrecision("medium", true);
+			program.setFragmentFloatPrecision('medium', true);
 
 			TextureSystem.setTexture(program, 'vcrTex', 'vcrTex');
+			program.setColorFormula('getTextureColor(vcrTex_ID, vTexCoord) * (c * alphaColor)');
+			programs[key] = program;
 		}
 
 		this.display = display;

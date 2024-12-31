@@ -59,6 +59,10 @@ class Main extends Application
 
 		Sound.init();
 
+		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
+		UISprite.timeBarProperties = Tools.parseTimeBarConfig('assets/ui');
+		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
+
 		peoteView = new PeoteView(window);
 
 		haxe.Timer.delay(function() {

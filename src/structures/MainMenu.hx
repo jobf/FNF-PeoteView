@@ -55,8 +55,8 @@ class MainMenu implements State {
 
 		for (i in 0...4) {
 			var spr = new UISprite();
-			spr.type = MAIN_MENU_PART;
-			spr.changeID(i << 1);
+			//spr.type = MAIN_MENU_PART;
+			//spr.changeID(i << 1);
 			spr.x = 20;
 			spr.y = 20 + (spr.h * i);
 			optionBuf.addElement(spr);
@@ -115,8 +115,8 @@ class MainMenu implements State {
 
 		for (i in 0...optionBuf.length) {
 			var option = optionBuf.getElement(i);
-			if (i == optionSelected) option.changeID(i << 1);
-			else option.changeID((i << 1) + 1);
+			//if (i == optionSelected) option.changeID(i << 1);
+			//else option.changeID((i << 1) + 1);
 			optionBuf.updateElement(option);
 		}
 	}

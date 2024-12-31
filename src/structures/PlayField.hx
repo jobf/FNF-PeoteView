@@ -32,11 +32,6 @@ class PlayField implements State {
 	var health:Float = 0.5;
 	var latencyCompensation(default, set):Int;
 	inline function set_latencyCompensation(value:Int) {
-		if (hud != null) {
-			hud.watermarkTxt.text = 'FV TEST BUILD' #if FV_DEBUG + ' | ';
-			hud.watermarkTxt.text += '-/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, ';
-			hud.watermarkTxt.text += 'B to toggle botplay, and M to toggle downscroll (${value}ms)' #end;
-		}
 		return latencyCompensation = value;
 	}
 
@@ -74,8 +69,8 @@ class PlayField implements State {
 	var field(default, null):Field;
 	var inputSystem(default, null):InputSystem;
 	var noteSystem(default, null):NoteSystem;
-	var hud(default, null):HUD;
 	var audioSystem(default, null):AudioSystem;
+	var hud(default, null):HUD;
 	var countdownDisp(default, null):CountdownDisplay;
 	var pauseScreen(default, null):PauseScreen;
 
@@ -84,10 +79,10 @@ class PlayField implements State {
 	var onResumeSong:Event<Chart->Void>;
 	var onStopSong:Event<Chart->Void>;
 	var onDeath:Event<Chart->Void>;
-	var onNoteHit:Event<ChartNote->Int->Void>;
-	var onNoteMiss:Event<ChartNote->Void>;
-	var onSustainComplete:Event<ChartNote->Void>;
-	var onSustainRelease:Event<ChartNote->Void>;
+	var onNoteHit:Event<MetaNote->Int->Void>;
+	var onNoteMiss:Event<MetaNote->Void>;
+	var onSustainComplete:Event<MetaNote->Void>;
+	var onSustainRelease:Event<MetaNote->Void>;
 	var onKeyPress:Event<KeyCode->Void>;
 	var onKeyRelease:Event<KeyCode->Void>;
 
@@ -100,10 +95,10 @@ class PlayField implements State {
 
 		if (value < 0) value = 0;
 		songPosition = value;
-		audioSystem.setTime(songPosition);
+		if (audioSystem != null) audioSystem.setTime(songPosition);
 		if (hud != null && SaveData.state.ratingPopup) hud.hideRatingPopup();
-		noteSystem.resetNotes();
-		field.resetCharacters();
+		if (noteSystem != null) noteSystem.resetNotes();
+		if (field != null) field.resetCharacters();
 	}
 
 	var songPosition:Float;
@@ -118,31 +113,28 @@ class PlayField implements State {
 	function create(roof:CustomDisplay, display:CustomDisplay, mania:Int = 4) {
 		if (mania > 16) mania = 16;
 
-		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
-		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
-
 		onStartSong = new Event<Chart->Void>();
 		onPauseSong = new Event<Chart->Void>();
 		onResumeSong = new Event<Chart->Void>();
 		onStopSong = new Event<Chart->Void>();
 		onDeath = new Event<Chart->Void>();
 
-		onNoteHit = new Event<ChartNote->Int->Void>();
-		onNoteMiss = new Event<ChartNote->Void>();
-		onSustainComplete = new Event<ChartNote->Void>();
-		onSustainRelease = new Event<ChartNote->Void>();
+		onNoteHit = new Event<MetaNote->Int->Void>();
+		onNoteMiss = new Event<MetaNote->Void>();
+		onSustainComplete = new Event<MetaNote->Void>();
+		onSustainRelease = new Event<MetaNote->Void>();
 		onKeyPress = new Event<KeyCode->Void>();
 		onKeyRelease = new Event<KeyCode->Void>();
 
 		field = new Field(this);
 		inputSystem = new InputSystem(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
+		audioSystem = new AudioSystem(chart);
 		HUD.init(display);
 		if (!SaveData.state.hideHUD) hud = new HUD(display, this);
-		audioSystem = new AudioSystem(chart);
 		countdownDisp = new CountdownDisplay(HUD.uiBuf);
 		PauseScreen.init(roof);
-		pauseScreen = new PauseScreen();
+		pauseScreen = new PauseScreen(chart.header.difficulty);
 
 		numOfNotes = NoteSystem.notesBuf.length - numOfReceptors;
 		scrollSpeed = chart.header.speed;
@@ -188,7 +180,7 @@ class PlayField implements State {
 			return;
 		}
 
-		audioSystem.update(this, deltaTime);
+		if (audioSystem != null) audioSystem.update(this, deltaTime);
 
 		songPosition += latencyCompensation;
 
@@ -196,10 +188,10 @@ class PlayField implements State {
 
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
-		noteSystem.update(pos);
+		if (noteSystem != null) noteSystem.update(pos);
 		if (hud != null) hud.update(deltaTime);
-		field.update(deltaTime);
-		countdownDisp.update(deltaTime);
+		if (field != null) field.update(deltaTime);
+		if (countdownDisp != null) countdownDisp.update(deltaTime);
 
 		songPosition -= latencyCompensation;
 	}
@@ -211,8 +203,8 @@ class PlayField implements State {
 		if (disposed || paused) return;
 
 		paused = true;
-		if (!RenderingMode.enabled && songStarted) audioSystem.stop();
-		noteSystem.resetReceptors();
+		if (!RenderingMode.enabled && songStarted && audioSystem != null) audioSystem.stop();
+		if (noteSystem != null) noteSystem.resetReceptors();
 		pauseScreen.open();
 	}
 
@@ -223,8 +215,8 @@ class PlayField implements State {
 		if (disposed || !paused) return;
 
 		paused = false;
-		if (!RenderingMode.enabled && songStarted && !songEnded) audioSystem.play();
-		noteSystem.resetReceptors();
+		if (!RenderingMode.enabled && songStarted && !songEnded && audioSystem != null) audioSystem.play();
+		if (noteSystem != null) noteSystem.resetReceptors();
 		pauseScreen.close();
 	}
 
@@ -240,11 +232,13 @@ class PlayField implements State {
 		}
 	}
 
-	function hitNote(note:ChartNote, timing:Int) {
-		var voicesTrack = audioSystem.voices[note.lane];
-		if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
-		if (voicesTrack != null) {
-			voicesTrack.volume = 1;
+	function hitNote(note:MetaNote, timing:Int) {
+		if (audioSystem != null) {
+			var voicesTrack = audioSystem.voices[note.lane];
+			if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
+			if (voicesTrack != null) {
+				voicesTrack.volume = 1;
+			}
 		}
 
 		if (!inputSystem.strumlinePlayable[note.lane]) {
@@ -255,7 +249,7 @@ class PlayField implements State {
 			return;
 		}
 
-		combo += 100;
+		++combo;
 		++accuracy[0];
 		++accuracy[1];
 
@@ -294,11 +288,13 @@ class PlayField implements State {
 		score += 400;
 	}
 
-	inline function missNote(note:ChartNote) {
-		var voicesTrack = audioSystem.voices[note.lane];
-		if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
-		if (voicesTrack != null) {
-			voicesTrack.volume = 0;
+	inline function missNote(note:MetaNote) {
+		if (audioSystem != null) {
+			var voicesTrack = audioSystem.voices[note.lane];
+			if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
+			if (voicesTrack != null) {
+				voicesTrack.volume = 0;
+			}
 		}
 
 		health -= 0.025;
@@ -313,7 +309,7 @@ class PlayField implements State {
 		++accuracy[1];
 	}
 
-	inline function completeSustain(note:ChartNote) {
+	inline function completeSustain(note:MetaNote) {
 		if (!inputSystem.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
@@ -331,7 +327,7 @@ class PlayField implements State {
 		}
 	}
 
-	inline function releaseSustain(note:ChartNote) {
+	inline function releaseSustain(note:MetaNote) {
 		combo = 0;
 	}
 
@@ -402,18 +398,18 @@ class PlayField implements State {
 		onKeyPress = null;
 		onKeyRelease = null;
 
+		field.dispose();
+		field = null;
 		inputSystem.dispose();
 		inputSystem = null;
 		noteSystem.dispose();
 		noteSystem = null;
+		audioSystem.dispose();
+		audioSystem = null;
 		if (hud != null) {
 			hud.dispose();
 			hud = null;
 		}
-		audioSystem.dispose();
-		audioSystem = null;
-		field.dispose();
-		field = null;
 		countdownDisp.dispose();
 		countdownDisp = null;
 		pauseScreen.dispose();

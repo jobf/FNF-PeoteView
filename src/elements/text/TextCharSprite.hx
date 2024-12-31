@@ -24,6 +24,18 @@ class TextCharSprite implements Element {
 
 	@color var c:Color = 0xFFFFFFFF;
 
+	@color private var alphaColor:Color = 0xFFFFFFFF;
+
+	var alpha(get, set):Float;
+
+	inline function get_alpha() {
+		return alphaColor.aF;
+	}
+
+	inline function set_alpha(value:Float) {
+		return alphaColor.aF = value;
+	}
+
 	// outline implementation
 
 	@color var oc:Color = 0x000000FF;

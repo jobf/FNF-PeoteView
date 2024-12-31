@@ -79,7 +79,7 @@ class ChartConverter
 
 					var lane = 1 - Math.floor((mustHitSection ? note.index : ((note.index >= mania) ? note.index - mania : note.index + mania)) / mania);
 
-					var newNote:ChartNote = new ChartNote(
+					var newNote:MetaNote = new MetaNote(
 						Tools.betterInt64FromFloat(note.position * 100),
 						Math.floor(note.duration * 0.2), // Equal to `note.duration / 5`.
 						note.index % mania,
@@ -166,7 +166,7 @@ abstract VanillaChartNote(Array<Float>) from Array<Float> {
 		Where the note should spawn at.
 	**/
 	inline function get_index():Int {
-		return Math.floor(this[1]) & 0x7;
+		return Math.floor(this[1]) & 0xF;
 	}
 
 	/**

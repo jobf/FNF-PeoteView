@@ -15,6 +15,7 @@ class HUD {
 
 	var scoreTxt:Text;
 	var watermarkTxt:Text;
+	var timeBarTxt:Text;
 
 	var ratingPopup:UISprite;
 	var comboNumbers:Array<UISprite> = [];
@@ -29,10 +30,18 @@ class HUD {
 		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
 	];
 
+	var timeBarParts:Array<UISprite> = [];
+	var timeBarBG:UISprite;
+
 	var healthBarWS:Float;
 	var healthBarHS:Float;
 	var healthBarXA:Float;
 	var healthBarYA:Float;
+
+	var timeBarWS:Float;
+	var timeBarHS:Float;
+	var timeBarXA:Float;
+	var timeBarYA:Float;
 
 	var display:CustomDisplay;
 	var parent:PlayField;
@@ -49,6 +58,12 @@ class HUD {
 
 		healthBarXA = UISprite.healthBarProperties[4];
 		healthBarYA = UISprite.healthBarProperties[5];
+
+		timeBarWS = UISprite.timeBarProperties[2];
+		timeBarHS = UISprite.timeBarProperties[3];
+
+		timeBarXA = UISprite.timeBarProperties[4];
+		timeBarYA = UISprite.timeBarProperties[5];
 
 		// HEALTH BAR SETUP
 		healthBarBG = new UISprite();
@@ -100,14 +115,50 @@ class HUD {
 
 		updateHealthIcons();
 
+		// TIME BAR SETUP
+
+		timeBarBG = new UISprite();
+		timeBarBG.type = TIME_BAR;
+		timeBarBG.changeID(0);
+		timeBarBG.x = (Main.INITIAL_WIDTH - timeBarBG.w) * 0.5;
+		timeBarBG.y = parent.downScroll ? Main.INITIAL_HEIGHT - 16 : 16;
+
+		// TIME BAR PART SETUP
+
+		for (i in 0...2) {
+			var part = timeBarParts[i] = new UISprite();
+			part.w = timeBarBG.w - (timeBarWS * 2.0);
+			part.h = timeBarBG.h - timeBarHS;
+			part.x = timeBarBG.x + timeBarXA;
+			part.y = timeBarBG.y + timeBarYA;
+			part.gradientMode = 1.0;
+			part.setAllColors([for (j in 0...6) i == 0 ? 0x000000FF : 0xFFFFFFFF]);
+
+			uiBuf.addElement(part);
+		}
+
+		uiBuf.addElement(timeBarBG);
+
+		updateTimeBarParts();
+
 		// TEXT SETUP
 
-		scoreTxt = new Text(0, 0, display);
-
-		watermarkTxt = new Text(0, 0, display, 'FV TEST BUILD' #if FV_DEBUG + ' | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (0ms)' #end);
+		watermarkTxt = new Text("watermarkTxt", 0, 0, display, 'FV TEST BUILD');
 		watermarkTxt.x = 2;
 		watermarkTxt.scale = 0.7;
 		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
+
+		timeBarTxt = new Text("timeBarTxt", 0, 0, display, Tools.formatTime(parent.audioSystem.inst.length - Math.max(parent.songPosition, 0)));
+		timeBarTxt.x = (Main.INITIAL_WIDTH - timeBarTxt.width) * 0.5;
+		timeBarTxt.y = timeBarBG.y - 2;
+		timeBarTxt.scale = 1.15;
+		timeBarTxt.outlineColor = 0x999999FF;
+
+		updateTimeBarText();
+
+		scoreTxt = new Text("scoreTxt", 0, 0, display);
+
+		updateScoreText(0.0);
 
 		// RATING AND COMBO NUMBER POPUP SETUP
 		if (SaveData.state.ratingPopup) {
@@ -116,11 +167,13 @@ class HUD {
 			ratingPopup.changeID(0);
 			ratingPopup.x = 500;
 			ratingPopup.y = 360;
-			ratingPopup.c.aF = 0.0;
+			ratingPopup.alpha = 0.0;
 			uiBuf.addElement(ratingPopup);
 
 			for (i in 0...3) addComboNumber();
 		}
+
+		setHUDAlpha(0.0);
 	}
 
 	/**
@@ -128,7 +181,7 @@ class HUD {
 	**/
 	static function init(display:CustomDisplay) {
 		if (uiBuf == null) {
-			uiBuf = new Buffer<UISprite>(16, 16, false);
+			uiBuf = new Buffer<UISprite>(4, 4, true);
 			uiProg = new Program(uiBuf);
 			uiProg.blendEnabled = true;
 
@@ -138,6 +191,8 @@ class HUD {
 			display.addProgram(uiProg);
 		}
 	}
+
+	var alphaLerp:Float = .0;
 
 	/**
 		Updates the HUD.
@@ -149,7 +204,43 @@ class HUD {
 		}
 		updateHealthBar();
 		updateHealthIcons();
+		updateTimeBarParts();
+		updateTimeBarText();
 		updateScoreText(deltaTime);
+
+		if (parent.songStarted && alphaLerp != 1.0) {
+			alphaLerp = Tools.lerp(alphaLerp, 1.0, Math.min(deltaTime * 0.015, 1.0));
+			setHUDAlpha(alphaLerp);
+		}
+	}
+
+	/**
+		Sets the entire hud's alpha. The watermark text won't be affected.
+	**/
+	function setHUDAlpha(alpha:Float) {
+		healthBarBG.alpha = alpha;
+		uiBuf.updateElement(healthBarBG);
+
+		for (part in healthBarParts) {
+			part.alpha = alpha;
+			uiBuf.updateElement(part);
+		}
+
+		for (icon in healthIcons) {
+			icon.alpha = alpha;
+			uiBuf.updateElement(icon);
+		}
+
+		timeBarBG.alpha = alpha;
+		uiBuf.updateElement(timeBarBG);
+
+		for (part in timeBarParts) {
+			part.alpha = alpha;
+			uiBuf.updateElement(part);
+		}
+
+		timeBarTxt.alpha = alpha;
+		scoreTxt.alpha = alpha;
 	}
 
 	/**
@@ -160,8 +251,8 @@ class HUD {
 
 		if (ratingPopup == null) return;
 
-		if (ratingPopup.c.aF != 0) {
-			ratingPopup.c.aF -= ratingPopup.c.aF * (deltaTime * 0.005);
+		if (ratingPopup.alpha != 0) {
+			ratingPopup.alpha -= ratingPopup.alpha * (deltaTime * 0.005);
 		}
 
 		if (ratingPopup.y != 320) {
@@ -197,12 +288,11 @@ class HUD {
 			var digit = numStr.charCodeAt(i <= numStr.length ? (numStr.length - 1) - i : numStr.length - 1) - 48;
 
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.c.aF = ratingPopup.c.aF;
+			comboNumber.alpha = ratingPopup.alpha;
 
 			if (i > 2) {
-
 				if (i >= numStr.length) {
-					comboNumber.c.aF = 0.0;
+					comboNumber.alpha = 0.0;
 				}
 			}
 
@@ -223,7 +313,7 @@ class HUD {
 			comboNumber.changeID(0);
 			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * comboNumbers.length);
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.c.aF = 0.0;
+			comboNumber.alpha = 0.0;
 			comboNumbers.push(comboNumber);
 			uiBuf.addElement(comboNumber);
 		}
@@ -325,10 +415,43 @@ class HUD {
 		scoreTxt.scale = (Tools.lerp(scoreTxt.scale, 1.0, deltaTime * 0.02):Single);
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
+		scoreTxt.color.aF = 1.0;
+		scoreTxt.outlineColor.aF = 1.0;
 		/*scoreTxt.color = 0xFFDC8CFF;
 		scoreTxt.setMarkerPair('Score: ', Color.WHITE);
 		scoreTxt.setMarkerPair(', Misses: ', Color.WHITE);
 		scoreTxt.setMarkerPair(', Accuracy: ', Color.WHITE);*/
+	}
+
+	/**
+		Updates the timebar text.
+	**/
+	function updateTimeBarParts() {
+		if (parent.disposed) return;
+
+		timeBarBG.y = parent.downScroll ? Main.INITIAL_HEIGHT - 16 : 16;
+		uiBuf.updateElement(timeBarBG);
+
+		var part = timeBarParts[1];
+
+		if (part == null) return;
+
+		part.w = (timeBarBG.w - (timeBarWS * 2.0)) * (parent.songPosition / parent.audioSystem.inst.length);
+		part.x = timeBarBG.x + timeBarXA;
+		part.y = timeBarBG.y + timeBarYA;
+
+		if (part.w < 0) part.w = 0;
+
+		uiBuf.updateElement(part);
+	}
+
+	/**
+		Updates the timebar text.
+	**/
+	function updateTimeBarText() {
+		timeBarTxt.text = Tools.formatTime(parent.audioSystem.inst.length - Math.max(parent.songPosition, 0));
+		timeBarTxt.x = (Main.INITIAL_WIDTH - timeBarTxt.width) * 0.5;
+		timeBarTxt.y = timeBarBG.y - 2;
 	}
 
 	/**
@@ -337,7 +460,7 @@ class HUD {
 	inline function hideRatingPopup() {
 		if (parent.disposed) return;
 
-		ratingPopup.c.aF = 0.0;
+		ratingPopup.alpha = 0.0;
 		uiBuf.updateElement(ratingPopup);
 	}
 
@@ -347,7 +470,7 @@ class HUD {
 	inline function respondWithRatingID(id:Int) {
 		if (parent.disposed) return;
 
-		ratingPopup.c.aF = 1.0;
+		ratingPopup.alpha = 1.0;
 		ratingPopup.y = 300;
 		ratingPopup.changeID(id);
 		uiBuf.updateElement(ratingPopup);
@@ -383,7 +506,17 @@ class HUD {
 		}
 		healthIcons = null;
 
+		uiBuf.removeElement(timeBarBG);
+		timeBarBG = null;
+
+		while (timeBarParts.length != 0) {
+			var timeBarPart = timeBarParts.pop();
+			uiBuf.removeElement(timeBarPart);
+		}
+		timeBarParts = null;
+
 		scoreTxt.dispose();
 		watermarkTxt.dispose();
+		timeBarTxt.dispose();
 	}
 }
