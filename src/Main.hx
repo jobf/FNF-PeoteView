@@ -207,7 +207,7 @@ class Main extends Application
 
 		topDisplay.width = w;
 		topDisplay.height = h;
-		middleDisplay.scale = scale;
+		topDisplay.scale = scale;
 	}
 
 	inline function fullscreen() {
