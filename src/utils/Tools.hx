@@ -106,4 +106,8 @@ class Tools {
 
 		return time;
 	}
+
+	inline static function lerp(a:Float, b:Float, ratio:Float):Float {
+		return a + ratio * (b - a);
+	}
 }

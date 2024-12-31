@@ -9,37 +9,67 @@ import lime.ui.KeyModifier;
 **/
 @:publicFields
 class PauseScreen {
-	var parent:HUD;
-	var main:Main;
+	private static var display(default, null):CustomDisplay;
+	static var pauseBuf(default, null):Buffer<PauseSprite>;
+	static var pauseProg(default, null):Program;
 
-	var pauseBG(default, null):UISprite;
-	var pauseOptions(default, null):Array<UISprite> = [];
+	var pauseOptions(default, null):Array<PauseSprite> = [];
 	var pauseOptionSelected(default, null):Int = 0;
+	var opened(default, null):Bool;
 
-	function new(parent:HUD, main:Main) {
-		this.parent = parent;
-		this.main = main;
+	static function init(disp:CustomDisplay) {
+		display = disp;
 
-		pauseBG = new UISprite();
-		pauseBG.gradientMode = 1.0;
-		pauseBG.setAllColors([for (i in 0...6) 0x00000044]);
-		pauseBG.w = Main.INITIAL_WIDTH;
-		pauseBG.h = Main.INITIAL_HEIGHT;
+		if (pauseBuf == null) {
+			pauseBuf = new Buffer<PauseSprite>(5);
+			pauseProg = new Program(pauseBuf);
+			pauseProg.blendEnabled = true;
 
-		var currentY = 160;
+			var tex = TextureSystem.getTexture("pauseScreenSheet");
+			PauseSprite.init(pauseProg, "pauseScreenSheet", tex);
+		}
+	}
+
+	function new() {
+		var currentY = 200;
 		for (i in 0...3) {
-			var option = new UISprite();
+			var option = new PauseSprite();
 			option.type = PAUSE_OPTION;
 			option.changeID(i);
+			option.x = 45;
 			option.y = currentY;
 			currentY += Math.floor(option.h) + 2;
 			pauseOptions.push(option);
 		}
 	}
 
-	function update(code:KeyCode, mod:KeyModifier) {
+	function update(deltaTime:Float) {
+		if (!opened && display.color.aF == 0) {
+			if (pauseProg.isIn(display)) {
+				for (i in 0...pauseOptions.length) {
+					pauseBuf.removeElement(pauseOptions[i]);
+				}
+
+				display.removeProgram(pauseProg);
+			}
+			return;
+		}
+
+		display.color.aF = Tools.lerp(display.color.aF, opened ? 0.5 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		display.color = display.color;
+
+		for (i in 0...pauseOptions.length) {
+			var pauseOption = pauseOptions[i];
+			var originalC = pauseOption.c;
+			if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
+			else pauseOption.c = Color.WHITE;
+			pauseOption.c.aF = display.color.aF * 2.0;
+			if (originalC != pauseOption.c) pauseBuf.updateElement(pauseOption);
+		}
+	}
+
+	function selectOption(code:KeyCode, mod:KeyModifier) {
 		switch (code) {
-			case -1: // This is here so the pause screen can update the first time when opening it
 			case KeyCode.DOWN:
 				pauseOptionSelected++;
 				if (pauseOptionSelected >= pauseOptions.length) {
@@ -53,62 +83,52 @@ class PauseScreen {
 			case KeyCode.RETURN:
 				switch (pauseOptionSelected) {
 					case 0:
-						parent.parent.resume();
+						Main.current.playField.resume();
 						return;
 					case 1:
 					case 2:
-						main.switchPlayFieldToMainMenu();
+						Main.switchState(MAIN_MENU);
 				}
 			default:
 				return;
 		}
-
-		for (i in 0...pauseOptions.length) {
-			var pauseOption = pauseOptions[i];
-			if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
-			else pauseOption.c = Color.WHITE;
-			parent.uiBuf.updateElement(pauseOption);
-		}
 	}
 
 	function open() {
-		parent.uiBuf.addElement(pauseBG);
+		opened = true;
 
-		for (i in 0...pauseOptions.length) {
-			parent.uiBuf.addElement(pauseOptions[i]);
-		}
-
-		update(-1, -1);
+		try {
+			for (i in 0...pauseOptions.length) {
+				var pauseOption = pauseOptions[i];
+				if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
+				else pauseOption.c = Color.WHITE;
+				pauseBuf.addElement(pauseOptions[i]);
+			}
+		} catch (e) {}
 
 		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
-			window.onKeyDown.add(update);
+			window.onKeyDown.add(selectOption);
 		}, 200);
+
+		if (!pauseProg.isIn(display)) {
+			display.addProgram(pauseProg);
+		}
 	}
 
 	function close() {
-		parent.uiBuf.removeElement(pauseBG);
-
-		for (i in 0...pauseOptions.length) {
-			parent.uiBuf.removeElement(pauseOptions[i]);
-		}
-
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(update);
+		window.onKeyDown.remove(selectOption);
+
+		opened = false;
 	}
 
 	function dispose() {
 		close();
-		try {
-			parent.uiBuf.removeElement(pauseBG);
-		} catch (e) {}
-		pauseBG = null;
 
 		while (pauseOptions.length != 0) {
 			var pauseOption = pauseOptions.pop();
-			try {
-				parent.uiBuf.removeElement(pauseOption);
-			} catch (e) {}
+			if (opened) pauseBuf.removeElement(pauseOption);
 			pauseOption = null;
 		}
 	}

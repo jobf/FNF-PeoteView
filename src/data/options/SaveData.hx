@@ -166,7 +166,8 @@ abstract SaveData_Internal(Int64) from Int64 to Int64 {
 
 @:publicFields
 class SaveData {
-	static var EMPTY_SAVE(default, null):SaveData_Internal = Int64.parseString("-71776943694938000");
+	// https://try.haxe.org/#a208401B
+	static var EMPTY_SAVE(default, null):SaveData_Internal = Int64.parseString("-71776943694937992");
 
 	private static var datas:Vector<SaveData_Internal> = new Vector<SaveData_Internal>(16, EMPTY_SAVE);
 	static var slot:cpp.UInt8 = 0;

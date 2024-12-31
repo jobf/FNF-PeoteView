@@ -7,7 +7,8 @@ import lime.app.Event;
 	The home of the gameplay state.
 **/
 @:publicFields
-class PlayField {
+class PlayField implements State {
+	var roof(default, null):CustomDisplay;
 	var display(default, null):CustomDisplay;
 	var view(default, null):CustomDisplay;
 
@@ -15,10 +16,11 @@ class PlayField {
 		chart = new Chart('assets/songs/$songName');
 	}
 
-	function init(main:Main, display:CustomDisplay, view:CustomDisplay) {
+	function init(roof:CustomDisplay, display:CustomDisplay, view:CustomDisplay) {
+		this.roof = roof;
 		this.display = display;
 		this.view = view;
-		create(main, display, chart.header.mania);
+		create(roof, display, chart.header.mania);
 	}
 
 	var score:Int128 = 0;
@@ -30,7 +32,11 @@ class PlayField {
 	var health:Float = 0.5;
 	var latencyCompensation(default, set):Int;
 	inline function set_latencyCompensation(value:Int) {
-		hud.watermarkTxt.text = 'FV TEST BUILD' #if FV_DEBUG + ' | -/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, B to toggle botplay, and M to toggle downscroll (${value}ms)' #end;
+		if (hud != null) {
+			hud.watermarkTxt.text = 'FV TEST BUILD' #if FV_DEBUG + ' | ';
+			hud.watermarkTxt.text += '-/= to change time, F8 to flip bar, [/] to adjust latency by 10ms, ';
+			hud.watermarkTxt.text += 'B to toggle botplay, and M to toggle downscroll (${value}ms)' #end;
+		}
 		return latencyCompensation = value;
 	}
 
@@ -70,6 +76,8 @@ class PlayField {
 	var noteSystem(default, null):NoteSystem;
 	var hud(default, null):HUD;
 	var audioSystem(default, null):AudioSystem;
+	var countdownDisp(default, null):CountdownDisplay;
+	var pauseScreen(default, null):PauseScreen;
 
 	var onStartSong:Event<Chart->Void>;
 	var onPauseSong:Event<Chart->Void>;
@@ -93,7 +101,7 @@ class PlayField {
 		if (value < 0) value = 0;
 		songPosition = value;
 		audioSystem.setTime(songPosition);
-		hud.hideRatingPopup();
+		if (hud != null && SaveData.state.ratingPopup) hud.hideRatingPopup();
 		noteSystem.resetNotes();
 		field.resetCharacters();
 	}
@@ -103,11 +111,11 @@ class PlayField {
 
 	/**
 	 * Creates the playfield.
-	 * @param main The entry point.
-	 * @param display The ui display you want the playfield to go to.
+	 * @param roof The top display you want the playfield's pause screen to go to.
+	 * @param display The ui display you want the playfield's countdown display and hud to go to.
 	 * @param mania The amount of keys you want for your fnf song. (This is configured by the song's header)
 	 */
-	function create(main:Main, display:Display, mania:Int = 4) {
+	function create(roof:CustomDisplay, display:CustomDisplay, mania:Int = 4) {
 		if (mania > 16) mania = 16;
 
 		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
@@ -129,8 +137,12 @@ class PlayField {
 		field = new Field(this);
 		inputSystem = new InputSystem(mania, this);
 		noteSystem = new NoteSystem(numOfReceptors, this);
-		hud = new HUD(display, this, main);
+		HUD.init(display);
+		if (SaveData.state.hideHUD) hud = new HUD(display, this);
 		audioSystem = new AudioSystem(chart);
+		countdownDisp = new CountdownDisplay(HUD.uiBuf);
+		PauseScreen.init(roof);
+		pauseScreen = new PauseScreen();
 
 		numOfNotes = NoteSystem.notesBuf.length - numOfReceptors;
 		scrollSpeed = chart.header.speed;
@@ -185,8 +197,9 @@ class PlayField {
 		var pos = Tools.betterInt64FromFloat(songPosition * 100);
 
 		noteSystem.update(pos);
-		hud.update(deltaTime);
+		if (hud != null) hud.update(deltaTime);
 		field.update(deltaTime);
+		countdownDisp.update(deltaTime);
 
 		songPosition -= latencyCompensation;
 	}
@@ -200,9 +213,7 @@ class PlayField {
 		paused = true;
 		if (!RenderingMode.enabled && songStarted) audioSystem.stop();
 		noteSystem.resetReceptors();
-		display.fov = 1;
-		view.fov = 1;
-		hud.pauseScreen.open();
+		pauseScreen.open();
 	}
 
 	/**
@@ -214,14 +225,12 @@ class PlayField {
 		paused = false;
 		if (!RenderingMode.enabled && songStarted && !songEnded) audioSystem.play();
 		noteSystem.resetReceptors();
-		display.fov = 1;
-		view.fov = 1;
-		hud.pauseScreen.close();
+		pauseScreen.close();
 	}
 
 	inline function beatHit(beat:Float) {
 		if (beat == 0 && !songStarted) onStartSong.dispatch(chart);
-		if (beat < 0) hud.countdownDisp.countdownTick(Math.floor(4 + beat));
+		if (beat < 0) countdownDisp.countdownTick(Math.floor(4 + beat));
 	}
 
 	inline function measureHit(measure:Float) {
@@ -264,24 +273,24 @@ class PlayField {
 		var absTiming = Math.abs(timing);
 
 		if (absTiming > 60) {
-			if (preferences.ratingPopup) hud.respondWithRatingID(3);
+			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(3);
 			score += 50;
 			return;
 		}
 
 		if (absTiming > 45) {
-			if (preferences.ratingPopup) hud.respondWithRatingID(2);
+			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(2);
 			score += 100;
 			return;
 		}
 
 		if (absTiming > 30) {
-			if (preferences.ratingPopup) hud.respondWithRatingID(1);
+			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(1);
 			score += 200;
 			return;
 		}
 
-		if (preferences.ratingPopup) hud.respondWithRatingID(0);
+		if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(0);
 		score += 400;
 	}
 
@@ -348,6 +357,8 @@ class PlayField {
 
 		songEnded = true;
 		songStarted = false;
+
+		Main.switchState(MAIN_MENU);
 	}
 
 	function gameOver(chart:Chart) {
@@ -392,10 +403,21 @@ class PlayField {
 		onKeyRelease = null;
 
 		inputSystem.dispose();
+		inputSystem = null;
 		noteSystem.dispose();
-		hud.dispose();
+		noteSystem = null;
+		if (hud != null) {
+			hud.dispose();
+			hud = null;
+		}
 		audioSystem.dispose();
+		audioSystem = null;
 		field.dispose();
+		field = null;
+		countdownDisp.dispose();
+		countdownDisp = null;
+		pauseScreen.dispose();
+		pauseScreen = null;
 
 		songEnded = true;
 		GC.run();

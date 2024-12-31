@@ -43,7 +43,7 @@ enum abstract Difficulty(UInt8) from UInt8 {
 	var ECHO;
 
 	/**
-		Custom difficulty level.
+		No difficulty level.
 	**/
-	var CUSTOM;
+	var NONE;
 }

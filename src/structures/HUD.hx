@@ -10,10 +10,7 @@ import lime.ui.KeyModifier;
 @:publicFields
 @:access(structures.PlayField)
 class HUD {
-	var countdownDisp:CountdownDisplay;
-	var pauseScreen:PauseScreen;
-
-	var uiBuf(default, null):Buffer<UISprite>;
+	static var uiBuf(default, null):Buffer<UISprite>;
 	static var uiProg(default, null):Program;
 
 	var scoreTxt:Text;
@@ -37,12 +34,14 @@ class HUD {
 	var healthBarXA:Float;
 	var healthBarYA:Float;
 
+	var display:CustomDisplay;
 	var parent:PlayField;
 
 	/**
 		Create the playfield UI.
 	**/
-	function new(display:Display, parent:PlayField, main:Main) {
+	function new(display:CustomDisplay, parent:PlayField) {
+		this.display = display;
 		this.parent = parent;
 
 		healthBarWS = UISprite.healthBarProperties[2];
@@ -51,34 +50,27 @@ class HUD {
 		healthBarXA = UISprite.healthBarProperties[4];
 		healthBarYA = UISprite.healthBarProperties[5];
 
-		if (uiBuf == null) {
-			uiBuf = new Buffer<UISprite>(16, 16, false);
-			uiProg = new Program(uiBuf);
-			uiProg.blendEnabled = true;
-
-			var tex = TextureSystem.getTexture("uiTex");
-			UISprite.init(uiProg, "uiTex", tex); 
-		}
-
 		// RATING POPUP SETUP
-		ratingPopup = new UISprite();
-		ratingPopup.type = RATING_POPUP;
-		ratingPopup.changeID(0);
-		ratingPopup.x = 500;
-		ratingPopup.y = 360;
-		ratingPopup.c.aF = 0.0;
-		uiBuf.addElement(ratingPopup);
-
-		// COMBO NUMBERS SETUP
-		for (i in 0...39) {
-			var comboNumber = new UISprite();
-			comboNumber.type = COMBO_NUMBER;
-			comboNumber.changeID(0);
-			comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
-			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
-			comboNumber.c.aF = 0.0;
-			comboNumbers.push(comboNumber);
-			uiBuf.addElement(comboNumber);
+		if (SaveData.state.ratingPopup) {
+			ratingPopup = new UISprite();
+			ratingPopup.type = RATING_POPUP;
+			ratingPopup.changeID(0);
+			ratingPopup.x = 500;
+			ratingPopup.y = 360;
+			ratingPopup.c.aF = 0.0;
+			uiBuf.addElement(ratingPopup);
+	
+			// COMBO NUMBERS SETUP
+			for (i in 0...39) {
+				var comboNumber = new UISprite();
+				comboNumber.type = COMBO_NUMBER;
+				comboNumber.changeID(0);
+				comboNumber.x = ratingPopup.x + 208 - ((comboNumber.w + 2) * i);
+				comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
+				comboNumber.c.aF = 0.0;
+				comboNumbers.push(comboNumber);
+				uiBuf.addElement(comboNumber);
+			}
 		}
 
 		// HEALTH BAR SETUP
@@ -139,20 +131,35 @@ class HUD {
 		watermarkTxt.x = 2;
 		watermarkTxt.scale = 0.7;
 		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
-
-		display.addProgram(uiProg);
-
-		countdownDisp = new CountdownDisplay(uiBuf);
-		pauseScreen = new PauseScreen(this, main);
 	}
 
+	/**
+		Initializes the HUD with a static buffer and program.
+	**/
+	static function init(display:CustomDisplay) {
+		if (uiBuf == null) {
+			uiBuf = new Buffer<UISprite>(16, 16, false);
+			uiProg = new Program(uiBuf);
+			uiProg.blendEnabled = true;
+
+			var tex = TextureSystem.getTexture("uiTex");
+			UISprite.init(uiProg, "uiTex", tex);
+
+			display.addProgram(uiProg);
+		}
+	}
+
+	/**
+		Updates the HUD.
+	**/
 	function update(deltaTime:Float) {
-		updateRatingPopup(deltaTime);
-		updateComboNumbers();
+		if (SaveData.state.ratingPopup) {
+			updateRatingPopup(deltaTime);
+			updateComboNumbers();
+		}
 		updateHealthBar();
 		updateHealthIcons();
 		updateScoreText(deltaTime);
-		countdownDisp.update(deltaTime);
 	}
 
 	/**
@@ -290,16 +297,13 @@ class HUD {
 		Updates the score text.
 	**/
 	function updateScoreText(deltaTime:Float) {
-		inline function lerp(a:Float, b:Float, ratio:Float):Float
-			return a + ratio * (b - a);
-
 		var acc2 = parent.accuracy[1];
 		if (acc2 == 0) acc2 = 1;
 		var acc:Int64 = Int64.toInt(((parent.accuracy[0] * 10000) / acc2).low);
 		var accDecimal:Int64 = acc % 100;
 
 		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}, Accuracy: ${(acc / 100) + (accDecimal != 0 ? ("." + (accDecimal < 10 ? "0" : "") + accDecimal) : "")}%';
-		scoreTxt.scale = lerp(scoreTxt.scale, 1.0, deltaTime * 0.02);
+		scoreTxt.scale = Tools.lerp(scoreTxt.scale, 1.0, deltaTime * 0.02);
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 		/*scoreTxt.color = 0xFFDC8CFF;
@@ -334,20 +338,16 @@ class HUD {
 		Dispose the hud.
 	**/
 	function dispose() {
-		countdownDisp.dispose();
-		countdownDisp = null;
-
-		pauseScreen.dispose();
-		pauseScreen = null;
-
-		uiBuf.removeElement(ratingPopup);
-		ratingPopup = null;
-
-		while (comboNumbers.length != 0) {
-			var comboNumber = comboNumbers.pop();
-			uiBuf.removeElement(comboNumber);
+		if (SaveData.state.ratingPopup) {
+			uiBuf.removeElement(ratingPopup);
+			ratingPopup = null;
+	
+			while (comboNumbers.length != 0) {
+				var comboNumber = comboNumbers.pop();
+				uiBuf.removeElement(comboNumber);
+			}
+			comboNumbers = null;
 		}
-		comboNumbers = null;
 
 		uiBuf.removeElement(healthBarBG);
 		healthBarBG = null;
@@ -366,7 +366,5 @@ class HUD {
 
 		scoreTxt.dispose();
 		watermarkTxt.dispose();
-
-		uiProg = null;
 	}
 }

@@ -7,9 +7,7 @@ import lime.ui.KeyModifier;
 	The first state of the game.
 **/
 @:publicFields
-class MainMenu {
-	var parent:Main;
-
+class MainMenu implements State {
 	var display:CustomDisplay;
 	var view:CustomDisplay;
 
@@ -23,9 +21,7 @@ class MainMenu {
 
 	var disposed:Bool = false;
 
-	function new(parent:Main) {
-		this.parent = parent;
-	}
+	function new() {}
 
 	function init(display:CustomDisplay, view:CustomDisplay) {
 		this.display = display;
@@ -76,7 +72,6 @@ class MainMenu {
 		optionBuf.update();
 		backgroundBuf.updateElement(bg);
 
-
 		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
 			window.onKeyDown.add(updateMenuOptions);
@@ -105,7 +100,7 @@ class MainMenu {
 			case KeyCode.RETURN:
 				switch (optionSelected) {
 					case 0:
-						parent.switchMainMenuToPlayField();
+						Main.switchState(GAMEPLAY);
 						return;
 					case 1:
 						// TODO

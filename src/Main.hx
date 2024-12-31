@@ -35,6 +35,7 @@ class Main extends Application
 	// ------------------------------------------------------------
 
 	// STARTING POINT
+	static var current:Main;
 	var peoteView:PeoteView;
 
 	// MUSIC
@@ -46,11 +47,14 @@ class Main extends Application
 	var topDisplay:CustomDisplay;
 
 	// STATES
+	var currentState:StateSelection;
 	var mainMenu:MainMenu;
 	var playField:PlayField;
 
 	public function startSample(window:Window)
 	{
+		current = this;
+
 		SaveData.init();
 
 		Sound.init();
@@ -65,7 +69,7 @@ class Main extends Application
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png", true);
-			TextureSystem.createTexture("pauseOptionShiz", "assets/ui/pauseOptionShiz.png");
+			TextureSystem.createTexture("pauseScreenSheet", "assets/ui/pauseScreenSheet.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			var stamp = haxe.Timer.stamp();
@@ -90,8 +94,7 @@ class Main extends Application
 
 			conductor = new Conductor();
 
-			mainMenu = new MainMenu(this);
-			mainMenu.init(middleDisplay, bottomDisplay);
+			switchState(MAIN_MENU);
 
 			window.onResize.add(resize);
 			window.onFullscreen.add(fullscreen);
@@ -108,22 +111,43 @@ class Main extends Application
 		}, 100);
 	}
 
-	public function switchMainMenuToPlayField() {
-		mainMenu.dispose();
-		mainMenu = null;
-		playField = new PlayField(Sys.args()[0]);
-		playField.init(this, middleDisplay, bottomDisplay);
-		playField.downScroll = SaveData.state.downScroll;
+	static public function switchState(newState:StateSelection) {
+		var instance = Main.current;
 
-		GC.run(10);
-		GC.enable(false);
-	}
+		if (newState == instance.currentState) return;
 
-	public function switchPlayFieldToMainMenu() {
-		playField.dispose();
-		playField = null;
-		mainMenu = new MainMenu(this);
-		mainMenu.init(middleDisplay, bottomDisplay);
+		try {
+			switch (instance.currentState) {
+				case MAIN_MENU:
+					instance.mainMenu.dispose();
+					instance.mainMenu = null;
+				case FREEPLAY:
+				case GAMEPLAY:
+					instance.playField.dispose();
+					instance.playField = null;
+				case OPTIONS:
+				case AWARDS:
+				case CREDITS:
+				case NONE:
+			}
+		} catch (e) {}
+
+		instance.currentState = newState;
+
+		switch (newState) {
+			case MAIN_MENU:
+				instance.mainMenu = new MainMenu();
+				instance.mainMenu.init(instance.middleDisplay, instance.bottomDisplay);
+			case FREEPLAY:
+			case GAMEPLAY:
+				instance.playField = new PlayField(Sys.args()[0]);
+				instance.playField.init(instance.topDisplay, instance.middleDisplay, instance.bottomDisplay);
+				instance.playField.downScroll = SaveData.state.downScroll;
+			case OPTIONS:
+			case AWARDS:
+			case CREDITS:
+			case NONE:
+		}
 
 		GC.run(10);
 		GC.enable(false);
@@ -145,14 +169,20 @@ class Main extends Application
 			}
 
 			if (mainMenu != null && !mainMenu.disposed) {
-				mainMenu.update(deltaTime);
+				mainMenu.update(newDeltaTime);
 			}
 
-			if (playField != null && !playField.disposed && !playField.paused) {
-				playField.update(newDeltaTime);
+			if (playField != null && !playField.disposed) {
+				if (!playField.paused) {
+					playField.update(newDeltaTime);
+	
+					if (RenderingMode.enabled && !playField.songEnded) {
+						RenderingMode.pipeFrame();
+					}
+				}
 
-				if (RenderingMode.enabled && !playField.songEnded) {
-					RenderingMode.pipeFrame();
+				if (PauseScreen.pauseProg.isIn(topDisplay)) {
+					playField.pauseScreen.update(newDeltaTime);
 				}
 			}
 
@@ -190,6 +220,16 @@ class Main extends Application
 	}
 
 	// ------------------------------------------------------------
-	// -------------------- SAMPLE ENDS HERE ----------------------
+	// ---------------------- GAME ENDS HERE ----------------------
 	// ------------------------------------------------------------
+}
+
+private enum abstract StateSelection(cpp.UInt8) {
+	var NONE;
+	var MAIN_MENU;
+	var FREEPLAY;
+	var GAMEPLAY;
+	var OPTIONS;
+	var AWARDS;
+	var CREDITS;
 }
