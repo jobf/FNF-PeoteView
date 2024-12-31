@@ -45,13 +45,7 @@ class PauseScreen {
 
 	function update(deltaTime:Float) {
 		if (!opened && display.color.aF == 0) {
-			if (pauseProg.isIn(display)) {
-				for (i in 0...pauseOptions.length) {
-					pauseBuf.removeElement(pauseOptions[i]);
-				}
-
-				display.removeProgram(pauseProg);
-			}
+			shutDown();
 			return;
 		}
 
@@ -123,8 +117,20 @@ class PauseScreen {
 		opened = false;
 	}
 
+	function shutDown() {
+		if (!pauseProg.isIn(display)) return;
+
+		for (i in 0...pauseOptions.length) {
+			pauseBuf.removeElement(pauseOptions[i]);
+		}
+
+		display.removeProgram(pauseProg);
+	}
+
 	function dispose() {
 		close();
+		shutDown();
+		display.color = 0x00000000;
 
 		while (pauseOptions.length != 0) {
 			var pauseOption = pauseOptions.pop();
