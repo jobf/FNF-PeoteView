@@ -156,7 +156,6 @@ class UISprite implements Element {
 
 				vec4 color = c1;
 
-				// this is reverse order from visual order
 				color = mix(color, c2, smoothstep(step1, step2, y));
 				color = mix(color, c3, smoothstep(step2, step3, y));
 				color = mix(color, c4, smoothstep(step3, step4, y));
@@ -165,9 +164,14 @@ class UISprite implements Element {
 
 				return color;
 			}
+
+			vec4 getTexColorWithAlpha( int textureID, vec4 c, vec4 alphaColor )
+			{
+				return getTextureColor(textureID, vTexCoord) * (c * alphaColor);
+			}
 		');
 
-		program.setColorFormula('(gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTextureColor(${name}_ID, vTexCoord)) * (c * alphaColor)');
+		program.setColorFormula('gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTexColorWithAlpha(${name}_ID, c, alphaColor)');
 	}
 
 	function new() {}
