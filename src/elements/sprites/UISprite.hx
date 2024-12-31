@@ -165,13 +165,13 @@ class UISprite implements Element {
 				return color;
 			}
 
-			vec4 getTexColorWithAlpha( int textureID, vec4 c, vec4 alphaColor )
+			vec4 getTexColor( int textureID )
 			{
-				return getTextureColor(textureID, vTexCoord) * (c * alphaColor);
+				return getTextureColor(textureID, vTexCoord);
 			}
 		');
 
-		program.setColorFormula('gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTexColorWithAlpha(${name}_ID, c, alphaColor)');
+		program.setColorFormula('(gradientMode != 0.0 ? gradientOf6(${name}_ID, gradientMode, c, c1, c2, c3, c4, c5, c6) : getTexColor(${name}_ID)) * (c * alphaColor)');
 	}
 
 	function new() {}
