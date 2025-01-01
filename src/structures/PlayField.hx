@@ -132,6 +132,7 @@ class PlayField implements State {
 		audioSystem = new AudioSystem(chart);
 		HUD.init(display);
 		if (!SaveData.state.hideHUD) hud = new HUD(display, this);
+		CountdownDisplay.setupSounds();
 		countdownDisp = new CountdownDisplay(HUD.uiBuf);
 		PauseScreen.init(roof);
 		pauseScreen = new PauseScreen(chart.header.difficulty);

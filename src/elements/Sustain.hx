@@ -36,14 +36,15 @@ class Sustain implements Element
 
 	public var held:Bool;
 
+	@texTile var tile:Int = 0;
+
 	/**
 		The parent of this note sprite.
 	**/
 	public var parent:Note;
 
 	static public var offsets:Array<Array<Int>> = [];
-
-	// --------------------------------------------------------------------------
+	static public var tailPoints:Array<Int> = [];
 
 	static public function init(program:Program, name:String, texture:Texture)
 	{
@@ -51,8 +52,8 @@ class Sustain implements Element
 		program.setTexture(texture, name, true );
 		program.blendEnabled = true;
 
-		var tW:String = Util.toFloatString(texture.width);
-		var tH:String = Util.toFloatString(texture.height);
+		var tW:String = Util.toFloatString(texture.width / texture.tilesX);
+		var tH:String = Util.toFloatString(texture.height / texture.tilesY);
 
 		program.injectIntoFragmentShader(
 		'
@@ -88,11 +89,16 @@ class Sustain implements Element
 		program.setColorFormula( 'c * slice(${name}_ID, tailPoint)' );
 	}
 
-	inline public function new(x:Int, y:Int, w:Int, h:Int) {
+	inline public function new(x:Int, y:Int, w:Int, h:Int, id:Int = 0) {
 		this.x = x;
 		this.y = y;
 		this.w = w;
 		this.h = h;
+	}
+
+	inline public function changeID(id:Int) {
+		tile = id;
+		tailPoint = tailPoints[id];
 	}
 
 	inline public function followNote(note:Note) {

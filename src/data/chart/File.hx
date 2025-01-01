@@ -84,7 +84,7 @@ class File {
 
 	function getNote(atIndex:Int64):MetaNote {
 		var index = HaxeInt64.divMod(atIndex, CHUNK_SIZE);
-		var atChunk = data[index.quotient.low];
-		return atChunk[index.modulus.low];
+		var atChunk = NativeArray.unsafeGet(data, index.quotient.low);
+		return NativeArray.unsafeGet(atChunk, index.modulus.low);
 	}
 }

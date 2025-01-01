@@ -179,6 +179,9 @@ class SaveData {
 	}
 
 	static function init() {
+		var window = lime.app.Application.current.window;
+		window.onClose.add(write);
+
 		if (!FileSystem.exists('.dat')) {
 			write();
 		}
@@ -186,18 +189,15 @@ class SaveData {
 		var bytes:Bytes = File.getBytes('.dat');
 
 		for (i in 0...datas.length) {
-			datas[i] = bytes.getInt64(0);
+			datas[i] = bytes.getInt64(8 * i);
 		}
-
-		var window = lime.app.Application.current.window;
-		window.onClose.add(write);
 	}
 
 	static function write() {
 		var bytes:Bytes = Bytes.alloc(8 * datas.length);
 
 		for (i in 0...datas.length) {
-			bytes.setInt64(i * 8, datas[i]); // Graphics
+			bytes.setInt64(i * 8, datas[i]);
 		}
 
 		var output:FileOutput = File.write('.dat');

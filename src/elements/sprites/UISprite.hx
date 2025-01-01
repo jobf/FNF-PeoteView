@@ -46,7 +46,7 @@ class UISprite implements Element {
 		return alphaColor.aF = value;
 	}
 
-	function setAllColors(colors:Array<Color>) {
+	function setAllColors(colors:Vector<Color>) {
 		c1 = colors[0];
 		c2 = colors[1];
 		c3 = colors[2];

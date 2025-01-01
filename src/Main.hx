@@ -61,7 +61,7 @@ class Main extends Application
 
 		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
 		UISprite.timeBarProperties = Tools.parseTimeBarConfig('assets/ui');
-		Note.offsetAndSizeFrames = Tools.parseFrameOffsets('assets/notes');
+		Tools.parseNoteskinData('assets/notes');
 
 		peoteView = new PeoteView(window);
 
@@ -70,8 +70,7 @@ class Main extends Application
 			trace("Preloading textures...");
 			TextureSystem.createTexture("mainMenuBGTex", "assets/mainMenu/menuBG.png");
 			TextureSystem.createTexture("mainMenuSheet", "assets/mainMenu/sheet.png");
-			TextureSystem.createTexture("noteTex", "assets/notes/sheet.png");
-			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
+			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png", true);
 			TextureSystem.createTexture("pauseScreenSheet", "assets/ui/pauseScreenSheet.png");

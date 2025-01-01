@@ -4,10 +4,12 @@ import sys.io.File;
 
 @:publicFields
 class Tools {
-	static function parseFrameOffsets(path:String) {
-		var finalData:Array<Int> = [];
+	static function parseNoteskinData(path:String) {
+		cpp.NativeArray.zero(Note.offsetAndSizeFrames);
+		cpp.NativeArray.zero(Sustain.offsets);
+		cpp.NativeArray.zero(Sustain.tailPoints);
 
-		var contents = File.getContent('$path/data.xml');
+		var contents = File.getContent('$path/noteData.xml');
 		var xml = Xml.parse(contents);
 		var root = xml.firstElement();
 
@@ -20,27 +22,33 @@ class Tools {
 			var frameX = element.exists("frameX") ? Std.parseInt(element.get("frameX")) : 0;
 			var frameY = element.exists("frameY") ? Std.parseInt(element.get("frameY")) : 0;
 
-			finalData.push(x);
-			finalData.push(y);
-			finalData.push(width);
-			finalData.push(height);
-			finalData.push(frameX);
-			finalData.push(frameY);
+			Note.offsetAndSizeFrames.push(x);
+			Note.offsetAndSizeFrames.push(y);
+			Note.offsetAndSizeFrames.push(width);
+			Note.offsetAndSizeFrames.push(height);
+			Note.offsetAndSizeFrames.push(frameX);
+			Note.offsetAndSizeFrames.push(frameY);
 		}
 
-		var data = File.read('$path/sustainOffsets.txt');
+		var data = File.read('$path/sustainProperties.txt');
+
+		TextureSystem.disposeTexture("sustainTex");
+		TextureSystem.createTiledTexture("sustainTex", '$path/sustainSheet.png', 1, Std.parseInt(data.readLine()));
+
+		var w = TextureSystem.getTexture("sustainTex").width;
 
 		while (!data.eof()) {
 			var line = data.readLine();
 			var split = line.split(", ");
-			if (split.length != 2) throw "ARGUMENTS ARE NOT EQUAL TO TWO!";
+			if (split.length != 3) throw "ARGUMENTS ARE NOT EQUAL TO THREE!";
 
 			var x = Std.parseInt(split[0]);
 			var y = Std.parseInt(split[1]);
-			Sustain.offsets.push([x, y]);
-		}
+			var t = Std.parseInt(split[2]);
 
-		return finalData;
+			Sustain.offsets.push([x, y]);
+			Sustain.tailPoints.push(w - t);
+		}
 	}
 
 	static function parseHealthBarConfig(path:String) {

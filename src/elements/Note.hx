@@ -51,7 +51,7 @@ class Note implements Element
 	public var rW:Int;
 	public var rH:Int;
 
-	static public var offsetAndSizeFrames:Array<Int>;
+	static public var offsetAndSizeFrames:Array<Int> = [];
 
 	public var id:Int = 0;
 

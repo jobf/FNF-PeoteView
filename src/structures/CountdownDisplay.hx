@@ -23,7 +23,19 @@ class CountdownDisplay {
 	/**
 		The countdown display's sound suffix.
 	**/
-	var suffix:String = "";
+	static var suffix:String = "";
+
+	/**
+		The countdown display's sound cache.
+	**/
+	static var cached:Vector<Sound> = new Vector<Sound>(4);
+
+	static function setupSounds(suffix:String = "") {
+		CountdownDisplay.suffix = suffix;
+		for (i in 0...cached.length) {
+			(cached[i] = new Sound()).fromFile('assets/countdown/${3 - i}${suffix != "" ? '-$suffix' : ''}.wav');
+		}
+	}
 
 	/**
 		Constructs a countdown display from chart.
@@ -49,9 +61,10 @@ class CountdownDisplay {
 	**/
 	function countdownTick(id:Int) {
 		if (id != -1) {
-			var snd = new Sound();
-			snd.fromFile('assets/countdown/${3 - id}${suffix != "" ? '-$suffix' : ''}.wav');
-			snd.play();
+			var snd = cached[id];
+			if (snd != null) {
+				snd.play();
+			}
 		}
 
 		if (id != 0) {

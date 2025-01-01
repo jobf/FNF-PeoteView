@@ -22,4 +22,5 @@ import utils.*;
 
 // HELPERS
 import haxe.Int64;
+import haxe.ds.Vector;
 import custom.haxe.*;

@@ -132,7 +132,7 @@ class HUD {
 			part.x = timeBarBG.x + timeBarXA;
 			part.y = timeBarBG.y + timeBarYA;
 			part.gradientMode = 1.0;
-			part.setAllColors([for (j in 0...6) i == 0 ? 0x000000FF : 0xFFFFFFFF]);
+			part.setAllColors(new Vector<Color>(6,  i == 0 ? 0x000000FF : 0xFFFFFFFF));
 
 			uiBuf.addElement(part);
 		}

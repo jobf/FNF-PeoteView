@@ -4,13 +4,13 @@ package elements.actor;
 @:publicFields
 class ActorData {
 	var flip:Bool;
-	var colors:Array<Color>;
+	var colors:Vector<Color>;
 	var scale:Float;
 
-	var healthIconIndexes:Array<Int>;
+	var healthIconIndexes:Vector<Int>;
 
-	var adjPos:Array<Float>;
-	var camPos:Array<Float>;
+	var adjPos:Vector<Float>;
+	var camPos:Vector<Float>;
 
 	var data:Map<String, ActorAnimationData>;
 
@@ -24,7 +24,7 @@ class ActorData {
 
 		var _data:Map<String, ActorAnimationData> = [];
 
-		var animations:Array<Dynamic> = json.animations;
+		var animations:Vector<Dynamic> = Vector.fromData(json.animations);
 
 		for (i in 0...animations.length) {
 			var animData = animations[i];
@@ -38,18 +38,18 @@ class ActorData {
 			});
 		}
 
-		var healthIconIDs = json.healthicon_ids;
-		if (healthIconIDs == null) healthIconIDs = [0, 1];
+		var healthIconIDs:Vector<Int> = Vector.fromData(json.healthicon_ids);
+		if (healthIconIDs == null) healthIconIDs = Vector.fromData([0, 1]);
 
-		var c:Array<Int> = json.healthbar_colors;
+		var c:Vector<Color> = Vector.fromData(json.healthbar_colors);
 		var colors:Color = Color.RGB(c[0], c[1], c[2]);
 		var result:ActorData = {
 			flip: json.flip_x,
-			colors: [for (i in 0...6) colors],
+			colors: new Vector<Color>(6, colors),
 			scale: json.scale,
 			healthIconIndexes: healthIconIDs,
-			adjPos: json.position,
-			camPos: json.camera_position,
+			adjPos: Vector.fromData(json.position),
+			camPos: Vector.fromData(json.camera_position),
 			data: _data
 		}
 

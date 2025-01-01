@@ -8,8 +8,6 @@ import sys.io.FileInput;
 
 /**
 	The chart converter class.
-	This is a universal chart converter that can convert multiple formats from the folder to the .cbin format.
-	This is also a beta.
 **/
 #if !debug
 @:noDebug
@@ -19,6 +17,7 @@ class ChartConverter
 {
 	/**
 		Converts a base-game chart file to Funkin' View's chart format.
+		I don't recommend even using this as it's old and potentially unstable.
 		@param path The specified path you want to convert your chart to.
 	**/
 	static function baseGame(path:String) {

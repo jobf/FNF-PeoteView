@@ -60,8 +60,8 @@ class NoteSystem {
 		var sustainDimensions:Array<Int> = [];
 
 		var tex2 = TextureSystem.getTexture("sustainTex");
-		sustainDimensions.push(tex2.width);
-		sustainDimensions.push(tex2.height);
+		sustainDimensions.push(Math.floor(tex2.width / tex2.tilesX));
+		sustainDimensions.push(Math.floor(tex2.height / tex2.tilesY));
 
 		if (sustainProg == null) {
 			sustainProg = new Program(sustainsBuf);
@@ -104,16 +104,18 @@ class NoteSystem {
 		{
 			var note = notes.getNote(i);
 			var strum = parent.inputSystem.strumline[note.lane][note.index];
+			var id = getReceptor(note.index).id;
 
 			var noteSpr = new Note(999999999, 0, 0, 0);
 			noteSpr.data = note;
-			noteSpr.changeID(getReceptor(note.index).id);
+			noteSpr.changeID(id);
 			noteSpr.toNote();
 			noteSpr.scale = strum[2];
 			addNote(noteSpr);
 
 			if (note.duration > 5) {
 				var susSpr = new Sustain(999999999, 0, sW, sH);
+				susSpr.changeID(id);
 				susSpr.length = ((note.duration << 2) + note.duration) - 25;
 				susSpr.w = susSpr.length;
 				susSpr.r = parent.downScroll ? -90 : 90;

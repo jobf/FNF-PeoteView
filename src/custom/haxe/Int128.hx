@@ -86,17 +86,6 @@ abstract Int128(__Int128) from __Int128 to __Int128 {
 		return res.copy();
 	}
 
-	@:deprecated('haxe.Int128.is() is deprecated. Use haxe.Int128.isInt128() instead')
-	inline public static function is(val:Dynamic):Bool {
-		return isInt128(val);
-	}
-
-	/**
-		Returns whether the value `val` is of type `haxe.Int128`
-	**/
-	inline public static function isInt128(val:Dynamic):Bool
-		return Std.isOfType(val, __Int128);
-
 	/**
 		Returns `true` if `x` is less than zero.
 	**/
@@ -522,14 +511,30 @@ abstract Int128(__Int128) from __Int128 to __Int128 {
 	specific platforms.
 **/
 private typedef __Int128 = ___Int128;
+typedef __Int128Vec = haxe.ds.Vector<Int64>;
 
-private class ___Int128 {
-	public var high:Int64;
-	public var low:Int64;
+private abstract ___Int128(__Int128Vec) from __Int128Vec to __Int128Vec {
+	public var high(get, set):Int64;
+	public var low(get, set):Int64;
+
+	inline function get_high() {
+		return this[0];
+	}
+
+	inline function set_high(value:Int64) {
+		return this[0] = value;
+	}
+
+	inline function get_low() {
+		return this[1];
+	}
+
+	inline function set_low(value:Int64) {
+		return this[1] = value;
+	}
 
 	public inline function new(high, low) {
-		this.high = high;
-		this.low = low;
+		this = __Int128Vec.fromData([high, low]);
 	}
 
 	/**

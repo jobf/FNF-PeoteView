@@ -115,7 +115,6 @@ class Actor extends ActorElement
 	// Now for the animation stuff
 	// Part of the code is originally from jobf's sparrow atlas demo on peote-view
 
-	private var frames:Array<SubTexture>;
 	private var startingFrameIndex:Int;
 	private var endingFrameIndex:Int;
 	private var frameIndex:Int;
@@ -124,7 +123,7 @@ class Actor extends ActorElement
 	private var frameTimeRemaining:Float;
 	private var loop:Bool;
 	private var indicesMode:Bool;
-	private var indices:Array<Int>;
+	private var indices:Vector<Int>;
 
 	var shake:Bool;
 	var startingShakeFrame:Int;
