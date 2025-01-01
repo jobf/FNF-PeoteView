@@ -53,6 +53,8 @@ class Note implements Element
 
 	static public var offsetAndSizeFrames:Array<Int>;
 
+	public var id:Int = 0;
+
 	inline public function new(x:Int, y:Int, w:Int, h:Int) {
 		this.x = x;
 		this.y = y;
@@ -61,45 +63,49 @@ class Note implements Element
 		reset();
 	}
 
+	inline public function changeID(id:Int) {
+		this.id = id;
+	}
+
 	// Command functions
 
 	inline public function reset() {
-		setOffsetAndSize(0);
+		setOffsetAndSize(0 + (24 * id));
 		rW = w;
 		rH = h;
 	}
 
+	inline public function toNote() {
+		setOffsetAndSize(6 + (24 * id));
+	}
+
 	inline public function press() {
-		setOffsetAndSize(6);
+		setOffsetAndSize(12 + (24 * id));
 	}
 
 	inline public function confirm() {
-		setOffsetAndSize(12);
-	}
-
-	inline public function toNote() {
-		setOffsetAndSize(18);
+		setOffsetAndSize(18 + (24 * id));
 	}
 
 	// Checking functions
 
 	inline public function idle() {
-		return isOffsetAndSize(0);
-	}
-
-	inline public function pressed() {
-		return isOffsetAndSize(6);
-	}
-
-	inline public function confirmed() {
-		return isOffsetAndSize(12);
+		return isOffsetAndSize(0 + (24 * id));
 	}
 
 	inline public function isNote() {
-		return isOffsetAndSize(18);
+		return isOffsetAndSize(6 + (24 * id));
 	}
 
-	inline private function setOffsetAndSize(offset:Int) {
+	inline public function pressed() {
+		return isOffsetAndSize(12 + (24 * id));
+	}
+
+	inline public function confirmed() {
+		return isOffsetAndSize(18 + (24 * id));
+	}
+
+	private function setOffsetAndSize(offset:Int) {
 		clipX = offsetAndSizeFrames[offset];
 		clipY = offsetAndSizeFrames[offset + 1];
 		w = clipWidth = clipSizeX = offsetAndSizeFrames[offset + 2];
@@ -108,7 +114,7 @@ class Note implements Element
 		oy = offsetAndSizeFrames[offset + 5];
 	}
 
-	inline private function isOffsetAndSize(offset:Int) {
+	private function isOffsetAndSize(offset:Int) {
 		var X = offsetAndSizeFrames[offset];
 		var Y = offsetAndSizeFrames[offset + 1];
 		var width = offsetAndSizeFrames[offset + 2];

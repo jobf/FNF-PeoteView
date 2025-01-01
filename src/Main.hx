@@ -70,7 +70,7 @@ class Main extends Application
 			trace("Preloading textures...");
 			TextureSystem.createTexture("mainMenuBGTex", "assets/mainMenu/menuBG.png");
 			TextureSystem.createTexture("mainMenuSheet", "assets/mainMenu/sheet.png");
-			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
+			TextureSystem.createTexture("noteTex", "assets/notes/sheet.png");
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png", true);

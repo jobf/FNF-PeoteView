@@ -83,7 +83,8 @@ class NoteSystem {
 			for (i in 0...map.length) {
 				var strum = map[i];
 				var rec = new Note(0, parent.downScroll ? Main.INITIAL_HEIGHT - 150 : 50, 0, 0);
-				rec.r = strum[0];
+				rec.changeID(Math.floor(strum[0]));
+				rec.reset();
 				rec.x = Math.floor(strum[1]);
 				rec.scale = strum[2];
 				rec.playable = input.strumlinePlayable[j];
@@ -106,8 +107,8 @@ class NoteSystem {
 
 			var noteSpr = new Note(999999999, 0, 0, 0);
 			noteSpr.data = note;
+			noteSpr.changeID(getReceptor(note.index).id);
 			noteSpr.toNote();
-			noteSpr.r = strum[0];
 			noteSpr.scale = strum[2];
 			addNote(noteSpr);
 

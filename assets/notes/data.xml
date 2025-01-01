@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TextureAtlas imagePath="sheet.png">
+	<!-- Created with Adobe Animate version 21.0.6.41649 -->
+	<!-- http://www.adobe.com/products/animate.html -->
+	<SubTexture name="arrow00000" x="525" y="110" width="109" height="111"/>
+	<SubTexture name="00000" x="635" y="221" width="108" height="110"/>
+	<SubTexture name="0press0000" x="481" y="222" width="99" height="100" frameX="5" frameY="5"/>
+	<SubTexture name="0confirm0000" x="0" y="0" width="231" height="235" frameX="-59" frameY="-59"/>
+	<SubTexture name="arrow10000" x="637" y="0" width="111" height="109"/>
+	<SubTexture name="10000" x="368" y="293" width="112" height="110"/>
+	<SubTexture name="1press0000" x="583" y="332" width="99" height="98" frameX="5" frameY="5"/>
+	<SubTexture name="1confirm0000" x="185" y="236" width="182" height="182" frameX="-33" frameY="-38"/>
+	<SubTexture name="arrow20000" x="525" y="0" width="111" height="109"/>
+	<SubTexture name="20000" x="368" y="182" width="112" height="110"/>
+	<SubTexture name="2press0000" x="481" y="332" width="101" height="99" frameX="5" frameY="5"/>
+	<SubTexture name="2confirm0000" x="0" y="236" width="184" height="181" frameX="-35" frameY="-33"/>
+	<SubTexture name="arrow30000" x="414" y="0" width="110" height="111"/>
+	<SubTexture name="30000" x="635" y="110" width="108" height="110"/>
+	<SubTexture name="3press0000" x="683" y="332" width="97" height="99" frameX="5" frameY="5"/>
+	<SubTexture name="3confirm0000" x="232" y="0" width="181" height="181" frameX="-32" frameY="-32"/>
+</TextureAtlas>

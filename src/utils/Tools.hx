@@ -7,26 +7,37 @@ class Tools {
 	static function parseFrameOffsets(path:String) {
 		var finalData:Array<Int> = [];
 
-		var data = File.read('$path/frameOffsets.txt');
+		var contents = File.getContent('$path/data.xml');
+		var xml = Xml.parse(contents);
+		var root = xml.firstElement();
+
+		for (element in root.elementsNamed("SubTexture")) {
+			var name = element.get("name");
+			var x = Std.parseInt(element.get("x"));
+			var y = Std.parseInt(element.get("y"));
+			var width = Std.parseInt(element.get("width"));
+			var height = Std.parseInt(element.get("height"));
+			var frameX = element.exists("frameX") ? Std.parseInt(element.get("frameX")) : 0;
+			var frameY = element.exists("frameY") ? Std.parseInt(element.get("frameY")) : 0;
+
+			finalData.push(x);
+			finalData.push(y);
+			finalData.push(width);
+			finalData.push(height);
+			finalData.push(frameX);
+			finalData.push(frameY);
+		}
+
+		var data = File.read('$path/sustainOffsets.txt');
 
 		while (!data.eof()) {
 			var line = data.readLine();
 			var split = line.split(", ");
-			if (split.length != 6) throw "ARGUMENTS ARE NOT EQUAL TO SIX!";
+			if (split.length != 2) throw "ARGUMENTS ARE NOT EQUAL TO TWO!";
 
-			var x = Std.parseInt(split[0].split(" ")[1]);
-			var y = Std.parseInt(split[1].split(" ")[1]);
-			var w = Std.parseInt(split[2].split(" ")[1]);
-			var h = Std.parseInt(split[3].split(" ")[1]);
-			var ox = Std.parseInt(split[4].split(" ")[1]);
-			var oy = Std.parseInt(split[5].split(" ")[1]);
-
-			finalData.push(x);
-			finalData.push(y);
-			finalData.push(w);
-			finalData.push(h);
-			finalData.push(ox);
-			finalData.push(oy);
+			var x = Std.parseInt(split[0]);
+			var y = Std.parseInt(split[1]);
+			Sustain.offsets.push([x, y]);
 		}
 
 		return finalData;

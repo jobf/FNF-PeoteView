@@ -30,8 +30,6 @@ class Sustain implements Element
 	static public var defaultMissAlpha:Float = 0.3;
 
 	public var length:Int;
-	public var initW(default, null):Int;
-	public var initH(default, null):Int;
 
 	// Custom despawn distance dedicated to the sustain note.
 	private var despawnDist:Int;
@@ -42,6 +40,8 @@ class Sustain implements Element
 		The parent of this note sprite.
 	**/
 	public var parent:Note;
+
+	static public var offsets:Array<Array<Int>> = [];
 
 	// --------------------------------------------------------------------------
 
@@ -91,12 +91,13 @@ class Sustain implements Element
 	inline public function new(x:Int, y:Int, w:Int, h:Int) {
 		this.x = x;
 		this.y = y;
-		this.w = initW = w;
-		this.h = initH = h;
+		this.w = w;
+		this.h = h;
 	}
 
 	inline public function followNote(note:Note) {
-		x = note.x + (Math.floor(note.rW * scale) >> 1);
-		y = note.y + (Math.floor(((note.h - initH) + (note.oy << 1)) * scale) >> 1);
+		var offset = offsets[note.id];
+		x = note.x + (Math.floor(offset[0] * scale) >> 1);
+		y = note.y + (Math.floor(offset[1] * scale) >> 1);
 	}
 }
