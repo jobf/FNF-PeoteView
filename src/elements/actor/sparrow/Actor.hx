@@ -55,7 +55,7 @@ class Actor extends ActorElement
 		TextureSystem.createMultiTexture("chars", [for (i in 0...chars.length) {
 			var char = chars[i];
 			charToUnits[char] = i;
-			path(char, "characters", IMAGE);
+			path(char, "characters/", IMAGE);
 		}]);
 		TextureSystem.setTexture(program, "chars", "chars");
 	}
@@ -65,7 +65,7 @@ class Actor extends ActorElement
 		buffer.clear();
 	}
 
-	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters") {
+	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters/") {
 		super(x, y);
 
 		this.folder = folder;
@@ -90,7 +90,7 @@ class Actor extends ActorElement
 	}
 
 	static function path(name:String, folder:String, type:CharacterPathType) {
-		var result = 'assets/$folder/$name';
+		var result = 'assets/$folder$name';
 
 		switch (type) {
 			case IMAGE:
