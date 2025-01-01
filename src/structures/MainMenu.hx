@@ -2,20 +2,25 @@ package structures;
 
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import haxe.ds.Vector;
 
 /**
 	The first state of the game.
 **/
 @:publicFields
 class MainMenu implements State {
+	static var optionAnims:Vector<String> = Vector.fromData(['story mode', 'freeplay', 'awards', 'credits', 'options', 'backspace to exit']);
+
 	var display:CustomDisplay;
 	var view:CustomDisplay;
 
-	static var optionBuf:Buffer<UISprite>;
+	static var optionBuf:Buffer<Actor>;
 	static var optionProg:Program;
 
 	static var backgroundBuf:Buffer<Sprite>;
 	static var backgroundProg:Program;
+
+	var watermarkTxt:Text;
 
 	var optionSelected:Int = 0;
 
@@ -28,15 +33,14 @@ class MainMenu implements State {
 		this.view = view;
 
 		if (optionBuf == null) {
-			optionBuf = new Buffer<UISprite>(4);
+			optionBuf = new Buffer<Actor>(6);
 		}
 
 		if (optionProg == null) {
 			optionProg = new Program(optionBuf);
 			optionProg.blendEnabled = true;
 
-			var tex = TextureSystem.getTexture("uiTex");
-			UISprite.init(optionProg, "uiTex", tex);
+			TextureSystem.setTexture(optionProg, "mainMenuSheet", "mainMenuSheet");
 		}
 
 		if (backgroundBuf == null) {
@@ -53,10 +57,12 @@ class MainMenu implements State {
 		display.addProgram(optionProg);
 		view.addProgram(backgroundProg);
 
+		watermarkTxt = new Text("mainMenuWatermarkTxt", 0, 0, view, "FV TEST BUILD");
+		watermarkTxt.y = Main.INITIAL_HEIGHT - watermarkTxt.height;
+
 		for (i in 0...4) {
-			var spr = new UISprite();
-			//spr.type = MAIN_MENU_PART;
-			//spr.changeID(i << 1);
+			var spr = new Actor("mainMenu", 0, 0, 24, "");
+			spr.playAnimation(optionAnims[i] + ' basic', true);
 			spr.x = 20;
 			spr.y = 20 + (spr.h * i);
 			optionBuf.addElement(spr);
@@ -80,8 +86,16 @@ class MainMenu implements State {
 		updateMenuOptions(-1, -1);
 	}
 
+	var optionLerps:Vector<Float> = new Vector<Float>(5);
+
 	function update(deltaTime:Float) {
-		
+		for (i in 0...optionBuf.length) {
+			optionLerps[i] = Tools.lerp(optionLerps[i], 300 - (125 * optionSelected) + (125 * i), deltaTime * 0.015);
+			var option = optionBuf.getElement(i);
+			option.x = (Main.INITIAL_WIDTH - option.w) * 0.5;
+			option.y = optionLerps[i];
+			optionBuf.updateElement(option);
+		}
 	}
 
 	function updateMenuOptions(code:KeyCode, _:KeyModifier) {
@@ -115,8 +129,9 @@ class MainMenu implements State {
 
 		for (i in 0...optionBuf.length) {
 			var option = optionBuf.getElement(i);
-			//if (i == optionSelected) option.changeID(i << 1);
-			//else option.changeID((i << 1) + 1);
+			var anim = optionAnims[i];
+			if (i == optionSelected) option.playAnimation(anim + ' white', true);
+			else option.playAnimation(anim + ' basic', true);
 			optionBuf.updateElement(option);
 		}
 	}
@@ -132,6 +147,8 @@ class MainMenu implements State {
 		view.removeProgram(backgroundProg);
 		view = null;
 		backgroundBuf.clear();
+
+		watermarkTxt.dispose();
 
 		disposed = true;
 	}

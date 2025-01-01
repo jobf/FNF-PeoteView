@@ -69,6 +69,7 @@ class Main extends Application
 			var stamp = haxe.Timer.stamp();
 			trace("Preloading textures...");
 			TextureSystem.createTexture("mainMenuBGTex", "assets/mainMenu/menuBG.png");
+			TextureSystem.createTexture("mainMenuSheet", "assets/mainMenu/sheet.png");
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("sustainTex", "assets/notes/sustain.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");

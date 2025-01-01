@@ -50,25 +50,25 @@ class ActorElement implements Element {
 		return mirror = value;
 	}
 
-	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1 ? _flipX : -_flipX))") var x:Int;
-	@posY @formula("y + off_y + py + adjust_y + (h * _flipY)") var y:Int;
-	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1 : 1)") var w:Int;
-	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1 : 1)") var h:Int;
+	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1 ? _flipX : -_flipX))") var x:Float;
+	@posY @formula("y + off_y + py + adjust_y + (h * _flipY)") var y:Float;
+	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1 : 1)") var w:Float;
+	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1 : 1)") var h:Float;
 
-	@pivotX @formula("(w < 0 ? -w : w) * 0.5") var px:Int;
-	@pivotY @formula("(h < 0 ? -h : h) * 0.5") var py:Int;
+	@pivotX @formula("(w < 0 ? -w : w) * 0.5") var px:Float;
+	@pivotY @formula("(h < 0 ? -h : h) * 0.5") var py:Float;
 
 	@rotation var r:Float;
 
-	@varying @custom @formula("off_x * scale") var off_x:Int;
-	@varying @custom @formula("off_y * scale") var off_y:Int;
-	@varying @custom var adjust_x:Int;
-	@varying @custom var adjust_y:Int;
+	@varying @custom @formula("off_x * scale") var off_x:Float;
+	@varying @custom @formula("off_y * scale") var off_y:Float;
+	@varying @custom var adjust_x:Float;
+	@varying @custom var adjust_y:Float;
 	@varying @custom var scale:Float = 1.0;
 
 	@color var c:Color = 0xFFFFFFFF;
 
-	function new(x:Int = 0, y:Int = 0) {
+	function new(x:Float = 0, y:Float = 0) {
 		this.x = x;
 		this.y = y;
 	}

@@ -34,6 +34,8 @@ class Actor extends ActorElement
 
 	@texUnit("chars") public var unit:Int = 0;
 
+	private var folder:String = "";
+
 	static function init(parent:PlayField) {
 		var view = parent.view;
 
@@ -53,7 +55,7 @@ class Actor extends ActorElement
 		TextureSystem.createMultiTexture("chars", [for (i in 0...chars.length) {
 			var char = chars[i];
 			charToUnits[char] = i;
-			path(char, IMAGE);
+			path(char, "characters", IMAGE);
 		}]);
 		TextureSystem.setTexture(program, "chars", "chars");
 	}
@@ -63,29 +65,32 @@ class Actor extends ActorElement
 		buffer.clear();
 	}
 
-	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24) {
+	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters") {
 		super(x, y);
+
+		this.folder = folder;
 
 		this.name = name;
 		setFps(fps);
 
-		if (pathExists(name, XML)) {
-			atlas = SparrowAtlas.parse(sys.io.File.getContent(path(name, XML)));
+		if (pathExists(name, folder, XML)) {
+			atlas = SparrowAtlas.parse(sys.io.File.getContent(path(name, folder, XML)));
 		} else {
-			throw "Atlas data doesn't exist: " + path(name, NONE);
+			throw "Atlas data doesn't exist: " + path(name, folder, NONE);
 		}
 
-		if (pathExists(name, DATA)) {
-			data = ActorData.parse(path(name, DATA));
+		if (pathExists(name, folder, DATA)) {
+			data = ActorData.parse(path(name, folder, DATA));
 		}
 
 		unit = charToUnits[name];
 
 		mirror = !data.flip;
+		scale = data.scale;
 	}
 
-	static function path(name:String, type:CharacterPathType) {
-		var result = 'assets/characters/$name';
+	static function path(name:String, folder:String, type:CharacterPathType) {
+		var result = 'assets/$folder/$name';
 
 		switch (type) {
 			case IMAGE:
@@ -103,8 +108,8 @@ class Actor extends ActorElement
 	}
 
 	// This is here to improve readability
-	static function pathExists(name:String, type:CharacterPathType) {
-		return sys.FileSystem.exists(path(name, type));
+	static function pathExists(name:String, folder:String, type:CharacterPathType) {
+		return sys.FileSystem.exists(path(name, folder, type));
 	}
 
 	// Now for the animation stuff
@@ -223,17 +228,23 @@ class Actor extends ActorElement
 		var flipY = config.flipY == null ? false : config.flipY;
 
 		off_x = -xOffset;
-		if (mirror) off_x += width % xOffset;
+		if (mirror) off_x += width % xOffset; // This needs done
 		off_y = -yOffset;
 
 		w = width;
 		h = height;
 		this.flipX = flipX;
 		this.flipY = flipY;
-		clipX = config.x + TextureSystem.multitexLocMap["chars"][unit];
+		clipX = config.x;
 		clipY = config.y;
-		clipWidth = w;
-		clipHeight = h;
+		clipWidth = width;
+		clipHeight = height;
+
+		var multiTexLocationMap = TextureSystem.multitexLocMap;
+
+		if (multiTexLocationMap.exists("chars")) {
+			clipX += multiTexLocationMap["chars"][unit];
+		}
 	}
 
 	function changeFrame() {

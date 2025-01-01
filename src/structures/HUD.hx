@@ -144,9 +144,7 @@ class HUD {
 		// TEXT SETUP
 
 		watermarkTxt = new Text("watermarkTxt", 0, 0, display, 'FV TEST BUILD');
-		watermarkTxt.x = 2;
-		watermarkTxt.scale = 0.7;
-		watermarkTxt.y = parent.display.height - (watermarkTxt.height + 2);
+		watermarkTxt.y = parent.display.height - watermarkTxt.height;
 
 		timeBarTxt = new Text("timeBarTxt", 0, 0, display, Tools.formatTime(parent.audioSystem.inst.length - Math.max(parent.songPosition, 0)));
 		timeBarTxt.x = (Main.INITIAL_WIDTH - timeBarTxt.width) * 0.5;
