@@ -57,10 +57,11 @@ class Text {
 			var data = parsedTextAtlasData[code];
 			var padding = data.padding;
 
-			var spr = buffer.getElement(i);
-			var sprIsNull = spr == null;
+			var canUseFromBuffer = i < buffer.length;
 
-			if (spr == null) spr = new TextCharSprite();
+			var spr:TextCharSprite = canUseFromBuffer 
+				? buffer.getElement(i) 
+				: buffer.addElement(new TextCharSprite());
 
 			spr.clipX = data.position.x + padding;
 			spr.clipY = data.position.y + padding;
@@ -76,8 +77,6 @@ class Text {
 			if (height < spr.h) {
 				height = spr.h;
 			}
-
-			if (sprIsNull) buffer.addElement(spr);
 
 			buffer.updateElement(spr);
 		}
@@ -235,8 +234,9 @@ class Text {
 		var data = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json"));
 		parsedTextAtlasData = data.sprites;
 
+		var size = 15;
 		if (buffers[key] == null) {
-			buffers[key] = new Buffer<TextCharSprite>(64, 64, false);
+			buffers[key] = new Buffer<TextCharSprite>(size, size, false);
 		}
 
 		if (programs[key] == null) {
