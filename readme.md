@@ -6,7 +6,7 @@ This is being optimized and organized as frequently as possible for a flexible c
 
 This project was started a few months ago, so expect this repository to be very active!
 
-* [-] Currently on break
+* [_] Currently on break
 
 # Setup
 
