@@ -61,3 +61,7 @@ And you're all set up! Just run `lime test cpp` and it works!
 - MKI
 
 : Generated the miniaudio bindings via genkit (listed above)
+
+- 494kd
+
+: First compile of the android build and failed because of genkit_miniaudio error
