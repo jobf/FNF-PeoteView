@@ -2,6 +2,7 @@ package structures;
 
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.MouseButton;
 import haxe.ds.Vector;
 
 /**
@@ -33,7 +34,7 @@ class MainMenu implements State {
 		this.view = view;
 
 		if (optionBuf == null) {
-			optionBuf = new Buffer<Actor>(6);
+			optionBuf = new Buffer<Actor>(optionAnims.length);
 		}
 
 		if (optionProg == null) {
@@ -60,7 +61,7 @@ class MainMenu implements State {
 		watermarkTxt = new Text("mainMenuWatermarkTxt", 0, 0, view, "FV TEST BUILD");
 		watermarkTxt.y = Main.INITIAL_HEIGHT - watermarkTxt.height;
 
-		for (i in 0...4) {
+		for (i in 0...optionAnims.length) {
 			var spr = new Actor("mainMenu", 0, 0, 24, "");
 			spr.playAnimation(optionAnims[i] + ' basic', true);
 			spr.x = 20;
@@ -80,17 +81,19 @@ class MainMenu implements State {
 
 		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
-			window.onKeyDown.add(updateMenuOptions);
+			window.onKeyDown.add(updateMenuOptions_keyboard);
+			window.onMouseMove.add(updateMenuOptions_mouse);
+			window.onMouseDown.add(enter);
 		}, 200);
 
-		updateMenuOptions(-1, -1);
+		updateMenuOptions();
 	}
 
 	var optionLerps:Vector<Float> = new Vector<Float>(5);
 
 	function update(deltaTime:Float) {
-		for (i in 0...optionBuf.length) {
-			optionLerps[i] = Tools.lerp(optionLerps[i], 300 - (125 * optionSelected) + (125 * i), deltaTime * 0.015);
+		for (i in 0...optionLerps.length) {
+			optionLerps[i] = Tools.lerp(optionLerps[i], (65 + (125 * i)) - (6 * Math.min(optionSelected, optionAnims.length - 2)), deltaTime * 0.0115);
 			var option = optionBuf.getElement(i);
 			option.x = (Main.INITIAL_WIDTH - option.w) * 0.5;
 			option.y = optionLerps[i];
@@ -98,35 +101,7 @@ class MainMenu implements State {
 		}
 	}
 
-	function updateMenuOptions(code:KeyCode, _:KeyModifier) {
-		switch (code) {
-			case -1: // This is here so the pause screen can update the first time when opening it
-			case KeyCode.DOWN:
-				optionSelected++;
-				if (optionSelected >= optionBuf.length) {
-					optionSelected = 0;
-				}
-			case KeyCode.UP:
-				optionSelected--;
-				if (optionSelected < 0) {
-					optionSelected = optionBuf.length - 1;
-				}
-			case KeyCode.RETURN:
-				switch (optionSelected) {
-					case 0:
-						Main.switchState(GAMEPLAY);
-						return;
-					case 1:
-						// TODO
-						return;
-					case 2:
-						// TODO
-						return;
-				}
-			default:
-				return;
-		}
-
+	function updateMenuOptions() {
 		for (i in 0...optionBuf.length) {
 			var option = optionBuf.getElement(i);
 			var anim = optionAnims[i];
@@ -136,9 +111,80 @@ class MainMenu implements State {
 		}
 	}
 
+	function updateMenuOptions_keyboard(code:KeyCode, _:KeyModifier) {
+		switch (code) {
+			case KeyCode.DOWN:
+				optionSelected++;
+				if (optionSelected >= optionBuf.length - 1) {
+					optionSelected = 0;
+				}
+			case KeyCode.UP:
+				optionSelected--;
+				if (optionSelected < 0) {
+					optionSelected = optionBuf.length - 2;
+				}
+			case KeyCode.LEFT:
+			if (optionSelected == optionBuf.length - 1) optionSelected = optionBuf.length - 2;
+				else optionSelected = optionBuf.length - 1;
+			case KeyCode.RIGHT:
+				optionSelected = optionBuf.length - 2;
+			case KeyCode.RETURN:
+				enter(0.0, 0.0, LEFT);
+			default:
+				return;
+		}
+
+		updateMenuOptions();
+	}
+
+	function updateMenuOptions_mouse(x:Float, y:Float) {
+		for (i in 0...optionBuf.length) {
+			var option = optionBuf.getElement(i);
+			if (x >= option.x && y >= option.y &&
+				x <= option.x + option.w &&
+				y <= option.y + option.h && optionSelected != i) {
+				optionSelected = i;
+				updateMenuOptions();
+			}
+		}
+	}
+
+	function isSelectingOption(x:Float, y:Float) {
+		for (i in 0...optionBuf.length) {
+			var option = optionBuf.getElement(i);
+			if (x >= option.x && y >= option.y &&
+				x <= option.x + option.w &&
+				y <= option.y + option.h && optionSelected == i) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	function enter(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
+		if (button != LEFT || !isSelectingOption(x, y)) return;
+
+		switch (optionSelected) {
+			case 0: // STORY MODE
+				Main.switchState(GAMEPLAY);
+			case 1: // FREEPLAY
+				// TODO
+			case 2: // AWARDS
+				// TODO
+			case 3: // CREDITS
+				// TODO
+			case 4: // OPTIONS
+				// TODO
+			case 5:
+				Sys.exit(0);
+		}
+	}
+
 	function dispose() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(updateMenuOptions);
+		window.onKeyDown.remove(updateMenuOptions_keyboard);
+		window.onMouseMove.remove(updateMenuOptions_mouse);
 
 		display.removeProgram(optionProg);
 		display = null;
