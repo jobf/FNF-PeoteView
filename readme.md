@@ -22,7 +22,9 @@ Format - ``haxelib install format`` (This one is also used in peote-view for `Te
 
 Miniaudio - ``haxelib git miniaudio https://github.com/alchemy-haxe/genkit_miniaudio.git``
 
-After that, make sure that you are on this screen:![img](repo_assets/image-1.png)
+After that, make sure that you are on this screen:
+
+![img](repo_assets/image-1.png)
 
 And press "y" to go to the download page for visual studio.
 
