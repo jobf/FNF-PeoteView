@@ -27,6 +27,8 @@ class MainMenu implements State {
 
 	var disposed:Bool = false;
 
+	var selectedByMouse:Bool = false;
+
 	function new() {}
 
 	function init(display:CustomDisplay, view:CustomDisplay) {
@@ -144,6 +146,7 @@ class MainMenu implements State {
 				x <= option.x + option.w &&
 				y <= option.y + option.h && optionSelected != i) {
 				optionSelected = i;
+				selectedByMouse = true;
 				updateMenuOptions();
 			}
 		}
@@ -163,7 +166,7 @@ class MainMenu implements State {
 	}
 
 	function enter(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
-		if (button != LEFT || !isSelectingOption(x, y)) return;
+		if (selectedByMouse && (button != LEFT || !isSelectingOption(x, y))) return;
 
 		switch (optionSelected) {
 			case 0: // STORY MODE
@@ -179,6 +182,8 @@ class MainMenu implements State {
 			case 5:
 				Sys.exit(0);
 		}
+
+		selectedByMouse = false;
 	}
 
 	function dispose() {

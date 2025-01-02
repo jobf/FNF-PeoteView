@@ -129,7 +129,6 @@ class Main extends Application
 				case GAMEPLAY:
 					instance.playField.dispose();
 					instance.playField = null;
-				case OPTIONS:
 				case AWARDS:
 				case CREDITS:
 				case NONE:
@@ -147,7 +146,6 @@ class Main extends Application
 				instance.playField = new PlayField(Sys.args()[0]);
 				instance.playField.init(instance.topDisplay, instance.middleDisplay, instance.bottomDisplay);
 				instance.playField.downScroll = SaveData.state.downScroll;
-			case OPTIONS:
 			case AWARDS:
 			case CREDITS:
 			case NONE:
@@ -233,7 +231,6 @@ private enum abstract StateSelection(cpp.UInt8) {
 	var MAIN_MENU;
 	var FREEPLAY;
 	var GAMEPLAY;
-	var OPTIONS;
 	var AWARDS;
 	var CREDITS;
 }
