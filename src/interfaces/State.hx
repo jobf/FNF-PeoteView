@@ -1,5 +1,6 @@
 package interfaces;
 
-interface State {
-	function dispose():Void;
+interface State
+{
+	function dispose() : Void;
 }

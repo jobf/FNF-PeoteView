@@ -6,7 +6,8 @@ import cpp.UInt8;
 	The song's difficulty.
 	This is an abstract over a `UInt8`.
 **/
-enum abstract Difficulty(UInt8) from UInt8 {
+enum abstract Difficulty(UInt8) from UInt8
+{
 	/**
 		Easy difficulty level.
 	**/

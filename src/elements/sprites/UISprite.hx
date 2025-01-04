@@ -5,48 +5,52 @@
 package elements.sprites;
 
 @:publicFields
-class UISprite implements Element {
+class UISprite implements Element
+{
 	// position in pixel (relative to upper left corner of Display)
-	@posX @formula("(_flip != 0.0 ? x - w : x)") var x:Float = 0.0;
-	@posY var y:Float = 0.0;
+	@posX @formula("(_flip != 0.0 ? x - w : x)") var x : Float = 0.0;
+	@posY var y : Float = 0.0;
 
 	// size in pixel
-	@sizeX @formula("(_flip != 0.0 ? w * -1.0 : w)") var w:Float = 0.0;
-	@sizeY var h:Float = 0.0;
+	@sizeX @formula("(_flip != 0.0 ? w * -1.0 : w)") var w : Float = 0.0;
+	@sizeY var h : Float = 0.0;
 
 	// extra tex attributes for clipping
-	@texX var clipX:Int = 0;
-	@texY var clipY:Int = 0;
-	@texW var clipWidth:Int = 200;
-	@texH var clipHeight:Int = 200;
+	@texX var clipX = 0;
+	@texY var clipY = 0;
+	@texW var clipWidth = 200;
+	@texH var clipHeight = 200;
 
 	// extra tex attributes to adjust texture within the clip
-	@texPosX  var clipPosX:Int = 0;
-	@texPosY  var clipPosY:Int = 0;
-	@texSizeX var clipSizeX:Int = 200;
-	@texSizeY var clipSizeY:Int = 200;
+	@texPosX  var clipPosX = 0;
+	@texPosY  var clipPosY = 0;
+	@texSizeX var clipSizeX = 200;
+	@texSizeY var clipSizeY = 200;
 
-	@color var c:Color = 0xFFFFFFFF;
-	@color var c1:Color = 0xFFFFFFFF;
-	@color var c2:Color = 0xFFFFFFFF;
-	@color var c3:Color = 0xFFFFFFFF;
-	@color var c4:Color = 0xFFFFFFFF;
-	@color var c5:Color = 0xFFFFFFFF;
-	@color var c6:Color = 0xFFFFFFFF;
+	@color var c : Color = 0xFFFFFFFF;
+	@color var c1 : Color = 0xFFFFFFFF;
+	@color var c2 : Color = 0xFFFFFFFF;
+	@color var c3 : Color = 0xFFFFFFFF;
+	@color var c4 : Color = 0xFFFFFFFF;
+	@color var c5 : Color = 0xFFFFFFFF;
+	@color var c6 : Color = 0xFFFFFFFF;
 
-	@color private var alphaColor:Color = 0xFFFFFFFF;
+	@color private var alphaColor : Color = 0xFFFFFFFF;
 
-	var alpha(get, set):Float;
+	var alpha(get, set) : Float;
 
-	inline function get_alpha() {
+	inline function get_alpha()
+	{
 		return alphaColor.aF;
 	}
 
-	inline function set_alpha(value:Float) {
+	inline function set_alpha(value:Float)
+	{
 		return alphaColor.aF = value;
 	}
 
-	function setAllColors(colors:Vector<Color>) {
+	function setAllColors(colors:Vector<Color>)
+	{
 		c1 = colors[0];
 		c2 = colors[1];
 		c3 = colors[2];
@@ -55,91 +59,102 @@ class UISprite implements Element {
 		c6 = colors[5];
 	}
 
-	static var healthBarProperties:Array<Float> = [];
-	static var timeBarProperties:Array<Float> = [];
+	static var healthBarProperties : Array<Float> = [];
+	static var timeBarProperties : Array<Float> = [];
 
-	@varying @custom private var _flip:Float = 0.0;
-	@varying @custom var gradientMode:Float = 0.0;
+	@varying @custom private var _flip : Float = 0.0;
+	@varying @custom var gradientMode : Float = 0.0;
 
-	var flip(get, set):Bool;
+	var flip(get, set) : Bool;
 
-	inline function get_flip() {
+	inline function get_flip()
+	{
 		return _flip != 0.0;
 	}
 
-	inline function set_flip(value:Bool) {
+	inline function set_flip(value:Bool)
+	{
 		_flip = value ? 1.0 : 0.0;
 		return value;
 	}
 
-	var type:UISpriteType = NONE;
+	var type : UISpriteType = NONE;
 
-    var isNone(get, never):Bool;
+    var isNone(get, never) : Bool;
 
-	inline function get_isNone() {
+	inline function get_isNone()
+	{
 		return type == NONE;
 	}
 
-    var isTimeBar(get, never):Bool;
+    var isTimeBar(get, never) : Bool;
 
-	inline function get_isTimeBar() {
+	inline function get_isTimeBar()
+	{
 		return type == TIME_BAR;
 	}
 
-    var isRatingPopup(get, never):Bool;
+    var isRatingPopup(get, never) : Bool;
 
-	inline function get_isRatingPopup() {
+	inline function get_isRatingPopup()
+	{
 		return type == RATING_POPUP;
 	}
 
-    var isComboNumber(get, never):Bool;
+    var isComboNumber(get, never) : Bool;
 
-	inline function get_isComboNumber() {
+	inline function get_isComboNumber()
+	{
 		return type == COMBO_NUMBER;
 	}
 
-    var isHealthBar(get, never):Bool;
+    var isHealthBar(get, never) : Bool;
 
-	inline function get_isHealthBar() {
+	inline function get_isHealthBar()
+	{
 		return type == HEALTH_BAR;
 	}
 
-    var isHealthIcon(get, never):Bool;
+    var isHealthIcon(get, never) : Bool;
 
-	inline function get_isHealthIcon() {
+	inline function get_isHealthIcon()
+	{
 		return type == HEALTH_ICON;
 	}
 
-    var isCountdownPopup(get, never):Bool;
+    var isCountdownPopup(get, never) : Bool;
 
-	inline function get_isCountdownPopup() {
+	inline function get_isCountdownPopup()
+	{
 		return type == COUNTDOWN_POPUP;
 	}
 
-    var isPauseOption(get, never):Bool;
+    var isPauseOption(get, never) : Bool;
 
-	inline function get_isPauseOption() {
+	inline function get_isPauseOption()
+	{
 		return type == PAUSE_OPTION;
 	}
 
-	var curID(default, null):Int;
+	var curID(default, null) : Int;
 
-	var OPTIONS = { texRepeatX: false, texRepeatY: false, blend: true };
+	var OPTIONS = { texRepeatX: false, texRepeatY:false, blend:true };
 
 	// This makes it so we don't have create a separate spritesheet for it and leave it in the ui spritesheet.
-	private static var hardcoded_pause_option_values(default, null):Array<Array<Int>> = [
+	private static var hardcoded_pause_option_values(default, null) : Array<Array<Int>> = [
 		[0, 600, 300, 75],
 		[0, 675, 300, 75],
 		[300, 600, 300, 150]
 	];
 
-	static function init(program:Program, name:String, texture:Texture) {
+	static function init(program:Program, name:String, texture:Texture)
+	{
 		// creates a texture-layer named "name"
 		program.setTexture(texture, name, true);
 		program.blendEnabled = true;
 
 		program.injectIntoFragmentShader('
-			vec4 gradientOf6( int textureID, float gradientMode, vec4 c, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6 )
+			vec4 gradientOf6(int textureID, float gradientMode, vec4 c, vec4 c1, vec4 c2, vec4 c3, vec4 c4, vec4 c5, vec4 c6)
 			{
 				vec2 coord = vTexCoord;
 
@@ -165,7 +180,7 @@ class UISprite implements Element {
 				return color;
 			}
 
-			vec4 getTexColor( int textureID )
+			vec4 getTexColor(int textureID)
 			{
 				return getTextureColor(textureID, vTexCoord);
 			}
@@ -176,45 +191,52 @@ class UISprite implements Element {
 
 	function new() {}
 
-    inline function changeID(id:Int) {
+    inline function changeID(id:Int)
+    {
 		var wValue = 300;
 		var hValue = 150;
 		var xValue = 0;
 		var yValue = 0;
 
-        if (isComboNumber) {
+        if (isComboNumber)
+        {
 			wValue = 60;
 			hValue = 72;
 			yValue = 150;
 			id %= 10;
 		}
 
-		if (isHealthBar) {
+		if (isHealthBar)
+		{
 			wValue = Math.floor(healthBarProperties[0]);
 			hValue = Math.floor(healthBarProperties[1]);
 			yValue = 222;
 			id = 0;
 		}
 
-		if (isTimeBar) {
+		if (isTimeBar)
+		{
 			wValue = Math.floor(timeBarProperties[0]);
 			hValue = Math.floor(timeBarProperties[1]);
 			yValue = 600;
 			id = 0;
 		}
 
-		if (isHealthIcon) {
+		if (isHealthIcon)
+		{
 			wValue = hValue = 150;
 			yValue = 750 + (150 * (id >> 3));
 			id &= 0x7;
 		}
 
-		if (isCountdownPopup) {
+		if (isCountdownPopup)
+		{
 			wValue = 600;
 			hValue = 300;
 			yValue = 150 + (150 * id);
 
-			switch (id) {
+			switch (id)
+			{
 				case 0:
 					xValue = 600;
 				case 1:
@@ -226,17 +248,21 @@ class UISprite implements Element {
 			}
 		}
 
-		if (!isPauseOption) {
+		if (!isPauseOption)
+		{
 			xValue += id * wValue;
-		} else {
-			var option:Array<Int> = hardcoded_pause_option_values[id];
+		}
+		else
+		{
+			var option : Array<Int> = hardcoded_pause_option_values[id];
 			xValue = option[0];
 			yValue = option[1];
 			wValue = option[2];
 			hValue = option[3];
 		}
 
-		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue)) {
+		if ((w != wValue && clipWidth != wValue && clipSizeX != wValue) && (h != hValue && clipHeight != hValue && clipHeight != hValue))
+		{
 			w = clipWidth = clipSizeX = wValue;
 			h = clipHeight = clipSizeY = hValue;
 		}
@@ -248,7 +274,8 @@ class UISprite implements Element {
     }
 }
 
-private enum abstract UISpriteType(cpp.UInt8) {
+private enum abstract UISpriteType(cpp.UInt8)
+{
 	var NONE;
 	var RATING_POPUP;
 	var COMBO_NUMBER;

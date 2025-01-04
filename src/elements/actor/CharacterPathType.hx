@@ -3,7 +3,8 @@ package elements.actor;
 /**
 	Character path type.
 **/
-enum abstract CharacterPathType(cpp.UInt8) {
+enum abstract CharacterPathType(cpp.UInt8)
+{
 	var IMAGE;
 	var XML;
 	var JSON;

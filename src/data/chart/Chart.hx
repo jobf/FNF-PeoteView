@@ -10,22 +10,24 @@ import haxe.io.Bytes;
 @:noDebug
 #end
 @:publicFields
-class Chart {
+class Chart
+{
 	/**
 		The chart's header content.
 	**/
-	var header(default, null):Header;
+	var header(default, null) : Header;
 
 	/**
 		The chart file where every note is read and parsed to a playable song.
 	**/
-	var file(default, null):File;
+	var file(default, null) : File;
 
 	/**
 		Constructs a chart.
 		@param path The path to the chart folder.
 	**/
-	function new(path:String) {
+	function new(path:String)
+	{
 		trace('Parsing chart from folder...');
 
 		if (FileSystem.exists('$path/chart.json')) {

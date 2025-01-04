@@ -8,7 +8,8 @@ package data.chart;
 @:noDebug
 #end
 @:publicFields
-enum abstract Genre(String) from String {
+enum abstract Genre(String) from String
+{
 	/**
 		Classical.
 	**/

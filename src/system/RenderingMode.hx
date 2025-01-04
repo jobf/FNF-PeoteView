@@ -6,14 +6,15 @@ import haxe.io.Bytes;
 import lime.graphics.opengl.GL;
 
 @:publicFields
-class RenderingMode {
-	private static var ffmpegExists(default, null):Bool;
+class RenderingMode
+{
+	private static var ffmpegExists(default, null) : Bool;
 
-	static var process:Process;
-	static var enabled:Bool = false;
+	static var process : Process;
+	static var enabled = false;
 
-	static var peoteView:PeoteView;
-	static var songName:String;
+	static var peoteView : PeoteView;
+	static var songName : String;
 
 	static function initRender(entryPoint:Main)
 	{
@@ -21,12 +22,13 @@ class RenderingMode {
 		#if windows
 		ffmpeg += ".exe";
 		#end
-		if (!FileSystem.exists(ffmpeg)) {
+		if (!FileSystem.exists(ffmpeg))
+		{
 			throw 'Rendering Mode System - $ffmpeg not found! Is it located at the current working directory?';
 			return;
 		}
 
-		if (!FileSystem.exists('assets/videos/rendered/')) { // In case you delete the videos/rendered folder
+		if (!FileSystem.exists('assets/videos/rendered/')) {// In case you delete the videos/rendered folder
 			Sys.println('Rendering Mode System - "assets/videos/rendered" folder not found! Recreating it...');
 			FileSystem.createDirectory('assets/videos/rendered');
 		}
@@ -39,31 +41,32 @@ class RenderingMode {
 		songName = entryPoint.playField.chart.header.title;
 
 		process = new Process('ffmpeg', [
-			'-v', 'quiet', '-y', // START
-			'-f', 'rawvideo', // FILTER
-			'-pix_fmt', 'rgba', // PIXEL FORMAT
-			'-s', peoteView.width + 'x' + peoteView.height, // DIMENSIONS
-			'-r', '60', // FRAMERATE
-			'-display_hflip', '-display_rotation', '180', // This is here because the original output is mirrored and upside down
-			'-i', '-', // INPUT INIT
-			'-vcodec', 'libx264', // ENCODER
-			'-crf', '0', // CRF
-			'-preset', 'ultrafast', // PRESET
-			'-c:a', 'copy', // COPY,
-			'-colorspace', 'bt709', // CONVERT TO BT709 COLORSPACE
-			'assets/videos/rendered/' + songName + '.mp4' // END (FILEPATH)
+			'-v', 'quiet', '-y',// START
+			'-f', 'rawvideo',// FILTER
+			'-pix_fmt', 'rgba',// PIXEL FORMAT
+			'-s', peoteView.width + 'x' + peoteView.height,// DIMENSIONS
+			'-r', '60',// FRAMERATE
+			'-display_hflip', '-display_rotation', '180',// This is here because the original output is mirrored and upside down
+			'-i', '-',// INPUT INIT
+			'-vcodec', 'libx264',// ENCODER
+			'-crf', '0',// CRF
+			'-preset', 'ultrafast',// PRESET
+			'-c:a', 'copy',// COPY,
+			'-colorspace', 'bt709',// CONVERT TO BT709 COLORSPACE
+			'assets/videos/rendered/' + songName + '.mp4'// END (FILEPATH)
 		]);
 
 		Sys.println("Rendering Mode System - Done!");
 	}
 
-	static var bytes:haxe.io.UInt8Array;
+	static var bytes : haxe.io.UInt8Array;
 	static function pipeFrame()
 	{
 		if (!enabled || !ffmpegExists || process == null)
 			return;
 
-		if (bytes == null) {
+		if (bytes == null)
+		{
 			bytes = new haxe.io.UInt8Array(peoteView.width * peoteView.height * 4);
 		}
 
@@ -76,7 +79,8 @@ class RenderingMode {
 		if (!enabled)
 			return;
 
-		if (process != null) {
+		if (process != null)
+		{
 			if (process.stdin != null)
 				process.stdin.close();
 

@@ -123,7 +123,7 @@ class TextureSystem {
 		@param key The multitexture's key.
 		@param paths The texture paths.
 	**/
-	static function createMultiTexture(key:String, paths:Array<String>, disableAntialiasing:Bool = false) {
+	static function createMultiTexture(key:String, paths:Array<String>, disableAntialiasing:Bool = false, slotsX:Int = 16, slotsY:Int = 16) {
 		if (pool.exists(key)) {
 			return;
 		}
@@ -161,9 +161,11 @@ class TextureSystem {
 			textureLocX += totalTextureWidth;
 		}
 
+		var div = (totalTextureHeight / totalTextureWidth);
+
 		var texture = new Texture(totalTextureWidth, totalTextureHeight, null, {
-			slotsX: texturesToPush.length,
-			slotsY: 1,
+			slotsX: slotsX,
+			slotsY: slotsY,
 			powerOfTwo: false,
 			smoothExpand: antialiasing,
 			smoothShrink: antialiasing,

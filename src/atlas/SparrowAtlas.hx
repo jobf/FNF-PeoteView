@@ -3,22 +3,24 @@ package atlas;
 @:publicFields
 @:structInit
 @:access(Xml)
-class SparrowAtlas {
-	var imagePath:String;
-	var subTextures:Vector<SubTexture>;
-	var animMap:Map<String, Vector<Int>>;
+class SparrowAtlas
+{
+	var imagePath : String;
+	var subTextures : Vector<SubTexture>;
+	var animMap : Map<String, Vector<Int>>;
 
-	static function parse(text:String):SparrowAtlas {
+	static function parse(text:String) : SparrowAtlas
+	{
 		var xml = Xml.parse(text);
 		var root = xml.firstElement();
-		var subTexs:Vector<SubTexture> = new Vector<SubTexture>(root.children.length);
-		var aMap:Map<String, Vector<Int>> = [];
-		var curName:String = "";
+		var subTexs = new Vector<SubTexture>(root.children.length);
+		var aMap : Map<String, Vector<Int>> = [];
+		var curName = "";
 
 		aMap[curName] = new Vector<Int>(2);
 
-		var index:Int = 0;
-		var started:Bool = false;
+		var index = 0;
+		var started = false;
 		for (element in root.elementsNamed("SubTexture")) {
 			var name = element.get("name");
 			var x = Std.parseInt(element.get("x"));
@@ -34,17 +36,21 @@ class SparrowAtlas {
 			var rotated = element.exists("rotated") ? element.get("rotated") == "true" : null;
 
 			var nameStripped = name.substring(0, name.length - 4);
-			if (curName != nameStripped) {
+			if (curName != nameStripped)
+			{
 				if (started) {
 					aMap[curName][1] = index - 1;
-				} else {
+				}
+				else
+				{
 					started = true;
 				}
 				curName = nameStripped;
 				aMap[curName] = new Vector<Int>(2, index);
 			}
 
-			subTexs[index] = ({
+			subTexs[index] = (
+			{
 				name: name,
 				x: x,
 				y: y,
@@ -64,7 +70,8 @@ class SparrowAtlas {
 
 		aMap[curName][1] = index;
 
-		return {
+		return
+		{
 			imagePath: root.get("imagePath"),
 			subTextures: subTexs,
 			animMap: aMap
@@ -74,17 +81,18 @@ class SparrowAtlas {
 
 @:publicFields
 @:structInit
-class SubTexture {
-	var name:String;
-	var x:Int;
-	var y:Int;
-	var width:Int;
-	var height:Int;
-	var frameX:Null<Int>;
-	var frameY:Null<Int>;
-	var frameWidth:Null<Int>;
-	var frameHeight:Null<Int>;
-	var flipX:Null<Bool>;
-	var flipY:Null<Bool>;
-	var rotated:Null<Bool>;
+class SubTexture
+{
+	var name : String;
+	var x : Int;
+	var y : Int;
+	var width : Int;
+	var height : Int;
+	var frameX : Null<Int>;
+	var frameY : Null<Int>;
+	var frameWidth : Null<Int>;
+	var frameHeight : Null<Int>;
+	var flipX : Null<Bool>;
+	var flipY : Null<Bool>;
+	var rotated : Null<Bool>;
 }

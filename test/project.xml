@@ -8,7 +8,7 @@
 	<app main="Main" path="bin" file="test" />
 
 	<source path="../src" />
-	<source path="text-scaling" />
+	<source path="tex-slot-limit" />
 
 	<haxelib name="lime" />	
 	<haxelib name="peote-view" />

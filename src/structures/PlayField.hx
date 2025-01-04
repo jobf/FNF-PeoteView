@@ -7,47 +7,55 @@ import lime.app.Event;
 	The home of the gameplay state.
 **/
 @:publicFields
-class PlayField implements State {
-	var roof(default, null):CustomDisplay;
-	var display(default, null):CustomDisplay;
-	var view(default, null):CustomDisplay;
+class PlayField implements State
+{
+	var roof(default, null) : CustomDisplay;
+	var display(default, null) : CustomDisplay;
+	var view(default, null) : CustomDisplay;
 
-	function new(songName:String) {
+	function new(songName:String)
+	{
 		chart = new Chart('assets/songs/$songName');
 	}
 
-	function init(roof:CustomDisplay, display:CustomDisplay, view:CustomDisplay) {
+	function init(roof:CustomDisplay, display:CustomDisplay, view:CustomDisplay)
+	{
 		this.roof = roof;
 		this.display = display;
 		this.view = view;
 		create(roof, display, chart.header.mania);
 	}
 
-	var score:Int128 = 0;
-	var misses:Int128 = 0;
-	var combo:Int128 = 0;
-	var accuracy:Array<Int128> = [0, 0];
-	var numOfReceptors:Int;
-	var numOfNotes:Int;
-	var health:Float = 0.5;
-	var latencyCompensation(default, set):Int;
-	inline function set_latencyCompensation(value:Int) {
+	var score : Int128 = 0;
+	var misses : Int128 = 0;
+	var combo : Int128 = 0;
+	var accuracy : Array<Int128> = [0, 0];
+	var numOfReceptors : Int;
+	var numOfNotes : Int;
+	var health : Float = 0.5;
+	var latencyCompensation(default, set) : Int;
+	inline function set_latencyCompensation(value:Int)
+	{
 		return latencyCompensation = value;
 	}
 
-	var scrollSpeed(default, set):Float = 1.0;
-	inline function set_scrollSpeed(value:Float) {
-		return noteSystem.setScrollSpeed(scrollSpeed = value);
+	var scrollSpeed(default, set) : Float = 1.0;
+	inline function set_scrollSpeed(value:Float)
+	{
+		return noteSystem.setScrollSpeed(scrollSpeed=value);
 	}
 
-	var downScroll(default, set):Bool;
-	inline function set_downScroll(value:Bool) {
+	var downScroll(default, set) : Bool;
+	inline function set_downScroll(value:Bool)
+	{
 		downScroll = value;
-		if (noteSystem != null) {
+		if (noteSystem != null)
+		{
 			noteSystem.resetReceptors(false);
 			noteSystem.updateNotes(Tools.betterInt64FromFloat((songPosition + latencyCompensation) * 100));
 		}
-		if (hud != null) {
+		if (hud != null)
+		{
 			hud.updateHealthBar();
 			hud.updateHealthIcons();
 			hud.updateScoreText(0.0);
@@ -55,42 +63,44 @@ class PlayField implements State {
 		return value;
 	}
 
-	var practiceMode:Bool;
-	var songStarted(default, null):Bool;
-	var songEnded(default, null):Bool;
-	var disposed(default, null):Bool;
-	var paused(default, null):Bool;
-	var botplay(default, set):Bool;
-	inline function set_botplay(value:Bool) {
+	var practiceMode : Bool;
+	var songStarted(default, null) : Bool;
+	var songEnded(default, null) : Bool;
+	var disposed(default, null) : Bool;
+	var paused(default, null) : Bool;
+	var botplay(default, set) : Bool;
+	inline function set_botplay(value:Bool)
+	{
 		if (noteSystem != null) noteSystem.resetInputs();
 		return botplay = value;
 	}
 
-	var field(default, null):Field;
-	var inputSystem(default, null):InputSystem;
-	var noteSystem(default, null):NoteSystem;
-	var audioSystem(default, null):AudioSystem;
-	var hud(default, null):HUD;
-	var countdownDisp(default, null):CountdownDisplay;
-	var pauseScreen(default, null):PauseScreen;
+	var field(default, null) : Field;
+	var inputSystem(default, null) : InputSystem;
+	var noteSystem(default, null) : NoteSystem;
+	var audioSystem(default, null) : AudioSystem;
+	var hud(default, null) : HUD;
+	var countdownDisp(default, null) : CountdownDisplay;
+	var pauseScreen(default, null) : PauseScreen;
 
-	var onStartSong:Event<Chart->Void>;
-	var onPauseSong:Event<Chart->Void>;
-	var onResumeSong:Event<Chart->Void>;
-	var onStopSong:Event<Chart->Void>;
-	var onDeath:Event<Chart->Void>;
-	var onNoteHit:Event<MetaNote->Int->Void>;
-	var onNoteMiss:Event<MetaNote->Void>;
-	var onSustainComplete:Event<MetaNote->Void>;
-	var onSustainRelease:Event<MetaNote->Void>;
-	var onKeyPress:Event<KeyCode->Void>;
-	var onKeyRelease:Event<KeyCode->Void>;
+	var onStartSong : Event<Chart->Void>;
+	var onPauseSong : Event<Chart->Void>;
+	var onResumeSong : Event<Chart->Void>;
+	var onStopSong : Event<Chart->Void>;
+	var onDeath : Event<Chart->Void>;
+	var onNoteHit : Event<MetaNote->Int->Void>;
+	var onNoteMiss : Event<MetaNote->Void>;
+	var onSustainComplete : Event<MetaNote->Void>;
+	var onSustainRelease : Event<MetaNote->Void>;
+	var onKeyPress : Event<KeyCode->Void>;
+	var onKeyRelease : Event<KeyCode->Void>;
 
-	var flipHealthBar:Bool;
-	var hitbox:Float = 200;
-	var ready:Bool = false;
+	var flipHealthBar : Bool;
+	var hitbox : Float = 200;
+	var ready = false;
 
-	function setTime(value:Float, playAgain:Bool = false) {
+	function setTime(value:Float, playAgain=false)
+	{
 		if (disposed || !songStarted || songEnded || paused) return;
 
 		if (value < 0) value = 0;
@@ -101,8 +111,8 @@ class PlayField implements State {
 		if (field != null) field.resetCharacters();
 	}
 
-	var songPosition:Float;
-	var chart:Chart;
+	var songPosition : Float;
+	var chart : Chart;
 
 	/**
 	 * Creates the playfield.
@@ -110,7 +120,8 @@ class PlayField implements State {
 	 * @param display The ui display you want the playfield's countdown display and hud to go to.
 	 * @param mania The amount of keys you want for your fnf song. (This is configured by the song's header)
 	 */
-	function create(roof:CustomDisplay, display:CustomDisplay, mania:Int = 4) {
+	function create(roof:CustomDisplay, display:CustomDisplay, mania=4)
+	{
 		if (mania > 16) mania = 16;
 
 		onStartSong = new Event<Chart->Void>();
@@ -160,23 +171,28 @@ class PlayField implements State {
 	/**
 		Updates the playfield.
 	**/
-	function update(deltaTime:Float) {
+	function update(deltaTime:Float)
+	{
 		if (disposed || paused) return;
 
-		if (!ready) {
+		if (!ready)
+		{
 			ready = true;
 			return;
 		}
 
-		if (display.fov != 1) {
+		if (display.fov != 1)
+		{
 			display.fov -= (display.fov - 1) * (deltaTime * 0.01);
 		}
 
-		if (view.fov != 1) {
+		if (view.fov != 1)
+		{
 			view.fov -= (view.fov - 1) * (deltaTime * 0.01);
 		}
 
-		if (health < 0 && !disposed) {
+		if (health < 0 && !disposed)
+		{
 			onDeath.dispatch(chart);
 			return;
 		}
@@ -200,7 +216,8 @@ class PlayField implements State {
 	/**
 		Pauses the playfield.
 	**/
-	function pause() {
+	function pause()
+	{
 		if (disposed || paused) return;
 
 		paused = true;
@@ -212,7 +229,8 @@ class PlayField implements State {
 	/**
 		Resumes the playfield.
 	**/
-	function resume() {
+	function resume()
+	{
 		if (disposed || !paused) return;
 
 		paused = false;
@@ -221,65 +239,76 @@ class PlayField implements State {
 		pauseScreen.close();
 	}
 
-	inline function beatHit(beat:Float) {
+	inline function beatHit(beat:Float)
+	{
 		if (beat == 0 && !songStarted) onStartSong.dispatch(chart);
 		if (beat < 0) countdownDisp.countdownTick(Math.floor(4 + beat));
 	}
 
-	inline function measureHit(measure:Float) {
+	inline function measureHit(measure:Float)
+	{
 		if (measure >= 0 && SaveData.state.cameraZooming) {
 			display.fov += 0.03;
 			view.fov += 0.015;
 		}
 	}
 
-	function hitNote(note:MetaNote, timing:Int) {
+	function hitNote(note:MetaNote, timing:Int)
+	{
 		if (audioSystem != null) {
 			var voicesTrack = audioSystem.voices[note.lane];
 			if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
-			if (voicesTrack != null) {
+			if (voicesTrack != null)
+			{
 				voicesTrack.volume = 1;
 			}
 		}
 
-		if (!inputSystem.strumlinePlayable[note.lane]) {
+		if (!inputSystem.strumlinePlayable[note.lane])
+		{
 			health -= 0.025;
-			if (health < 0.05) {
+			if (health < 0.05)
+			{
 				health = 0.05;
 			}
 			return;
 		}
 
-		++combo;
-		++accuracy[0];
-		++accuracy[1];
+		++ combo;
+		++ accuracy[0];
+		++ accuracy[1];
 
 		health += 0.025;
-		if (health > 1) {
+		if (health > 1)
+		{
 			health = 1;
 		}
 
 		var preferences = SaveData.state;
 
-		if (hud != null && preferences.scoreTxtBopping) {
+		if (hud != null && preferences.scoreTxtBopping)
+		{
 			hud.scoreTxt.scale = 1.1;
 		}
 
 		var absTiming = Math.abs(timing);
 
-		if (absTiming > 60) {
+		if (absTiming > 60)
+		{
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(3);
 			score += 50;
 			return;
 		}
 
-		if (absTiming > 45) {
+		if (absTiming > 45)
+		{
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(2);
 			score += 100;
 			return;
 		}
 
-		if (absTiming > 30) {
+		if (absTiming > 30)
+		{
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(1);
 			score += 200;
 			return;
@@ -289,32 +318,37 @@ class PlayField implements State {
 		score += 400;
 	}
 
-	inline function missNote(note:MetaNote) {
+	inline function missNote(note:MetaNote)
+	{
 		if (audioSystem != null) {
 			var voicesTrack = audioSystem.voices[note.lane];
 			if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
-			if (voicesTrack != null) {
+			if (voicesTrack != null)
+			{
 				voicesTrack.volume = 0;
 			}
 		}
 
 		health -= 0.025;
 
-		if (practiceMode && health < 0.05) {
+		if (practiceMode && health < 0.05)
+		{
 			health = 0.05;
 		}
 
 		combo = 0;
 		score -= 50;
-		++misses;
-		++accuracy[1];
+		++ misses;
+		++ accuracy[1];
 	}
 
-	inline function completeSustain(note:MetaNote) {
+	inline function completeSustain(note:MetaNote)
+	{
 		if (!inputSystem.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
-			if (health < 0.05) {
+			if (health < 0.05)
+			{
 				health = 0.05;
 			}
 
@@ -323,19 +357,23 @@ class PlayField implements State {
 
 		health += 0.025;
 
-		if (health > 1) {
+		if (health > 1)
+		{
 			health = 1;
 		}
 	}
 
-	inline function releaseSustain(note:MetaNote) {
+	inline function releaseSustain(note:MetaNote)
+	{
 		combo = 0;
 	}
 
-	function startSong(chart:Chart) {
+	function startSong(chart:Chart)
+	{
 		Sys.println('Song activity is on');
 
-		if (!RenderingMode.enabled) {
+		if (!RenderingMode.enabled)
+		{
 			audioSystem.play();
 		}
 
@@ -343,12 +381,16 @@ class PlayField implements State {
 		songEnded = false;
 	}
 
-	function stopSong(chart:Chart) {
+	function stopSong(chart:Chart)
+	{
 		Sys.println('Song activity is off');
 
-		if (!RenderingMode.enabled) {
+		if (!RenderingMode.enabled)
+		{
 			audioSystem.stop();
-		} else {
+		}
+		else
+		{
 			RenderingMode.stopRender();
 		}
 
@@ -358,10 +400,12 @@ class PlayField implements State {
 		Main.switchState(MAIN_MENU);
 	}
 
-	function gameOver(chart:Chart) {
+	function gameOver(chart:Chart)
+	{
 		Sys.println("Game Over");
 
-		if (RenderingMode.enabled) {
+		if (RenderingMode.enabled)
+		{
 			RenderingMode.stopRender();
 		}
 
@@ -371,7 +415,8 @@ class PlayField implements State {
 	/**
 		Disposes the playfield.
 	**/
-	function dispose() {
+	function dispose()
+	{
 		ready = false;
 		disposed = true;
 
@@ -407,7 +452,8 @@ class PlayField implements State {
 		noteSystem = null;
 		audioSystem.dispose();
 		audioSystem = null;
-		if (hud != null) {
+		if (hud != null)
+		{
 			hud.dispose();
 			hud = null;
 		}

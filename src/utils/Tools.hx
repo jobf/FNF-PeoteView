@@ -3,8 +3,10 @@ package utils;
 import sys.io.File;
 
 @:publicFields
-class Tools {
-	static function parseNoteskinData(path:String) {
+class Tools
+{
+	static function parseNoteskinData(path:String)
+	{
 		cpp.NativeArray.zero(Note.offsetAndSizeFrames);
 		cpp.NativeArray.zero(Sustain.offsets);
 		cpp.NativeArray.zero(Sustain.tailPoints);
@@ -35,9 +37,8 @@ class Tools {
 		TextureSystem.disposeTexture("sustainTex");
 		TextureSystem.createTiledTexture("sustainTex", '$path/sustainSheet.png', 1, Std.parseInt(data.readLine()));
 
-		var w = TextureSystem.getTexture("sustainTex").width;
-
-		while (!data.eof()) {
+		while (!data.eof())
+		{
 			var line = data.readLine();
 			var split = line.split(", ");
 			if (split.length != 3) throw "ARGUMENTS ARE NOT EQUAL TO THREE!";
@@ -47,12 +48,13 @@ class Tools {
 			var t = Std.parseInt(split[2]);
 
 			Sustain.offsets.push([x, y]);
-			Sustain.tailPoints.push(w - t);
+			Sustain.tailPoints.push(t);
 		}
 	}
 
-	static function parseHealthBarConfig(path:String) {
-		var finalData:Array<Float> = [];
+	static function parseHealthBarConfig(path:String)
+	{
+		var finalData : Array<Float> = [];
 
 		var line = File.getContent('$path/healthBarConfig.txt');
 
@@ -76,8 +78,9 @@ class Tools {
 		return finalData;
 	}
 
-	static function parseTimeBarConfig(path:String) {
-		var finalData:Array<Float> = [];
+	static function parseTimeBarConfig(path:String)
+	{
+		var finalData : Array<Float> = [];
 
 		var line = File.getContent('$path/timeBarConfig.txt');
 
@@ -104,46 +107,54 @@ class Tools {
 	/**
 		An optimized version of `haxe.Int64.fromFloat`. Only works on certain targets such as cpp, js, or eval.
 	**/
-	inline static function betterInt64FromFloat(value:Float):Int64 {
-		var high:Int = Math.floor(value / 4294967296);
-		var low:Int = Math.floor(value);
+	inline static function betterInt64FromFloat(value:Float) : Int64
+	{
+		var high : Int = Math.floor(value / 4294967296);
+		var low : Int = Math.floor(value);
 		return Int64.make(high, low);
 	}
 
-	inline static function profileFrame() {
+	inline static function profileFrame()
+	{
 		#if FV_PROFILE
 		cpp.vm.tracy.TracyProfiler.frameMark();
 		#end
 	}
 
-	static function formatTime(ms:Float, showMS:Bool = false):String
+	static function formatTime(ms:Float, showMS=false) : String
 	{
-		var milliseconds:Int = Math.floor(ms * 0.1) % 100;
-		var seconds:Int = Math.floor(ms * 0.001);
-		var hours:Int = Math.floor(seconds / 3600);
+		var milliseconds : Int = Math.floor(ms * 0.1) % 100;
+		var seconds : Int = Math.floor(ms * 0.001);
+		var hours : Int = Math.floor(seconds / 3600);
 		seconds %= 3600;
-		var minutes:Int = Math.floor((seconds + 1) / 60); // Add one to the `seconds` to correct the minute display
+		var minutes : Int = Math.floor((seconds + 1) / 60);// Add one to the `seconds` to correct the minute display
 		seconds %= 60;
 
 		var t = ':';
 		var c = '.';
 
-		var time:String = '';
+		var time = '';
 
-		if (!Math.isNaN(ms)) {
+		if (!Math.isNaN(ms))
+		{
 			if (hours > 0) time += '$hours$t';
 			if (minutes < 10 && hours > 0) time += '0$minutes$t';
 			else time += '$minutes$t';
 			if (seconds < 10) time += '0';
 			time += seconds;
-		} else {
+		}
+		else
+		{
 			time = 'null';
 		}
 
-		if (showMS) {
+		if (showMS)
+		{
 			if (milliseconds < 10) {
 				time += '${c}0$milliseconds';
-			} else {
+			}
+			else
+			{
 				time += '${c}$milliseconds';
 			}
 		}
@@ -151,7 +162,8 @@ class Tools {
 		return time;
 	}
 
-	inline static function lerp(a:Float, b:Float, ratio:Float):Float {
+	inline static function lerp(a:Float, b:Float, ratio:Float) : Float
+	{
 		return a + ratio * (b - a);
 	}
 }
