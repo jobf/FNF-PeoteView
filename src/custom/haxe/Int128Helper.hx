@@ -27,13 +27,11 @@ using custom.haxe.Int128;
 /**
 	Helper for parsing to `Int128` instances.
 **/
-class Int128Helper
-{
+class Int128Helper {
 	/**
 		Create `Int128` from given string.
 	**/
-	public static function parseString(sParam:String) : Int128
-	{
+	public static function parseString(sParam:String):Int128 {
 		var base = Int128.ofInt(10);
 		var current = Int128.ofInt(0);
 		var multiplier = Int128.ofInt(1);
@@ -46,31 +44,23 @@ class Int128Helper
 		}
 		var len = s.length;
 
-		for (i in 0...len)
-		{
+		for (i in 0...len) {
 			var digitInt = s.charCodeAt(len - 1 - i) - '0'.code;
 
-			if (digitInt < 0 || digitInt > 9)
-			{
+			if (digitInt < 0 || digitInt > 9) {
 				throw "NumberFormatError";
 			}
 
-			if (digitInt != 0)
-			{
-				var digit = Int128.ofInt(digitInt);
-				if (sIsNegative)
-				{
+			if (digitInt != 0) {
+				var digit:Int128 = Int128.ofInt(digitInt);
+				if (sIsNegative) {
 					current = Int128.sub(current, Int128.mul(multiplier, digit));
-					if (!Int128.isNeg(current))
-					{
+					if (!Int128.isNeg(current)) {
 						throw "NumberFormatError: Underflow";
 					}
-				}
-				else
-				{
+				} else {
 					current = Int128.add(current, Int128.mul(multiplier, digit));
-					if (Int128.isNeg(current))
-					{
+					if (Int128.isNeg(current)) {
 						throw "NumberFormatError: Overflow";
 					}
 				}
@@ -84,8 +74,7 @@ class Int128Helper
 	/**
 		Create `Int128` from given float.
 	**/
-	public static function fromFloat(f:Float) : Int128
-	{
+	public static function fromFloat(f:Float):Int128 {
 		if (Math.isNaN(f) || !Math.isFinite(f)) {
 			throw "Number is NaN or Infinite";
 		}
@@ -96,12 +85,10 @@ class Int128Helper
 		// In theory 2^53 and -2^53 are parseable too, but then there's no way to
 		// distinguish 2^53 from 2^53+1
 		// (i.e. trace(9007199254740992. + 1. > 9007199254740992.); // false!)
-		if (noFractions > 9007199254740991)
-		{
+		if (noFractions > 9007199254740991) {
 			throw "Conversion overflow";
 		}
-		if (noFractions < -9007199254740991)
-		{
+		if (noFractions < -9007199254740991) {
 			throw "Conversion underflow";
 		}
 
@@ -110,19 +97,16 @@ class Int128Helper
 		var rest = neg ? -noFractions : noFractions;
 
 		var i = 0;
-		while (rest >= 1)
-		{
+		while (rest >= 1) {
 			var curr = rest % 2;
 			rest = rest / 2;
-			if (curr >= 1)
-			{
+			if (curr >= 1) {
 				result = Int128.add(result, Int128.shl(Int128.ofInt(1), i));
 			}
 			i++;
 		}
 
-		if (neg)
-		{
+		if (neg) {
 			result = Int128.neg(result);
 		}
 
@@ -132,51 +116,51 @@ class Int128Helper
 	/**
 		The maximum `Int128` value.
 	 */
-	public static var maxValue = Int128.make(Int64.make(0x7FFFFFFF, -1), -1);
+	public static var maxValue:Int128 = Int128.make(Int64.make(0x7FFFFFFF, -1), -1);
 
 	/**
 		The minimum `Int128` value.
 	 */
-	public static var minValue : Int128 = ~maxValue;
+	public static var minValue:Int128 = ~maxValue;
 
 	/**
 		The maximum `Int64` value with the type `Int128`.
 		This is handy for type comparison.
 	 */
-	public static var maxValue64 = Int128.ofInt64(maxValue.high);
+	public static var maxValue64:Int128 = Int128.ofInt64(maxValue.high);
 
 	/**
 		The minimum `Int64` value with the type `Int128`.
 		This is handy for type comparison.
 	 */
-	public static var minValue64 : Int128 = ~maxValue64;
+	public static var minValue64:Int128 = ~maxValue64;
 
 	/**
 		The maximum unsigned `Int64` value with the type `Int128`.
 		This is handy for type comparison.
 	 */
-	public static var maxValue64U = Int128.make(0, -1);
+	public static var maxValue64U:Int128 = Int128.make(0, -1);
 
 	/**
 		The maximum `Int32` value with the type `Int128`.
 		This is handy for type comparison.
 	 */
-	public static var maxValue32 = Int128.ofInt64(0x7FFFFFFF);
+	public static var maxValue32:Int128 = Int128.ofInt64(0x7FFFFFFF);
 
 	/**
 		The minimum `Int32` value with the type `Int128`.
 		This is handy for type comparison.
 	 */
-	public static var minValue32 : Int128 = ~maxValue32;
+	public static var minValue32:Int128 = ~maxValue32;
 
 	/**
 		The maximum unsigned `Int32` value with the type `Int128`.
 		This is handy for type comparison.
 	 */
-	public static var maxValue32U : Int128 = Int64.make(0, -1);
+	public static var maxValue32U:Int128 = Int64.make(0, -1);
 
 	// These are for the optimized toString() function.
-	public static var BILLION : Int128 = 1000000000;
-	public static var QUINTILLION : Int128 = BILLION * BILLION;
-	public static var UNDECILLION : Int128 = QUINTILLION * QUINTILLION;
+	public static var BILLION:Int128 = 1000000000;
+	public static var QUINTILLION:Int128 = BILLION * BILLION;
+	public static var UNDECILLION:Int128 = QUINTILLION * QUINTILLION;
 }

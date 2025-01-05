@@ -7,8 +7,7 @@ package data.chart;
 #if !debug
 @:noDebug
 #end
-enum abstract CharacterRole(String) from String
-{
+enum abstract CharacterRole(String) from String {
 	/**
 		The enemy role.
 	**/

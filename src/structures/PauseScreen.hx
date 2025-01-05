@@ -8,24 +8,21 @@ import lime.ui.KeyModifier;
 	This is an internal structure and should only be used inside of the playfield NOT to be touched with.
 **/
 @:publicFields
-class PauseScreen
-{
-	private static var display(default, null) : CustomDisplay;
-	static var pauseBuf(default, null) : Buffer<PauseSprite>;
-	static var pauseProg(default, null) : Program;
+class PauseScreen {
+	private static var display(default, null):CustomDisplay;
+	static var pauseBuf(default, null):Buffer<PauseSprite>;
+	static var pauseProg(default, null):Program;
 
-	var pauseOptions(default, null) : Array<PauseSprite> = [];
-	var diffText(default, null) : PauseSprite;
+	var pauseOptions(default, null):Array<PauseSprite> = [];
+	var diffText(default, null):PauseSprite;
 
-	var pauseOptionSelected(default, null) = 0;
-	var opened(default, null) : Bool;
+	var pauseOptionSelected(default, null):Int = 0;
+	var opened(default, null):Bool;
 
-	static function init(disp:CustomDisplay)
-	{
+	static function init(disp:CustomDisplay) {
 		display = disp;
 
-		if (pauseBuf == null)
-		{
+		if (pauseBuf == null) {
 			pauseBuf = new Buffer<PauseSprite>(5);
 			pauseProg = new Program(pauseBuf);
 			pauseProg.blendEnabled = true;
@@ -35,11 +32,9 @@ class PauseScreen
 		}
 	}
 
-	function new(difficulty:Difficulty)
-	{
+	function new(difficulty:Difficulty) {
 		var currentY = 200;
-		for (i in 0...3)
-		{
+		for (i in 0...3) {
 			var option = new PauseSprite();
 			option.type = PAUSE_OPTION;
 			option.changeID(i);
@@ -56,10 +51,9 @@ class PauseScreen
 		diffText.y = 1;
 	}
 
-	var alphaLerp : Float = 0.0;
+	var alphaLerp:Float = 0.0;
 
-	function update(deltaTime:Float)
-	{
+	function update(deltaTime:Float) {
 		if (!opened && display.color.aF == 0) {
 			shutDown();
 			return;
@@ -70,8 +64,7 @@ class PauseScreen
 		display.color.aF = alphaLerp * 0.5;
 		display.color = display.color;
 
-		for (i in 0...pauseOptions.length)
-		{
+		for (i in 0...pauseOptions.length) {
 			var pauseOption = pauseOptions[i];
 			var originalC = pauseOption.c;
 			if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
@@ -84,24 +77,20 @@ class PauseScreen
 		pauseBuf.updateElement(diffText);
 	}
 
-	function selectOption(code:KeyCode, mod:KeyModifier)
-	{
+	function selectOption(code:KeyCode, mod:KeyModifier) {
 		switch (code) {
 			case KeyCode.DOWN:
 				pauseOptionSelected++;
-				if (pauseOptionSelected >= pauseOptions.length)
-				{
+				if (pauseOptionSelected >= pauseOptions.length) {
 					pauseOptionSelected = 0;
 				}
 			case KeyCode.UP:
 				pauseOptionSelected--;
-				if (pauseOptionSelected < 0)
-				{
+				if (pauseOptionSelected < 0) {
 					pauseOptionSelected = pauseOptions.length - 1;
 				}
 			case KeyCode.RETURN:
-				switch (pauseOptionSelected)
-				{
+				switch (pauseOptionSelected) {
 					case 0:
 						Main.current.playField.resume();
 						return;
@@ -114,12 +103,10 @@ class PauseScreen
 		}
 	}
 
-	function open()
-	{
+	function open() {
 		opened = true;
 
-		try
-		{
+		try {
 			for (i in 0...pauseOptions.length) {
 				var pauseOption = pauseOptions[i];
 				if (i == pauseOptionSelected) pauseOption.c = Color.YELLOW;
@@ -130,35 +117,29 @@ class PauseScreen
 
 			alphaLerp = diffText.c.aF = 0.0;
 			pauseBuf.addElement(diffText);
-		}
-		catch (e) {}
+		} catch (e) {}
 
-		haxe.Timer.delay(() ->
-		{
+		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
 			window.onKeyDown.add(selectOption);
 		}, 200);
 
-		if (!pauseProg.isIn(display))
-		{
+		if (!pauseProg.isIn(display)) {
 			display.addProgram(pauseProg);
 		}
 	}
 
-	function close()
-	{
+	function close() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(selectOption);
 
 		opened = false;
 	}
 
-	function shutDown()
-	{
+	function shutDown() {
 		if (!pauseProg.isIn(display)) return;
 
-		for (i in 0...pauseOptions.length)
-		{
+		for (i in 0...pauseOptions.length) {
 			var pauseOption = pauseOptions[i];
 			pauseOption.c.aF = 0.0;
 			pauseBuf.removeElement(pauseOption);
@@ -170,13 +151,11 @@ class PauseScreen
 		display.removeProgram(pauseProg);
 	}
 
-	function dispose()
-	{
+	function dispose() {
 		close();
 		shutDown();
 
-		if (opened)
-		{
+		if (opened) {
 			while (pauseOptions.length != 0) {
 				var pauseOption = pauseOptions.pop();
 				pauseBuf.removeElement(pauseOption);
