@@ -9,15 +9,13 @@ import lime.ui.KeyModifier;
 **/
 @:publicFields
 class DeveloperStuff {
-    static var playField:PlayField;
-
     static function init(window:Window, m:Main) {
         window.onKeyDown.add(testPlayfieldInputStuff);
-
-        playField = m.playField;
     }
 
     static function testPlayfieldInputStuff(code:KeyCode, mod:KeyModifier) {
+		var playField = Main.current.playField;
+		if (playField == null) return;
 		switch (code) {
 			case KeyCode.EQUALS:
 				playField.setTime(playField.songPosition + 2000);

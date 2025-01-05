@@ -13,9 +13,10 @@ package elements.actor.sparrow;
 
 import atlas.SparrowAtlas.SubTexture;
 import elements.actor.*;
+using StringTools;
 
 /**
-	Actor element object meant to be in the field of the gameplay state.
+	Sparrow atlas actor element object meant to be in the field of the gameplay state.
 **/
 @:publicFields
 class Actor extends ActorElement
@@ -46,34 +47,11 @@ class Actor extends ActorElement
 
 		this.name = displayName = name;
 
-		if (addBufferAndProgram) {
-			if (buffers.exists(displayName)) {
-				if (!copiesOfCharacters.exists(name)) {
-					copiesOfCharacters[name] = 0;
-				}
-				displayName += 'Copy' + ++copiesOfCharacters[name];
-			}
-
-			if (!buffers.exists(displayName)) {
-				buffers[displayName] = new Buffer<ActorElement>(1);
-			}
-	
-			if (!programs.exists(displayName)) {
-				var program = programs[displayName] = new Program(buffers[displayName]);
-				program.blendEnabled = true;
-			}
-	
-			display.addProgram(programs[displayName]);
-	
-			var texName = displayName + "char";
-			TextureSystem.createTexture(texName, path(name, folder, IMAGE));
-			TextureSystem.setTexture(programs[displayName], texName, texName);
-		}
-
-		setFps(fps);
+		var spritesheetDataPath = "";
 
 		if (pathExists(name, folder, XML)) {
-			atlas = SparrowAtlas.parse(sys.io.File.getContent(path(name, folder, XML)));
+			spritesheetDataPath = path(name, folder, XML);
+			atlas = SparrowAtlas.parse(sys.io.File.getContent(spritesheetDataPath));
 		} else {
 			throw "Atlas data doesn't exist: " + path(name, folder, NONE);
 		}
@@ -81,6 +59,32 @@ class Actor extends ActorElement
 		if (pathExists(name, folder, DATA)) {
 			data = ActorData.parse(path(name, folder, DATA));
 		}
+
+		if (atlas.imagePath != "" && addBufferAndProgram) {
+			if (buffers.exists(displayName)) {
+				if (!copiesOfCharacters.exists(name)) {
+					copiesOfCharacters[name] = 0;
+				}
+				displayName += Std.string(copiesOfCharacters[name]++);
+			}
+
+			if (!buffers.exists(displayName)) {
+				buffers[displayName] = new Buffer<ActorElement>(1);
+			}
+
+			if (!programs.exists(displayName)) {
+				var program = programs[displayName] = new Program(buffers[displayName]);
+				program.blendEnabled = true;
+			}
+
+			display.addProgram(programs[displayName]);
+
+			var texName = displayName + "char";
+			TextureSystem.createTexture(texName, spritesheetDataPath.replace("data.xml", atlas.imagePath));
+			TextureSystem.setTexture(programs[displayName], texName, texName);
+		}
+
+		setFps(fps);
 
 		mirror = !data.flip;
 		scale = data.scale;
