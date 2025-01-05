@@ -8,11 +8,13 @@
 	<app main="Main" path="bin" file="test" />
 
 	<source path="../src" />
-	<source path="tex-slot-limit" />
+	<!-- <source path="tex-slot-limit" /> -->
+	<source path="actor" />
 
 	<haxelib name="lime" />	
 	<haxelib name="peote-view" />
 	<haxelib name="format" />
+	<haxelib name="miniaudio" />
   
 	<!-- use special gl-features for optimization (if supported by opengl-es version) -->
 	<haxedef name="peoteview_uniformbuffers" />
@@ -27,4 +29,14 @@
 
 
 	<icon path="assets/lime.svg" />
+
+
+
+	<!--<haxedef name="peoteview_debug_macro" />-->
+	<!--<haxedef name="peoteview_debug_buffer" />-->
+	<!--<haxedef name="peoteview_debug_view" />-->
+	<!--<haxedef name="peoteview_debug_display" />-->
+	<!-- <haxedef name="peoteview_debug_program" /> -->
+	<!--<haxedef name="peoteview_debug_texture" />-->
+	<haxedef name="peoteview_debug_shader" />
 </project>
