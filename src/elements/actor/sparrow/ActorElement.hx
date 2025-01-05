@@ -6,37 +6,37 @@ package elements.actor.sparrow;
 @:publicFields
 class ActorElement implements Element
 {
-	@texX var clipX = 0;
-	@texY var clipY = 0;
-	@texW var clipWidth(default, set) = 1;
-	@texH var clipHeight(default, set) = 1;
+	@texX var clipX:Float = 0.0;
+	@texY var clipY:Float = 0.0;
+	@texW var clipWidth(default, set):Float = 1.0;
+	@texH var clipHeight(default, set):Float = 1.0;
 
-	inline function set_clipWidth(value:Int)
+	inline function set_clipWidth(value:Float)
 	{
 		clipWidth = value;
 		clipSizeX = value;
 		return value;
 	}
 
-	inline function set_clipHeight(value:Int)
+	inline function set_clipHeight(value:Float)
 	{
 		clipHeight = value;
 		clipSizeY = value;
 		return value;
 	}
 
-	@texSizeX private var clipSizeX = 1;
-	@texSizeY private var clipSizeY = 1;
+	@texSizeX private var clipSizeX:Float = 1.0;
+	@texSizeY private var clipSizeY:Float = 1.0;
 
-	@varying @custom @formula("_mirror == 1 ? (_flipX == 0 ? 1 : 0) : _flipX") var _flipX = 0;
-	@varying @custom var _flipY = 0;
-	@varying @custom var _mirror = 0;
+	@varying @custom @formula("_mirror == 1.0 ? (_flipX == 0.0 ? 1.0 : 0.0) : _flipX") var _flipX:Float = 0.0;
+	@varying @custom var _flipY:Float = 0.0;
+	@varying @custom var _mirror:Float = 0.0;
 
 	var flipX(default, set) : Bool;
 
 	inline function set_flipX(value:Bool) : Bool
 	{
-		_flipX = value ? 1 : 0;
+		_flipX = value ? 1.0 : 0.0;
 		return flipX = value;
 	}
 
@@ -56,13 +56,13 @@ class ActorElement implements Element
 		return mirror = value;
 	}
 
-	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1 ? _flipX : -_flipX))") var x : Float;
+	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1.0 ? _flipX : -_flipX))") var x : Float;
 	@posY @formula("y + off_y + py + adjust_y + (h * _flipY)") var y : Float;
-	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1 : 1)") var w : Float;
-	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1 : 1)") var h : Float;
+	@sizeX @formula("(w * scale) * (_flipX == 1.0 ? -1.0 : 1.0)") var w : Float;
+	@sizeY @formula("(h * scale) * (_flipY == 1.0 ? -1.0 : 1.0)") var h : Float;
 
-	@pivotX @formula("(w < 0 ? -w : w) * 0.5") var px : Float;
-	@pivotY @formula("(h < 0 ? -h : h) * 0.5") var py : Float;
+	@pivotX @formula("(w < 0.0 ? -w : w) * 0.5") var px : Float;
+	@pivotY @formula("(h < 0.0 ? -h : h) * 0.5") var py : Float;
 
 	@rotation var r : Float;
 
@@ -74,7 +74,7 @@ class ActorElement implements Element
 
 	@color var c : Color = 0xFFFFFFFF;
 
-	function new(x=0, y:Float = 0)
+	function new(x:Float=0, y:Float = 0)
 	{
 		this.x = x;
 		this.y = y;
