@@ -24,8 +24,10 @@ class Actor extends ActorElement
 
 	static var buffers:Map<String, Buffer<ActorElement>> = [];
 	static var programs:Map<String, Program> = [];
+	static var copiesOfCharacters:Map<String, Int> = [];
 
 	var name(default, null):String;
+	var displayName(default, null):String;
 	var atlas(default, null):SparrowAtlas;
 	var data(default, null):ActorData;
 
@@ -33,28 +35,39 @@ class Actor extends ActorElement
 
 	private var folder:String = "";
 
+	var display(default, null):CustomDisplay;
+
 	function new(display:CustomDisplay, name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters/", addBufferAndProgram:Bool = true) {
+		this.display = display;
+
 		super(x, y);
 
 		this.folder = folder;
 
-		this.name = name;
+		this.name = displayName = name;
 
 		if (addBufferAndProgram) {
-			if (!buffers.exists(name)) {
-				buffers[name] = new Buffer<ActorElement>(1, 1, true);
+			if (buffers.exists(displayName)) {
+				if (!copiesOfCharacters.exists(name)) {
+					copiesOfCharacters[name] = 0;
+				}
+				displayName += 'Copy' + ++copiesOfCharacters[name];
+			}
+
+			if (!buffers.exists(displayName)) {
+				buffers[displayName] = new Buffer<ActorElement>(1);
 			}
 	
-			if (!programs.exists(name)) {
-				var program = programs[name] = new Program(buffers[name]);
+			if (!programs.exists(displayName)) {
+				var program = programs[displayName] = new Program(buffers[displayName]);
 				program.blendEnabled = true;
 			}
 	
-			display.addProgram(programs[name]);
+			display.addProgram(programs[displayName]);
 	
-			var texName = name + "char";
+			var texName = displayName + "char";
 			TextureSystem.createTexture(texName, path(name, folder, IMAGE));
-			TextureSystem.setTexture(programs[name], texName, texName);
+			TextureSystem.setTexture(programs[displayName], texName, texName);
 		}
 
 		setFps(fps);
@@ -74,7 +87,7 @@ class Actor extends ActorElement
 	}
 
 	inline function addToBuffer() {
-		buffers[name].addElement(this);
+		buffers[displayName].addElement(this);
 	}
 
 	static function path(name:String, folder:String, type:CharacterPathType) {
@@ -112,6 +125,11 @@ class Actor extends ActorElement
 	private var loop:Bool;
 	private var indicesMode:Bool;
 	private var indices:Vector<Int>;
+	private var firstFrameWidth(get, default):Float;
+
+	inline function get_firstFrameWidth() {
+		return firstFrameWidth * scale;
+	}
 
 	var shake:Bool;
 	var startingShakeFrame:Int;
@@ -164,6 +182,7 @@ class Actor extends ActorElement
 		this.loop = loop;
 
 		changeFrame();
+		firstFrameWidth = clipWidth;
 	}
 
 	inline function stopAnimation() {
@@ -204,7 +223,7 @@ class Actor extends ActorElement
 			frameTimeRemaining = frameDurationMs;
 		}
 
-		buffers[name].updateElement(this);
+		buffers[displayName].updateElement(this);
 	}
 
 	public function configure(config:SubTexture) {
@@ -215,10 +234,11 @@ class Actor extends ActorElement
 		var yOffset = config.frameY == null ? 0 : config.frameY;
 		var flipX = config.flipX == null ? false : config.flipX;
 		var flipY = config.flipY == null ? false : config.flipY;
+		var frameWidth = config.frameWidth == null ? 0 : config.frameWidth;
 
-		off_x = -xOffset;
-		if (mirror) off_x += width % xOffset; // This needs done
-		off_y = -yOffset;
+		off_x = -xOffset * scale;
+		if (mirror) off_x = -off_x + (frameWidth - width); // This needs done
+		off_y = -yOffset * scale;
 
 		w = width;
 		h = height;
@@ -235,7 +255,9 @@ class Actor extends ActorElement
 	}
 
 	function dispose() {
-		Main.current.topDisplay.removeProgram(programs[name]);
-		buffers[name].clear();
+		display.removeProgram(programs[displayName]);
+		display = null;
+
+		buffers[displayName].clear();
 	}
 }
