@@ -52,8 +52,8 @@ class ActorElement implements Element {
 
 	@posX @formula("x + off_x + px + adjust_x + (w * (_mirror == 1 ? _flipX : -_flipX))") var x:Float;
 	@posY @formula("y + off_y + py + adjust_y + (h * _flipY)") var y:Float;
-	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1 : 1)") var w:Float;
-	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1 : 1)") var h:Float;
+	@sizeX @formula("(w * scale) * (_flipX == 1 ? -1.0 : 1.0)") var w:Float;
+	@sizeY @formula("(h * scale) * (_flipY == 1 ? -1.0 : 1.0)") var h:Float;
 
 	@pivotX @formula("(w < 0 ? -w : w) * 0.5") var px:Float;
 	@pivotY @formula("(h < 0 ? -h : h) * 0.5") var py:Float;
