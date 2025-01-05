@@ -275,4 +275,19 @@ class Actor extends ActorElement
 	{
 		configure(atlas.subTextures[startingFrameIndex + frameIndex]);
 	}
+
+	public static function init_direct(display:Display) {
+		if (buffer == null)
+		{
+			buffer = new Buffer<ActorElement>(4, 4, true);
+		}
+
+		if (program == null)
+		{
+			program = new Program(buffer);
+			program.blendEnabled = true;
+		}
+
+		display.addProgram(program);
+	}
 }
