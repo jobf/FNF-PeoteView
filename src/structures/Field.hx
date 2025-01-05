@@ -36,9 +36,6 @@ class Field {
 	function new(parent:PlayField) {
 		this.parent = parent;
 
-		Actor.init(parent);
-		Actor.loadTexturesOf(["dad", "bf"]);
-
 		actors_sparrow = [];
 		actors_sparrow.resize(2);
 
@@ -48,14 +45,14 @@ class Field {
 		dad.startingShakeFrame = 0;
 		dad.endingShakeFrame = 1;
 		dad.finishAnim = "idle";
-		Actor.buffer.addElement(dad);
+		dad.addToBuffer();
 
 		bf = new Actor("bf", 625, 250, 24);
 		bf.playAnimation("idle");
 		bf.startingShakeFrame = 0;
 		bf.endingShakeFrame = 1;
 		bf.finishAnim = "idle";
-		Actor.buffer.addElement(bf);
+		bf.addToBuffer();
 
 		parent.onNoteHit.add(function(note, timing) {
 			sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
@@ -89,18 +86,13 @@ class Field {
 	var targetCamera:Point = {x: 0, y: 0};
 
 	function update(deltaTime:Float) {
-		var buf = Actor.buffer;
-
 		var sc = parent.view.scroll;
 		var ratio = deltaTime * 0.01;
 		parent.view.scroll.x = sc.x + ratio * (targetCamera.x - sc.x);
 		parent.view.scroll.y = sc.y + ratio * (targetCamera.y - sc.y);
 
 		dad.update(deltaTime);
-		buf.updateElement(dad);
-
 		bf.update(deltaTime);
-		buf.updateElement(bf);
 	}
 
 	function resetCharacters() {
@@ -118,7 +110,8 @@ class Field {
 	}
 
 	function dispose() {
-		Actor.uninit(parent);
+		dad.dispose();
+		bf.dispose();
 
 		parent.view.scroll.x = parent.view.scroll.y = 0;
 		parent.view.fov = 1.0;

@@ -22,55 +22,41 @@ class Actor extends ActorElement
 {
 	// Stuff for initialization and shit
 
-	static var buffer:Buffer<ActorElement>;
-	static var program:Program;
+	static var buffers:Map<String, Buffer<ActorElement>> = [];
+	static var programs:Map<String, Program> = [];
 
-	static var charToUnits(default, null):Map<String, Int> = [];
 	var name(default, null):String;
 	var atlas(default, null):SparrowAtlas;
 	var data(default, null):ActorData;
 
 	var finishAnim:String = "";
 
-	@texUnit("chars") public var unit:Int = 0;
-
 	private var folder:String = "";
 
-	static function init(parent:PlayField) {
-		var view = parent.view;
-
-		if (buffer == null) {
-			buffer = new Buffer<ActorElement>(4, 4, true);
-		}
-
-		if (program == null) {
-			program = new Program(buffer);
-			program.blendEnabled = true;
-		}
-
-		view.addProgram(program);
-	}
-
-	static function loadTexturesOf(chars:Array<String>) {
-		TextureSystem.createMultiTexture("chars", [for (i in 0...chars.length) {
-			var char = chars[i];
-			charToUnits[char] = i;
-			path(char, "characters/", IMAGE);
-		}]);
-		TextureSystem.setTexture(program, "chars", "chars");
-	}
-
-	static function uninit(parent:PlayField) {
-		parent.view.removeProgram(program);
-		buffer.clear();
-	}
-
-	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters/") {
+	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters/", addBufferAndProgram:Bool = true) {
 		super(x, y);
 
 		this.folder = folder;
 
 		this.name = name;
+
+		if (addBufferAndProgram) {
+			if (!buffers.exists(name)) {
+				buffers[name] = new Buffer<ActorElement>(1, 1, true);
+			}
+	
+			if (!programs.exists(name)) {
+				var program = programs[name] = new Program(buffers[name]);
+				program.blendEnabled = true;
+			}
+	
+			Main.current.bottomDisplay.addProgram(programs[name]);
+	
+			var texName = name + "char";
+			TextureSystem.createTexture(texName, path(name, folder, IMAGE));
+			TextureSystem.setTexture(programs[name], texName, texName);
+		}
+
 		setFps(fps);
 
 		if (pathExists(name, folder, XML)) {
@@ -83,10 +69,12 @@ class Actor extends ActorElement
 			data = ActorData.parse(path(name, folder, DATA));
 		}
 
-		unit = charToUnits[name];
-
 		mirror = !data.flip;
 		scale = data.scale;
+	}
+
+	inline function addToBuffer() {
+		buffers[name].addElement(this);
 	}
 
 	static function path(name:String, folder:String, type:CharacterPathType) {
@@ -215,6 +203,8 @@ class Actor extends ActorElement
 			changeFrame();
 			frameTimeRemaining = frameDurationMs;
 		}
+
+		buffers[name].updateElement(this);
 	}
 
 	public function configure(config:SubTexture) {
@@ -238,15 +228,14 @@ class Actor extends ActorElement
 		clipY = config.y;
 		clipWidth = width;
 		clipHeight = height;
-
-		var multiTexLocationMap = TextureSystem.multitexLocMap;
-
-		if (multiTexLocationMap.exists("chars")) {
-			clipX += multiTexLocationMap["chars"][unit];
-		}
 	}
 
 	function changeFrame() {
 		configure(atlas.subTextures[startingFrameIndex + frameIndex]);
+	}
+
+	function dispose() {
+		Main.current.topDisplay.removeProgram(programs[name]);
+		buffers[name].clear();
 	}
 }
