@@ -33,7 +33,7 @@ class Actor extends ActorElement
 
 	private var folder:String = "";
 
-	function new(name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters/", addBufferAndProgram:Bool = true) {
+	function new(display:CustomDisplay, name:String, x:Int = 0, y:Int = 0, fps:Int = 24, folder:String = "characters/", addBufferAndProgram:Bool = true) {
 		super(x, y);
 
 		this.folder = folder;
@@ -50,7 +50,7 @@ class Actor extends ActorElement
 				program.blendEnabled = true;
 			}
 	
-			Main.current.bottomDisplay.addProgram(programs[name]);
+			display.addProgram(programs[name]);
 	
 			var texName = name + "char";
 			TextureSystem.createTexture(texName, path(name, folder, IMAGE));

@@ -64,7 +64,7 @@ class MainMenu implements State {
 		watermarkTxt.y = Main.INITIAL_HEIGHT - watermarkTxt.height;
 
 		for (i in 0...optionAnims.length) {
-			var spr = new Actor("mainMenu", 0, 0, 24, "", false);
+			var spr = new Actor(view, "mainMenu", 0, 0, 24, "", false);
 			spr.playAnimation(optionAnims[i] + ' basic', true);
 			spr.x = 20;
 			spr.y = 20 + (spr.h * i);

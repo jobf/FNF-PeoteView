@@ -39,7 +39,7 @@ class Field {
 		actors_sparrow = [];
 		actors_sparrow.resize(2);
 
-		dad = new Actor("dad", 225, 250, 24);
+		dad = new Actor(parent.view, "dad", 225, 250, 24);
 		dad.mirror = !dad.mirror;
 		dad.playAnimation("idle");
 		dad.startingShakeFrame = 0;
@@ -47,7 +47,7 @@ class Field {
 		dad.finishAnim = "idle";
 		dad.addToBuffer();
 
-		bf = new Actor("bf", 625, 250, 24);
+		bf = new Actor(parent.view, "bf", 625, 250, 24);
 		bf.playAnimation("idle");
 		bf.startingShakeFrame = 0;
 		bf.endingShakeFrame = 1;
