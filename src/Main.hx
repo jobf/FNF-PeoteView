@@ -17,7 +17,7 @@ class Main extends Application
 	static inline var INITIAL_HEIGHT = 720;
 
 	// Internal variable for checking if the game has booted up
-	private var _started(default, null) : Bool;
+	private var _started(default, null):Bool;
 
 	override function onWindowCreate()
 	{
@@ -35,21 +35,21 @@ class Main extends Application
 	// ------------------------------------------------------------
 
 	// STARTING POINT
-	static var current : Main;
-	var peoteView : PeoteView;
+	static var current:Main;
+	var peoteView:PeoteView;
 
 	// MUSIC
-	static var conductor : Conductor;
+	static var conductor:Conductor;
 
 	// DISPLAYS
-	var bottomDisplay : CustomDisplay;
-	var middleDisplay : CustomDisplay;
-	var topDisplay : CustomDisplay;
+	var bottomDisplay:CustomDisplay;
+	var middleDisplay:CustomDisplay;
+	var topDisplay:CustomDisplay;
 
 	// STATES
-	var currentState : StateSelection;
-	var mainMenu : MainMenu;
-	var playField : PlayField;
+	var currentState:StateSelection;
+	var mainMenu:MainMenu;
+	var playField:PlayField;
 
 	public function startSample(window:Window)
 	{
@@ -65,8 +65,7 @@ class Main extends Application
 
 		peoteView = new PeoteView(window);
 
-		haxe.Timer.delay(function()
-		{
+		haxe.Timer.delay(function() {
 			var stamp = haxe.Timer.stamp();
 			trace("Preloading textures...");
 			TextureSystem.createTexture("mainMenuBGTex", "assets/mainMenu/menuBG.png");
@@ -105,11 +104,10 @@ class Main extends Application
 			window.onFullscreen.add(fullscreen);
 
 			#if FV_DEBUG
-			window.onKeyDown.add(DeveloperStuff.testPlayfieldInputStuff);
+			DeveloperStuff.init(window, this);
 			#end
 
-			if (RenderingMode.enabled)
-			{
+			if (RenderingMode.enabled) {
 				RenderingMode.initRender(this);
 			}
 
@@ -117,14 +115,12 @@ class Main extends Application
 		}, 100);
 	}
 
-	static public function switchState(newState:StateSelection)
-	{
+	static public function switchState(newState:StateSelection) {
 		var instance = Main.current;
 
 		if (newState == instance.currentState) return;
 
-		try
-		{
+		try {
 			switch (instance.currentState) {
 				case MAIN_MENU:
 					instance.mainMenu.dispose();
@@ -137,13 +133,11 @@ class Main extends Application
 				case CREDITS:
 				case NONE:
 			}
-		}
-		catch (e) {}
+		} catch (e) {}
 
 		instance.currentState = newState;
 
-		switch (newState)
-		{
+		switch (newState) {
 			case MAIN_MENU:
 				instance.mainMenu = new MainMenu();
 				instance.mainMenu.init(instance.middleDisplay, instance.bottomDisplay);
@@ -161,42 +155,35 @@ class Main extends Application
 		GC.enable(false);
 	}
 
-	var newDeltaTime : Float = 0;
-	var timeStamp : Float = 0;
+	var newDeltaTime:Float = 0;
+	var timeStamp:Float = 0;
 
-	override function update(deltaTime:Int)
-	{
+	override function update(deltaTime:Int) {
 		Tools.profileFrame();
 
-		if (_started)
-		{
-			var ts : Float = stamp();
+		if (_started) {
+			var ts:Float = stamp();
 
 			newDeltaTime = (ts - timeStamp) * 1000;
 
-			if (RenderingMode.enabled)
-			{
+			if (RenderingMode.enabled) {
 				newDeltaTime = 1000 / 60;
 			}
 
-			if (mainMenu != null && !mainMenu.disposed)
-			{
+			if (mainMenu != null && !mainMenu.disposed) {
 				mainMenu.update(newDeltaTime);
 			}
 
-			if (playField != null && !playField.disposed)
-			{
+			if (playField != null && !playField.disposed) {
 				if (!playField.paused) {
 					playField.update(newDeltaTime);
 	
-					if (RenderingMode.enabled && !playField.songEnded)
-					{
+					if (RenderingMode.enabled && !playField.songEnded) {
 						RenderingMode.pipeFrame();
 					}
 				}
 
-				if (PauseScreen.pauseProg.isIn(topDisplay))
-				{
+				if (PauseScreen.pauseProg.isIn(topDisplay)) {
 					playField.pauseScreen.update(newDeltaTime);
 				}
 			}
@@ -207,8 +194,7 @@ class Main extends Application
 		Tools.profileFrame();
 	}
 
-	function resize(w:Int, h:Int)
-	{
+	function resize(w:Int, h:Int) {
 		var scale = h / INITIAL_HEIGHT;
 
 		peoteView.resize(w, h);
@@ -226,14 +212,12 @@ class Main extends Application
 		topDisplay.scale = scale;
 	}
 
-	inline function fullscreen()
-	{
+	inline function fullscreen() {
 		var display = Application.current.window.displayMode;
 		resize(display.width, display.height);
 	}
 
-	inline function stamp()
-	{
+	inline function stamp() {
 		return Timestamp.get();
 	}
 
@@ -242,8 +226,7 @@ class Main extends Application
 	// ------------------------------------------------------------
 }
 
-private enum abstract StateSelection(cpp.UInt8)
-{
+private enum abstract StateSelection(cpp.UInt8) {
 	var NONE;
 	var MAIN_MENU;
 	var FREEPLAY;

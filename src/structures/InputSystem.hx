@@ -9,9 +9,8 @@ import lime.ui.KeyModifier;
 	Warning: 70% of inside the class is very messy.
 **/
 @:publicFields
-class InputSystem
-{
-	var keybindMaps : Vector<Map<KeyCode, Vector<Int>>> = Vector.fromData([
+class InputSystem {
+	var keybindMaps:Vector<Map<KeyCode, Vector<Int>>> = Vector.fromData([
 		// 1 KEY
 		[KeyCode.SPACE => Vector.fromData([0, 1])],
 		// 2 KEY
@@ -40,24 +39,22 @@ class InputSystem
 		KeyCode.H => Vector.fromData([5, 1]), KeyCode.J => Vector.fromData([6, 1]), KeyCode.K => Vector.fromData([7, 1]), KeyCode.L => Vector.fromData([8, 1])]
 	]);
 
-	var map : Map<KeyCode, Vector<Int>>;
-	var receptorIds : Vector<Int>;
-	var strumline : Array<Array<Vector<Float>>>;
-	var strumlinePlayable : Array<Bool>;
-	var strumlineIndexes : Vector<Int>;
+	var map:Map<KeyCode, Vector<Int>>;
+	var receptorIds:Vector<Int>;
+	var strumline:Array<Array<Vector<Float>>>;
+	var strumlinePlayable:Array<Bool>;
+	var strumlineIndexes:Vector<Int>;
 
-	var parent : PlayField;
+	var parent:PlayField;
 
-	function new(mania:Int, parent:PlayField)
-	{
+	function new(mania:Int, parent:PlayField) {
 		this.parent = parent;
 
 		map = keybindMaps[mania > 9 ? 8 : mania <= 1 ? 0 : mania - 1];
 
 		// This shit is fucking unbearable as FUCK
 		// It's why it's in its own class
-		switch (mania)
-		{
+		switch (mania) {
 			case 1:
 				receptorIds = Vector.fromData([0]);
 
@@ -177,14 +174,14 @@ class InputSystem
 					[for (i in 0...4) Vector.fromData([receptorIds[i], 50 + (112 * i), 1.0])],
 					[for (i in 0...4) Vector.fromData([receptorIds[i], 680 + (112 * i), 1.0])]
 				];
+
 		}
 
 		strumlinePlayable = [false, true];
 
 		strumlineIndexes = new Vector<Int>(strumline.length);
 
-		for (i in 0...strumline.length)
-		{
+		for (i in 0...strumline.length) {
 			parent.numOfReceptors += strumline[i].length;
 			if (i != 0) strumlineIndexes[i] = strumline[i-1].length;
 			else strumlineIndexes[i] = 0;
@@ -195,24 +192,20 @@ class InputSystem
 		window.onKeyUp.add(release);
 	}
 
-	inline function exists(keyCode:Int)
-	{
+	inline function exists(keyCode:Int) {
 		return untyped map.exists(keyCode);
 	}
 
-	inline function get(keyCode:Int)
-	{
+	inline function get(keyCode:Int) {
 		return untyped map.get(keyCode);
 	}
 
-	function press(code:KeyCode, mod:KeyModifier)
-	{
+	function press(code:KeyCode, mod:KeyModifier) {
 		if (code == KeyCode.RETURN && !parent.songEnded && !parent.paused && parent.ready) parent.pause();
 
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused) return;
 
-		if (!exists(code))
-		{
+		if (!exists(code)) {
 			return;
 		}
 
@@ -222,15 +215,13 @@ class InputSystem
 
 		var noteSystem = parent.noteSystem;
 
-		if (noteSystem.playerHitsToCheck[index])
-		{
+		if (noteSystem.playerHitsToCheck[index]) {
 			return;
 		}
 
 		var rec = noteSystem.getReceptor(index);
 
-		if (!rec.playable)
-		{
+		if (!rec.playable) {
 			return;
 		}
 
@@ -242,12 +233,10 @@ class InputSystem
 		parent.onKeyPress.dispatch(code);
 	}
 
-	function release(code:KeyCode, mod:KeyModifier)
-	{
+	function release(code:KeyCode, mod:KeyModifier) {
 		if (parent.disposed || parent.botplay || RenderingMode.enabled || parent.paused && parent.ready) return;
 
-		if (!exists(code))
-		{
+		if (!exists(code)) {
 			return;
 		}
 
@@ -261,8 +250,7 @@ class InputSystem
 
 		var rec = noteSystem.getReceptor(index);
 
-		if (!rec.playable)
-		{
+		if (!rec.playable) {
 			return;
 		}
 
@@ -272,8 +260,7 @@ class InputSystem
 		parent.onKeyRelease.dispatch(code);
 	}
 
-	function dispose()
-	{
+	function dispose() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(press);
 		window.onKeyUp.remove(release);

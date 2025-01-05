@@ -10,91 +10,79 @@ import Miniaudio.MaResult;
 	Sound class using miniaudio.
 **/
 @:publicFields
-class Sound
-{
-	private var sound : MaSound;
-	static var engine : MaEngine;
+class Sound {
+	private var sound:MaSound;
+	static var engine:MaEngine;
 
 	// START OF PLAYBACK TRACKING SYSTEM //
 
-	var playbackTrackingMethod : PlaybackTrackingMethod = HYBRID;
+	var playbackTrackingMethod:PlaybackTrackingMethod = HYBRID;
 
-	private var _programPos : cpp.Float64;
-	private var _driverPos : cpp.Float32;
-	private var _length : cpp.Float32;
-	private var _time : cpp.Float64;
-	private var _sampleRate : cpp.UInt32;
-	private var _dataSource : cpp.Star<MaDataSource>;
-	private var _playhead(default, null) = new Playhead();
+	private var _programPos:cpp.Float64;
+	private var _driverPos:cpp.Float32;
+	private var _length:cpp.Float32;
+	private var _time:cpp.Float64;
+	private var _sampleRate:cpp.UInt32;
+	private var _dataSource:cpp.Star<MaDataSource>;
+	private var _playhead(default, null):Playhead = new Playhead();
 
-	var time(get, set) : Float;
+	var time(get, set):Float;
 
-	inline function get_time()
-	{
+	inline function get_time() {
 		return _time;
 	}
 
-	inline function set_time(value:Float)
-	{
-		return setTime(value * 0.001) * 1000;
+	inline function set_time(value:Float) {
+		return setTime(value * 0.001);
 	}
 
 	/// END OF PLAYBACK TRACKING SYSTEM ///
 
-	var sampleRate(get, never) : Int;
+	var sampleRate(get, never):Int;
 
-	inline function get_sampleRate()
-	{
+	inline function get_sampleRate() {
 		return _sampleRate;
 	}
 
-	var length(get, never) : Float;
+	var length(get, never):Float;
 
-	inline function get_length()
-	{
+	inline function get_length() {
 		return _length;
 	}
 
-	var volume(get, set) : Float;
+	var volume(get, set):Float;
 
-	inline function get_volume()
-	{
+	inline function get_volume() {
 		return Miniaudio.ma_sound_get_volume(sound);
 	}
 
-	inline function set_volume(value:Float)
-	{
+	inline function set_volume(value:Float) {
 		Miniaudio.ma_sound_set_volume(sound, value);
 		return value;
 	}
 
-	var playing(get, never) : Bool;
+	var playing(get, never):Bool;
 
-	inline function get_playing()
-	{
+	inline function get_playing() {
 		return Miniaudio.ma_sound_is_playing(sound) != 0;
 	}
 
-	var finished(get, never) : Bool;
+	var finished(get, never):Bool;
 
-	inline function get_finished()
-	{
+	inline function get_finished() {
 		return Miniaudio.ma_sound_at_end(sound) != 0;
 	}
 
-	static function init()
-	{
+	static function init() {
 		var result = Miniaudio.ma_engine_init(null, engine);
 
-		if (result != MaResult.MA_SUCCESS)
-		{
+		if (result != MaResult.MA_SUCCESS) {
 			Sys.println("[Sound system] Failed to initialize engine");
 			return;
 		}
 	}
 
-	function new()
-	{
+	function new() {
 		sound = MaSound.create();
 
 		// BUGFIX
@@ -105,21 +93,17 @@ class Sound
 		cpp.vm.Gc.doNotKill(this);
 	}
 
-	function fromFile(path:String, ?grp:SoundGroup)
-	{
+	function fromFile(path:String) {
 		var result = Miniaudio.ma_sound_init_from_file(engine, path,
-		0x00000001 | 0x00002000, grp != null ? grp.grp : null, null, sound);
+		0x00000001 | 0x00002000, null, null, sound);
 
-		if (result != MaResult.MA_SUCCESS)
-		{
+		if (result != MaResult.MA_SUCCESS) {
 			if (path != "") {
 				Sys.println('[Sound system] Failed to initialize sound named "$path"');
 				Sys.println(result);
 			}
 			return;
 		}
-
-		if (grp != null) grp.sounds.push(this);
 
 		Miniaudio.ma_sound_get_length_in_seconds(sound, cpp.Pointer.addressOf(_length).ptr);
 		_length *= 1000;
@@ -128,61 +112,54 @@ class Sound
 		Miniaudio.ma_data_source_get_data_format(_dataSource, null, null, cpp.Pointer.addressOf(_sampleRate).ptr, null, 0);
 	}
 
-	function play()
-	{
+	function play() {
 		var result = Miniaudio.ma_sound_start(sound);
 
 		_programPos = -Timestamp.get() + _playhead.driver;
 
-		if (result != MaResult.MA_SUCCESS)
-		{
+		if (result != MaResult.MA_SUCCESS) {
 			Sys.println("[Sound system] Failed to play sound");
 			return;
 		}
 	}
 
-	function stop()
-	{
+	function stop() {
 		var result = Miniaudio.ma_sound_stop(sound);
 
-		if (result != MaResult.MA_SUCCESS)
-		{
+		if (result != MaResult.MA_SUCCESS) {
 			Sys.println("[Sound system] Failed to stop sound");
 			return;
 		}
 	}
 
-	inline private function setTime(timeInSec:cpp.Float64)
-	{
+	private function setTime(timeInSec:cpp.Float64) {
 		Miniaudio.ma_sound_seek_to_pcm_frame(sound, untyped (sampleRate * timeInSec));
+
 		_programPos = -Timestamp.get() + timeInSec;
+
 		return timeInSec;
 	}
 
-	function update()
-	{
-		var result : Float = 0;
+	function update() {
+		var result:Float = 0;
 
-		if (playing)
-		{
+		if (playing) {
 			_playhead.program = _programPos + Timestamp.get();
 
 			Miniaudio.ma_sound_get_cursor_in_seconds(sound, cpp.Pointer.addressOf(_driverPos).ptr);
-			_playhead.driver = _driverPos;
+			_playhead.driver = Math.floor(_driverPos * 1000) * 0.001;
 
 			var prog = _playhead.program;
 			var driv = _playhead.driver;
 
-			switch (playbackTrackingMethod)
-			{
+			switch (playbackTrackingMethod) {
 				case DRIVER:
 					result = driv;
 				case PROGRAM:
 					result = prog;
 				default:
 					// Sync
-					if (prog > driv)
-					{
+					if (prog > driv) {
 						var multiply = 0.125;
 						if (prog - driv > 5) multiply = 0.25;
 						else if (prog - driv > 12.5) multiply = 0.5;
@@ -194,31 +171,26 @@ class Sound
 					result = _playhead.program;
 			}
 
-			if (result < 0)
-			{
+			if (result < 0) {
 				result = 0;
 			}
 
-			if (result > length)
-			{
+			if (result > length) {
 				result = length;
 			}
-		} else if (finished)
-		{
+		} else if (finished) {
 			result = length * 0.001;
 		}
 
 		_time = result * 1000.0;
 	}
 
-	function dispose()
-	{
+	function dispose() {
 		stop();
 		Miniaudio.ma_sound_uninit(sound);
 	}
 
-	static function uninit()
-	{
+	static function uninit() {
 		Miniaudio.ma_engine_uninit(engine);
 	}
 }
@@ -226,8 +198,7 @@ class Sound
 /**
 	Playback tracking method.
 **/
-private enum abstract PlaybackTrackingMethod(cpp.UInt8)
-{
+private enum abstract PlaybackTrackingMethod(cpp.UInt8) {
 	/**
 		Playback position is retrieved from the current audio driver.
 	**/
@@ -249,34 +220,28 @@ private enum abstract PlaybackTrackingMethod(cpp.UInt8)
 	Playback tracker.
 **/
 @:publicFields
-private abstract Playhead(Array<Float>) from Array<Float>
-{
-	var driver(get, set) : Float;
+private abstract Playhead(Array<Float>) from Array<Float> {
+	var driver(get, set):Float;
 
-	inline function get_driver() : Float
-	{
+	inline function get_driver():Float {
 		return this[0];
 	}
 
-	inline function set_driver(value:Float) : Float
-	{
+	inline function set_driver(value:Float):Float {
 		return this[0] = value;
 	}
 
-	var program(get, set) : Float;
+	var program(get, set):Float;
 
-	inline function get_program() : Float
-	{
+	inline function get_program():Float {
 		return this[1];
 	}
 
-	inline function set_program(value:Float) : Float
-	{
+	inline function set_program(value:Float):Float {
 		return this[1] = value;
 	}
 
-	inline function new()
-	{
+	inline function new() {
 		this = [0, 0];
 	}
 }

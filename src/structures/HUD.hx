@@ -9,49 +9,47 @@ import lime.ui.KeyModifier;
 **/
 @:publicFields
 @:access(structures.PlayField)
-class HUD
-{
-	static var uiBuf(default, null) : Buffer<UISprite>;
-	static var uiProg(default, null) : Program;
+class HUD {
+	static var uiBuf(default, null):Buffer<UISprite>;
+	static var uiProg(default, null):Program;
 
-	var scoreTxt : Text;
-	var watermarkTxt : Text;
-	var timeBarTxt : Text;
+	var scoreTxt:Text;
+	var watermarkTxt:Text;
+	var timeBarTxt:Text;
 
-	var ratingPopup : UISprite;
-	var comboNumbers : Array<UISprite> = [];
+	var ratingPopup:UISprite;
+	var comboNumbers:Array<UISprite> = [];
 
-	var healthBarParts : Array<UISprite> = [];
-	var healthBarBG : UISprite;
+	var healthBarParts:Array<UISprite> = [];
+	var healthBarBG:UISprite;
 
-	var healthIcons : Array<UISprite> = [];
-	var healthIconIDs : Array<Array<Int>> = [[0, 1], [2, 3]];
-	var healthIconColors : Array<Array<Color>> = [
+	var healthIcons:Array<UISprite> = [];
+	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
+	var healthIconColors:Array<Array<Color>> = [
 		[Color.WHITE, Color.BLUE, Color.YELLOW, Color.RED3, Color.GREY2, Color.CYAN],
 		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
 	];
 
-	var timeBarParts : Array<UISprite> = [];
-	var timeBarBG : UISprite;
+	var timeBarParts:Array<UISprite> = [];
+	var timeBarBG:UISprite;
 
-	var healthBarWS : Float;
-	var healthBarHS : Float;
-	var healthBarXA : Float;
-	var healthBarYA : Float;
+	var healthBarWS:Float;
+	var healthBarHS:Float;
+	var healthBarXA:Float;
+	var healthBarYA:Float;
 
-	var timeBarWS : Float;
-	var timeBarHS : Float;
-	var timeBarXA : Float;
-	var timeBarYA : Float;
+	var timeBarWS:Float;
+	var timeBarHS:Float;
+	var timeBarXA:Float;
+	var timeBarYA:Float;
 
-	var display : CustomDisplay;
-	var parent : PlayField;
+	var display:CustomDisplay;
+	var parent:PlayField;
 
 	/**
 		Create the playfield UI.
 	**/
-	function new(display:CustomDisplay, parent:PlayField)
-	{
+	function new(display:CustomDisplay, parent:PlayField) {
 		this.display = display;
 		this.parent = parent;
 
@@ -77,8 +75,7 @@ class HUD
 		var actors_sparrow = parent.field.actors_sparrow;
 
 		// HEALTH BAR PART SETUP
-		for (i in 0...2)
-		{
+		for (i in 0...2) {
 			var part = healthBarParts[i] = new UISprite();
 			part.h = healthBarBG.h - healthBarHS;
 			part.y = healthBarBG.y + healthBarYA;
@@ -97,8 +94,7 @@ class HUD
 
 		var x = healthBarBG.x + (healthBarBG.w * 0.5);
 
-		for (i in 0...2)
-		{
+		for (i in 0...2) {
 			var healthIconIndexes = actors_sparrow[i].data.healthIconIndexes;
 			healthIconIDs[i] = [healthIconIndexes[0], healthIconIndexes[1]];
 		}
@@ -129,8 +125,7 @@ class HUD
 
 		// TIME BAR PART SETUP
 
-		for (i in 0...2)
-		{
+		for (i in 0...2) {
 			var part = timeBarParts[i] = new UISprite();
 			part.w = timeBarBG.w - (timeBarWS * 2.0);
 			part.h = timeBarBG.h - timeBarHS;
@@ -164,8 +159,7 @@ class HUD
 		updateScoreText(0.0);
 
 		// RATING AND COMBO NUMBER POPUP SETUP
-		if (SaveData.state.ratingPopup)
-		{
+		if (SaveData.state.ratingPopup) {
 			ratingPopup = new UISprite();
 			ratingPopup.type = RATING_POPUP;
 			ratingPopup.changeID(0);
@@ -183,8 +177,7 @@ class HUD
 	/**
 		Initializes the HUD with a static buffer and program.
 	**/
-	static function init(display:CustomDisplay)
-	{
+	static function init(display:CustomDisplay) {
 		if (uiBuf == null) {
 			uiBuf = new Buffer<UISprite>(4, 4, true);
 			uiProg = new Program(uiBuf);
@@ -197,13 +190,12 @@ class HUD
 		}
 	}
 
-	var alphaLerp : Float = .0;
+	var alphaLerp:Float = .0;
 
 	/**
 		Updates the HUD.
 	**/
-	function update(deltaTime:Float)
-	{
+	function update(deltaTime:Float) {
 		if (SaveData.state.ratingPopup) {
 			updateRatingPopup(deltaTime);
 			updateComboNumbers();
@@ -214,8 +206,7 @@ class HUD
 		updateTimeBarText();
 		updateScoreText(deltaTime);
 
-		if (parent.songStarted && alphaLerp != 1.0)
-		{
+		if (parent.songStarted && alphaLerp != 1.0) {
 			alphaLerp = Tools.lerp(alphaLerp, 1.0, Math.min(deltaTime * 0.015, 1.0));
 			setHUDAlpha(alphaLerp);
 		}
@@ -224,19 +215,16 @@ class HUD
 	/**
 		Sets the entire hud's alpha. The watermark text won't be affected.
 	**/
-	function setHUDAlpha(alpha:Float)
-	{
+	function setHUDAlpha(alpha:Float) {
 		healthBarBG.alpha = alpha;
 		uiBuf.updateElement(healthBarBG);
 
-		for (part in healthBarParts)
-		{
+		for (part in healthBarParts) {
 			part.alpha = alpha;
 			uiBuf.updateElement(part);
 		}
 
-		for (icon in healthIcons)
-		{
+		for (icon in healthIcons) {
 			icon.alpha = alpha;
 			uiBuf.updateElement(icon);
 		}
@@ -244,8 +232,7 @@ class HUD
 		timeBarBG.alpha = alpha;
 		uiBuf.updateElement(timeBarBG);
 
-		for (part in timeBarParts)
-		{
+		for (part in timeBarParts) {
 			part.alpha = alpha;
 			uiBuf.updateElement(part);
 		}
@@ -257,19 +244,16 @@ class HUD
 	/**
 		Updates the rating popup.
 	**/
-	function updateRatingPopup(deltaTime:Float)
-	{
+	function updateRatingPopup(deltaTime:Float) {
 		if (parent.disposed) return;
 
 		if (ratingPopup == null) return;
 
-		if (ratingPopup.alpha != 0)
-		{
+		if (ratingPopup.alpha != 0) {
 			ratingPopup.alpha -= ratingPopup.alpha * (deltaTime * 0.005);
 		}
 
-		if (ratingPopup.y != 320)
-		{
+		if (ratingPopup.y != 320) {
 			ratingPopup.y -= (ratingPopup.y - 320) * (deltaTime * 0.0125);
 			uiBuf.updateElement(ratingPopup);
 		}
@@ -278,8 +262,7 @@ class HUD
 	/**
 		Updates the combo numbers.
 	**/
-	function updateComboNumbers()
-	{
+	function updateComboNumbers() {
 		if (parent.disposed) return;
 
 		var numStr = Int128.toStr(parent.combo);
@@ -290,14 +273,12 @@ class HUD
 
 		while (comboNumbers.length < comboNumberStrLen) addComboNumber();
 
-		while (comboNumbers.length > comboNumberStrLen)
-		{
+		while (comboNumbers.length > comboNumberStrLen) {
 			var comboNumber = comboNumbers.pop();
 			uiBuf.removeElement(comboNumber);
 		}
 
-		for (i in 0...comboNumbers.length)
-		{
+		for (i in 0...comboNumbers.length) {
 			var comboNumber = comboNumbers[i];
 
 			if (comboNumber == null) continue;
@@ -307,8 +288,7 @@ class HUD
 			comboNumber.y = ratingPopup.y + (ratingPopup.h + 5);
 			comboNumber.alpha = ratingPopup.alpha;
 
-			if (i > 2)
-			{
+			if (i > 2) {
 				if (i >= numStr.length) {
 					comboNumber.alpha = 0.0;
 				}
@@ -323,8 +303,7 @@ class HUD
 	/**
 		Adds a new combo number onto the ui buffer.
 	**/
-	function addComboNumber()
-	{
+	function addComboNumber() {
 		if (SaveData.state.ratingPopup) {
 			// COMBO NUMBERS SETUP
 			var comboNumber = new UISprite();
@@ -341,8 +320,7 @@ class HUD
 	/**
 		Updates the health bar.
 	**/
-	function updateHealthBar()
-	{
+	function updateHealthBar() {
 		if (parent.disposed) return;
 
 		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
@@ -387,8 +365,7 @@ class HUD
 	/**
 		Updates the health icons.
 	**/
-	function updateHealthIcons()
-	{
+	function updateHealthIcons() {
 		if (parent.disposed) return;
 
 		var part1 = healthBarParts[1];
@@ -426,15 +403,14 @@ class HUD
 	/**
 		Updates the score text.
 	**/
-	function updateScoreText(deltaTime:Float)
-	{
+	function updateScoreText(deltaTime:Float) {
 		var acc2 = parent.accuracy[1];
 		if (acc2 == 0) acc2 = 1;
-		var acc = Int64.toInt(((parent.accuracy[0] * 10000) / acc2).low);
-		var accDecimal : Int64 = acc % 100;
+		var acc:Int64 = Int64.toInt(((parent.accuracy[0] * 10000) / acc2).low);
+		var accDecimal:Int64 = acc % 100;
 
 		scoreTxt.text = 'Score: ${parent.score}, Misses: ${parent.misses}, Accuracy: ${(acc / 100) + (accDecimal != 0 ? ("." + (accDecimal < 10 ? "0" : "") + accDecimal) : "")}%';
-		scoreTxt.scale = (Tools.lerp(scoreTxt.scale, 1.0, deltaTime * 0.02) : Single);
+		scoreTxt.scale = (Tools.lerp(scoreTxt.scale, 1.0, deltaTime * 0.02):Single);
 		scoreTxt.x = Math.floor(healthBarBG.x) + ((healthBarBG.w - scoreTxt.width) * 0.5);
 		scoreTxt.y = Math.floor(healthBarBG.y) + (healthBarBG.h + 6);
 		scoreTxt.color.aF = 1.0;
@@ -448,8 +424,7 @@ class HUD
 	/**
 		Updates the timebar text.
 	**/
-	function updateTimeBarParts()
-	{
+	function updateTimeBarParts() {
 		if (parent.disposed) return;
 
 		timeBarBG.y = parent.downScroll ? Main.INITIAL_HEIGHT - 16 : 16;
@@ -471,8 +446,7 @@ class HUD
 	/**
 		Updates the timebar text.
 	**/
-	function updateTimeBarText()
-	{
+	function updateTimeBarText() {
 		timeBarTxt.text = Tools.formatTime(parent.audioSystem.inst.length - Math.max(parent.songPosition, 0));
 		timeBarTxt.x = (Main.INITIAL_WIDTH - timeBarTxt.width) * 0.5;
 		timeBarTxt.y = timeBarBG.y - 2;
@@ -481,8 +455,7 @@ class HUD
 	/**
 		Hides the rating popup.
 	**/
-	inline function hideRatingPopup()
-	{
+	inline function hideRatingPopup() {
 		if (parent.disposed) return;
 
 		ratingPopup.alpha = 0.0;
@@ -492,8 +465,7 @@ class HUD
 	/**
 		Wakes up the rating popup.
 	**/
-	inline function respondWithRatingID(id:Int)
-	{
+	inline function respondWithRatingID(id:Int) {
 		if (parent.disposed) return;
 
 		ratingPopup.alpha = 1.0;
@@ -505,14 +477,12 @@ class HUD
 	/**
 		Dispose the hud.
 	**/
-	function dispose()
-	{
+	function dispose() {
 		if (SaveData.state.ratingPopup) {
 			uiBuf.removeElement(ratingPopup);
 			ratingPopup = null;
 	
-			while (comboNumbers.length != 0)
-			{
+			while (comboNumbers.length != 0) {
 				var comboNumber = comboNumbers.pop();
 				uiBuf.removeElement(comboNumber);
 			}
@@ -522,15 +492,13 @@ class HUD
 		uiBuf.removeElement(healthBarBG);
 		healthBarBG = null;
 
-		while (healthBarParts.length != 0)
-		{
+		while (healthBarParts.length != 0) {
 			var healthBarPart = healthBarParts.pop();
 			uiBuf.removeElement(healthBarPart);
 		}
 		healthBarParts = null;
 
-		while (healthIcons.length != 0)
-		{
+		while (healthIcons.length != 0) {
 			var healthIcon = healthIcons.pop();
 			uiBuf.removeElement(healthIcon);
 		}
@@ -539,8 +507,7 @@ class HUD
 		uiBuf.removeElement(timeBarBG);
 		timeBarBG = null;
 
-		while (timeBarParts.length != 0)
-		{
+		while (timeBarParts.length != 0) {
 			var timeBarPart = timeBarParts.pop();
 			uiBuf.removeElement(timeBarPart);
 		}

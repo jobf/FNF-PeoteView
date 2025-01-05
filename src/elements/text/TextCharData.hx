@@ -3,21 +3,18 @@ package elements.text;
 /**
 	The text character data.
 **/
-typedef TextCharData =
-{
+typedef TextCharData = {
 	position:{
 		x:Int,
 		y:Int
 	},
-	sourceSize:
-	{
+	sourceSize:{
 		width:Int,
 		height:Int
 	},
 	padding:Int,
-	char:
-	{
+	char:{
 		advanceX:Int,
-		offset:{ x:Int, y:Int }
+		offset:{x:Int, y:Int}
 	}
 }

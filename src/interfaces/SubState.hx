@@ -1,6 +1,5 @@
 package interfaces;
 
-interface SubState
-{
-	function dispose() : Void;
+interface SubState {
+	function dispose():Void;
 }

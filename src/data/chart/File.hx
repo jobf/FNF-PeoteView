@@ -20,17 +20,15 @@ import custom.cpp.*;
 #define _FILE_OFFSET_BITS 64
 ")
 @:publicFields
-class File
-{
-	static inline var CHUNK_SIZE = 268435455;
+class File {
+	static inline var CHUNK_SIZE:Int = 268435455;
 
-	private var data(default, null) : Array<Array<Int64>>;
-	private var file(default, null) : FILE;
+	private var data(default, null):Array<Array<Int64>>;
+	private var file(default, null):FILE;
 
-	var length(default, null) : HaxeInt64;
+	var length(default, null):HaxeInt64;
 
-	function new(inFile:String)
-	{
+	function new(inFile:String) {
 		// Open the file
 
 		file = Stdio.fopen(inFile, untyped "rb");
@@ -39,7 +37,7 @@ class File
 
 		Iostream.fseeki64(file, 0, 2);
 
-		var len = HaxeInt64.div(Iostream.ftelli64(file), 8);
+		var len:HaxeInt64 = HaxeInt64.div(Iostream.ftelli64(file), 8);
 
 		length = len;
 
@@ -49,49 +47,42 @@ class File
 
 		// Now do the processing
 
-		if (len > CHUNK_SIZE)
-		{
-			var size : SizeT = CHUNK_SIZE;
+		if (len > CHUNK_SIZE) {
+			var size:SizeT = CHUNK_SIZE;
 
 			//while (len > 0) { // This throws a weird compilation error of "Cannot compare cpp.Int64 and cpp.Int64"
-			while (size > 0)
-			{
+			while (size > 0) {
 				size = HaxeInt64.toInt(len);
 
-				if (size == 0)
-				{
+				if (size == 0) {
 					break;
 				}
 
-				if (len > CHUNK_SIZE)
-				{
+				if (len > CHUNK_SIZE) {
 					size = CHUNK_SIZE;
 				}
 
-				var chunk : Array<Int64> = NativeArray.create(size);
+				var chunk:Array<Int64> = NativeArray.create(size);
 
 				data.push(chunk);
 
-				var buf : Pointer<Int64> = Pointer.ofArray(chunk);
+				var buf:Pointer<Int64> = Pointer.ofArray(chunk);
 				Stdio.fread(buf.raw, 8, size, file);
 
 				len -= size;
 			}
-		}
-		else
-		{
+		} else {
 			var shortLen = len.low;
-			var chunk : Array<Int64> = NativeArray.create(shortLen);
+			var chunk:Array<Int64> = NativeArray.create(shortLen);
 
 			data.push(chunk);
 
-			var buf : Pointer<Int64> = Pointer.ofArray(chunk);
+			var buf:Pointer<Int64> = Pointer.ofArray(chunk);
 			Stdio.fread(buf.raw, 8, shortLen, file);
 		}
 	}
 
-	function getNote(atIndex:Int64) : MetaNote
-	{
+	function getNote(atIndex:Int64):MetaNote {
 		var index = HaxeInt64.divMod(atIndex, CHUNK_SIZE);
 		var atChunk = NativeArray.unsafeGet(data, index.quotient.low);
 		return NativeArray.unsafeGet(atChunk, index.modulus.low);

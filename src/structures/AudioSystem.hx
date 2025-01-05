@@ -6,71 +6,65 @@ package structures;
 **/
 @:publicFields
 @:access(structures.PlayField)
-class AudioSystem
-{
-	var inst : Sound;
-	var voices : Array<Sound> = [];
-	var grp : SoundGroup;
+class AudioSystem {
+	var inst:Sound;
+	var voices:Array<Sound> = [];
 
-	function new(chart:Chart)
-	{
-		grp = new SoundGroup();
-
+	function new(chart:Chart) {
 		inst = new Sound();
-		inst.fromFile(chart.header.instDir, grp);
+		inst.fromFile(chart.header.instDir);
 
-		for (voicesDir in chart.header.voicesDirs)
-		{
+		for (voicesDir in chart.header.voicesDirs) {
 			var voicesInstance = new Sound();
-			voicesInstance.fromFile(voicesDir, grp);
+			voicesInstance.fromFile(voicesDir);
 			voices.push(voicesInstance);
 		}
 	}
 
-	function play()
-	{
-		grp.play();
+	function play() {
+		inst.play();
+
+		for (voicesTrack in voices) {
+			voicesTrack.play();
+		}
 	}
 
-	function stop()
-	{
-		grp.stop();
+	function stop() {
+		inst.stop();
+
+		for (voicesTrack in voices) {
+			voicesTrack.stop();
+		}
 	}
 
-	function update(playField:PlayField, deltaTime:Float)
-	{
+	function update(playField:PlayField, deltaTime:Float) {
 		if ((inst.finished || (RenderingMode.enabled && playField.songPosition > inst.length)) && !playField.songEnded) {
 			playField.onStopSong.dispatch(playField.chart);
 		}
 
-		if (!playField.songStarted || playField.songEnded || RenderingMode.enabled)
-		{
+		if (!playField.songStarted || playField.songEnded || RenderingMode.enabled) {
 			playField.songPosition += deltaTime;
-		}
-		else
-		{
+		} else {
 			inst.update();
 			playField.songPosition = inst.time;
 		}
 	}
 
-	function setTime(time:Float)
-	{
-		grp.time = time;
+	function setTime(time:Float) {
+		inst.time = time;
+
+		for (voicesTrack in voices) {
+			voicesTrack.time = time;
+		}
 	}
 
-	function dispose()
-	{
-		grp.dispose();
-		grp = null;
-
+	function dispose() {
 		inst.dispose();
 		inst = null;
-
-		while (voices.length != 0)
-		{
+		while (voices.length != 0) {
 			voices.pop().dispose();
 		}
+		voices.resize(0);
 		voices = null;
 	}
 }

@@ -32,26 +32,25 @@ import cpp.VarArg;
 import cpp.Rest;
 
 @:include("stdio.h")
-extern class Stdio
-{
+extern class Stdio {
 	@:native("printf")
-	static function printf(format:ConstCharStar, rest:Rest<VarArg>) : Void;
+	static function printf(format:ConstCharStar, rest:Rest<VarArg>):Void;
 
 	@:native("fopen")
-	static function fopen(filename:ConstCharStar, mode:ConstCharStar) : FILE;
+	static function fopen(filename:ConstCharStar, mode:ConstCharStar):FILE;
 
 	@:native("fwrite")
-	static function fwrite<T>(data:RawPointer<T>, elemSize:SizeT, elemCount:SizeT, file:FILE) : SizeT;
+	static function fwrite<T>(data:RawPointer<T>, elemSize:SizeT, elemCount:SizeT, file:FILE):SizeT;
 
 	@:native("fread")
-	static function fread<T>(data:RawPointer<T>, elemSize:SizeT, elemCount:SizeT, file:FILE) : SizeT;
+	static function fread<T>(data:RawPointer<T>, elemSize:SizeT, elemCount:SizeT, file:FILE):SizeT;
 
 	@:native("fclose")
-	static function fclose(file:FILE) : Int;
+	static function fclose(file:FILE):Int;
 
 	@:native("feof")
-	static function feof(file:FILE) : Int;
+	static function feof(file:FILE):Int;
 
 	@:native("fprintf")
-	static function fprintf(file:FILE, format:ConstCharStar, rest:Rest<VarArg>) : Void;
+	static function fprintf(file:FILE, format:ConstCharStar, rest:Rest<VarArg>):Void;
 }
