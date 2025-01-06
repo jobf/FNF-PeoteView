@@ -117,8 +117,6 @@ class Main extends Application
 	static public function switchState(newState:StateSelection) {
 		var instance = Main.current;
 
-		if (newState == instance.currentState) return;
-
 		try {
 			switch (instance.currentState) {
 				case MAIN_MENU:

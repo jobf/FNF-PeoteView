@@ -30,6 +30,11 @@ class ChartSystem
 
 		input.readLine();
 
+		var gameOverTheme = input.readLine().split(": ")[1].trim();
+		var gameOverBPM = Std.parseInt(input.readLine().split(": ")[1].trim());
+
+		input.readLine();
+
 		var characterData:Array<Character> = [];
 
 		while (!input.eof()) {
@@ -61,6 +66,7 @@ class ChartSystem
 			voicesDirs: voicesDirs,
 			mania: mania,
 			difficulty: difficulty,
+			gameOver: {theme: gameOverTheme, bpm: gameOverBPM},
 			characters: characterData
 		};
 		//trace(result);

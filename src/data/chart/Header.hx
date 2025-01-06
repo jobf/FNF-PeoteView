@@ -66,7 +66,12 @@ class Header {
 	var difficulty:Difficulty;
 
 	/**
-		The song's characters.
+		The song's game over meta.
+	**/
+	var gameOver:GameOverMeta;
+
+	/**
+		The song's character list.
 	**/
 	var characters:Array<Character>;
 
@@ -74,6 +79,6 @@ class Header {
 		Returns a string representation of the chart header.
 	**/
 	function toString() {
-		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, characters => ${[for (character in characters) character.toString()]}, instDir => $instDir, voicesDirs => $voicesDirs }';
+		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, characters => ${[for (character in characters) character.toString()]}, instDir => $instDir, voicesDirs => $voicesDirs, gameOver => ${gameOver.toString()} }';
 	}
 }

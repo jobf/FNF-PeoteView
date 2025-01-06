@@ -200,6 +200,7 @@ class MainMenu implements State {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(updateMenuOptions_keyboard);
 		window.onMouseMove.remove(updateMenuOptions_mouse);
+		window.onMouseDown.remove(enter);
 
 		display.removeProgram(optionProg);
 		display = null;

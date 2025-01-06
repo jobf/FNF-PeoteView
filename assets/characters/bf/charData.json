@@ -108,7 +108,7 @@
 			"fps": 24,
 			"anim": "hey",
 			"indices": [],
-			"name": "BF HEY!!"
+			"name": "BF HEY"
 		},
 		{
 			"offsets": [
@@ -131,6 +131,39 @@
 			"anim": "scared",
 			"indices": [],
 			"name": "BF idle shaking"
+		},
+		{
+			"offsets": [
+				37,
+				11
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "firstDeath",
+			"indices": [],
+			"name": "BF dies"
+		},
+		{
+			"offsets": [
+				37,
+				5
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "deathLoop",
+			"indices": [],
+			"name": "BF Dead Loop"
+		},
+		{
+			"offsets": [
+				37,
+				69
+			],
+			"loop": false,
+			"fps": 24,
+			"anim": "deathConfirm",
+			"indices": [],
+			"name": "BF Dead confirm"
 		},
 		{
 			"offsets": [

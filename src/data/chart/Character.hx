@@ -1,8 +1,8 @@
 package data.chart;
 
 /**
-	The song's charater.
-	This is a structure containing info of the field character.
+	The song's character.
+	This is a structure containing info dedicated to the field character.
 **/
 #if !debug
 @:noDebug
@@ -16,7 +16,7 @@ class Character {
 	var name:String;
 
 	/**
-		What to take roleo of the character.
+		What to take role of the character.
 	**/
 	var role:CharacterRole;
 

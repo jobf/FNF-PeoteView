@@ -190,7 +190,7 @@ class NoteSystem {
 	}
 
 	function resetNotes() {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		resetReceptors();
 
@@ -293,7 +293,7 @@ class NoteSystem {
 	}
 
 	function cullTop(pos:Int64) {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		curTopNote = getNote(spawnPosTop);
 
@@ -320,7 +320,7 @@ class NoteSystem {
 	}
 
 	function cullBottom(pos:Int64) {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		curBottomNote = getNote(spawnPosBottom);
 
@@ -353,7 +353,7 @@ class NoteSystem {
 	}
 
 	function updateNotes(pos:Int64) {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		for (i in spawnPosBottom...spawnPosTop) {
 			updateNote(pos, getNote(i));
@@ -365,7 +365,12 @@ class NoteSystem {
 		var data = note.data;
 		var index = data.index;
 		var lane = data.lane;
-		var fullIndex = index + parent.inputSystem.strumlineIndexes[lane];
+		var fullIndex = index;
+
+		if (parent.inputSystem != null) {
+			fullIndex += parent.inputSystem.strumlineIndexes[lane];
+		}
+
 		var position = data.position;
 
 		var rec = notesBuf.getElement(fullIndex);

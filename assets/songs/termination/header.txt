@@ -9,6 +9,9 @@ Instrumental: assets/songs/termination/Inst.flac
 Voices: assets/songs/termination/Voices.flac
 Mania: 4
 Difficulty: #4
+Game Over:
+Theme: vanilla
+BPM: 100
 Characters:
 robot, enemy
 pos -700 300

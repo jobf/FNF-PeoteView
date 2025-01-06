@@ -60,6 +60,7 @@ class PlayField implements State {
 	var songEnded(default, null):Bool;
 	var disposed(default, null):Bool;
 	var paused(default, null):Bool;
+	var died(default, null):Bool;
 	var botplay(default, set):Bool;
 	inline function set_botplay(value:Bool) {
 		if (noteSystem != null) noteSystem.resetInputs();
@@ -78,7 +79,7 @@ class PlayField implements State {
 	var onPauseSong:Event<Chart->Void>;
 	var onResumeSong:Event<Chart->Void>;
 	var onStopSong:Event<Chart->Void>;
-	var onDeath:Event<Chart->Void>;
+	var onDeath:Event<Chart->Int->Void>;
 	var onNoteHit:Event<MetaNote->Int->Void>;
 	var onNoteMiss:Event<MetaNote->Void>;
 	var onSustainComplete:Event<MetaNote->Void>;
@@ -91,7 +92,7 @@ class PlayField implements State {
 	var ready:Bool = false;
 
 	function setTime(value:Float, playAgain:Bool = false) {
-		if (disposed || !songStarted || songEnded || paused) return;
+		if (disposed || !songStarted || songEnded || paused || died) return;
 
 		if (value < 0) value = 0;
 		songPosition = value;
@@ -117,7 +118,7 @@ class PlayField implements State {
 		onPauseSong = new Event<Chart->Void>();
 		onResumeSong = new Event<Chart->Void>();
 		onStopSong = new Event<Chart->Void>();
-		onDeath = new Event<Chart->Void>();
+		onDeath = new Event<Chart->Int->Void>();
 
 		onNoteHit = new Event<MetaNote->Int->Void>();
 		onNoteMiss = new Event<MetaNote->Void>();
@@ -176,21 +177,17 @@ class PlayField implements State {
 			view.fov -= (view.fov - 1) * (deltaTime * 0.01);
 		}
 
-		if (health < 0 && !disposed) {
-			onDeath.dispatch(chart);
-			return;
+		if (!died) {
+			if (audioSystem != null) audioSystem.update(this, deltaTime);
+			songPosition += latencyCompensation;
+			Main.conductor.time = songPosition;
+
+			var pos = Tools.betterInt64FromFloat(songPosition * 100);
+
+			if (noteSystem != null) noteSystem.update(pos);
+			if (hud != null) hud.update(deltaTime);
 		}
 
-		if (audioSystem != null) audioSystem.update(this, deltaTime);
-
-		songPosition += latencyCompensation;
-
-		Main.conductor.time = songPosition;
-
-		var pos = Tools.betterInt64FromFloat(songPosition * 100);
-
-		if (noteSystem != null) noteSystem.update(pos);
-		if (hud != null) hud.update(deltaTime);
 		if (field != null) field.update(deltaTime);
 		if (countdownDisp != null) countdownDisp.update(deltaTime);
 
@@ -201,7 +198,7 @@ class PlayField implements State {
 		Pauses the playfield.
 	**/
 	function pause() {
-		if (disposed || paused) return;
+		if (disposed || paused || died) return;
 
 		paused = true;
 		if (!RenderingMode.enabled && songStarted && audioSystem != null) audioSystem.stop();
@@ -213,7 +210,7 @@ class PlayField implements State {
 		Resumes the playfield.
 	**/
 	function resume() {
-		if (disposed || !paused) return;
+		if (disposed || !paused || died) return;
 
 		paused = false;
 		if (!RenderingMode.enabled && songStarted && !songEnded && audioSystem != null) audioSystem.play();
@@ -289,7 +286,7 @@ class PlayField implements State {
 		score += 400;
 	}
 
-	inline function missNote(note:MetaNote) {
+	function missNote(note:MetaNote) {
 		if (audioSystem != null) {
 			var voicesTrack = audioSystem.voices[note.lane];
 			if (voicesTrack == null) voicesTrack = audioSystem.voices[0];
@@ -300,17 +297,22 @@ class PlayField implements State {
 
 		health -= 0.025;
 
-		if (practiceMode && health < 0.05) {
-			health = 0.05;
-		}
-
 		combo = 0;
 		score -= 50;
 		++misses;
 		++accuracy[1];
+
+		if (health < 0 && !disposed) {
+			onDeath.dispatch(chart, note.lane);
+			return;
+		}
+
+		if (practiceMode && health < 0.05) {
+			health = 0.05;
+		}
 	}
 
-	inline function completeSustain(note:MetaNote) {
+	function completeSustain(note:MetaNote) {
 		if (!inputSystem.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
@@ -358,14 +360,50 @@ class PlayField implements State {
 		Main.switchState(MAIN_MENU);
 	}
 
-	function gameOver(chart:Chart) {
+	function gameOver(chart:Chart, lane:Int) {
+		onDeath.remove(gameOver);
+
+		died = true;
+		songEnded = true;
+		songPosition = 0;
+
 		Sys.println("Game Over");
 
 		if (RenderingMode.enabled) {
 			RenderingMode.stopRender();
 		}
 
-		Sys.exit(0);
+		onNoteHit.remove(hitNote);
+		onNoteMiss.remove(missNote);
+		onSustainComplete.remove(completeSustain);
+		onSustainRelease.remove(releaseSustain);
+
+		var conductor = Main.conductor;
+		conductor.onBeat.remove(beatHit);
+		conductor.onMeasure.remove(measureHit);
+
+		if (inputSystem != null) {
+			inputSystem.dispose();
+			inputSystem = null;
+		}
+
+		if (audioSystem != null) {
+			audioSystem.dispose();
+			audioSystem = null;
+		}
+
+		if (hud != null) {
+			hud.dispose();
+			hud = null;
+		}
+
+		display.hide();
+
+		var char = field.actors[lane];
+		if (char == null) char = field.actors[1];
+
+		field.actorOnGameOver = char;
+		view.scroll.x = lane == 0 ? -50 : 50; // Prototype camera logic I have for now
 	}
 
 	/**
@@ -399,22 +437,30 @@ class PlayField implements State {
 		onKeyPress = null;
 		onKeyRelease = null;
 
-		field.dispose();
-		field = null;
-		inputSystem.dispose();
-		inputSystem = null;
-		noteSystem.dispose();
-		noteSystem = null;
-		audioSystem.dispose();
-		audioSystem = null;
-		if (hud != null) {
-			hud.dispose();
-			hud = null;
+		if (field != null) {
+			field.dispose();
+			field = null;
 		}
-		countdownDisp.dispose();
-		countdownDisp = null;
-		pauseScreen.dispose();
-		pauseScreen = null;
+
+		if (inputSystem != null) {
+			inputSystem.dispose();
+			inputSystem = null;
+		}
+
+		if (noteSystem != null) {
+			noteSystem.dispose();
+			noteSystem = null;
+		}
+
+		if (countdownDisp != null) {
+			countdownDisp.dispose();
+			countdownDisp = null;
+		}
+
+		if (pauseScreen != null) {
+			pauseScreen.dispose();
+			pauseScreen = null;
+		}
 
 		songEnded = true;
 		GC.run();

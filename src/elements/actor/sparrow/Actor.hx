@@ -22,6 +22,7 @@ class Actor extends ActorElement
 	var data(default, null):ActorData;
 
 	var finishAnim:String = "";
+	var finishCallback:Void->Void;
 
 	private var folder:String = "";
 
@@ -138,6 +139,7 @@ class Actor extends ActorElement
 
 	function playAnimation(name:String, loop:Bool = false) {
 		frameIndex = 0;
+		this.loop = loop;
 
 		var animDataMap = data.data;
 		if (animDataMap.exists(name)) {
@@ -172,10 +174,8 @@ class Actor extends ActorElement
 		startingFrameIndex = animMap[0];
 		endingFrameIndex = animMap[1];
 		animationRunning = true;
-		this.loop = loop;
 
 		changeFrame();
-		firstFrameWidth = clipWidth;
 	}
 
 	inline function stopAnimation() {
@@ -187,6 +187,10 @@ class Actor extends ActorElement
 			loop = false;
 			animationRunning = false;
 			if (finishAnim != "") {
+				if (finishCallback != null) {
+					finishCallback();
+					finishCallback = null;
+				}
 				playAnimation(finishAnim);
 				finishAnim = "";
 			}
@@ -202,11 +206,12 @@ class Actor extends ActorElement
 		if (frameTimeRemaining <= 0) {
 			if (loop) frameIndex = (frameIndex + 1) % (endingFrameIndex - startingFrameIndex);
 			else frameIndex++;
-			if (indicesMode && indices != null) frameIndex = indices[frameIndex];
 
 			if (shake && frameIndex > endingShakeFrame) {
 				frameIndex = startingShakeFrame;
 			}
+
+			if (indicesMode && indices != null) frameIndex = indices[frameIndex];
 
 			if (endOfAnimation()) {
 				return;

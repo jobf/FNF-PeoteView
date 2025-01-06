@@ -9,6 +9,9 @@ Instrumental: assets/songs/god-eater/Inst.flac
 Voices: assets/songs/god-eater/Voices.flac
 Mania: 9
 Difficulty: #4
+Game Over:
+Theme: vanilla
+BPM: 100
 Characters:
 pshaggy, enemy
 pos -700 300

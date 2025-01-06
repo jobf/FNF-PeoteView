@@ -264,5 +264,12 @@ class InputSystem {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(press);
 		window.onKeyUp.remove(release);
+
+		map.clear();
+		map = null;
+		receptorIds = null;
+		strumline = null;
+		strumlinePlayable = null;
+		strumlineIndexes = null;
 	}
 }

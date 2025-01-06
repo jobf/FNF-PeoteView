@@ -72,7 +72,7 @@ class HUD {
 		healthBarBG.x = 275;
 		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
 
-		var actors_sparrow = parent.field.actors_sparrow;
+		var actors = parent.field.actors;
 
 		// HEALTH BAR PART SETUP
 		for (i in 0...2) {
@@ -81,7 +81,7 @@ class HUD {
 			part.y = healthBarBG.y + healthBarYA;
 			part.gradientMode = 1.0;
 
-			part.setAllColors(actors_sparrow[i].data.colors);
+			part.setAllColors(actors[i].data.colors);
 
 			uiBuf.addElement(part);
 		}
@@ -95,7 +95,7 @@ class HUD {
 		var x = healthBarBG.x + (healthBarBG.w * 0.5);
 
 		for (i in 0...2) {
-			var healthIconIndexes = actors_sparrow[i].data.healthIconIndexes;
+			var healthIconIndexes = actors[i].data.healthIconIndexes;
 			healthIconIDs[i] = [healthIconIndexes[0], healthIconIndexes[1]];
 		}
 
@@ -245,7 +245,7 @@ class HUD {
 		Updates the rating popup.
 	**/
 	function updateRatingPopup(deltaTime:Float) {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		if (ratingPopup == null) return;
 
@@ -263,7 +263,7 @@ class HUD {
 		Updates the combo numbers.
 	**/
 	function updateComboNumbers() {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		var numStr = Int128.toStr(parent.combo);
 
@@ -321,19 +321,19 @@ class HUD {
 		Updates the health bar.
 	**/
 	function updateHealthBar() {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
 		uiBuf.updateElement(healthBarBG);
 
 		var health = parent.health;
-		var actors_sparrow = parent.field.actors_sparrow;
+		var actors = parent.field.actors;
 
 		var part1 = healthBarParts[0];
 
 		if (part1 == null) return;
 
-		var healthIconColor = actors_sparrow[parent.flipHealthBar ? 1 : 0].data.colors;
+		var healthIconColor = actors[parent.flipHealthBar ? 1 : 0].data.colors;
 
 		part1.setAllColors(healthIconColor);
 
@@ -349,7 +349,7 @@ class HUD {
 
 		if (part2 == null) return;
 
-		var healthIconColor = actors_sparrow[parent.flipHealthBar ? 0 : 1].data.colors;
+		var healthIconColor = actors[parent.flipHealthBar ? 0 : 1].data.colors;
 
 		part2.setAllColors(healthIconColor);
 
@@ -366,7 +366,7 @@ class HUD {
 		Updates the health icons.
 	**/
 	function updateHealthIcons() {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		var part1 = healthBarParts[1];
 
@@ -425,7 +425,7 @@ class HUD {
 		Updates the timebar text.
 	**/
 	function updateTimeBarParts() {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		timeBarBG.y = parent.downScroll ? Main.INITIAL_HEIGHT - 16 : 16;
 		uiBuf.updateElement(timeBarBG);
@@ -456,7 +456,7 @@ class HUD {
 		Hides the rating popup.
 	**/
 	inline function hideRatingPopup() {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		ratingPopup.alpha = 0.0;
 		uiBuf.updateElement(ratingPopup);
@@ -466,7 +466,7 @@ class HUD {
 		Wakes up the rating popup.
 	**/
 	inline function respondWithRatingID(id:Int) {
-		if (parent.disposed) return;
+		if (parent.disposed || parent.died) return;
 
 		ratingPopup.alpha = 1.0;
 		ratingPopup.y = 300;
