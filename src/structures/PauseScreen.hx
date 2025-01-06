@@ -34,7 +34,7 @@ class PauseScreen {
 
 	function new(difficulty:Difficulty) {
 		var currentY = 200;
-		for (i in 0...3) {
+		for (i in 0...4) {
 			var option = new PauseSprite();
 			option.type = PAUSE_OPTION;
 			option.changeID(i);
@@ -91,15 +91,16 @@ class PauseScreen {
 				}
 			case KeyCode.RETURN:
 				switch (pauseOptionSelected) {
-					case 0:
+					case 0: // RESUME
 						Main.current.playField.resume();
-						return;
-					case 1:
-					case 2:
+					case 1: // RESTART
+						Main.switchState(GAMEPLAY);
+					case 2: // OPTIONS
+						// TODO
+					case 3: // EXIT
 						Main.switchState(MAIN_MENU);
 				}
 			default:
-				return;
 		}
 	}
 

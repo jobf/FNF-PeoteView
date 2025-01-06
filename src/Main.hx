@@ -130,7 +130,7 @@ class Main extends Application
 				case CREDITS:
 				case NONE:
 			}
-		} catch (e) {}
+		} catch (_) trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), _);
 
 		instance.currentState = newState;
 
@@ -167,23 +167,25 @@ class Main extends Application
 				newDeltaTime = 1000 / 60;
 			}
 
-			if (mainMenu != null && !mainMenu.disposed) {
-				mainMenu.update(newDeltaTime);
-			}
+			try {
+				if (mainMenu != null && !mainMenu.disposed) {
+					mainMenu.update(newDeltaTime);
+				}
 
-			if (playField != null && !playField.disposed) {
-				if (!playField.paused) {
-					playField.update(newDeltaTime);
-	
-					if (RenderingMode.enabled && !playField.songEnded) {
-						RenderingMode.pipeFrame();
+				if (playField != null && !playField.disposed) {
+					if (!playField.paused) {
+						playField.update(newDeltaTime);
+		
+						if (RenderingMode.enabled && !playField.songEnded) {
+							RenderingMode.pipeFrame();
+						}
+					}
+
+					if (PauseScreen.pauseProg.isIn(topDisplay)) {
+						playField.pauseScreen.update(newDeltaTime);
 					}
 				}
-
-				if (PauseScreen.pauseProg.isIn(topDisplay)) {
-					playField.pauseScreen.update(newDeltaTime);
-				}
-			}
+			} catch (_) trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), _);
 
 			timeStamp = stamp();
 		}

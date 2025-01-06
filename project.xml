@@ -43,5 +43,8 @@
 	<undefine name="lime-openal" />
 	<undefine name="lime_openal" />
 
+	<haxedef name="HXCPP_STACK_LINE" />
+	<haxedef name="HXCPP_STACK_TRACE" />
+
 	<icon path="assets/lime.svg" />
 </project>

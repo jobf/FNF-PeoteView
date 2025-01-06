@@ -32,8 +32,13 @@ class MainMenu implements State {
 	function new() {}
 
 	function init(display:CustomDisplay, view:CustomDisplay) {
+
 		this.display = display;
 		this.view = view;
+
+		view.scroll.x = 0;
+		view.scroll.y = 0;
+		view.fov = 1.0;
 
 		if (optionBuf == null) {
 			optionBuf = new Buffer<Actor>(optionAnims.length);

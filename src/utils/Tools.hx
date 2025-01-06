@@ -130,7 +130,7 @@ class Tools {
 		var seconds:Int = Math.floor(ms * 0.001);
 		var hours:Int = Math.floor(seconds / 3600);
 		seconds %= 3600;
-		var minutes:Int = Math.floor((seconds + 1) / 60); // Add one to the `seconds` to correct the minute display
+		var minutes:Int = Math.floor(seconds / 60);
 		seconds %= 60;
 
 		var t = ':';

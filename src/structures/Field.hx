@@ -57,23 +57,7 @@ class Field {
 		bf.finishAnim = "idle";
 		bf.addToBuffer();
 
-		parent.onNoteHit.add(function(note, timing) {
-			sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
-
-			targetCamera.x = note.lane == 0 ? -50 : 50; // Prototype camera logic I have for now
-		});
-
-		parent.onNoteMiss.add(function(note) {
-			sing(note.index, (note.lane == 0 ? dad : bf), true, false);
-		});
-
-		parent.onSustainComplete.add(function(note) {
-			sing(note.index, (note.lane == 0 ? dad : bf), false, false, true);
-		});
-
-		parent.onSustainRelease.add(function(note) {
-			sing(note.index, (note.lane == 0 ? dad : bf), true, false);
-		});
+		addCallbacks();
 
 		Main.conductor.onBeat.add(beatHit);
 
@@ -122,6 +106,8 @@ class Field {
 
 		if (gameOverConfirm != null) {
 			if (gameOverConfirm.finished) {
+				gameOverConfirm = null;
+				isInGameOver = false;
 				Main.switchState(GAMEPLAY);
 				parent.display.show();
 			}
@@ -142,40 +128,48 @@ class Field {
 		char.shake = shake;
 	}
 
+	inline function hitNote(note:MetaNote, timing:Int) {
+		sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
+
+		targetCamera.x = note.lane == 0 ? -50 : 50; // Prototype camera logic I have for now
+	}
+
+	inline function missNote(note:MetaNote) {
+		sing(note.index, (note.lane == 0 ? dad : bf), true, false);
+	}
+
+	inline function completeSustain(note:MetaNote) {
+		sing(note.index, (note.lane == 0 ? dad : bf), false, false, true);
+	}
+
+	inline function releaseSustain(note:MetaNote) {
+		sing(note.index, (note.lane == 0 ? dad : bf), true, false);
+	}
+
+	function addCallbacks() {
+		parent.onNoteHit.add(hitNote);
+		parent.onNoteMiss.add(missNote);
+		parent.onSustainComplete.add(completeSustain);
+		parent.onSustainRelease.add(releaseSustain);
+	}
+
 	function removeCallbacks() {
-		parent.onNoteHit.remove(function(note, timing) {
-			sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
-
-			targetCamera.x = note.lane == 0 ? -50 : 50; // Prototype camera logic I have for now
-		});
-
-		parent.onNoteMiss.remove(function(note) {
-			sing(note.index, (note.lane == 0 ? dad : bf), true, false);
-		});
-
-		parent.onSustainComplete.remove(function(note) {
-			sing(note.index, (note.lane == 0 ? dad : bf), false, false, true);
-		});
-
-		parent.onSustainRelease.remove(function(note) {
-			sing(note.index, (note.lane == 0 ? dad : bf), true, false);
-		});
+		parent.onNoteHit.remove(hitNote);
+		parent.onNoteMiss.remove(missNote);
+		parent.onSustainComplete.remove(completeSustain);
+		parent.onSustainRelease.remove(releaseSustain);
 	}
 
 	function dispose() {
+		removeCallbacks();
+
 		dad.dispose();
 		bf.dispose();
 
 		parent.view.scroll.x = parent.view.scroll.y = 0;
 		parent.view.fov = 1.0;
 
-		removeCallbacks();
-
 		Main.conductor.onBeat.remove(beatHit);
-
-		gameOverSound = null;
-		gameOverMusic = null;
-		gameOverConfirm = null;
 	}
 
 	// GAME OVER IMPL

@@ -186,6 +186,31 @@ class PlayField implements State {
 
 			if (noteSystem != null) noteSystem.update(pos);
 			if (hud != null) hud.update(deltaTime);
+		} else {
+			if (hud != null) {
+				hud.dispose();
+				hud = null;
+			}
+
+			if (inputSystem != null) {
+				inputSystem.dispose();
+				inputSystem = null;
+			}
+
+			if (noteSystem != null) {
+				noteSystem.dispose();
+				noteSystem = null;
+			}
+
+			if (countdownDisp != null) {
+				countdownDisp.dispose();
+				countdownDisp = null;
+			}
+
+			if (pauseScreen != null) {
+				pauseScreen.dispose();
+				pauseScreen = null;
+			}
 		}
 
 		if (field != null) field.update(deltaTime);
@@ -382,22 +407,7 @@ class PlayField implements State {
 		conductor.onBeat.remove(beatHit);
 		conductor.onMeasure.remove(measureHit);
 
-		if (inputSystem != null) {
-			inputSystem.dispose();
-			inputSystem = null;
-		}
-
-		if (audioSystem != null) {
-			audioSystem.dispose();
-			audioSystem = null;
-		}
-
-		if (hud != null) {
-			hud.dispose();
-			hud = null;
-		}
-
-		display.hide();
+		if (audioSystem != null) audioSystem.stop();
 
 		var char = field.actors[lane];
 		if (char == null) char = field.actors[1];
@@ -416,26 +426,6 @@ class PlayField implements State {
 		var conductor = Main.conductor;
 		conductor.onBeat.remove(beatHit);
 		conductor.onMeasure.remove(measureHit);
-
-		onNoteHit.remove(hitNote);
-		onNoteMiss.remove(missNote);
-		onSustainComplete.remove(completeSustain);
-		onSustainRelease.remove(releaseSustain);
-		onStartSong.remove(startSong);
-		onStopSong.remove(stopSong);
-		onDeath.remove(gameOver);
-
-		onStartSong = null;
-		onPauseSong = null;
-		onResumeSong = null;
-		onStopSong = null;
-		onDeath = null;
-		onNoteHit = null;
-		onNoteMiss = null;
-		onSustainComplete = null;
-		onSustainRelease = null;
-		onKeyPress = null;
-		onKeyRelease = null;
 
 		if (field != null) {
 			field.dispose();
@@ -461,6 +451,31 @@ class PlayField implements State {
 			pauseScreen.dispose();
 			pauseScreen = null;
 		}
+
+		if (hud != null) {
+			hud.dispose();
+			hud = null;
+		}
+
+		onNoteHit.remove(hitNote);
+		onNoteMiss.remove(missNote);
+		onSustainComplete.remove(completeSustain);
+		onSustainRelease.remove(releaseSustain);
+		onStartSong.remove(startSong);
+		onStopSong.remove(stopSong);
+		onDeath.remove(gameOver);
+
+		onStartSong = null;
+		onPauseSong = null;
+		onResumeSong = null;
+		onStopSong = null;
+		onDeath = null;
+		onNoteHit = null;
+		onNoteMiss = null;
+		onSustainComplete = null;
+		onSustainRelease = null;
+		onKeyPress = null;
+		onKeyRelease = null;
 
 		songEnded = true;
 		GC.run();
