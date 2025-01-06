@@ -252,5 +252,7 @@ class Actor extends ActorElement
 		display = null;
 
 		buffers[displayName].clear();
+
+		TextureSystem.disposeTexture(displayName + "Char");
 	}
 }
