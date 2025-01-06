@@ -1,4 +1,4 @@
-package data.options;
+package data;
 
 import haxe.io.Bytes;
 import sys.io.File;

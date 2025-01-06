@@ -227,12 +227,11 @@ class Text {
 
 	static var parsedTextAtlasData:Array<TextCharData>;
 
-	function new(key:String, x:Float, y:Float, display:Display, text:String = "Sample text") {
+	function new(key:String, x:Float, y:Float, display:Display, text:String = "Sample text", font:String = "unispace") {
 		if (text.length == 0) text = "Sample text";
 		_key = key;
 
-		var data = haxe.Json.parse(sys.io.File.getContent("assets/fonts/vcrAtlas.json"));
-		parsedTextAtlasData = data.sprites;
+		parsedTextAtlasData = Tools.parseFont(font);
 
 		if (buffers[key] == null) {
 			buffers[key] = new Buffer<TextCharSprite>(8, 8, false);
@@ -243,8 +242,9 @@ class Text {
 			program.blendEnabled = true;
 			program.setFragmentFloatPrecision('medium', true);
 
-			TextureSystem.setTexture(program, 'vcrTex', 'vcrTex');
-			program.setColorFormula('getTextureColor(vcrTex_ID, vTexCoord) * (c * alphaColor)');
+			var displayTextureID = font + "Font";
+			TextureSystem.setTexture(program, displayTextureID, "font");
+			program.setColorFormula('getTextureColor(font_ID, vTexCoord) * (c * alphaColor)');
 			programs[key] = program;
 		}
 

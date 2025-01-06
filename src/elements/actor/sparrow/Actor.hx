@@ -1,14 +1,3 @@
-/**
- * CONCEPT:
- * Poses:
- LA, LE, LI, LO, LU,
- DA, DE, DI, DO, DU,
- UA, UE, UI, UO, UU,
- RA, RE, RI, RO, RU,
- XA, XE, XI, XO, XU,
- LM, DM, UM, RD, XM
-**/
-
 package elements.actor.sparrow;
 
 import atlas.SparrowAtlas.SubTexture;
@@ -79,7 +68,7 @@ class Actor extends ActorElement
 
 			display.addProgram(programs[displayName]);
 
-			var texName = displayName + "char";
+			var texName = displayName + "Char";
 			TextureSystem.createTexture(texName, spritesheetDataPath.replace("data.xml", atlas.imagePath));
 			TextureSystem.setTexture(programs[displayName], texName, texName);
 		}

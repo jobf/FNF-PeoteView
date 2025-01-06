@@ -1,6 +1,7 @@
 package utils;
 
 import sys.io.File;
+using StringTools;
 
 @:publicFields
 class Tools {
@@ -99,6 +100,13 @@ class Tools {
 		finalData.push(ya);
 
 		return finalData;
+	}
+
+	static function parseFont(name:String):Array<elements.text.TextCharData> {
+		var path = 'assets/fonts/$name/data.json';
+		var data = haxe.Json.parse(sys.io.File.getContent(path));
+		TextureSystem.createTexture(name + "Font", path.replace('data.json', data.atlas.imagePath));
+		return data.sprites;
 	}
 
 	/**

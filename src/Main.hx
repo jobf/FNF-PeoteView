@@ -72,7 +72,6 @@ class Main extends Application
 			TextureSystem.createTexture("mainMenuSheet", "assets/mainMenu/sheet.png");
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
-			TextureSystem.createTexture("vcrTex", "assets/fonts/vcrAtlas.png", true);
 			TextureSystem.createTexture("pauseScreenSheet", "assets/ui/pauseScreenSheet.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 

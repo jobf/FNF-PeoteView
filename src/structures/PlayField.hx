@@ -26,7 +26,7 @@ class PlayField implements State {
 	var score:Int128 = 0;
 	var misses:Int128 = 0;
 	var combo:Int128 = 0;
-	var accuracy:Array<Int128> = [0, 0];
+	var accuracy(default, null):Array<Int128> = [0, 0];
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
 	var health:Float = 0.5;
