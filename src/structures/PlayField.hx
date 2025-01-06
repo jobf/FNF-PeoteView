@@ -413,7 +413,7 @@ class PlayField implements State {
 		if (char == null) char = field.actors[1];
 
 		field.actorOnGameOver = char;
-		view.scroll.x = lane == 0 ? -50 : 50; // Prototype camera logic I have for now
+		field.targetCamera.x = lane == 0 ? -50 : 50; // Prototype camera logic I have for now
 	}
 
 	/**
