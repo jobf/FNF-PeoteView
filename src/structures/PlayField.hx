@@ -26,7 +26,7 @@ class PlayField implements State {
 	var score:Int128 = 0;
 	var misses:Int128 = 0;
 	var combo:Int128 = 0;
-	var accuracy(default, null):Array<Int128> = [0, 0];
+	var accuracy(default, null):Accuracy = new Accuracy();
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
 	var health:Float = 0.5;
@@ -273,8 +273,6 @@ class PlayField implements State {
 		}
 
 		++combo;
-		++accuracy[0];
-		++accuracy[1];
 
 		health += 0.025;
 		if (health > 1) {
@@ -291,23 +289,27 @@ class PlayField implements State {
 
 		if (absTiming > 60) {
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(3);
+			accuracy.increment(0.5);
 			score += 50;
 			return;
 		}
 
 		if (absTiming > 45) {
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(2);
+			accuracy.increment(0.75);
 			score += 100;
 			return;
 		}
 
 		if (absTiming > 30) {
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(1);
+			accuracy.increment(0.8);
 			score += 200;
 			return;
 		}
 
 		if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(0);
+		accuracy.increment();
 		score += 400;
 	}
 
@@ -325,7 +327,7 @@ class PlayField implements State {
 		combo = 0;
 		score -= 50;
 		++misses;
-		++accuracy[1];
+		accuracy.increment(1.0, true);
 
 		if (health < 0 && !disposed) {
 			onDeath.dispatch(chart, note.lane);

@@ -5,6 +5,7 @@ import peote.view.intern.*;
 // GAME
 import atlas.*;
 import data.chart.*;
+import data.gameplay.*;
 import data.options.*;
 import data.SaveData;
 import elements.*;
