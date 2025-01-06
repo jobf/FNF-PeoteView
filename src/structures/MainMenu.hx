@@ -32,9 +32,6 @@ class MainMenu implements State {
 	function new() {}
 
 	function init(display:CustomDisplay, view:CustomDisplay) {
-		optionYLerps = new Vector<Float>(5);
-		alphaLerps = new Vector<Float>(5);
-
 		this.display = display;
 		this.view = view;
 
@@ -95,17 +92,22 @@ class MainMenu implements State {
 		updateMenuOptions();
 	}
 
-	var optionYLerps:Vector<Float>;
-	var alphaLerps:Vector<Float>;
+	static var optionYLerps:Vector<Float> = new Vector<Float>(5);
+	static var alphaLerps:Vector<Float> = new Vector<Float>(6);
 
 	function update(deltaTime:Float) {
-		for (i in 0...optionYLerps.length) {
-			var t = deltaTime * 0.0115;
-			optionYLerps[i] = Tools.lerp(optionYLerps[i], (45 + (125 * i)) - (6 * Math.min(optionSelected, optionAnims.length - 2)), t);
-			alphaLerps[i] = Tools.lerp(alphaLerps[i], 1.0, t);
+		for (i in 0...optionBuf.length) {
 			var option = optionBuf.getElement(i);
-			option.x = (Main.INITIAL_WIDTH - option.w) * 0.5;
-			option.y = optionYLerps[i];
+
+			var t = deltaTime * 0.0115;
+
+			if (i != alphaLerps.length - 1) {
+				optionYLerps[i] = Tools.lerp(optionYLerps[i], (45 + (125 * i)) - (6 * Math.min(optionSelected, optionAnims.length - 2)), t);
+				option.y = optionYLerps[i];
+				option.x = (Main.INITIAL_WIDTH - option.w) * 0.5;
+			}
+
+			alphaLerps[i] = Tools.lerp(alphaLerps[i], 1.0, t);
 			option.c.aF = alphaLerps[i];
 			optionBuf.updateElement(option);
 		}

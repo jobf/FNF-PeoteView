@@ -68,7 +68,7 @@ class Actor extends ActorElement
 
 			display.addProgram(programs[displayName]);
 
-			var texName = displayName + "Char";
+			var texName = name + "Char";
 			TextureSystem.createTexture(texName, spritesheetDataPath.replace("data.xml", atlas.imagePath));
 			TextureSystem.setTexture(programs[displayName], texName, texName);
 		}
@@ -252,7 +252,5 @@ class Actor extends ActorElement
 		display = null;
 
 		buffers[displayName].clear();
-
-		TextureSystem.disposeTexture(displayName + "Char");
 	}
 }
