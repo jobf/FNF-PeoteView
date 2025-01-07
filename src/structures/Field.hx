@@ -199,15 +199,20 @@ class Field {
 		}
 
 		if (!gameOverSounds[theme].exists("firstDeath")) {
-			gameOverSound = gameOverSounds[theme]["firstDeath"] = new Sound();
-			gameOverSound.fromFile('assets/death/fnf_loss_sfx-${theme}.flac');
+			var snd = gameOverSounds[theme]["firstDeath"] = new Sound();
+			snd.fromFile('assets/death/fnf_loss_sfx-${theme}.flac');
 		}
+
+		gameOverSound = gameOverSounds[theme]["firstDeath"];
 		gameOverSound.play();
 
 		if (!gameOverSounds[theme].exists("deathMusic")) {
-			gameOverMusic = gameOverSounds[theme]["deathMusic"] = new Sound();
-			gameOverMusic.fromFile('assets/death/fnf_loss_music-${theme}.flac');
+			var music = gameOverSounds[theme]["deathMusic"] = new Sound();
+			music.fromFile('assets/death/fnf_loss_music-${theme}.flac');
 		}
+
+		gameOverMusic = gameOverSounds[theme]["deathMusic"];
+		gameOverMusic.time = 0;
 
 		Main.conductor.reset();
 		Main.conductor.changeBpmAt(0, bpm);
@@ -235,9 +240,11 @@ class Field {
 				var theme = gameOverMeta.theme;
 
 				if (!gameOverSounds[theme].exists("confirm")) {
-					gameOverConfirm = gameOverSounds[theme]["confirm"] = new Sound();
-					gameOverConfirm.fromFile('assets/death/fnf_loss_end-${theme}.flac');
+					var conf = gameOverSounds[theme]["confirm"] = new Sound();
+					conf.fromFile('assets/death/fnf_loss_end-${theme}.flac');
 				}
+
+				gameOverConfirm = gameOverSounds[theme]["confirm"];
 				gameOverConfirm.play();
 
 				actorOnGameOver.finishAnim = "";

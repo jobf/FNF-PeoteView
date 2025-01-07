@@ -187,11 +187,6 @@ class PlayField implements State {
 			if (noteSystem != null) noteSystem.update(pos);
 			if (hud != null) hud.update(deltaTime);
 		} else {
-			if (hud != null) {
-				hud.dispose();
-				hud = null;
-			}
-
 			if (inputSystem != null) {
 				inputSystem.dispose();
 				inputSystem = null;
@@ -210,6 +205,11 @@ class PlayField implements State {
 			if (pauseScreen != null) {
 				pauseScreen.dispose();
 				pauseScreen = null;
+			}
+
+			if (hud != null) {
+				hud.dispose();
+				hud = null;
 			}
 		}
 
