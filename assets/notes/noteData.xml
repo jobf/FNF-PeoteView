@@ -16,6 +16,6 @@
 	<SubTexture name="up confirm0000" x="0" y="244" width="193" height="189" frameX="-39" frameY="-36"/>
 	<SubTexture name="arrow right0000" x="433" y="111" width="110" height="111"/>
 	<SubTexture name="red0000" x="606" y="222" width="108" height="110"/>
-	<SubTexture name="right press0000" x="659" y="0" width="97" height="99" frameX="5" frameY="5"/>
+	<SubTexture name="right press0000" x="659" y="0" width="97" height="99" frameX="6" frameY="5"/>
 	<SubTexture name="right confirm0000" x="194" y="244" width="189" height="189" frameX="-36" frameY="-35"/>
 </TextureAtlas>

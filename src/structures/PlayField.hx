@@ -97,7 +97,7 @@ class PlayField implements State {
 		if (value < 0) value = 0;
 		songPosition = value;
 		if (audioSystem != null) audioSystem.setTime(songPosition);
-		if (hud != null && SaveData.state.ratingPopup) hud.hideRatingPopup();
+		if (hud != null && SaveData.state.preferences.ratingPopup) hud.hideRatingPopup();
 		if (noteSystem != null) noteSystem.resetNotes();
 		if (field != null) field.resetCharacters();
 	}
@@ -132,7 +132,7 @@ class PlayField implements State {
 		noteSystem = new NoteSystem(numOfReceptors, this);
 		audioSystem = new AudioSystem(chart);
 		HUD.init(display);
-		if (!SaveData.state.hideHUD) hud = new HUD(display, this);
+		if (!SaveData.state.preferences.hideHUD) hud = new HUD(display, this);
 		CountdownDisplay.setupSounds();
 		countdownDisp = new CountdownDisplay(HUD.uiBuf);
 		PauseScreen.init(roof);
@@ -249,7 +249,7 @@ class PlayField implements State {
 	}
 
 	inline function measureHit(measure:Float) {
-		if (measure >= 0 && SaveData.state.cameraZooming) {
+		if (measure >= 0 && SaveData.state.preferences.cameraZooming) {
 			display.fov += 0.03;
 			view.fov += 0.015;
 		}
@@ -279,7 +279,7 @@ class PlayField implements State {
 			health = 1;
 		}
 
-		var preferences = SaveData.state;
+		var preferences = SaveData.state.preferences;
 
 		if (hud != null && preferences.scoreTxtBopping) {
 			hud.scoreTxt.scale = 1.1;

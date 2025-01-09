@@ -164,7 +164,7 @@ class NoteSystem {
 			sustainToRelease.held = true;
 			parent.onSustainRelease.dispatch(sustainToRelease.parent.data);
 			sustainsToHold[index] = null;
-			if (parent.hud != null && SaveData.state.ratingPopup) parent.hud.hideRatingPopup();
+			if (parent.hud != null && SaveData.state.preferences.ratingPopup) parent.hud.hideRatingPopup();
 		}
 
 		if (!rec.idle()) {
@@ -411,7 +411,7 @@ class NoteSystem {
 
 					notesToHit[fullIndex] = null;
 
-					if (parent.hud != null && SaveData.state.ratingPopup) parent.hud.hideRatingPopup();
+					if (parent.hud != null && SaveData.state.preferences.ratingPopup) parent.hud.hideRatingPopup();
 				}
 			}
 		} else {

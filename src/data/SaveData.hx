@@ -1,207 +1,253 @@
 package data;
 
 import haxe.io.Bytes;
+import haxe.io.BytesInput;
+import haxe.io.BytesOutput;
 import sys.io.File;
-import sys.io.FileOutput;
 import sys.FileSystem;
-import haxe.ds.Vector;
+import sys.io.FileOutput;
+import haxe.crypto.Base64;
+import lime.ui.KeyCode;
 
 /**
-	The internal save data.
+	The save data securer.
 **/
-#if !debug
-@:noDebug
-#end
 @:publicFields
-abstract SaveData_Internal(Int64) from Int64 to Int64 {
-	var downScroll(get, set):Bool;
-
-	inline function get_downScroll() {
-		return get(0);
+class SaveData_Securer {
+	static function lock(bytes:Bytes):String {
+		return Base64.encode(bytes);
 	}
 
-	inline function set_downScroll(value:Bool) {
-		return set(0, value);
-	}
-
-	var hideHUD(get, set):Bool;
-
-	inline function get_hideHUD() {
-		return get(1);
-	}
-
-	inline function set_hideHUD(value:Bool) {
-		return set(1, value);
-	}
-
-	var smoothHealthbar(get, set):Bool;
-
-	inline function get_smoothHealthbar() {
-		return get(2);
-	}
-
-	inline function set_smoothHealthbar(value:Bool) {
-		return set(2, value);
-	}
-
-	var ratingPopup(get, set):Bool;
-
-	inline function get_ratingPopup() {
-		return get(3);
-	}
-
-	inline function set_ratingPopup(value:Bool) {
-		return set(3, value);
-	}
-
-	var scoreTxtBopping(get, set):Bool;
-
-	inline function get_scoreTxtBopping() {
-		return get(4);
-	}
-
-	inline function set_scoreTxtBopping(value:Bool) {
-		return set(4, value);
-	}
-
-	var cameraZooming(get, set):Bool;
-
-	inline function get_cameraZooming() {
-		return get(5);
-	}
-
-	inline function set_cameraZooming(value:Bool) {
-		return set(5, value);
-	}
-
-	var iconBopping(get, set):Bool;
-
-	inline function get_iconBopping() {
-		return get(6);
-	}
-
-	inline function set_iconBopping(value:Bool) {
-		return set(6, value);
-	}
-
-	var inputOffset(get, set):Int;
-
-	inline function get_inputOffset() {
-		return getWithBits(7, 10).low;
-	}
-
-	inline function set_inputOffset(value:Int) {
-		return setWithBits(7, 10, value).low;
-	}
-
-	var frameRate(get, set):Int;
-
-	inline function get_frameRate() {
-		return getWithBits(17, 20).low;
-	}
-
-	inline function set_frameRate(value:Int) {
-		return setWithBits(17, 20, value).low;
-	}
-
-	var mipMapping(get, set):Bool;
-
-	inline function get_mipMapping() {
-		return get(37);
-	}
-
-	inline function set_mipMapping(value:Bool) {
-		return set(37, value);
-	}
-
-	var antialiasing(get, set):Bool;
-
-	inline function get_antialiasing() {
-		return get(38);
-	}
-
-	inline function set_antialiasing(value:Bool) {
-		return set(38, value);
-	}
-
-	var msdfRendering(get, set):Bool;
-
-	inline function get_msdfRendering() {
-		return get(39);
-	}
-
-	inline function set_msdfRendering(value:Bool) {
-		return set(39, value);
-	}
-
-	var customTitleBarColor(get, set):Int;
-
-	inline function get_customTitleBarColor() {
-		return getWithBits(40, 24).low;
-	}
-
-	inline function set_customTitleBarColor(value:Int) {
-		return setWithBits(40, 24, value).low;
-	}
-
-	inline function get(bitVal:Int) {
-		return (this >> bitVal) & 0x1 == 1;
-	}
-
-	inline function set(bitVal:Int, value:Bool) {
-		var gotten = get(bitVal);
-		return gotten != value ? (this ^= Int64.ofInt(1) << bitVal) == 1 : gotten;
-	}
-
-	inline function getWithBits(bitVal:Int, bits:Int):Int64 {
-		return (this >> bitVal) & ((Int64.ofInt(1) << bits) - 1);
-	}
-
-	inline function setWithBits(bitVal:Int, bits:Int, value:Int64) {
-		var mask:Int64 = ((Int64.ofInt(1) << bits) - 1) << bitVal;
-		var cleared:Int64 = this & ~mask;
-		return this = cleared | ((value & ((1 << bits) - 1)) << bitVal);
+	static function unlock(encoded:String):Bytes {
+		return Base64.decode(encoded);
 	}
 }
 
+/**
+	The save data structure.
+**/
+@:structInit
 @:publicFields
 class SaveData {
-	// https://try.haxe.org/#a208401B
-	static var EMPTY_SAVE(default, null):SaveData_Internal = Int64.parseString("-71776943694937992");
-
-	private static var datas:Vector<SaveData_Internal> = new Vector<SaveData_Internal>(16, EMPTY_SAVE);
-	static var slot:cpp.UInt8 = 0;
-
-	static var state(get, never):SaveData_Internal;
-
-	inline static function get_state() {
-		return datas[slot];
-	}
+	static var state:SaveData = {
+		controls: {
+			ui: {
+				left: KeyCode.LEFT,
+				down: KeyCode.DOWN,
+				up: KeyCode.UP,
+				right: KeyCode.RIGHT,
+				accept: KeyCode.RETURN,
+				back: KeyCode.BACKSPACE
+			},
+			game: {
+				left: KeyCode.LEFT,
+				down: KeyCode.DOWN,
+				up: KeyCode.UP,
+				right: KeyCode.RIGHT,
+				reset: KeyCode.R,
+				pause: KeyCode.RETURN,
+				debug: KeyCode.NUMBER_7
+			},
+			inputOffset: 0
+		},
+		preferences: {
+			downScroll: true,
+			hideHUD: false,
+			smoothHealthbar: false,
+			ratingPopup: true,
+			scoreTxtBopping: true,
+			cameraZooming: true,
+			iconBopping: true
+		},
+		graphics: {
+			frameRate: 60,
+			mipMapping: false,
+			antialiasing: true,
+			customTitleBarColor: 0xFFAA00FF,
+			customWindowOutlineColor: 0x999999FF,
+			customTitleTextFont: "vcr"
+		}
+	};
 
 	static function init() {
 		var window = lime.app.Application.current.window;
-		window.onClose.add(write);
+		window.onClose.add(save);
 
-		if (!FileSystem.exists('.dat')) {
-			write();
+		if (!FileSystem.exists('save.dat')) {
+			save();
 		}
 
-		var bytes:Bytes = File.getBytes('.dat');
-
-		for (i in 0...datas.length) {
-			datas[i] = bytes.getInt64(8 * i);
-		}
+		open();
 	}
 
-	static function write() {
-		var bytes:Bytes = Bytes.alloc(8 * datas.length);
-
-		for (i in 0...datas.length) {
-			bytes.setInt64(i * 8, datas[i]);
-		}
-
-		var output:FileOutput = File.write('.dat');
-		output.write(bytes);
-		output.close();
+	static function open() {
+		var result = SaveData_Securer.unlock(File.getContent("save.dat"));
+		state = _toStruct(result);
 	}
+
+	static function save() {
+		var bytes = _toBytes(state);
+		var result = SaveData_Securer.lock(bytes);
+		var fo:FileOutput = File.write("save.dat");
+		fo.writeString(result);
+		fo.close();
+	}
+
+	private static function _toBytes(s:SaveData) {
+		var out = new BytesOutput();
+
+		out.writeInt32(s.graphics.customTitleTextFont.length);
+		out.writeString(s.graphics.customTitleTextFont);
+		out.writeInt32(s.controls.ui.left);
+		out.writeInt32(s.controls.ui.down);
+		out.writeInt32(s.controls.ui.up);
+		out.writeInt32(s.controls.ui.right);
+		out.writeInt32(s.controls.ui.accept);
+		out.writeInt32(s.controls.ui.back);
+		out.writeInt32(s.controls.game.left);
+		out.writeInt32(s.controls.game.down);
+		out.writeInt32(s.controls.game.up);
+		out.writeInt32(s.controls.game.right);
+		out.writeInt32(s.controls.game.pause);
+		out.writeInt32(s.controls.game.reset);
+		out.writeInt32(s.controls.game.debug);
+		out.writeInt32(s.controls.inputOffset);
+		out.writeByte(s.preferences.downScroll ? 0 : 1);
+		out.writeByte(s.preferences.hideHUD ? 0 : 1);
+		out.writeByte(s.preferences.smoothHealthbar ? 0 : 1);
+		out.writeByte(s.preferences.ratingPopup ? 0 : 1);
+		out.writeByte(s.preferences.scoreTxtBopping ? 0 : 1);
+		out.writeByte(s.preferences.cameraZooming ? 0 : 1);
+		out.writeByte(s.preferences.iconBopping ? 0 : 1);
+		out.writeInt32(s.graphics.frameRate);
+		out.writeByte(s.graphics.mipMapping ? 0 : 1);
+		out.writeByte(s.graphics.antialiasing ? 0 : 1);
+		out.writeInt32(s.graphics.customTitleBarColor);
+		out.writeInt32(s.graphics.customWindowOutlineColor);
+
+		return out.getBytes();
+	}
+
+	private static function _toStruct(bytes:Bytes):SaveData {
+		var b = new BytesInput(bytes);
+
+		var len = b.readInt32();
+		var fnt = b.readString(len);
+
+		var result:SaveData = {
+			controls: {
+				ui: {
+					left: b.readInt32(),
+					down: b.readInt32(),
+					up: b.readInt32(),
+					right: b.readInt32(),
+					accept: b.readInt32(),
+					back: b.readInt32()
+				},
+				game: {
+					left: b.readInt32(),
+					down: b.readInt32(),
+					up: b.readInt32(),
+					right: b.readInt32(),
+					reset: b.readInt32(),
+					pause: b.readInt32(),
+					debug: b.readInt32()
+				},
+				inputOffset: b.readInt32()
+			},
+			preferences: {
+				downScroll: b.readByte() == 0,
+				hideHUD: b.readByte() == 0,
+				smoothHealthbar: b.readByte() == 0,
+				ratingPopup: b.readByte() == 0,
+				scoreTxtBopping: b.readByte() == 0,
+				cameraZooming: b.readByte() == 0,
+				iconBopping: b.readByte() == 0
+			},
+			graphics: {
+				frameRate: b.readInt32(),
+				mipMapping: b.readByte() == 0,
+				antialiasing: b.readByte() == 0,
+				customTitleBarColor: b.readInt32(),
+				customWindowOutlineColor: b.readInt32(),
+				customTitleTextFont: fnt
+			}
+		};
+
+		return result;
+	}
+
+	var controls:SaveData_Controls;
+	var preferences:SaveData_Preferences;
+	var graphics:SaveData_Graphics;
+}
+
+/**
+	The save data controls category.
+**/
+@:structInit
+@:publicFields
+class SaveData_Controls {
+	var ui:Controls_UI;
+	var game:Controls_Game;
+	var inputOffset:Int;
+}
+
+/**
+	The save data UI sub-category of the controls.
+**/
+@:structInit
+@:publicFields
+class Controls_UI {
+	var left:Int;
+	var down:Int;
+	var up:Int;
+	var right:Int;
+	var accept:Int;
+	var back:Int;
+}
+
+/**
+	The save data game sub-category of the controls.
+**/
+@:structInit
+@:publicFields
+class Controls_Game {
+	var left:Int;
+	var down:Int;
+	var up:Int;
+	var right:Int;
+	var pause:Int;
+	var reset:Int;
+	var debug:Int;
+}
+
+
+/**
+	The save data preferences category.
+**/
+@:structInit
+@:publicFields
+class SaveData_Preferences {
+	var downScroll:Bool;
+	var hideHUD:Bool;
+	var smoothHealthbar:Bool;
+	var ratingPopup:Bool;
+	var scoreTxtBopping:Bool;
+	var cameraZooming:Bool;
+	var iconBopping:Bool;
+}
+
+/**
+	The save data graphics category.
+**/
+@:structInit
+@:publicFields
+class SaveData_Graphics {
+	var frameRate:Int;
+	var mipMapping:Bool;
+	var antialiasing:Bool;
+	var customTitleBarColor:Int;
+	var customWindowOutlineColor:Int;
+	var customTitleTextFont:String;
 }

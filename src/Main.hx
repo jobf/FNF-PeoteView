@@ -142,7 +142,7 @@ class Main extends Application
 			case GAMEPLAY:
 				instance.playField = new PlayField(Sys.args()[0]);
 				instance.playField.init(instance.topDisplay, instance.middleDisplay, instance.bottomDisplay);
-				instance.playField.downScroll = SaveData.state.downScroll;
+				instance.playField.downScroll = SaveData.state.preferences.downScroll;
 			case AWARDS:
 			case CREDITS:
 			case NONE:

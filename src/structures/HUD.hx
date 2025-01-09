@@ -121,7 +121,7 @@ class HUD {
 		timeBarBG.type = TIME_BAR;
 		timeBarBG.changeID(0);
 		timeBarBG.x = (Main.INITIAL_WIDTH - timeBarBG.w) * 0.5;
-		timeBarBG.y = parent.downScroll ? Main.INITIAL_HEIGHT - 16 : 16;
+		timeBarBG.y = parent.downScroll ? 24 : Main.INITIAL_HEIGHT - 24;
 
 		// TIME BAR PART SETUP
 
@@ -159,7 +159,7 @@ class HUD {
 		updateScoreText(0.0);
 
 		// RATING AND COMBO NUMBER POPUP SETUP
-		if (SaveData.state.ratingPopup) {
+		if (SaveData.state.preferences.ratingPopup) {
 			ratingPopup = new UISprite();
 			ratingPopup.type = RATING_POPUP;
 			ratingPopup.changeID(0);
@@ -196,7 +196,7 @@ class HUD {
 		Updates the HUD.
 	**/
 	function update(deltaTime:Float) {
-		if (SaveData.state.ratingPopup) {
+		if (SaveData.state.preferences.ratingPopup) {
 			updateRatingPopup(deltaTime);
 			updateComboNumbers();
 		}
@@ -304,7 +304,7 @@ class HUD {
 		Adds a new combo number onto the ui buffer.
 	**/
 	function addComboNumber() {
-		if (SaveData.state.ratingPopup) {
+		if (SaveData.state.preferences.ratingPopup) {
 			// COMBO NUMBERS SETUP
 			var comboNumber = new UISprite();
 			comboNumber.type = COMBO_NUMBER;
@@ -422,9 +422,6 @@ class HUD {
 	function updateTimeBarParts() {
 		if (parent.disposed || parent.died) return;
 
-		timeBarBG.y = parent.downScroll ? Main.INITIAL_HEIGHT - 16 : 16;
-		uiBuf.updateElement(timeBarBG);
-
 		var part = timeBarParts[1];
 
 		if (part == null) return;
@@ -473,7 +470,7 @@ class HUD {
 		Dispose the hud.
 	**/
 	function dispose() {
-		if (SaveData.state.ratingPopup) {
+		if (SaveData.state.preferences.ratingPopup) {
 			uiBuf.removeElement(ratingPopup);
 			ratingPopup = null;
 	

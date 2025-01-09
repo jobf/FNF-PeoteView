@@ -65,7 +65,7 @@ class TextureSystem {
 			return;
 		}
 
-		var currentSaveState = SaveData.state;
+		var currentSaveState = SaveData.state.graphics;
 		var antialiasing = currentSaveState.antialiasing && !disableAntialiasing;
 		var mipmapping = currentSaveState.mipMapping;
 
@@ -96,7 +96,7 @@ class TextureSystem {
 			return;
 		}
 
-		var currentSaveState = SaveData.state;
+		var currentSaveState = SaveData.state.graphics;
 		var antialiasing = currentSaveState.antialiasing && !disableAntialiasing;
 		var mipmapping = currentSaveState.mipMapping;
 
@@ -130,7 +130,7 @@ class TextureSystem {
 
 		multitexLocMap[key] = [];
 
-		var currentSaveState = SaveData.state;
+		var currentSaveState = SaveData.state.graphics;
 		var antialiasing = currentSaveState.antialiasing && !disableAntialiasing;
 		var mipmapping = currentSaveState.mipMapping;
 
