@@ -225,7 +225,7 @@ class Text {
 		}
 	}
 
-	static var parsedTextAtlasData:Array<TextCharData>;
+	var parsedTextAtlasData:Array<TextCharData>;
 
 	function new(key:String, x:Float, y:Float, display:Display, text:String = "Sample text", font:String = "vcr") {
 		if (text.length == 0) text = "Sample text";

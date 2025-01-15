@@ -6,6 +6,8 @@ import lime.ui.Window;
 import lime.ui.KeyCode;
 
 @:publicFields
+@:access(structures.PauseScreen)
+@:access(structures.OptionsMenu)
 class Main extends Application
 {
 	/**
@@ -73,6 +75,7 @@ class Main extends Application
 			TextureSystem.createTexture("noteTex", "assets/notes/noteSheet.png");
 			TextureSystem.createTexture("uiTex", "assets/ui/uiSheet.png");
 			TextureSystem.createTexture("pauseScreenSheet", "assets/ui/pauseScreenSheet.png");
+			TextureSystem.createTexture("optionsMenuSheet", "assets/ui/optionsMenuSheet.png");
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			var stamp = haxe.Timer.stamp();
@@ -137,7 +140,7 @@ class Main extends Application
 		switch (newState) {
 			case MAIN_MENU:
 				instance.mainMenu = new MainMenu();
-				instance.mainMenu.init(instance.middleDisplay, instance.bottomDisplay);
+				instance.mainMenu.init(instance.topDisplay, instance.middleDisplay, instance.bottomDisplay);
 			case FREEPLAY:
 			case GAMEPLAY:
 				instance.playField = new PlayField(Sys.args()[0]);
@@ -170,19 +173,28 @@ class Main extends Application
 			try {
 				if (mainMenu != null && !mainMenu.disposed) {
 					mainMenu.update(newDeltaTime);
+
+					if (OptionsMenu.optionsProg.isIn(OptionsMenu.display)) {
+						mainMenu.optionsMenu.update(newDeltaTime);
+					}
 				}
 
 				if (playField != null && !playField.disposed) {
 					if (!playField.paused) {
 						playField.update(newDeltaTime);
-		
+
 						if (RenderingMode.enabled && !playField.songEnded) {
 							RenderingMode.pipeFrame();
 						}
 					}
 
-					if (PauseScreen.pauseProg.isIn(topDisplay)) {
-						playField.pauseScreen.update(newDeltaTime);
+					if (PauseScreen.pauseProg.isIn(PauseScreen.display)) {
+						var pauseScreen = playField.pauseScreen;
+						pauseScreen.update(newDeltaTime);
+
+						if (OptionsMenu.optionsProg.isIn(OptionsMenu.display)) {
+							pauseScreen.optionsMenu.update(newDeltaTime);
+						}
 					}
 				}
 			} catch (_) trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), _);
@@ -225,7 +237,7 @@ class Main extends Application
 	// ------------------------------------------------------------
 }
 
-private enum abstract StateSelection(cpp.UInt8) {
+private enum abstract StateSelection(Int) {
 	var NONE;
 	var MAIN_MENU;
 	var FREEPLAY;

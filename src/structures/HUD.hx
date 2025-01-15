@@ -13,38 +13,38 @@ class HUD {
 	static var uiBuf(default, null):Buffer<UISprite>;
 	static var uiProg(default, null):Program;
 
-	var scoreTxt:Text;
-	var watermarkTxt:Text;
-	var timeBarTxt:Text;
+	var scoreTxt(default, null):Text;
+	var watermarkTxt(default, null):Text;
+	var timeBarTxt(default, null):Text;
 
-	var ratingPopup:UISprite;
-	var comboNumbers:Array<UISprite> = [];
+	var ratingPopup(default, null):UISprite;
+	var comboNumbers(default, null):Array<UISprite> = [];
 
-	var healthBarParts:Array<UISprite> = [];
-	var healthBarBG:UISprite;
+	var healthBarParts(default, null):Array<UISprite> = [];
+	var healthBarBG(default, null):UISprite;
 
-	var healthIcons:Array<UISprite> = [];
-	var healthIconIDs:Array<Array<Int>> = [[0, 1], [2, 3]];
+	var healthIcons(default, null):Array<UISprite> = [];
+	var healthIconIDs(default, null):Array<Array<Int>> = [[0, 1], [2, 3]];
 	var healthIconColors:Array<Array<Color>> = [
 		[Color.WHITE, Color.BLUE, Color.YELLOW, Color.RED3, Color.GREY2, Color.CYAN],
 		[Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME, Color.LIME]
 	];
 
-	var timeBarParts:Array<UISprite> = [];
-	var timeBarBG:UISprite;
+	var timeBarParts(default, null):Array<UISprite> = [];
+	var timeBarBG(default, null):UISprite;
 
-	var healthBarWS:Float;
-	var healthBarHS:Float;
-	var healthBarXA:Float;
-	var healthBarYA:Float;
+	var healthBarWS(default, null):Float;
+	var healthBarHS(default, null):Float;
+	var healthBarXA(default, null):Float;
+	var healthBarYA(default, null):Float;
 
-	var timeBarWS:Float;
-	var timeBarHS:Float;
-	var timeBarXA:Float;
-	var timeBarYA:Float;
+	var timeBarWS(default, null):Float;
+	var timeBarHS(default, null):Float;
+	var timeBarXA(default, null):Float;
+	var timeBarYA(default, null):Float;
 
-	var display:CustomDisplay;
-	var parent:PlayField;
+	var display(default, null):CustomDisplay;
+	var parent(default, null):PlayField;
 
 	/**
 		Create the playfield UI.

@@ -14,6 +14,7 @@ class MainMenu implements State {
 
 	var display:CustomDisplay;
 	var view:CustomDisplay;
+	var roof:CustomDisplay;
 
 	static var optionBuf:Buffer<Actor>;
 	static var optionProg:Program;
@@ -27,14 +28,16 @@ class MainMenu implements State {
 
 	var disposed:Bool = false;
 
-	var selectedByMouse:Bool = false;
+	var optionsMenu(default, null):OptionsMenu;
 
 	function new() {}
 
-	function init(display:CustomDisplay, view:CustomDisplay) {
+	function init(roof:CustomDisplay, display:CustomDisplay, view:CustomDisplay) {
+		selectedAlpha = 1.0;
 
 		this.display = display;
 		this.view = view;
+		this.roof = roof;
 
 		view.scroll.x = 0;
 		view.scroll.y = 0;
@@ -80,25 +83,23 @@ class MainMenu implements State {
 		var bg = new Sprite();
 		bg.clipWidth = bg.clipSizeX = bg.w = Main.INITIAL_WIDTH;
 		bg.clipHeight = bg.clipSizeY = bg.h = Main.INITIAL_HEIGHT;
-		//bg.c = 0xFFEEBBFF;
-		bg.c = 0xEEFFDDFF;
 		backgroundBuf.addElement(bg);
 
 		optionBuf.update();
 		backgroundBuf.updateElement(bg);
 
-		haxe.Timer.delay(() -> {
-			var window = lime.app.Application.current.window;
-			window.onKeyDown.add(updateMenuOptions_keyboard);
-			window.onMouseMove.add(updateMenuOptions_mouse);
-			window.onMouseDown.add(enter);
-		}, 200);
+		haxe.Timer.delay(addEvents, 200);
 
 		updateMenuOptions();
+
+		OptionsMenu.init(roof);
+		optionsMenu = new OptionsMenu();
+		optionsMenu.onMainMenu = true;
 	}
 
 	static var optionYLerps:Vector<Float> = new Vector<Float>(5);
 	static var alphaLerps:Vector<Float> = new Vector<Float>(6);
+	static var selectedAlpha:Float = 1.0;
 
 	function update(deltaTime:Float) {
 		for (i in 0...optionBuf.length) {
@@ -112,7 +113,7 @@ class MainMenu implements State {
 				option.x = (Main.INITIAL_WIDTH - option.w) * 0.5;
 			}
 
-			alphaLerps[i] = Tools.lerp(alphaLerps[i], 1.0, t);
+			alphaLerps[i] = Tools.lerp(alphaLerps[i], selectedAlpha, t);
 			option.c.aF = alphaLerps[i];
 			optionBuf.updateElement(option);
 		}
@@ -146,7 +147,7 @@ class MainMenu implements State {
 			case KeyCode.RIGHT:
 				optionSelected = optionBuf.length - 2;
 			case KeyCode.RETURN:
-				enter(0.0, 0.0, LEFT);
+				doIt();
 			default:
 				return;
 		}
@@ -161,7 +162,6 @@ class MainMenu implements State {
 				x <= option.x + option.w &&
 				y <= option.y + option.h && optionSelected != i) {
 				optionSelected = i;
-				selectedByMouse = true;
 				updateMenuOptions();
 			}
 		}
@@ -180,9 +180,7 @@ class MainMenu implements State {
 		return false;
 	}
 
-	function enter(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
-		if (selectedByMouse && (button != LEFT || !isSelectingOption(x, y))) return;
-
+	function doIt() {
 		switch (optionSelected) {
 			case 0: // STORY MODE
 				Main.switchState(GAMEPLAY);
@@ -193,19 +191,35 @@ class MainMenu implements State {
 			case 3: // CREDITS
 				// TODO
 			case 4: // OPTIONS
-				// TODO
+				selectedAlpha = 0.0;
+				optionsMenu.open();
+				removeEvents();
 			case 5:
 				Sys.exit(0);
 		}
-
-		selectedByMouse = false;
 	}
 
-	function dispose() {
+	function doIt_mouse(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
+		if (button != LEFT || !isSelectingOption(x, y)) return;
+		doIt();
+	}
+
+	function addEvents() {
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.add(updateMenuOptions_keyboard);
+		window.onMouseMove.add(updateMenuOptions_mouse);
+		window.onMouseDown.add(doIt_mouse);
+	}
+
+	function removeEvents() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(updateMenuOptions_keyboard);
 		window.onMouseMove.remove(updateMenuOptions_mouse);
-		window.onMouseDown.remove(enter);
+		window.onMouseDown.remove(doIt_mouse);
+	}
+
+	function dispose() {
+		removeEvents();
 
 		display.removeProgram(optionProg);
 		display = null;
@@ -216,6 +230,8 @@ class MainMenu implements State {
 		backgroundBuf.clear();
 
 		watermarkTxt.dispose();
+
+		optionsMenu.dispose();
 
 		disposed = true;
 	}

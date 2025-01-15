@@ -18,6 +18,9 @@ class PauseScreen {
 
 	var pauseOptionSelected(default, null):Int = 0;
 	var opened(default, null):Bool;
+	var atOptionsMenu(default, null):Bool;
+
+	var optionsMenu(default, null):OptionsMenu;
 
 	static function init(disp:CustomDisplay) {
 		display = disp;
@@ -49,6 +52,9 @@ class PauseScreen {
 		diffText.changeID(cast difficulty);
 		diffText.x = Main.INITIAL_WIDTH - (diffText.w - 1);
 		diffText.y = 1;
+
+		OptionsMenu.init(display);
+		optionsMenu = new OptionsMenu();
 	}
 
 	var alphaLerp:Float = 0.0;
@@ -59,7 +65,7 @@ class PauseScreen {
 			return;
 		}
 
-		alphaLerp = Tools.lerp(alphaLerp, opened ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		alphaLerp = Tools.lerp(alphaLerp, (opened || atOptionsMenu) ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
 
 		display.color.aF = alphaLerp * 0.5;
 		display.color = display.color;
@@ -75,6 +81,10 @@ class PauseScreen {
 
 		diffText.c.aF = alphaLerp;
 		pauseBuf.updateElement(diffText);
+
+		if (atOptionsMenu) {
+			optionsMenu.update(deltaTime);
+		}
 	}
 
 	function selectOption(code:KeyCode, mod:KeyModifier) {
@@ -96,7 +106,9 @@ class PauseScreen {
 					case 1: // RESTART
 						Main.switchState(GAMEPLAY);
 					case 2: // OPTIONS
-						// TODO
+						optionsMenu.open();
+						atOptionsMenu = true;
+						removeEvent();
 					case 3: // EXIT
 						Main.switchState(MAIN_MENU);
 				}
@@ -120,19 +132,25 @@ class PauseScreen {
 			pauseBuf.addElement(diffText);
 		} catch (e) {}
 
-		haxe.Timer.delay(() -> {
-			var window = lime.app.Application.current.window;
-			window.onKeyDown.add(selectOption);
-		}, 200);
+		haxe.Timer.delay(addEvent, 200);
 
 		if (!pauseProg.isIn(display)) {
 			display.addProgram(pauseProg);
 		}
 	}
 
-	function close() {
+	function addEvent() {
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.add(selectOption);
+	}
+
+	function removeEvent() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(selectOption);
+	}
+
+	function close() {
+		removeEvent();
 
 		opened = false;
 	}
@@ -165,5 +183,7 @@ class PauseScreen {
 			pauseBuf.removeElement(diffText);
 			diffText = null;
 		}
+
+		optionsMenu.dispose();
 	}
 }
