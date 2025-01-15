@@ -58,6 +58,7 @@ class PauseScreen {
 	}
 
 	var alphaLerp:Float = 0.0;
+	var bgAlphaLerp:Float = 0.0;
 
 	function update(deltaTime:Float) {
 		if (!opened && display.color.aF == 0) {
@@ -65,10 +66,11 @@ class PauseScreen {
 			return;
 		}
 
-		alphaLerp = Tools.lerp(alphaLerp, (opened || atOptionsMenu) ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		alphaLerp = Tools.lerp(alphaLerp, opened ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		bgAlphaLerp = Tools.lerp(alphaLerp, (opened && !atOptionsMenu) ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
 
-		display.color.aF = alphaLerp * 0.5;
-		display.color = display.color;
+		display.color.aF = bgAlphaLerp * 0.5;
+		display.color = display.color; // Set it by itself so it actually sets the alpha of the display's background
 
 		for (i in 0...pauseOptions.length) {
 			var pauseOption = pauseOptions[i];

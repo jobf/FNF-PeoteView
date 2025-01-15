@@ -74,9 +74,10 @@ class OptionsDisplay {
 			var option = options[i];
 			option.c.aF = parent.alphaLerp;
 			OptionsMenu.optionsBuf.updateElement(option);
-			keybind1Txt.alpha = parent.alphaLerp;
-			keybind2Txt.alpha = parent.alphaLerp;
 		}
+
+		keybind1Txt.alpha = parent.alphaLerp;
+		keybind2Txt.alpha = parent.alphaLerp;
 	}
 
 	function destroyOptions() {

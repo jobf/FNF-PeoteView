@@ -173,10 +173,6 @@ class Main extends Application
 			try {
 				if (mainMenu != null && !mainMenu.disposed) {
 					mainMenu.update(newDeltaTime);
-
-					if (OptionsMenu.optionsProg.isIn(OptionsMenu.display)) {
-						mainMenu.optionsMenu.update(newDeltaTime);
-					}
 				}
 
 				if (playField != null && !playField.disposed) {
@@ -191,10 +187,6 @@ class Main extends Application
 					if (PauseScreen.pauseProg.isIn(PauseScreen.display)) {
 						var pauseScreen = playField.pauseScreen;
 						pauseScreen.update(newDeltaTime);
-
-						if (OptionsMenu.optionsProg.isIn(OptionsMenu.display)) {
-							pauseScreen.optionsMenu.update(newDeltaTime);
-						}
 					}
 				}
 			} catch (_) trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), _);

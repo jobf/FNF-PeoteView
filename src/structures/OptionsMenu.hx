@@ -2,6 +2,7 @@ package structures;
 
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.MouseButton;
 
 /**
 	The playfield's options menu.
@@ -48,8 +49,8 @@ class OptionsMenu {
 
 		if (optionsDisplay == null) {
 			optionsDisplay = new OptionsDisplay(this);
-			optionsDisplay.reload(cast optionSelected);
 		}
+		optionsDisplay.reload(cast optionSelected);
 	}
 
 	var alphaLerp:Float = 0.0;
@@ -97,6 +98,7 @@ class OptionsMenu {
 		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
 			window.onKeyDown.add(keyPress);
+			window.onMouseDown.add(close_mouse);
 		}, 200);
 
 		if (!optionsProg.isIn(display)) {
@@ -118,8 +120,14 @@ class OptionsMenu {
 
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(keyPress);
+		window.onMouseDown.remove(close_mouse);
 
 		opened = false;
+	}
+
+	function close_mouse(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
+		if (button != RIGHT) return;
+		close();
 	}
 
 	function keyPress(code:KeyCode, mod:KeyModifier) {

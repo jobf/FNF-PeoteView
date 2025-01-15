@@ -117,6 +117,8 @@ class MainMenu implements State {
 			option.c.aF = alphaLerps[i];
 			optionBuf.updateElement(option);
 		}
+
+		optionsMenu.update(deltaTime);
 	}
 
 	function updateMenuOptions() {
@@ -184,6 +186,7 @@ class MainMenu implements State {
 		switch (optionSelected) {
 			case 0: // STORY MODE
 				Main.switchState(GAMEPLAY);
+				removeEvents();
 			case 1: // FREEPLAY
 				// TODO
 			case 2: // AWARDS
