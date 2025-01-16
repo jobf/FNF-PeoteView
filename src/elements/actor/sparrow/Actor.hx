@@ -166,8 +166,8 @@ class Actor extends ActorElement
 		}
 
 		var animMap = atlas.animMap[name];
-		startingFrameIndex = (indicesMode && indices != null) ? indices[0] : animMap[0];
-		endingFrameIndex = (indicesMode && indices != null) ? indices[0] + indices.length : animMap[1];
+		startingFrameIndex = animMap[0];
+		endingFrameIndex = (indicesMode && indices != null) ? startingFrameIndex + indices.length : animMap[1];
 		animationRunning = true;
 
 		changeFrame();

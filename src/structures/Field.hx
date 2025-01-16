@@ -89,7 +89,7 @@ class Field {
 			return;
 		}
 
-		var beatIsEven = beat & 1 == 0;
+		var beatIsEven = beat % 2 == 0;
 		if (!opponent.animationRunning && beatIsEven) opponent.playAnimation("idle");
 		if (!player.animationRunning && beatIsEven) player.playAnimation("idle");
 		spectator.playAnimation(beatIsEven ? "danceLeft" : "danceRight");
