@@ -91,9 +91,6 @@ class OptionsDisplay {
 
 	function dispose() {
 		destroyOptions();
-
-		keybind1Txt.dispose();
-		keybind2Txt.dispose();
 	}
 }
 

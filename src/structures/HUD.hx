@@ -95,7 +95,7 @@ class HUD {
 		var x = healthBarBG.x + (healthBarBG.w * 0.5);
 
 		for (i in 0...2) {
-			var healthIconIndexes = actors[i].data.healthIconIndexes;
+			var healthIconIndexes = actors[i + 1].data.healthIconIndexes;
 			healthIconIDs[i] = [healthIconIndexes[0], healthIconIndexes[1]];
 		}
 
@@ -333,7 +333,7 @@ class HUD {
 
 		if (part1 == null) return;
 
-		var healthIconColor = actors[parent.flipHealthBar ? 1 : 0].data.colors;
+		var healthIconColor = actors[(parent.flipHealthBar ? 1 : 0) + 1].data.colors;
 
 		part1.setAllColors(healthIconColor);
 
@@ -349,7 +349,7 @@ class HUD {
 
 		if (part2 == null) return;
 
-		var healthIconColor = actors[parent.flipHealthBar ? 0 : 1].data.colors;
+		var healthIconColor = actors[(parent.flipHealthBar ? 0 : 1) + 1].data.colors;
 
 		part2.setAllColors(healthIconColor);
 

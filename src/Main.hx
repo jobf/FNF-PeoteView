@@ -47,11 +47,15 @@ class Main extends Application
 	var bottomDisplay:CustomDisplay;
 	var middleDisplay:CustomDisplay;
 	var topDisplay:CustomDisplay;
+	var optionsScreen:CustomDisplay;
 
 	// STATES
 	var currentState:StateSelection;
 	var mainMenu:MainMenu;
 	var playField:PlayField;
+
+	// OPTIONS MENU
+	var optionsMenu(default, null):OptionsMenu;
 
 	public function startSample(window:Window)
 	{
@@ -84,6 +88,7 @@ class Main extends Application
 			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x666666FF);
 			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
+			optionsScreen = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			peoteView.start();
@@ -94,6 +99,7 @@ class Main extends Application
 			peoteView.addDisplay(bottomDisplay);
 			peoteView.addDisplay(middleDisplay);
 			peoteView.addDisplay(topDisplay);
+			peoteView.addDisplay(optionsScreen);
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
 			resize(peoteView.width, peoteView.height);
@@ -101,6 +107,9 @@ class Main extends Application
 			conductor = new Conductor();
 
 			switchState(MAIN_MENU);
+
+			OptionsMenu.init(optionsScreen);
+			optionsMenu = new OptionsMenu();
 
 			window.onResize.add(resize);
 			window.onFullscreen.add(fullscreen);
@@ -189,12 +198,26 @@ class Main extends Application
 						pauseScreen.update(newDeltaTime);
 					}
 				}
+
+				if (optionsMenu.active) {
+					optionsMenu.update(newDeltaTime);
+				}
 			} catch (_) trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), _);
 
 			timeStamp = stamp();
 		}
 
 		Tools.profileFrame();
+	}
+
+	private inline function popupOptionsMenu() {
+		if (!optionsScreen.isIn(peoteView))
+			peoteView.addDisplay(optionsScreen);
+	}
+
+	private inline function removeOptionsMenu() {
+		if (optionsScreen.isIn(peoteView))
+			peoteView.removeDisplay(optionsScreen);
 	}
 
 	function resize(w:Int, h:Int) {

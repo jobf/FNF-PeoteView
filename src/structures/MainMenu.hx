@@ -28,8 +28,6 @@ class MainMenu implements State {
 
 	var disposed:Bool = false;
 
-	var optionsMenu(default, null):OptionsMenu;
-
 	function new() {}
 
 	function init(roof:CustomDisplay, display:CustomDisplay, view:CustomDisplay) {
@@ -91,10 +89,6 @@ class MainMenu implements State {
 		haxe.Timer.delay(addEvents, 200);
 
 		updateMenuOptions();
-
-		OptionsMenu.init(roof);
-		optionsMenu = new OptionsMenu();
-		optionsMenu.onMainMenu = true;
 	}
 
 	static var optionYLerps:Vector<Float> = new Vector<Float>(5);
@@ -117,8 +111,6 @@ class MainMenu implements State {
 			option.c.aF = alphaLerps[i];
 			optionBuf.updateElement(option);
 		}
-
-		optionsMenu.update(deltaTime);
 	}
 
 	function updateMenuOptions() {
@@ -195,7 +187,7 @@ class MainMenu implements State {
 				// TODO
 			case 4: // OPTIONS
 				selectedAlpha = 0.0;
-				optionsMenu.open();
+				Main.current.optionsMenu.open();
 				removeEvents();
 			case 5:
 				Sys.exit(0);
@@ -233,8 +225,6 @@ class MainMenu implements State {
 		backgroundBuf.clear();
 
 		watermarkTxt.dispose();
-
-		optionsMenu.dispose();
 
 		disposed = true;
 	}

@@ -20,8 +20,6 @@ class PauseScreen {
 	var opened(default, null):Bool;
 	var atOptionsMenu(default, null):Bool;
 
-	var optionsMenu(default, null):OptionsMenu;
-
 	static function init(disp:CustomDisplay) {
 		display = disp;
 
@@ -52,9 +50,6 @@ class PauseScreen {
 		diffText.changeID(cast difficulty);
 		diffText.x = Main.INITIAL_WIDTH - (diffText.w - 1);
 		diffText.y = 1;
-
-		OptionsMenu.init(display);
-		optionsMenu = new OptionsMenu();
 	}
 
 	var alphaLerp:Float = 0.0;
@@ -66,8 +61,8 @@ class PauseScreen {
 			return;
 		}
 
-		alphaLerp = Tools.lerp(alphaLerp, opened ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
-		bgAlphaLerp = Tools.lerp(alphaLerp, (opened && !atOptionsMenu) ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		alphaLerp = Tools.lerp(alphaLerp, (opened && !atOptionsMenu) ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
+		bgAlphaLerp = Tools.lerp(bgAlphaLerp, opened ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
 
 		display.color.aF = bgAlphaLerp * 0.5;
 		display.color = display.color; // Set it by itself so it actually sets the alpha of the display's background
@@ -83,10 +78,6 @@ class PauseScreen {
 
 		diffText.c.aF = alphaLerp;
 		pauseBuf.updateElement(diffText);
-
-		if (atOptionsMenu) {
-			optionsMenu.update(deltaTime);
-		}
 	}
 
 	function selectOption(code:KeyCode, mod:KeyModifier) {
@@ -108,7 +99,7 @@ class PauseScreen {
 					case 1: // RESTART
 						Main.switchState(GAMEPLAY);
 					case 2: // OPTIONS
-						optionsMenu.open();
+						Main.current.optionsMenu.open();
 						atOptionsMenu = true;
 						removeEvent();
 					case 3: // EXIT
@@ -185,7 +176,5 @@ class PauseScreen {
 			pauseBuf.removeElement(diffText);
 			diffText = null;
 		}
-
-		optionsMenu.dispose();
 	}
 }

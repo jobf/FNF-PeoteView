@@ -9,6 +9,7 @@ import lime.ui.MouseButton;
 **/
 @:publicFields
 @:access(structures.PauseScreen)
+@:access(Main)
 class OptionsMenu {
 	private static var display(default, null):CustomDisplay;
 	static var optionsBuf(default, null):Buffer<OptionsSprite>;
@@ -19,7 +20,7 @@ class OptionsMenu {
 
 	var categorySprites(default, null):Array<OptionsSprite> = [];
 
-	var onMainMenu:Bool = false;
+	var active:Bool = false;
 
 	var opened(default, null):Bool;
 
@@ -56,17 +57,12 @@ class OptionsMenu {
 	var alphaLerp:Float = 0.0;
 
 	function update(deltaTime:Float) {
-		if (!opened && display.color.aF == 0) {
+		if (!opened && alphaLerp == 0.0) {
 			shutDown();
 			return;
 		}
 
 		alphaLerp = Tools.lerp(alphaLerp, opened ? 1.0 : 0.0, Math.min(deltaTime * 0.015, 1.0));
-
-		if (onMainMenu) {
-			display.color.aF = alphaLerp * 0.5;
-			display.color = display.color;
-		}
 
 		for (i in 0...categorySprites.length) {
 			var categorySprite = categorySprites[i];
@@ -81,7 +77,8 @@ class OptionsMenu {
 	}
 
 	function open() {
-		opened = true;
+		active = opened = true;
+		Main.current.popupOptionsMenu();
 
 		try {
 			for (i in 0...categorySprites.length) {
@@ -107,11 +104,12 @@ class OptionsMenu {
 	}
 
 	function close() {
+		var mm = Main.current.mainMenu;
 		var pf = Main.current.playField;
 
-		if (onMainMenu) {
+		if (mm != null) {
 			MainMenu.selectedAlpha = 1.0;
-			Main.current.mainMenu.addEvents();
+			mm.addEvents();
 		} else if (pf != null) {
 			var pauseScreen = pf.pauseScreen;
 			pauseScreen.atOptionsMenu = false;
@@ -172,6 +170,9 @@ class OptionsMenu {
 
 		display.color = 0x00000000;
 		display.removeProgram(optionsProg);
+
+		active = false;
+		Main.current.removeOptionsMenu();
 	}
 
 	function dispose() {
@@ -185,5 +186,7 @@ class OptionsMenu {
 				categorySprite = null;
 			}
 		}
+
+		optionsDisplay.dispose();
 	}
 }

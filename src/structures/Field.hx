@@ -11,24 +11,34 @@ import lime.ui.KeyModifier;
 class Field {
 	var actors:Array<Actor>;
 
-	var dad(get, set):Actor;
+	var spectator(get, set):Actor;
 
-	inline function get_dad() {
+	inline function get_spectator() {
 		return actors[0];
 	}
 
-	inline function set_dad(actor:Actor) {
+	inline function set_spectator(actor:Actor) {
 		return actors[0] = actor;
 	}
 
-	var bf(get, set):Actor;
+	var opponent(get, set):Actor;
 
-	inline function get_bf() {
+	inline function get_opponent() {
 		return actors[1];
 	}
 
-	inline function set_bf(actor:Actor) {
+	inline function set_opponent(actor:Actor) {
 		return actors[1] = actor;
+	}
+
+	var player(get, set):Actor;
+
+	inline function get_player() {
+		return actors[2];
+	}
+
+	inline function set_player(actor:Actor) {
+		return actors[2] = actor;
 	}
 
 	var parent:PlayField;
@@ -42,20 +52,25 @@ class Field {
 		actors = [];
 		actors.resize(2);
 
-		dad = new Actor(parent.view, "dad", 250, -100, 24);
-		dad.mirror = !dad.mirror;
-		dad.playAnimation("idle");
-		dad.startingShakeFrame = 0;
-		dad.endingShakeFrame = 1;
-		dad.finishAnim = "idle";
-		dad.addToBuffer();
+		spectator = new Actor(parent.view, "gf", 250, -100, 24);
+		spectator.mirror = !spectator.mirror;
+		spectator.playAnimation("danceLeft");
+		spectator.addToBuffer();
 
-		bf = new Actor(parent.view, "bf", 625, 250, 24);
-		bf.playAnimation("idle");
-		bf.startingShakeFrame = 0;
-		bf.endingShakeFrame = 1;
-		bf.finishAnim = "idle";
-		bf.addToBuffer();
+		opponent = new Actor(parent.view, "dad", 250, -100, 24);
+		opponent.mirror = !opponent.mirror;
+		opponent.playAnimation("idle");
+		opponent.startingShakeFrame = 0;
+		opponent.endingShakeFrame = 1;
+		opponent.finishAnim = "idle";
+		opponent.addToBuffer();
+
+		player = new Actor(parent.view, "bf", 625, 250, 24);
+		player.playAnimation("idle");
+		player.startingShakeFrame = 0;
+		player.endingShakeFrame = 1;
+		player.finishAnim = "idle";
+		player.addToBuffer();
 
 		addCallbacks();
 
@@ -74,9 +89,10 @@ class Field {
 			return;
 		}
 
-		var canBop = beat % 2 == 0;
-		if (!dad.animationRunning && canBop) dad.playAnimation("idle");
-		if (!bf.animationRunning && canBop) bf.playAnimation("idle");
+		var beatIsEven = beat & 1 == 0;
+		if (!opponent.animationRunning && beatIsEven) opponent.playAnimation("idle");
+		if (!player.animationRunning && beatIsEven) player.playAnimation("idle");
+		spectator.playAnimation(beatIsEven ? "danceLeft" : "danceRight");
 	}
 
 	var targetCamera:Point = {x: 0, y: 0};
@@ -87,8 +103,9 @@ class Field {
 		parent.view.scroll.x = sc.x + ratio * (targetCamera.x - sc.x);
 		parent.view.scroll.y = sc.y + ratio * (targetCamera.y - sc.y);
 
-		dad.update(deltaTime);
-		bf.update(deltaTime);
+		spectator.update(deltaTime);
+		opponent.update(deltaTime);
+		player.update(deltaTime);
 
 		if (!isInGameOver && parent.died) {
 			gameOver();
@@ -115,11 +132,14 @@ class Field {
 	}
 
 	function resetCharacters() {
-		dad.shake = false;
-		dad.playAnimation("idle");
+		spectator.shake = false;
+		spectator.playAnimation("danceLeft");
 
-		bf.shake = false;
-		bf.playAnimation("idle");
+		opponent.shake = false;
+		opponent.playAnimation("idle");
+
+		player.shake = false;
+		player.playAnimation("idle");
 	}
 
 	function sing(index:Int, char:Actor, miss:Bool = false, shake:Bool = false, skipAnimation:Bool = false) {
@@ -129,21 +149,21 @@ class Field {
 	}
 
 	inline function hitNote(note:MetaNote, timing:Int) {
-		sing(note.index, (note.lane == 0 ? dad : bf), false, note.duration > 12 && timing < parent.hitbox * 0.5);
+		sing(note.index, (note.lane == 0 ? opponent : player), false, note.duration > 12 && timing < parent.hitbox * 0.5);
 
 		targetCamera.x = note.lane == 0 ? -50 : 50; // Prototype camera logic I have for now
 	}
 
 	inline function missNote(note:MetaNote) {
-		sing(note.index, (note.lane == 0 ? dad : bf), true, false);
+		sing(note.index, (note.lane == 0 ? opponent : player), true, false);
 	}
 
 	inline function completeSustain(note:MetaNote) {
-		sing(note.index, (note.lane == 0 ? dad : bf), false, false, true);
+		sing(note.index, (note.lane == 0 ? opponent : player), false, false, true);
 	}
 
 	inline function releaseSustain(note:MetaNote) {
-		sing(note.index, (note.lane == 0 ? dad : bf), true, false);
+		sing(note.index, (note.lane == 0 ? opponent : player), true, false);
 	}
 
 	function addCallbacks() {
@@ -163,8 +183,8 @@ class Field {
 	function dispose() {
 		removeCallbacks();
 
-		dad.dispose();
-		bf.dispose();
+		for (actor in actors)
+			actor.dispose();
 
 		parent.view.scroll.x = parent.view.scroll.y = 0;
 		parent.view.fov = 1.0;
