@@ -156,6 +156,7 @@ class Actor extends ActorElement
 			var ind = animData.indices;
 
 			indicesMode = ind != null && ind.length != 0;
+			indices = ind;
 
 			loop = animData.loop;
 
@@ -166,8 +167,9 @@ class Actor extends ActorElement
 		}
 
 		var animMap = atlas.animMap[name];
+		if (animMap == null) return;
 		startingFrameIndex = animMap[0];
-		endingFrameIndex = (indicesMode && indices != null) ? startingFrameIndex + indices.length : animMap[1];
+		endingFrameIndex = indicesMode ? startingFrameIndex + indices.length : animMap[1];
 		animationRunning = true;
 
 		changeFrame();
@@ -242,7 +244,15 @@ class Actor extends ActorElement
 	}
 
 	function changeFrame() {
-		configure(atlas.subTextures[startingFrameIndex + ((indicesMode && indices != null) ? indices[frameIndex] : frameIndex)]);
+		var frameIdx = startingFrameIndex;
+
+		if (indicesMode) {
+			frameIdx += indices[frameIndex];
+		} else {
+			frameIdx += frameIndex;
+		}
+
+		configure(atlas.subTextures[frameIdx]);
 	}
 
 	function dispose() {

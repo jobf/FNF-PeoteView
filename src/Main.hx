@@ -48,6 +48,7 @@ class Main extends Application
 	var middleDisplay:CustomDisplay;
 	var topDisplay:CustomDisplay;
 	var optionsScreen:CustomDisplay;
+	var fakeWindow:FakeWindow;
 
 	// STATES
 	var currentState:StateSelection;
@@ -102,14 +103,16 @@ class Main extends Application
 			peoteView.addDisplay(optionsScreen);
 			trace('Done! Took ${(haxe.Timer.stamp() - stamp) * 1000}ms');
 
-			resize(peoteView.width, peoteView.height);
-
 			conductor = new Conductor();
-
-			switchState(MAIN_MENU);
 
 			OptionsMenu.init(optionsScreen);
 			optionsMenu = new OptionsMenu();
+
+			fakeWindow = new FakeWindow(peoteView);
+
+			resize(peoteView.width, peoteView.height);
+
+			switchState(MAIN_MENU);
 
 			window.onResize.add(resize);
 			window.onFullscreen.add(fullscreen);
@@ -162,6 +165,10 @@ class Main extends Application
 
 		GC.run(10);
 		GC.enable(false);
+
+		var peoteView = Main.current.peoteView;
+
+		Main.current.fakeWindow.reload(peoteView.width, peoteView.height);
 	}
 
 	var newDeltaTime:Float = 0;
@@ -213,11 +220,13 @@ class Main extends Application
 	private inline function popupOptionsMenu() {
 		if (!optionsScreen.isIn(peoteView))
 			peoteView.addDisplay(optionsScreen);
+		fakeWindow.reload(peoteView.width, peoteView.height);
 	}
 
 	private inline function removeOptionsMenu() {
 		if (optionsScreen.isIn(peoteView))
 			peoteView.removeDisplay(optionsScreen);
+		fakeWindow.reload(peoteView.width, peoteView.height);
 	}
 
 	function resize(w:Int, h:Int) {
@@ -236,6 +245,8 @@ class Main extends Application
 		topDisplay.width = w;
 		topDisplay.height = h;
 		topDisplay.scale = scale;
+
+		fakeWindow.reload(w, h);
 	}
 
 	inline function fullscreen() {

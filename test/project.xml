@@ -2,13 +2,13 @@
 <project>
 	<meta title="Friday Night Funkin': Peote View" package="peote.view" version="0.1.0" company="Sylvio Sell - maitag" />
 
-	<window width="1280" height="720" fps="60" resizable="false" vsync="false" />
+	<window width="1280" height="720" fps="60" resizable="false" vsync="false" borderless="true" />
 	<window if="html5||android" width="0" height="0" />
 
 	<app main="Main" path="bin" file="test" />
 
 	<source path="../src" />
-	<source path="text-scaling" />
+	<source path="fake-window" />
 
 	<haxelib name="lime" />	
 	<haxelib name="peote-view" />

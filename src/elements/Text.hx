@@ -211,6 +211,16 @@ class Text {
 		return outlineColor = value;
 	}
 
+	var font(default, set):String;
+
+	function set_font(value:String) {
+		if (font == value) return value;
+		parsedTextAtlasData = Tools.parseFont(value);
+		var displayTextureID = value + "Font";
+		TextureSystem.setTexture(program, displayTextureID, "font");
+		return font = value;
+	}
+
 	function setMarkerPair(part:String, color:Color, outlineColor:Color = 0x000000FF, outlineSize:Float = 0) {
 		var index = text.indexOf(part);
 
@@ -231,8 +241,6 @@ class Text {
 		if (text.length == 0) text = "Sample text";
 		_key = key;
 
-		parsedTextAtlasData = Tools.parseFont(font);
-
 		if (buffers[key] == null) {
 			buffers[key] = new Buffer<TextCharSprite>(8, 8, false);
 		}
@@ -241,12 +249,11 @@ class Text {
 			var program = new Program(buffer);
 			program.blendEnabled = true;
 			program.setFragmentFloatPrecision('medium', true);
-
-			var displayTextureID = font + "Font";
-			TextureSystem.setTexture(program, displayTextureID, "font");
 			program.setColorFormula('getTextureColor(font_ID, vTexCoord) * (c * alphaColor)');
 			programs[key] = program;
 		}
+
+		this.font = font;
 
 		this.display = display;
 

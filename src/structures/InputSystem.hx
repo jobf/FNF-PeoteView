@@ -6,7 +6,7 @@ import lime.ui.KeyModifier;
 /**
 	The input system for the playfield.
 	This is an internal structure and should only be used inside of the playfield NOT to be touched with.
-	Warning: 70% of inside the class is very messy.
+	Warning: 70% of inside this class is very messy.
 **/
 @:publicFields
 class InputSystem {

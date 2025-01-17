@@ -50,7 +50,7 @@ class Field {
 		this.parent = parent;
 
 		actors = [];
-		actors.resize(2);
+		actors.resize(3);
 
 		spectator = new Actor(parent.view, "gf", 250, -100, 24);
 		spectator.mirror = !spectator.mirror;
@@ -269,6 +269,8 @@ class Field {
 
 				actorOnGameOver.finishAnim = "";
 				actorOnGameOver.playAnimation("deathConfirm");
+			case KeyCode.BACKSPACE:
+				Main.switchState(MAIN_MENU);
 			default:
 				return;
 		}

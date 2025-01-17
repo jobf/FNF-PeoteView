@@ -340,6 +340,8 @@ class PlayField implements State {
 	}
 
 	function completeSustain(note:MetaNote) {
+		if (noteSystem != null && noteSystem.getReceptor(note.index + inputSystem.strumlineIndexes[note.lane]).confirmed()) return;
+
 		if (!inputSystem.strumlinePlayable[note.lane]) {
 			health -= 0.025;
 
@@ -411,8 +413,8 @@ class PlayField implements State {
 
 		if (audioSystem != null) audioSystem.stop();
 
-		var char = field.actors[lane];
-		if (char == null) char = field.actors[1];
+		var char = field.actors[lane + 1];
+		if (char == null) char = field.actors[1 + 1];
 
 		field.actorOnGameOver = char;
 		field.targetCamera.x = lane == 0 ? -50 : 50; // Prototype camera logic I have for now
