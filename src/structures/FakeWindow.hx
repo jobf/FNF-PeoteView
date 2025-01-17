@@ -79,9 +79,9 @@ class FakeWindow {
 		icon = new Elem(titleBar.x + 2, titleBar.y + 2, titleBar.h - 5, titleBar.h - 5, 0, 0, 0, 0, 0xFFFFFFFF);
 		iconBuffer.addElement(icon);
 
-		text = new Text("windowText", icon.w + 8, 0, display, "Funkin' View", titleTextFont);
+		text = new Text("windowText", titleBar.x + icon.w + 7, titleBar.y, display, "Funkin' View", titleTextFont);
 		text.scale = (icon.h - 5) / text.height;
-		text.y = Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
+		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
 
 		var peoteView = Main.current.peoteView;
 
@@ -142,7 +142,8 @@ class FakeWindow {
 		icon.y = titleBar.y + 2;
 		windowBuffer.updateElement(icon);
 
-		text.y = Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
+		text.x = titleBar.x + icon.w + 7;
+		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
 
 		var peoteView = Main.current.peoteView;
 
