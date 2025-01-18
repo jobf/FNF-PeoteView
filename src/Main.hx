@@ -237,8 +237,6 @@ class Main extends Application
 	}
 
 	function resize(w:Int, h:Int) {
-		fakeWindow.visible = !Application.current.window.fullscreen;
-
 		peoteView.resize(w, h);
 		fakeWindow.reload(w, h);
 

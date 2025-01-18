@@ -1,9 +1,12 @@
 package structures;
 
 import peote.view.element.Elem;
+import lime.ui.MouseButton;
 
 @:publicFields
 class FakeWindow {
+	final windowOffset:Vector<Int> = Vector.fromData([-1, -9]);
+
 	// Internal stuff
 	var display:Display;
 	var windowBuffer:Buffer<Elem>;
@@ -40,7 +43,7 @@ class FakeWindow {
 	}
 
 	var text:Text;
-	var titleTextFont(default, set):String = "unispace";
+	var titleTextFont(default, set):String = "arial";
 	inline function set_titleTextFont(value:String) {
 		text.scale = 1;
 		text.font = value;
@@ -92,10 +95,60 @@ class FakeWindow {
 		text = new Text("windowText", titleBar.x + icon.w + 7, titleBar.y, display, "Funkin' View", titleTextFont);
 		text.scale = (icon.h - 5) / text.height;
 		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
+		text.color = 0x000000FF;
 
 		var peoteView = Main.current.peoteView;
 
 		peoteView.addDisplay(display);
+
+		window.onMouseMove.add(drag);
+		window.onMouseDown.add(checkDrag);
+		window.onMouseUp.add(undrag);
+	}
+
+	public function centerWindow() {
+		var window = lime.app.Application.current.window;
+
+		window.x = Math.floor(window.width * 0.25) + windowOffset[0];
+		window.y = (Math.floor(window.height * 0.25) - 30) + windowOffset[1];
+	}
+
+	var initWindowPos:Point = {x: 0, y: 0};
+	var initMousePos:Point = {x: 0, y: 0};
+	var _isDragging:Bool = false;
+
+	function drag(x:Float, y:Float) {
+		if (!_isDragging) return;
+
+		var window = lime.app.Application.current.window;
+
+		window.x = Math.floor(initWindowPos.x + (x - initMousePos.x));
+		window.y = Math.floor(initWindowPos.y + (y - initMousePos.y));
+	}
+
+	function checkDrag(x:Float, y:Float, mouseButton:MouseButton) {
+		if (_isDragging) return;
+
+		if ((x >= titleBar.x && x <= titleBar.x + titleBar.w) &&
+			(y >= titleBar.y && y <= titleBar.y + titleBar.h) &&
+			mouseButton == LEFT) {
+			_isDragging = true;
+	
+			var window = lime.app.Application.current.window;
+	
+			initWindowPos.x = window.x;
+			initWindowPos.y = window.y;
+			initMousePos.x = x;
+			initMousePos.y = y;
+		}
+	}
+
+	function undrag(x:Float, y:Float, mouseButton:MouseButton) {
+		if (!_isDragging) return;
+
+		if (mouseButton == LEFT) {
+			_isDragging = false;
+		}
 	}
 
 	function reload(width:Int, height:Int) {

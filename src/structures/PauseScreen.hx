@@ -83,7 +83,7 @@ class PauseScreen {
 	}
 
 	function keyPress(code:KeyCode, mod:KeyModifier) {
-		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToKeybind[code];
+		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
 		switch (keybind) {
 			case UI_BACK:
 				Main.current.playField.resume();

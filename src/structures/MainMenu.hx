@@ -124,7 +124,7 @@ class MainMenu implements State {
 	}
 
 	function updateMenuOptions_keyboard(code:KeyCode, _:KeyModifier) {
-		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToKeybind[code];
+		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
 
 		switch (keybind) {
 			case UI_DOWN:
@@ -141,8 +141,8 @@ class MainMenu implements State {
 				optionSelected = optionBuf.length - 1;
 			case UI_RIGHT:
 				optionSelected = optionBuf.length - 2;
-			case UI_ACCEPT:
-				doIt();
+				case UI_ACCEPT:
+					doIt();
 			default:
 				return;
 		}

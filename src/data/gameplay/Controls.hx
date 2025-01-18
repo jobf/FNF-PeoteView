@@ -1,6 +1,7 @@
 package data.gameplay;
 
 import lime.ui.KeyCode;
+import lime.ui.ScanCode;
 import lime.ui.KeyModifier;
 import lime.app.Event;
 
@@ -10,7 +11,8 @@ import lime.app.Event;
 **/
 @:publicFields
 class Controls {
-	var keycodeToKeybind:Map<KeyCode, ControlsKeybind> = [];
+	var keycodeToUIKeybind:Map<KeyCode, ControlsKeybind> = [];
+	var keycodeToGameplayKeybind:Map<KeyCode, ControlsKeybind> = [];
 
 	static var pressed:Controls;
 	static var released:Controls;
@@ -19,26 +21,28 @@ class Controls {
 		reload();
 	}
 
-    function reload() {
-        keycodeToKeybind.clear();
+	function reload() {
+		keycodeToUIKeybind.clear();
+		keycodeToGameplayKeybind.clear();
 
-        var controls = SaveData.state.controls;
+		var controls = SaveData.state.controls;
 
-		keycodeToKeybind[controls.ui.left] = UI_LEFT;
-        keycodeToKeybind[controls.ui.down] = UI_DOWN;
-        keycodeToKeybind[controls.ui.up] = UI_UP;
-        keycodeToKeybind[controls.ui.right] = UI_RIGHT;
-        keycodeToKeybind[controls.ui.accept[0]] = UI_ACCEPT;
-        keycodeToKeybind[controls.ui.accept[1]] = UI_ACCEPT;
-        keycodeToKeybind[controls.ui.back[0]] = UI_BACK;
-        keycodeToKeybind[controls.ui.back[1]] = UI_BACK;
-        keycodeToKeybind[controls.game.pause] = GAME_PAUSE;
-        keycodeToKeybind[controls.game.reset] = GAME_RESET;
-        keycodeToKeybind[controls.game.debug] = GAME_DEBUG;
-    }
+		keycodeToUIKeybind[controls.ui.left] = UI_LEFT;
+		keycodeToUIKeybind[controls.ui.down] = UI_DOWN;
+		keycodeToUIKeybind[controls.ui.up] = UI_UP;
+		keycodeToUIKeybind[controls.ui.right] = UI_RIGHT;
+		keycodeToUIKeybind[controls.ui.accept[0]] = UI_ACCEPT;
+		keycodeToUIKeybind[controls.ui.accept[1]] = UI_ACCEPT;
+		keycodeToUIKeybind[controls.ui.back[0]] = UI_BACK;
+		keycodeToUIKeybind[controls.ui.back[1]] = UI_BACK;
+		keycodeToGameplayKeybind[controls.game.pause] = GAME_PAUSE;
+		keycodeToGameplayKeybind[controls.game.reset] = GAME_RESET;
+		keycodeToGameplayKeybind[controls.game.debug] = GAME_DEBUG;
+	}
 }
 
 enum abstract ControlsKeybind(Int) {
+	var NONE;
 	var UI_LEFT;
 	var UI_DOWN;
 	var UI_UP;
