@@ -86,7 +86,7 @@ class MainMenu implements State {
 		optionBuf.update();
 		backgroundBuf.updateElement(bg);
 
-		haxe.Timer.delay(addEvents, 200);
+		haxe.Timer.delay(addEvents, 1);
 
 		updateMenuOptions();
 	}

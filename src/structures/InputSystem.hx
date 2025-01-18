@@ -188,6 +188,17 @@ class InputSystem {
 			else strumlineIndexes[i] = 0;
 		}
 
+		haxe.Timer.delay(addEvents, 1); // Just for a single millisecond the event doesn't get added until next frame
+	}
+
+	function addEvents() {
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.add(press);
+		window.onKeyUp.add(release);
+		window.onMouseDown.add(mousePress);
+	}
+
+	function removeEvents() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.add(press);
 		window.onKeyUp.add(release);
@@ -268,10 +279,7 @@ class InputSystem {
 	}
 
 	function dispose() {
-		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(press);
-		window.onKeyUp.remove(release);
-		window.onMouseDown.add(mousePress);
+		removeEvents();
 
 		map.clear();
 		map = null;

@@ -144,7 +144,7 @@ class PauseScreen {
 			pauseBuf.addElement(diffText);
 		} catch (e) {}
 
-		haxe.Timer.delay(addEvent, 200);
+		haxe.Timer.delay(addEvent, 1);
 
 		if (!pauseProg.isIn(display)) {
 			display.addProgram(pauseProg);
