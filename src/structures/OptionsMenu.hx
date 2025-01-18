@@ -159,11 +159,13 @@ class OptionsMenu {
 	}
 
 	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
-		if (button != RIGHT) return;
+		if (button != RIGHT || !Main.current.fakeWindow.isMouseInsideApp()) return;
 		close();
 	}
 
 	function moveCategory_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
+		if (!Main.current.fakeWindow.isMouseInsideApp()) return;
+
 		categorySelected -= Math.floor(y);
 
 		if (categorySelected >= categorySprites.length) {

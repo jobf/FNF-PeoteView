@@ -62,7 +62,11 @@ class FakeWindow {
 		return visible = value;
 	}
 
-	var textSize:Float;
+	function isMouseInsideApp() {
+		var peoteView = Main.current.peoteView;
+		return mousePos.x >= 1 && mousePos.x <= peoteView.width + 1 &&
+			mousePos.y >= 27 && mousePos.y <= peoteView.height + 27;
+	}
 
 	function new(peoteView:PeoteView) {
 		display = new Display(0, 0, peoteView.width, peoteView.height, 0x00000000);
@@ -104,6 +108,8 @@ class FakeWindow {
 		window.onMouseMove.add(drag);
 		window.onMouseDown.add(checkDrag);
 		window.onMouseUp.add(undrag);
+
+		centerWindow();
 	}
 
 	public function centerWindow() {
@@ -115,15 +121,19 @@ class FakeWindow {
 
 	var initWindowPos:Point = {x: 0, y: 0};
 	var initMousePos:Point = {x: 0, y: 0};
+	var mousePos:Point = {x: 0, y: 0};
 	var _isDragging:Bool = false;
 
 	function drag(x:Float, y:Float) {
+		mousePos.x = x;
+		mousePos.y = y;
+
 		if (!_isDragging) return;
 
 		var window = lime.app.Application.current.window;
 
-		window.x = Math.floor(initWindowPos.x + (x - initMousePos.x));
-		window.y = Math.floor(initWindowPos.y + (y - initMousePos.y));
+		window.x = Math.floor(initWindowPos.x + (mousePos.x - initMousePos.x));
+		window.y = Math.floor(initWindowPos.y + (mousePos.y - initMousePos.y));
 	}
 
 	function checkDrag(x:Float, y:Float, mouseButton:MouseButton) {
