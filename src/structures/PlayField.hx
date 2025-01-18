@@ -136,7 +136,7 @@ class PlayField implements State {
 		CountdownDisplay.setupSounds();
 		countdownDisp = new CountdownDisplay(HUD.uiBuf);
 		PauseScreen.init(roof);
-		pauseScreen = new PauseScreen(chart.header.difficulty, this);
+		pauseScreen = new PauseScreen(chart.header.difficulty);
 
 		numOfNotes = NoteSystem.notesBuf.length - numOfReceptors;
 		scrollSpeed = chart.header.speed;

@@ -22,8 +22,6 @@ class PauseScreen {
 	var opened(default, null):Bool;
 	var atOptionsMenu(default, null):Bool;
 
-	var parent:PlayField;
-
 	static function init(disp:CustomDisplay) {
 		display = disp;
 
@@ -37,9 +35,7 @@ class PauseScreen {
 		}
 	}
 
-	function new(difficulty:Difficulty, parent:PlayField) {
-		this.parent = parent;
-
+	function new(difficulty:Difficulty) {
 		var currentY = 200;
 		for (i in 0...4) {
 			var option = new PauseSprite();
@@ -101,14 +97,13 @@ class PauseScreen {
 	}
 
 	function back(id:Int) {
-		parent.resume();
+		Main.current.playField.resume();
 	}
 
 	function accept(id:Int) {
 		switch (pauseOptionSelected) {
 			case 0: // RESUME
-				trace("Hi");
-				back(0);
+				Main.current.playField.resume();
 			case 1: // RESTART
 				Main.switchState(GAMEPLAY);
 			case 2: // OPTIONS
