@@ -49,6 +49,16 @@ class FakeWindow {
 		return titleTextFont = value;
 	}
 
+	var visible(default, set):Bool = true;
+
+	inline function set_visible(value:Bool) {
+		if (visible != value) {
+			if (value) display.show();
+			display.hide();
+		}
+		return visible = value;
+	}
+
 	var textSize:Float;
 
 	function new(peoteView:PeoteView) {
@@ -97,18 +107,6 @@ class FakeWindow {
 		titleBar.y = 1;
 		windowBuffer.updateElement(titleBar);
 
-		trace(titleBar.x);
-		trace(titleBar.y);
-		trace(titleBar.w);
-		trace(titleBar.h);
-		trace(titleBar.c);
-
-		trace(border[3].x);
-		trace(border[3].y);
-		trace(border[3].w);
-		trace(border[3].h);
-		trace(border[3].c);
-
 		for (i in 0...border.length) {
 			var part = border[i];
 			switch (i) {
@@ -140,7 +138,7 @@ class FakeWindow {
 
 		icon.x = titleBar.x + 2;
 		icon.y = titleBar.y + 2;
-		windowBuffer.updateElement(icon);
+		iconBuffer.updateElement(icon);
 
 		text.x = titleBar.x + icon.w + 7;
 		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);

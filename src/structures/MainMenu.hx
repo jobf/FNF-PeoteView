@@ -3,7 +3,7 @@ package structures;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
-import haxe.ds.Vector;
+import lime.ui.MouseWheelMode;
 
 /**
 	The first state of the game.
@@ -127,17 +127,16 @@ class MainMenu implements State {
 		switch (code) {
 			case KeyCode.DOWN:
 				optionSelected++;
-				if (optionSelected >= optionBuf.length - 1) {
+				if (optionSelected >= optionBuf.length) {
 					optionSelected = 0;
 				}
 			case KeyCode.UP:
 				optionSelected--;
 				if (optionSelected < 0) {
-					optionSelected = optionBuf.length - 2;
+					optionSelected = optionBuf.length - 1;
 				}
 			case KeyCode.LEFT:
-			if (optionSelected == optionBuf.length - 1) optionSelected = optionBuf.length - 2;
-				else optionSelected = optionBuf.length - 1;
+				optionSelected = optionBuf.length - 1;
 			case KeyCode.RIGHT:
 				optionSelected = optionBuf.length - 2;
 			case KeyCode.RETURN:
@@ -149,29 +148,17 @@ class MainMenu implements State {
 		updateMenuOptions();
 	}
 
-	function updateMenuOptions_mouse(x:Float, y:Float) {
-		for (i in 0...optionBuf.length) {
-			var option = optionBuf.getElement(i);
-			if (x >= option.x && y >= option.y &&
-				x <= option.x + option.w &&
-				y <= option.y + option.h && optionSelected != i) {
-				optionSelected = i;
-				updateMenuOptions();
-			}
-		}
-	}
+	function updateMenuOptions_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
+		optionSelected -= Math.floor(y);
 
-	function isSelectingOption(x:Float, y:Float) {
-		for (i in 0...optionBuf.length) {
-			var option = optionBuf.getElement(i);
-			if (x >= option.x && y >= option.y &&
-				x <= option.x + option.w &&
-				y <= option.y + option.h && optionSelected == i) {
-				return true;
-			}
+		if (optionSelected >= optionBuf.length) {
+			optionSelected = 0;
+		}
+		if (optionSelected < 0) {
+			optionSelected = optionBuf.length - 1;
 		}
 
-		return false;
+		updateMenuOptions();
 	}
 
 	function doIt() {
@@ -195,21 +182,21 @@ class MainMenu implements State {
 	}
 
 	function doIt_mouse(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
-		if (button != LEFT || !isSelectingOption(x, y)) return;
+		if (button != LEFT) return;
 		doIt();
 	}
 
 	function addEvents() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.add(updateMenuOptions_keyboard);
-		window.onMouseMove.add(updateMenuOptions_mouse);
+		window.onMouseWheel.add(updateMenuOptions_mouse);
 		window.onMouseDown.add(doIt_mouse);
 	}
 
 	function removeEvents() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(updateMenuOptions_keyboard);
-		window.onMouseMove.remove(updateMenuOptions_mouse);
+		window.onMouseWheel.remove(updateMenuOptions_mouse);
 		window.onMouseDown.remove(doIt_mouse);
 	}
 

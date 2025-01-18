@@ -60,6 +60,8 @@ class Main extends Application
 
 	public function startSample(window:Window)
 	{
+		window.opacity = 0;
+
 		current = this;
 
 		SaveData.init();
@@ -126,6 +128,8 @@ class Main extends Application
 			}
 
 			_started = true;
+
+			window.opacity = 1;
 		}, 100);
 	}
 
@@ -230,23 +234,32 @@ class Main extends Application
 	}
 
 	function resize(w:Int, h:Int) {
-		var scale = h / INITIAL_HEIGHT;
+		fakeWindow.visible = !Application.current.window.fullscreen;
 
 		peoteView.resize(w, h);
-
-		bottomDisplay.width = w;
-		bottomDisplay.height = h;
-		bottomDisplay.scale = scale;
-
-		middleDisplay.width = w;
-		middleDisplay.height = h;
-		middleDisplay.scale = scale;
-
-		topDisplay.width = w;
-		topDisplay.height = h;
-		topDisplay.scale = scale;
-
 		fakeWindow.reload(w, h);
+
+		centerDisplayOnWindow(bottomDisplay, w, h);
+		centerDisplayOnWindow(middleDisplay, w, h);
+		centerDisplayOnWindow(topDisplay, w, h);
+		centerDisplayOnWindow(optionsScreen, w, h);
+	}
+
+	function centerDisplayOnWindow(display:CustomDisplay, w:Int, h:Int) {
+		var scale = (fakeWindow.visible ? (h - 28) : h) / INITIAL_HEIGHT;
+
+		if (fakeWindow.visible) {
+			display.x = 1;
+			display.width = w - 2;
+			display.y = 27;
+			display.height = h - 28;
+		} else {
+			display.x = 0;
+			display.width = w;
+			display.y = 0;
+			display.height = h;
+		}
+		display.scale = scale;
 	}
 
 	inline function fullscreen() {

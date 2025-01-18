@@ -2,6 +2,7 @@ package structures;
 
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.MouseButton;
 
 /**
 	The input system for the playfield.
@@ -190,6 +191,7 @@ class InputSystem {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.add(press);
 		window.onKeyUp.add(release);
+		window.onMouseDown.add(mousePress);
 	}
 
 	inline function exists(keyCode:Int) {
@@ -260,10 +262,16 @@ class InputSystem {
 		parent.onKeyRelease.dispatch(code);
 	}
 
+	function mousePress(x:Float, y:Float, mouseButton:MouseButton) {
+		if (mouseButton != LEFT) return;
+		parent.pause();
+	}
+
 	function dispose() {
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(press);
 		window.onKeyUp.remove(release);
+		window.onMouseDown.add(mousePress);
 
 		map.clear();
 		map = null;

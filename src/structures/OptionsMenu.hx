@@ -3,6 +3,7 @@ package structures;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.MouseButton;
+import lime.ui.MouseWheelMode;
 
 /**
 	The playfield's options menu.
@@ -95,7 +96,8 @@ class OptionsMenu {
 		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
 			window.onKeyDown.add(keyPress);
-			window.onMouseDown.add(close_mouse);
+			window.onMouseDown.add(mousePress);
+			window.onMouseWheel.add(moveCategory_mouse);
 		}, 200);
 
 		if (!optionsProg.isIn(display)) {
@@ -118,14 +120,10 @@ class OptionsMenu {
 
 		var window = lime.app.Application.current.window;
 		window.onKeyDown.remove(keyPress);
-		window.onMouseDown.remove(close_mouse);
+		window.onMouseDown.remove(mousePress);
+		window.onMouseWheel.remove(moveCategory_mouse);
 
 		opened = false;
-	}
-
-	function close_mouse(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
-		if (button != RIGHT) return;
-		close();
 	}
 
 	function keyPress(code:KeyCode, mod:KeyModifier) {
@@ -157,6 +155,24 @@ class OptionsMenu {
 			default:
 				return;
 		}
+	}
+
+	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
+		if (button != RIGHT) return;
+		close();
+	}
+
+	function moveCategory_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
+		categorySelected -= Math.floor(y);
+
+		if (categorySelected >= categorySprites.length) {
+			categorySelected = 0;
+		}
+		if (categorySelected < 0) {
+			categorySelected = categorySprites.length - 1;
+		}
+
+		optionsDisplay.reload(cast categorySelected);
 	}
 
 	function shutDown() {

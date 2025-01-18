@@ -2,6 +2,8 @@ package structures;
 
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.MouseButton;
+import lime.ui.MouseWheelMode;
 
 /**
 	The playfield's pause menu.
@@ -80,8 +82,10 @@ class PauseScreen {
 		pauseBuf.updateElement(diffText);
 	}
 
-	function selectOption(code:KeyCode, mod:KeyModifier) {
+	function keyPress(code:KeyCode, mod:KeyModifier) {
 		switch (code) {
+			case KeyCode.BACKSPACE:
+				Main.current.playField.resume();
 			case KeyCode.DOWN:
 				pauseOptionSelected++;
 				if (pauseOptionSelected >= pauseOptions.length) {
@@ -106,6 +110,21 @@ class PauseScreen {
 						Main.switchState(MAIN_MENU);
 				}
 			default:
+		}
+	}
+
+	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
+		keyPress(button == LEFT ? KeyCode.RETURN : KeyCode.BACKSPACE, -1);
+	}
+
+	function moveOption_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
+		pauseOptionSelected -= Math.floor(y);
+
+		if (pauseOptionSelected >= pauseBuf.length - 1) {
+			pauseOptionSelected = 0;
+		}
+		if (pauseOptionSelected < 0) {
+			pauseOptionSelected = pauseBuf.length - 2;
 		}
 	}
 
@@ -134,12 +153,16 @@ class PauseScreen {
 
 	function addEvent() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(selectOption);
+		window.onKeyDown.add(keyPress);
+		window.onMouseDown.add(mousePress);
+		window.onMouseWheel.add(moveOption_mouse);
 	}
 
 	function removeEvent() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(selectOption);
+		window.onKeyDown.remove(keyPress);
+		window.onMouseDown.remove(mousePress);
+		window.onMouseWheel.remove(moveOption_mouse);
 	}
 
 	function close() {
