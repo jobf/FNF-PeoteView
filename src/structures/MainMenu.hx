@@ -123,27 +123,32 @@ class MainMenu implements State {
 		}
 	}
 
-	function updateMenuOptions_keyboard(code:KeyCode, _:KeyModifier) {
-		switch (code) {
-			case KeyCode.DOWN:
-				optionSelected++;
-				if (optionSelected >= optionBuf.length) {
-					optionSelected = 0;
-				}
-			case KeyCode.UP:
-				optionSelected--;
-				if (optionSelected < 0) {
-					optionSelected = optionBuf.length - 1;
-				}
-			case KeyCode.LEFT:
-				optionSelected = optionBuf.length - 1;
-			case KeyCode.RIGHT:
-				optionSelected = optionBuf.length - 2;
-			case KeyCode.RETURN:
-				doIt();
-			default:
-				return;
+	function down(id:Int) {
+		optionSelected++;
+		if (optionSelected >= optionBuf.length) {
+			optionSelected = 0;
 		}
+
+		updateMenuOptions();
+	}
+
+	function up(id:Int) {
+		optionSelected--;
+		if (optionSelected < 0) {
+			optionSelected = optionBuf.length - 1;
+		}
+
+		updateMenuOptions();
+	}
+
+	function left(id:Int) {
+		optionSelected = optionBuf.length - 1;
+
+		updateMenuOptions();
+	}
+
+	function right(id:Int) {
+		optionSelected = optionBuf.length - 2;
 
 		updateMenuOptions();
 	}
@@ -161,7 +166,7 @@ class MainMenu implements State {
 		updateMenuOptions();
 	}
 
-	function doIt() {
+	function doIt(id:Int) {
 		switch (optionSelected) {
 			case 0: // STORY MODE
 				Main.switchState(GAMEPLAY);
@@ -183,21 +188,31 @@ class MainMenu implements State {
 
 	function doIt_mouse(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
 		if (button != LEFT) return;
-		doIt();
+		doIt(0);
 	}
 
 	function addEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(updateMenuOptions_keyboard);
 		window.onMouseWheel.add(updateMenuOptions_mouse);
 		window.onMouseDown.add(doIt_mouse);
+
+		Controls.pressed.addToQueue(UI_LEFT, left);
+		Controls.pressed.addToQueue(UI_DOWN, down);
+		Controls.pressed.addToQueue(UI_UP, up);
+		Controls.pressed.addToQueue(UI_RIGHT, right);
+		Controls.pressed.addToQueue(UI_ACCEPT, doIt);
 	}
 
 	function removeEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(updateMenuOptions_keyboard);
 		window.onMouseWheel.remove(updateMenuOptions_mouse);
 		window.onMouseDown.remove(doIt_mouse);
+
+		Controls.pressed.removeFromQueue(UI_LEFT, left);
+		Controls.pressed.removeFromQueue(UI_DOWN, down);
+		Controls.pressed.removeFromQueue(UI_UP, up);
+		Controls.pressed.removeFromQueue(UI_RIGHT, right);
+		Controls.pressed.removeFromQueue(UI_ACCEPT, doIt);
 	}
 
 	function dispose() {

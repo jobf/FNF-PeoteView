@@ -82,39 +82,42 @@ class PauseScreen {
 		pauseBuf.updateElement(diffText);
 	}
 
-	function keyPress(code:KeyCode, mod:KeyModifier) {
-		switch (code) {
-			case KeyCode.BACKSPACE:
+	function down(id:Int) {
+		pauseOptionSelected++;
+		if (pauseOptionSelected >= pauseOptions.length) {
+			pauseOptionSelected = 0;
+		}
+	}
+
+	function up(id:Int) {
+		pauseOptionSelected--;
+		if (pauseOptionSelected < 0) {
+			pauseOptionSelected = pauseOptions.length - 1;
+		}
+	}
+
+	function back(id:Int) {
+		Main.current.playField.resume();
+	}
+
+	function accept(id:Int) {
+		switch (pauseOptionSelected) {
+			case 0: // RESUME
 				Main.current.playField.resume();
-			case KeyCode.DOWN:
-				pauseOptionSelected++;
-				if (pauseOptionSelected >= pauseOptions.length) {
-					pauseOptionSelected = 0;
-				}
-			case KeyCode.UP:
-				pauseOptionSelected--;
-				if (pauseOptionSelected < 0) {
-					pauseOptionSelected = pauseOptions.length - 1;
-				}
-			case KeyCode.RETURN:
-				switch (pauseOptionSelected) {
-					case 0: // RESUME
-						Main.current.playField.resume();
-					case 1: // RESTART
-						Main.switchState(GAMEPLAY);
-					case 2: // OPTIONS
-						Main.current.optionsMenu.open();
-						atOptionsMenu = true;
-						removeEvent();
-					case 3: // EXIT
-						Main.switchState(MAIN_MENU);
-				}
-			default:
+			case 1: // RESTART
+				Main.switchState(GAMEPLAY);
+			case 2: // OPTIONS
+				Main.current.optionsMenu.open();
+				atOptionsMenu = true;
+				removeEvent();
+			case 3: // EXIT
+				Main.switchState(MAIN_MENU);
 		}
 	}
 
 	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
-		keyPress(button == LEFT ? KeyCode.RETURN : KeyCode.BACKSPACE, -1);
+		if (button == LEFT) accept(0);
+		else back(0);
 	}
 
 	function moveOption_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
@@ -144,28 +147,36 @@ class PauseScreen {
 			pauseBuf.addElement(diffText);
 		} catch (e) {}
 
-		haxe.Timer.delay(addEvent, 1);
+		haxe.Timer.delay(addEvents, 1);
 
 		if (!pauseProg.isIn(display)) {
 			display.addProgram(pauseProg);
 		}
 	}
 
-	function addEvent() {
+	function addEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(keyPress);
 		window.onMouseDown.add(mousePress);
 		window.onMouseWheel.add(moveOption_mouse);
+
+		Controls.pressed.addToQueue(UI_DOWN, down);
+		Controls.pressed.addToQueue(UI_UP, up);
+		Controls.pressed.addToQueue(UI_ACCEPT, accept);
+		Controls.pressed.addToQueue(UI_BACK, back);
 	}
 
 	function removeEvent() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(keyPress);
 		window.onMouseDown.remove(mousePress);
 		window.onMouseWheel.remove(moveOption_mouse);
+
+		Controls.pressed.removeFromQueue(UI_DOWN, down);
+		Controls.pressed.removeFromQueue(UI_UP, up);
+		Controls.pressed.removeFromQueue(UI_ACCEPT, accept);
+		Controls.pressed.removeFromQueue(UI_BACK, back);
 	}
 
-	function close() {
+	function close(id:Int) {
 		removeEvent();
 
 		opened = false;
@@ -187,7 +198,7 @@ class PauseScreen {
 	}
 
 	function dispose() {
-		close();
+		close(0);
 		shutDown();
 
 		if (opened) {
