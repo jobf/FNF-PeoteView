@@ -93,14 +93,19 @@ class OptionsMenu {
 			alphaLerp = 0.0;
 		} catch (e) {}
 
-		haxe.Timer.delay(addEvents, 1);
+		haxe.Timer.delay(() -> {
+			var window = lime.app.Application.current.window;
+			window.onKeyDown.add(keyPress);
+			window.onMouseDown.add(mousePress);
+			window.onMouseWheel.add(moveCategory_mouse);
+		}, 200);
 
 		if (!optionsProg.isIn(display)) {
 			display.addProgram(optionsProg);
 		}
 	}
 
-	function close(id:Int) {
+	function close() {
 		var mm = Main.current.mainMenu;
 		var pf = Main.current.playField;
 
@@ -110,71 +115,51 @@ class OptionsMenu {
 		} else if (pf != null) {
 			var pauseScreen = pf.pauseScreen;
 			pauseScreen.atOptionsMenu = false;
-			pauseScreen.addEvents();
+			pauseScreen.addEvent();
 		}
 
-		removeEvents();
+		var window = lime.app.Application.current.window;
+		window.onKeyDown.remove(keyPress);
+		window.onMouseDown.remove(mousePress);
+		window.onMouseWheel.remove(moveCategory_mouse);
 
 		opened = false;
 	}
 
-	function addEvents() {
-		var window = lime.app.Application.current.window;
-		window.onMouseDown.add(mousePress);
-		window.onMouseWheel.add(moveCategory_mouse);
-
-		Controls.pressed.addToQueue(UI_LEFT, left);
-		Controls.pressed.addToQueue(UI_DOWN, down);
-		Controls.pressed.addToQueue(UI_UP, up);
-		Controls.pressed.addToQueue(UI_RIGHT, right);
-		Controls.pressed.addToQueue(UI_BACK, close);
-	}
-
-	function removeEvents() {
-		var window = lime.app.Application.current.window;
-		window.onMouseDown.remove(mousePress);
-		window.onMouseWheel.remove(moveCategory_mouse);
-
-		Controls.pressed.removeFromQueue(UI_LEFT, left);
-		Controls.pressed.removeFromQueue(UI_DOWN, down);
-		Controls.pressed.removeFromQueue(UI_UP, up);
-		Controls.pressed.removeFromQueue(UI_RIGHT, right);
-		Controls.pressed.removeFromQueue(UI_BACK, close);
-	}
-
-	function left(id:Int) {
-		categorySelected--;
-		if (categorySelected < 0) {
-			categorySelected = categorySprites.length - 1;
+	function keyPress(code:KeyCode, mod:KeyModifier) {
+		switch (code) {
+			case KeyCode.BACKSPACE:
+				close();
+			case KeyCode.DOWN:
+				optionSelected++;
+				if (optionSelected >= optionsDisplay.options.length) {
+					optionSelected = 0;
+				}
+			case KeyCode.UP:
+				optionSelected--;
+				if (optionSelected < 0) {
+					optionSelected = optionsDisplay.options.length - 1;
+				}
+			case KeyCode.RIGHT:
+				categorySelected++;
+				if (categorySelected >= categorySprites.length) {
+					categorySelected = 0;
+				}
+				optionsDisplay.reload(cast categorySelected);
+			case KeyCode.LEFT:
+				categorySelected--;
+				if (categorySelected < 0) {
+					categorySelected = categorySprites.length - 1;
+				}
+				optionsDisplay.reload(cast categorySelected);
+			default:
+				return;
 		}
-		optionsDisplay.reload(cast categorySelected);
-	}
-
-	function down(id:Int) {
-		optionSelected++;
-		if (optionSelected >= optionsDisplay.options.length) {
-			optionSelected = 0;
-		}
-	}
-
-	function up(id:Int) {
-		optionSelected--;
-		if (optionSelected < 0) {
-			optionSelected = optionsDisplay.options.length - 1;
-		}
-	}
-
-	function right(id:Int) {
-		categorySelected++;
-		if (categorySelected >= categorySprites.length) {
-			categorySelected = 0;
-		}
-		optionsDisplay.reload(cast categorySelected);
 	}
 
 	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
 		if (button != RIGHT) return;
-		close(0);
+		close();
 	}
 
 	function moveCategory_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
@@ -207,7 +192,7 @@ class OptionsMenu {
 	}
 
 	function dispose() {
-		close(0);
+		close();
 		shutDown();
 
 		if (opened) {

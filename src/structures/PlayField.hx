@@ -240,7 +240,7 @@ class PlayField implements State {
 		paused = false;
 		if (!RenderingMode.enabled && songStarted && !songEnded && audioSystem != null) audioSystem.play();
 		if (noteSystem != null) noteSystem.resetReceptors();
-		pauseScreen.close(0);
+		pauseScreen.close();
 	}
 
 	inline function beatHit(beat:Float) {
