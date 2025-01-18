@@ -127,26 +127,27 @@ class OptionsMenu {
 	}
 
 	function keyPress(code:KeyCode, mod:KeyModifier) {
-		switch (code) {
-			case KeyCode.BACKSPACE:
+		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToKeybind[code];
+		switch (keybind) {
+			case UI_BACK:
 				close();
-			case KeyCode.DOWN:
+			case UI_DOWN:
 				optionSelected++;
 				if (optionSelected >= optionsDisplay.options.length) {
 					optionSelected = 0;
 				}
-			case KeyCode.UP:
+			case UI_UP:
 				optionSelected--;
 				if (optionSelected < 0) {
 					optionSelected = optionsDisplay.options.length - 1;
 				}
-			case KeyCode.RIGHT:
+			case UI_RIGHT:
 				categorySelected++;
 				if (categorySelected >= categorySprites.length) {
 					categorySelected = 0;
 				}
 				optionsDisplay.reload(cast categorySelected);
-			case KeyCode.LEFT:
+			case UI_LEFT:
 				categorySelected--;
 				if (categorySelected < 0) {
 					categorySelected = categorySprites.length - 1;

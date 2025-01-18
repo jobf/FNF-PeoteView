@@ -83,20 +83,21 @@ class PauseScreen {
 	}
 
 	function keyPress(code:KeyCode, mod:KeyModifier) {
-		switch (code) {
-			case KeyCode.BACKSPACE:
+		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToKeybind[code];
+		switch (keybind) {
+			case UI_BACK:
 				Main.current.playField.resume();
-			case KeyCode.DOWN:
+			case UI_DOWN:
 				pauseOptionSelected++;
 				if (pauseOptionSelected >= pauseOptions.length) {
 					pauseOptionSelected = 0;
 				}
-			case KeyCode.UP:
+			case UI_UP:
 				pauseOptionSelected--;
 				if (pauseOptionSelected < 0) {
 					pauseOptionSelected = pauseOptions.length - 1;
 				}
-			case KeyCode.RETURN:
+			case UI_ACCEPT:
 				switch (pauseOptionSelected) {
 					case 0: // RESUME
 						Main.current.playField.resume();

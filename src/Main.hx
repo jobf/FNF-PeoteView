@@ -68,6 +68,9 @@ class Main extends Application
 
 		Sound.init();
 
+		Controls.pressed = new Controls();
+		Controls.released = new Controls();
+
 		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
 		UISprite.timeBarProperties = Tools.parseTimeBarConfig('assets/ui');
 		Tools.parseNoteskinData('assets/notes');
