@@ -91,7 +91,7 @@ class Main extends Application
 			var stamp = haxe.Timer.stamp();
 			trace("Creating displays...");
 
-			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x666666FF);
+			bottomDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			middleDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			topDisplay = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
 			optionsScreen = new CustomDisplay(0, 0, window.width, window.height, 0x00000000);
@@ -247,13 +247,13 @@ class Main extends Application
 	}
 
 	function centerDisplayOnWindow(display:CustomDisplay, w:Int, h:Int) {
-		var scale = (fakeWindow.visible ? (h - 28) : h) / INITIAL_HEIGHT;
+		var scale = (fakeWindow.visible ? (h - 30) : h) / INITIAL_HEIGHT;
 
 		if (fakeWindow.visible) {
 			display.x = 1;
 			display.width = w - 2;
-			display.y = 27;
-			display.height = h - 28;
+			display.y = 29;
+			display.height = h - 30;
 		} else {
 			display.x = 0;
 			display.width = w;

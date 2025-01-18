@@ -16,7 +16,7 @@ class FakeWindow {
 
 	// Elements and properties
 	var border:Vector<Elem>;
-	var borderColor(default, set):Color = 0x333333FF;
+	var borderColor(default, set):Color = 0x44444FF;
 	inline function set_borderColor(color:Color) {
 		for (i in 0...border.length) {
 			var part = border[i];
@@ -47,7 +47,7 @@ class FakeWindow {
 	inline function set_titleTextFont(value:String) {
 		text.scale = 1;
 		text.font = value;
-		text.scale = (icon.h - 5) / text.height;
+		text.scale = (icon.h - 3) / text.height;
 		text.y = Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
 		return titleTextFont = value;
 	}
@@ -65,7 +65,7 @@ class FakeWindow {
 	function isMouseInsideApp() {
 		var peoteView = Main.current.peoteView;
 		return mousePos.x >= 1 && mousePos.x <= peoteView.width + 1 &&
-			mousePos.y >= 27 && mousePos.y <= peoteView.height + 27;
+			mousePos.y >= 29 && mousePos.y <= peoteView.height + 29;
 	}
 
 	function new(peoteView:PeoteView) {
@@ -77,7 +77,7 @@ class FakeWindow {
 
 		var window = lime.app.Application.current.window;
 
-		titleBar = new Elem(1, 1, display.width - 2, 26, 0, 0, 0, 0, titleBarColor);
+		titleBar = new Elem(1, 1, display.width - 2, 28, 0, 0, 0, 0, titleBarColor);
 		windowBuffer.addElement(titleBar);
 
 		border = new Vector<Elem>(4);
@@ -93,11 +93,11 @@ class FakeWindow {
 		TextureSystem.setTexture(iconProgram, "windowIcon", "windowIcon");
 		display.addProgram(iconProgram);
 
-		icon = new Elem(titleBar.x + 2, titleBar.y + 2, titleBar.h - 5, titleBar.h - 5, 0, 0, 0, 0, 0xFFFFFFFF);
+		icon = new Elem(titleBar.x + 8, titleBar.y + 6, titleBar.h - 12, titleBar.h - 12, 0, 0, 0, 0, 0xFFFFFFFF);
 		iconBuffer.addElement(icon);
 
-		text = new Text("windowText", titleBar.x + icon.w + 7, titleBar.y, display, "Funkin' View", titleTextFont);
-		text.scale = (icon.h - 5) / text.height;
+		text = new Text("windowText", titleBar.x + (icon.x + icon.w) + 4, titleBar.y, display, "Funkin' View", titleTextFont);
+		text.scale = (icon.h - 3) / text.height;
 		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
 		text.color = 0x000000FF;
 
@@ -119,21 +119,20 @@ class FakeWindow {
 		window.y = (Math.floor(window.height * 0.25) - 30) + windowOffset[1];
 	}
 
-	var initWindowPos:Point = {x: 0, y: 0};
 	var initMousePos:Point = {x: 0, y: 0};
 	var mousePos:Point = {x: 0, y: 0};
 	var _isDragging:Bool = false;
 
 	function drag(x:Float, y:Float) {
+		var window = lime.app.Application.current.window;
+
 		mousePos.x = x;
 		mousePos.y = y;
 
 		if (!_isDragging) return;
 
-		var window = lime.app.Application.current.window;
-
-		window.x = Math.floor(initWindowPos.x + (mousePos.x - initMousePos.x));
-		window.y = Math.floor(initWindowPos.y + (mousePos.y - initMousePos.y));
+		window.x += Math.floor(mousePos.x - initMousePos.x);
+		window.y += Math.floor(mousePos.y - initMousePos.y);
 	}
 
 	function checkDrag(x:Float, y:Float, mouseButton:MouseButton) {
@@ -145,9 +144,7 @@ class FakeWindow {
 			_isDragging = true;
 	
 			var window = lime.app.Application.current.window;
-	
-			initWindowPos.x = window.x;
-			initWindowPos.y = window.y;
+
 			initMousePos.x = x;
 			initMousePos.y = y;
 		}
@@ -199,11 +196,11 @@ class FakeWindow {
 			windowBuffer.updateElement(part);
 		}
 
-		icon.x = titleBar.x + 2;
-		icon.y = titleBar.y + 2;
+		icon.x = titleBar.x + 8;
+		icon.y = titleBar.y + 6;
 		iconBuffer.updateElement(icon);
 
-		text.x = titleBar.x + icon.w + 7;
+		text.x = titleBar.x + (icon.x + icon.w) + 4;
 		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
 
 		var peoteView = Main.current.peoteView;
