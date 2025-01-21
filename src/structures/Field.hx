@@ -249,8 +249,10 @@ class Field {
 	}
 
 	function handleGameOver(code:KeyCode, mod:KeyModifier) {
-		switch (code) {
-			case KeyCode.RETURN:
+		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
+
+		switch (keybind) {
+			case UI_ACCEPT:
 				if (gameOverMusic != null) {
 					gameOverMusic.stop();
 					gameOverMusic = null;
@@ -269,7 +271,7 @@ class Field {
 
 				actorOnGameOver.finishAnim = "";
 				actorOnGameOver.playAnimation("deathConfirm");
-			case KeyCode.BACKSPACE:
+			case UI_BACK:
 				Main.switchState(MAIN_MENU);
 			default:
 				return;

@@ -37,21 +37,21 @@ class SaveData {
 				down: KeyCode.DOWN,
 				up: KeyCode.UP,
 				right: KeyCode.RIGHT,
-				accept: Vector.fromData([KeyCode.RETURN, KeyCode.SPACE]),
-				back: Vector.fromData([KeyCode.BACKSPACE, KeyCode.ESCAPE]),
+				accept: [KeyCode.RETURN, KeyCode.SPACE],
+				back: [KeyCode.BACKSPACE, KeyCode.ESCAPE],
 			},
 			game: {
-				keybindArray: Vector.fromData([
-					Vector.fromData([KeyCode.SPACE]),
-					Vector.fromData([KeyCode.LEFT, KeyCode.RIGHT]),
-					Vector.fromData([KeyCode.LEFT, KeyCode.SPACE, KeyCode.RIGHT]),
-					Vector.fromData([KeyCode.LEFT, KeyCode.DOWN, KeyCode.UP, KeyCode.RIGHT]),
-					Vector.fromData([KeyCode.LEFT, KeyCode.DOWN, KeyCode.SPACE, KeyCode.UP, KeyCode.RIGHT]),
-					Vector.fromData([KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.J, KeyCode.K, KeyCode.L]),
-					Vector.fromData([KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.SPACE, KeyCode.J, KeyCode.K, KeyCode.L]),
-					Vector.fromData([KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.H, KeyCode.J, KeyCode.K, KeyCode.L]),
-					Vector.fromData([KeyCode.A, KeyCode.S, KeyCode.D, KeyCode.F, KeyCode.SPACE, KeyCode.H, KeyCode.J, KeyCode.K, KeyCode.L])
-				]),
+				keybindArray: [
+					[[KeyCode.SPACE]],
+					[[KeyCode.A], [KeyCode.RIGHT]],
+					[[KeyCode.A], [KeyCode.SPACE], [KeyCode.RIGHT]],
+					[[KeyCode.A, KeyCode.LEFT], [KeyCode.S, KeyCode.DOWN], [KeyCode.W, KeyCode.UP], [KeyCode.D, KeyCode.RIGHT]],
+					[[KeyCode.A, KeyCode.LEFT], [KeyCode.S, KeyCode.DOWN], [KeyCode.SPACE], [KeyCode.W, KeyCode.UP], [KeyCode.D, KeyCode.RIGHT]],
+					[[KeyCode.S], [KeyCode.D], [KeyCode.F], [KeyCode.J], [KeyCode.K], [KeyCode.L]],
+					[[KeyCode.S], [KeyCode.D], [KeyCode.F], [KeyCode.SPACE], [KeyCode.J], [KeyCode.K], [KeyCode.L]],
+					[[KeyCode.A], [KeyCode.S], [KeyCode.D], [KeyCode.F], [KeyCode.H], [KeyCode.J], [KeyCode.K], [KeyCode.L]],
+					[[KeyCode.A], [KeyCode.S], [KeyCode.D], [KeyCode.F], [KeyCode.SPACE], [KeyCode.H], [KeyCode.J], [KeyCode.K], [KeyCode.L]]
+				],
 				reset: KeyCode.R,
 				pause: KeyCode.RETURN,
 				debug: KeyCode.NUMBER_7
@@ -126,8 +126,8 @@ class Controls_UI {
 	var down:KeyCode;
 	var up:KeyCode;
 	var right:KeyCode;
-	var accept:Vector<KeyCode>;
-	var back:Vector<KeyCode>;
+	var accept:Array<KeyCode>;
+	var back:Array<KeyCode>;
 }
 
 /**
@@ -136,7 +136,7 @@ class Controls_UI {
 @:structInit
 @:publicFields
 class Controls_Game {
-	var keybindArray:Vector<Vector<KeyCode>>;
+	var keybindArray:Array<Array<Array<KeyCode>>>;
 	var pause:KeyCode;
 	var reset:KeyCode;
 	var debug:KeyCode;
