@@ -30,6 +30,8 @@ class PlayField implements State {
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
 	var health:Float = 0.5;
+	var healthGain:Vector<Float>;
+	var healthLoss:Vector<Float>;
 	var latencyCompensation(default, set):Int;
 	inline function set_latencyCompensation(value:Int) {
 		return latencyCompensation = value;
@@ -113,6 +115,9 @@ class PlayField implements State {
 	 */
 	function create(roof:CustomDisplay, display:CustomDisplay, mania:Int = 4) {
 		if (mania > 16) mania = 16;
+
+		healthLoss = new Vector<Float>(64, 0.02);
+		healthGain = new Vector<Float>(64, 0.025);
 
 		onStartSong = new Event<Chart->Void>();
 		onPauseSong = new Event<Chart->Void>();
@@ -265,7 +270,7 @@ class PlayField implements State {
 		}
 
 		if (!inputSystem.strumlinePlayable[note.lane]) {
-			health -= 0.025;
+			health -= healthLoss[note.lane];
 			if (health < 0.05) {
 				health = 0.05;
 			}
@@ -274,7 +279,7 @@ class PlayField implements State {
 
 		++combo;
 
-		health += 0.025;
+		health += healthGain[note.lane];
 		if (health > 1) {
 			health = 1;
 		}
@@ -322,7 +327,7 @@ class PlayField implements State {
 			}
 		}
 
-		health -= 0.025;
+		health -= healthLoss[note.lane];
 
 		combo = 0;
 		score -= 50;
@@ -343,7 +348,7 @@ class PlayField implements State {
 		if (noteSystem != null && noteSystem.getReceptor(note.index + inputSystem.strumlineIndexes[note.lane]).confirmed()) return;
 
 		if (!inputSystem.strumlinePlayable[note.lane]) {
-			health -= 0.025;
+			health -= healthLoss[note.lane];
 
 			if (health < 0.05) {
 				health = 0.05;
@@ -352,7 +357,7 @@ class PlayField implements State {
 			return;
 		}
 
-		health += 0.025;
+		health += healthGain[note.lane];
 
 		if (health > 1) {
 			health = 1;
@@ -413,8 +418,8 @@ class PlayField implements State {
 
 		if (audioSystem != null) audioSystem.stop();
 
-		var char = field.actors[lane + 1];
-		if (char == null) char = field.actors[1 + 1];
+		var char = field.actors[lane + field.numSpectators];
+		if (char == null) char = field.actors[1 + field.numSpectators];
 
 		field.actorOnGameOver = char;
 		field.targetCamera.x = lane == 0 ? -50 : 50; // Prototype camera logic I have for now

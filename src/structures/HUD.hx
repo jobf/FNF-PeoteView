@@ -196,6 +196,9 @@ class HUD {
 		Updates the HUD.
 	**/
 	function update(deltaTime:Float) {
+		var health = parent.health;
+		_smoothHealth = Tools.lerp(_smoothHealth, health, SaveData.state.preferences.smoothHealthbar ? Math.min(deltaTime / 60, 1.0) : 1.0);
+
 		if (SaveData.state.preferences.ratingPopup) {
 			updateRatingPopup(deltaTime);
 			updateComboNumbers();
@@ -317,6 +320,8 @@ class HUD {
 		}
 	}
 
+	private var _smoothHealth(default, null):Float;
+
 	/**
 		Updates the health bar.
 	**/
@@ -326,7 +331,6 @@ class HUD {
 		healthBarBG.y = parent.downScroll ? 90 : Main.INITIAL_HEIGHT - 90;
 		uiBuf.updateElement(healthBarBG);
 
-		var health = parent.health;
 		var actors = parent.field.actors;
 
 		var part1 = healthBarParts[0];
@@ -337,7 +341,7 @@ class HUD {
 
 		part1.setAllColors(healthIconColor);
 
-		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (parent.flipHealthBar ? 1 - health : health))) - (healthBarWS * 2.0);
+		part1.w = (healthBarBG.w - Math.floor(healthBarBG.w * (parent.flipHealthBar ? 1 - _smoothHealth : _smoothHealth))) - (healthBarWS * 2.0);
 		part1.x = healthBarBG.x + healthBarXA;
 		part1.y = healthBarBG.y + healthBarYA;
 

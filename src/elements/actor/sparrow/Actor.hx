@@ -197,7 +197,10 @@ class Actor extends ActorElement
 	}
 
 	function update(deltaTime:Float) {
+		buffers[displayName].updateElement(this);
+
 		if (!animationRunning) return;
+
 		frameTimeRemaining -= deltaTime;
 
 		if (frameTimeRemaining <= 0) {
@@ -215,8 +218,6 @@ class Actor extends ActorElement
 			changeFrame();
 			frameTimeRemaining = frameDurationMs;
 		}
-
-		buffers[displayName].updateElement(this);
 	}
 
 	public function configure(config:SubTexture) {

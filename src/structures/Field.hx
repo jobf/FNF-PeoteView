@@ -41,6 +41,7 @@ class Field {
 		return actors[2] = actor;
 	}
 
+	var numSpectators:Int = 1;
 	var parent:PlayField;
 
 	static var singPoses:Array<String> = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
@@ -100,34 +101,43 @@ class Field {
 	function update(deltaTime:Float) {
 		var sc = parent.view.scroll;
 		var ratio = deltaTime * 0.01;
+
 		parent.view.scroll.x = sc.x + ratio * (targetCamera.x - sc.x);
 		parent.view.scroll.y = sc.y + ratio * (targetCamera.y - sc.y);
 
-		spectator.update(deltaTime);
-		opponent.update(deltaTime);
-		player.update(deltaTime);
+		for (actor in actors) {
+			if (isInGameOver) {
+				if (actor != actorOnGameOver) {
+					actor.c.aF = Tools.lerp(actor.c.aF, 0, ratio * 0.75);
+				}
+			}
+			actor.update(deltaTime);
+		}
+
+		if (isInGameOver) {
+			if (gameOverMusic != null) {
+				if (gameOverMusic.playing) {
+					gameOverMusic.update();
+					Main.conductor.time = gameOverMusic.time;
+				}
+				if (gameOverMusic.finished) {
+					handleGameOver(KeyCode.RETURN, -1);
+				}
+			}
+	
+			if (gameOverConfirm != null) {
+				if (gameOverConfirm.finished) {
+					gameOverConfirm = null;
+					isInGameOver = false;
+					Main.switchState(GAMEPLAY);
+					parent.display.show();
+				}
+			}
+			return;
+		}
 
 		if (!isInGameOver && parent.died) {
 			gameOver();
-		}
-
-		if (gameOverMusic != null) {
-			if (gameOverMusic.playing) {
-				gameOverMusic.update();
-				Main.conductor.time = gameOverMusic.time;
-			}
-			if (gameOverMusic.finished) {
-				handleGameOver(KeyCode.RETURN, -1);
-			}
-		}
-
-		if (gameOverConfirm != null) {
-			if (gameOverConfirm.finished) {
-				gameOverConfirm = null;
-				isInGameOver = false;
-				Main.switchState(GAMEPLAY);
-				parent.display.show();
-			}
 		}
 	}
 
@@ -203,12 +213,6 @@ class Field {
 
 	function gameOver() {
 		removeCallbacks();
-
-		for (actor in actors) {
-			if (actor == actorOnGameOver) continue;
-			actor.c.aF = 0.0;
-			actor.update(0.0);
-		}
 
 		var gameOverMeta = parent.chart.header.gameOver;
 		var theme = gameOverMeta.theme;

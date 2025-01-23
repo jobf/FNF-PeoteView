@@ -121,18 +121,21 @@ class FakeWindow {
 
 	var initMousePos:Point = {x: 0, y: 0};
 	var mousePos:Point = {x: 0, y: 0};
+	var windowMousePos:Point = {x: 0, y: 0};
 	var _isDragging:Bool = false;
 
 	function drag(x:Float, y:Float) {
 		var window = lime.app.Application.current.window;
 
+		windowMousePos.x = x + window.x;
+		windowMousePos.y = y + window.y;
 		mousePos.x = x;
 		mousePos.y = y;
 
 		if (!_isDragging) return;
 
-		window.x += Math.floor(mousePos.x - initMousePos.x);
-		window.y += Math.floor(mousePos.y - initMousePos.y);
+		window.x = Math.floor(windowMousePos.x - initMousePos.x);
+		window.y = Math.floor(windowMousePos.y - initMousePos.y);
 	}
 
 	function checkDrag(x:Float, y:Float, mouseButton:MouseButton) {
