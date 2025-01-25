@@ -145,7 +145,7 @@ class FakeWindow {
 			(y >= titleBar.y && y <= titleBar.y + titleBar.h) &&
 			mouseButton == LEFT) {
 			_isDragging = true;
-	
+
 			var window = lime.app.Application.current.window;
 
 			initMousePos.x = x;
@@ -212,5 +212,8 @@ class FakeWindow {
 			peoteView.removeDisplay(display);
 			peoteView.addDisplay(display);
 		}
+
+		var window = lime.app.Application.current.window;
+		visible = !window.fullscreen;
 	}
 }

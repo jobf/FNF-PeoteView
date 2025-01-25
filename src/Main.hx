@@ -120,7 +120,6 @@ class Main extends Application
 			switchState(MAIN_MENU);
 
 			window.onResize.add(resize);
-			window.onFullscreen.add(fullscreen);
 
 			#if FV_DEBUG
 			DeveloperStuff.init(window, this);
@@ -261,11 +260,6 @@ class Main extends Application
 			display.height = h;
 		}
 		display.scale = scale;
-	}
-
-	inline function fullscreen() {
-		var display = Application.current.window.displayMode;
-		resize(display.width, display.height);
 	}
 
 	inline function stamp() {
