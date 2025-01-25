@@ -3,6 +3,10 @@ package structures;
 import peote.view.element.Elem;
 import lime.ui.MouseButton;
 
+/**
+	The custom window for Funkin' View.
+	This is a simple window that is only meant to have a colored title bar with custom title test, dragged with, and not having extra features such as split screen logic.
+**/
 @:publicFields
 class FakeWindow {
 	final windowOffset:Vector<Int> = Vector.fromData([-1, -9]);
@@ -13,10 +17,12 @@ class FakeWindow {
 	var windowProgram:Program;
 	var iconBuffer:Buffer<Elem>;
 	var iconProgram:Program;
+	var closeButtonBuffer:Buffer<CloseButton>;
+	var closeButtonProgram:Program;
 
 	// Elements and properties
 	var border:Vector<Elem>;
-	var borderColor(default, set):Color = 0x44444FF;
+	var borderColor(default, set):Color = 0x444444FF;
 	inline function set_borderColor(color:Color) {
 		for (i in 0...border.length) {
 			var part = border[i];
@@ -33,6 +39,9 @@ class FakeWindow {
 		windowBuffer.updateElement(titleBar);
 		return titleBarColor = color;
 	}
+
+	var closeButton:CloseButton;
+	var closeButtonClicked:CloseButton;
 
 	var icon:Elem;
 	var iconTexture(default, set):String;
@@ -55,17 +64,19 @@ class FakeWindow {
 	var visible(default, set):Bool = true;
 
 	inline function set_visible(value:Bool) {
-		if (visible != value) {
-			if (value) display.show();
-			display.hide();
-		}
-		return visible = value;
+		return visible = display.isVisible = value;
 	}
 
 	function isMouseInsideApp() {
 		var peoteView = Main.current.peoteView;
 		return mousePos.x >= 1 && mousePos.x <= peoteView.width + 1 &&
 			mousePos.y >= 29 && mousePos.y <= peoteView.height + 29;
+	}
+
+	function isMouseAtCloseButton() {
+		var peoteView = Main.current.peoteView;
+		return mousePos.x >= closeButton.x && mousePos.x <= closeButton.x + closeButton.w &&
+			mousePos.y >= closeButton.y && mousePos.y <= closeButton.y + closeButton.h;
 	}
 
 	function new(peoteView:PeoteView) {
@@ -101,13 +112,27 @@ class FakeWindow {
 		text.y = titleBar.y + Math.round((titleBar.h - (text.height * text.scale)) * 0.5);
 		text.color = 0x000000FF;
 
+		closeButtonBuffer = new Buffer<CloseButton>(2);
+		closeButtonProgram = new Program(closeButtonBuffer);
+		TextureSystem.createTiledTexture("windowCloseButton", "assets/window/close-button.png", 2, 1, true);
+		TextureSystem.setTexture(closeButtonProgram, "windowCloseButton", "windowCloseButton");
+		display.addProgram(closeButtonProgram);
+
+		closeButton = new CloseButton(titleBar.w - 44, 1, 45, 30, 0);
+		closeButtonBuffer.addElement(closeButton);
+
+		closeButtonClicked = new CloseButton(titleBar.w - 44, 1, 45, 30, 1);
+		closeButtonClicked.c.aF = 0;
+		closeButtonClicked.tile = 1;
+		closeButtonBuffer.addElement(closeButtonClicked);
+
 		var peoteView = Main.current.peoteView;
 
 		peoteView.addDisplay(display);
 
 		window.onMouseMove.add(drag);
-		window.onMouseDown.add(checkDrag);
-		window.onMouseUp.add(undrag);
+		window.onMouseDown.add(mouseDown);
+		window.onMouseUp.add(mouseUp);
 
 		centerWindow();
 	}
@@ -138,12 +163,16 @@ class FakeWindow {
 		window.y = Math.floor(windowMousePos.y - initMousePos.y);
 	}
 
-	function checkDrag(x:Float, y:Float, mouseButton:MouseButton) {
+	var isMouseDown:Bool;
+
+	function mouseDown(x:Float, y:Float, mouseButton:MouseButton) {
+		isMouseDown = !isMouseAtCloseButton();
+
 		if (_isDragging) return;
 
 		if ((x >= titleBar.x && x <= titleBar.x + titleBar.w) &&
 			(y >= titleBar.y && y <= titleBar.y + titleBar.h) &&
-			mouseButton == LEFT) {
+			mouseButton == LEFT && !isMouseAtCloseButton()) {
 			_isDragging = true;
 
 			var window = lime.app.Application.current.window;
@@ -153,12 +182,23 @@ class FakeWindow {
 		}
 	}
 
-	function undrag(x:Float, y:Float, mouseButton:MouseButton) {
+	function mouseUp(x:Float, y:Float, mouseButton:MouseButton) {
+		if (isMouseAtCloseButton() && !isMouseDown) Sys.exit(0);
+
+		isMouseDown = false;
+
 		if (!_isDragging) return;
 
 		if (mouseButton == LEFT) {
 			_isDragging = false;
 		}
+	}
+
+	function updateCloseButton(deltaTime:Float) {
+		var isHoveringCloseButton = isMouseAtCloseButton() && !isMouseDown;
+
+		closeButtonClicked.c.aF = isHoveringCloseButton ? 1.0 : 0.0;
+		closeButtonBuffer.updateElement(closeButtonClicked);
 	}
 
 	function reload(width:Int, height:Int) {

@@ -13,6 +13,7 @@ import elements.actor.*;
 import elements.actor.sparrow.*;
 import elements.actor.animate.*;
 import elements.sprites.*;
+import elements.window.*;
 import interfaces.*;
 #if FV_DEBUG import debug.*; #end
 import music.*;

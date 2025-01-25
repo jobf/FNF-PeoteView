@@ -184,6 +184,8 @@ class Main extends Application
 		Tools.profileFrame();
 
 		if (_started) {
+			fakeWindow.updateCloseButton(deltaTime);
+
 			var ts:Float = stamp();
 
 			newDeltaTime = (ts - timeStamp) * 1000;
