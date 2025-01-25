@@ -26,33 +26,12 @@ class ChartSystem
 		var voicesDirs = input.readLine().split(": ")[1].trim().split(", ");
 
 		var mania = Std.parseInt(input.readLine().split(": ")[1].trim());
-		var difficulty = Std.parseInt(input.readLine().split(": #")[1].trim()) - 1;
+		var difficulty:Difficulty = Std.parseInt(input.readLine().split(": #")[1].trim()) - 1;
 
 		input.readLine();
 
 		var gameOverTheme = input.readLine().split(": ")[1].trim();
 		var gameOverBPM = Std.parseInt(input.readLine().split(": ")[1].trim());
-
-		input.readLine();
-
-		var characterData:Array<Character> = [];
-
-		while (!input.eof()) {
-			var split = input.readLine().split(", ");
-			var name = split[0];
-			var role:CharacterRole = split[1];
-
-			var posSplit = input.readLine().replace("pos ", "").split(" ");
-			var posX = Std.parseFloat(posSplit[0]);
-			var posY = Std.parseFloat(posSplit[1]);
-
-			var camSplit = input.readLine().replace("cam ", "").split(" ");
-			var camX = Std.parseFloat(camSplit[0]);
-			var camY = Std.parseFloat(camSplit[1]);
-
-			var character:Character = {name: name, role: role, x: posX, y: posY, camX: camX, camY: camY};
-			characterData.push(character);
-		}
 
 		var result:Header = {
 			title: title,
@@ -66,10 +45,8 @@ class ChartSystem
 			voicesDirs: voicesDirs,
 			mania: mania,
 			difficulty: difficulty,
-			gameOver: {theme: gameOverTheme, bpm: gameOverBPM},
-			characters: characterData
+			gameOver: {theme: gameOverTheme, bpm: gameOverBPM}
 		};
-		//trace(result);
 
 		return result;
 	}

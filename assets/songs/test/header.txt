@@ -6,15 +6,9 @@ BPM: 172
 Time Signature: 4/4
 Stage: stage
 Instrumental: assets/silver-doom.opus
-Mania: 4
 Voices: 
-Characters:
-dad enemy
-pos -700 300
-cam 0 45
-gf other
-pos -100 300
-cam 0 45
-bf player
-pos 200 300
-cam 0 45
+Mania: 4
+Difficulty: #4
+Game Over:
+Theme: vanilla
+BPM: 100
