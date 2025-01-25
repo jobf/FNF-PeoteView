@@ -22,6 +22,7 @@
 
 package custom.haxe;
 
+import haxe.Int64;
 using custom.haxe.Int128;
 
 /**

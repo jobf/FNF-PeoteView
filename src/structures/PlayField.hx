@@ -26,6 +26,10 @@ class PlayField implements State {
 	var score:Int128 = 0;
 	var misses:Int128 = 0;
 	var combo:Int128 = 0;
+	var sickScore:Int128 = 400;
+	var goodScore:Int128 = 200;
+	var badScore:Int128 = 100;
+	var shitScore:Int128 = 50;
 	var accuracy(default, null):Accuracy = new Accuracy();
 	var numOfReceptors:Int;
 	var numOfNotes:Int;
@@ -295,27 +299,27 @@ class PlayField implements State {
 		if (absTiming > 60) {
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(3);
 			accuracy.increment(0.5);
-			score += 50;
+			score += shitScore;
 			return;
 		}
 
 		if (absTiming > 45) {
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(2);
 			accuracy.increment(0.75);
-			score += 100;
+			score += badScore;
 			return;
 		}
 
 		if (absTiming > 30) {
 			if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(1);
 			accuracy.increment(0.8);
-			score += 200;
+			score += goodScore;
 			return;
 		}
 
 		if (hud != null && preferences.ratingPopup) hud.respondWithRatingID(0);
 		accuracy.increment();
-		score += 400;
+		score += sickScore;
 	}
 
 	function missNote(note:MetaNote) {
