@@ -1,6 +1,7 @@
 package data.chart;
 
 import sys.FileSystem;
+import haxe.io.Bytes;
 
 /**
 	The chart.
@@ -31,7 +32,7 @@ class Chart {
 			ChartConverter.baseGame(path);
 		}
 
-		header = ChartSystem.parseHeader('$path/meta.json');
+		header = ChartSystem.parseHeader('$path/header.txt');
 
 		var stamp = haxe.Timer.stamp();
 		file = new File('$path/chart.cbin');

@@ -8,6 +8,7 @@ package data.chart;
 @:noDebug
 #end
 @:publicFields
+@:structInit
 class Header {
 	/**
 		The song's title.
@@ -18,6 +19,11 @@ class Header {
 		The song's artist.
 	**/
 	var artist:String;
+
+	/**
+		The song's genres throughout the song.
+	**/
+	var genres:Array<Genre>;
 
 	/**
 		The song's speed.
@@ -65,26 +71,9 @@ class Header {
 	var gameOver:GameOverMeta;
 
 	/**
-		Constructs a chart header from its raw.
-	**/
-	function new(raw:Dynamic) {
-		this.title = raw.title;
-		this.artist = raw.artist;
-		this.speed = raw.speed;
-		this.bpm = raw.bpm;
-		this.timeSig = raw.timeSig;
-		this.stage = raw.stage;
-		this.instDir = raw.instDir;
-		this.voicesDirs = raw.voicesDirs;
-		this.mania = raw.mania;
-		this.difficulty = raw.difficulty;
-		this.gameOver = raw.gameOver;
-	}
-
-	/**
 		Returns a string representation of the chart header.
 	**/
 	function toString() {
-		return '{ title => $title, artist => $artist, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, instDir => $instDir, voicesDirs => $voicesDirs, mania => $mania, difficulty => $difficulty, gameOver => ${gameOver.toString()} }';
+		return '{ title => $title, artist => $artist, genres => $genres, speed => $speed, bpm => $bpm, timeSig => $timeSig, stage => $stage, instDir => $instDir, voicesDirs => $voicesDirs, mania => $mania, difficulty => $difficulty, gameOver => ${gameOver.toString()} }';
 	}
 }

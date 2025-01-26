@@ -21,8 +21,8 @@ class ChartConverter
 		@param path The specified path you want to convert your chart to.
 	**/
 	static function baseGame(path:String) {
-		var header:FileOutput = File.write('$path/meta.json');
-		var events:FileOutput = File.write('$path/events.json');
+		var header:FileOutput = File.write('$path/header.txt');
+		var events:FileOutput = File.write('$path/events.txt');
 		var chart: FileOutput = File.write('$path/chart.cbin');
 
 		trace("Welcome to the Funkin' View chart converter!");
@@ -34,7 +34,7 @@ class ChartConverter
 		try {
 			fileContents = File.getContent('$path/chart.json');
 		} catch (e) {
-			throw "There must be a chart.json when converting base-game charts.";
+			throw "There must be a chart.json.";
 		}
 
 		var json = Json.parse(fileContents);
@@ -93,22 +93,27 @@ class ChartConverter
 				}
 			}
 
-			header.writeString('{
-	"title": "${song.song}",
-	"artist": "N/A",
-	"difficulty": 8,
-	"timeSig": [4, 4],
-	"bpm": ${song.bpm},
-	"speed": ${song.speed * 0.45},
-	"mania": ${song.mania},
-	"stage": "assets/stages/categorized/w1/stage.json",
-	"instDir": "$path/Inst.flac",
-	"voicesDirs": ["$path/Voices.flac"],
-	"gameOver": {
-		"theme": "vanilla",
-		"bpm": 100
-	}
-}');
+			header.writeString('Title: ${song.song}
+Arist: N/A
+Genre: N/A
+Speed: ${song.speed * 0.45}
+BPM: ${song.bpm}
+Time Signature: 4/4
+Stage: $stage
+Instrumental: $path/Inst.ogg
+Voices: $path/Voices.ogg
+Mania: $mania
+Difficulty: #8
+Characters:
+${song.player2}, enemy
+pos -700 300
+cam 0 45
+$gfVersion, other
+pos -100 300
+cam 0 45
+${song.player1}, player
+pos 200 300
+cam 0 45');
 		} catch (e) {
 			trace(haxe.CallStack.toString(haxe.CallStack.exceptionStack()), e);
 			trace("This may be an invalid base game chart format or there\'s an error in the file.");
