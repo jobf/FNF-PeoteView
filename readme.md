@@ -4,9 +4,7 @@ Funkin' View (AKA FNF' in Peote-View) is a successor of [Friday Night Funkin' Ze
 
 This is being optimized and organized as frequently as possible for a flexible codebase making it faster to finish. It aims to be the new standard of FNF modding.
 
-This project was started a few months ago, so expect this repository to be very active!
-
-* [x] Currently on break
+This project was started a few months ago, so expect this repository to be very active!\
 
 # Setup
 
