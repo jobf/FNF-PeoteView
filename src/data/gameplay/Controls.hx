@@ -15,19 +15,13 @@ import input2action.util.NestedArray;
 class Controls {
 	var handle:ControlsHandle;
 	var config:ActionConfig;
-	var map:ActionMap = new ActionMap();
+	var map:ActionMap;
 
-	function setActionOnMap(action:Action, func:ActionFunction, up:Bool = true) {
-		for (key => value in map) {
-			if (key == action) {
-				var untypedMap = untyped map;
-				if (!untypedMap.exists(key)) {
-					untypedMap.set(key, {action: func, up: up});
-				} else {
-					untypedMap.get(key).action = func;
-				}
-				break;
-			}
+	function setActionOnMap(action:Action, func:ActionFunction, up:Bool = false) {
+		if (!(untyped map).exists(action)) {
+			(untyped map).set(action, {action: func, up: up});
+		} else {
+			(untyped map).get(action).action = func;
 		}
 	}
 
@@ -86,6 +80,18 @@ class Controls {
 			}
 		];
 
+		map = [
+			Action.UI_LEFT => {action: (d:Bool, p:Int) -> {var l = 0;}, up: false},
+			Action.UI_DOWN => {action: (d:Bool, p:Int) -> {var d = 1;}, up: false},
+			Action.UI_UP => {action: (d:Bool, p:Int) -> {var u = 2;}, up: false},
+			Action.UI_RIGHT => {action: (d:Bool, p:Int) -> {var r = 3;}, up: false},
+			Action.UI_ACCEPT => {action: (d:Bool, p:Int) -> {var a = 4;}, up: false},
+			Action.UI_BACK => {action: (d:Bool, p:Int) -> {var b = 5;}, up: false},
+			Action.GAME_PAUSE => {action: (d:Bool, p:Int) -> {var p = 6;}, up: false},
+			Action.GAME_RESET => {action: (d:Bool, p:Int) -> {var res = 7;}, up: false},
+			Action.GAME_DEBUG => {action: (d:Bool, p:Int) -> {var deb = 8;}, up: false}
+		];
+
 		handle = new ControlsHandle(config, map);
 	}
 }
@@ -97,10 +103,6 @@ class ControlsHandle {
 	var gp:GamepadAction;
 
 	function new(config:ActionConfig, map:ActionMap) {
-		reload(config, map);
-	}
-
-	function reload(config:ActionConfig, map:ActionMap) {
 		i2a = new Input2Action();
 		i2a.registerKeyboardEvents(lime.app.Application.current.window);
 		kb = new KeyboardAction(config, map);

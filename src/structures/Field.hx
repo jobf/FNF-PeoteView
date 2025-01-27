@@ -248,6 +248,7 @@ class Field {
 
 		Main.current.controls.setActionOnMap(Controls.Action.UI_ACCEPT, accept);
 		Main.current.controls.setActionOnMap(Controls.Action.UI_BACK, back);
+		Main.current.controls.setActionOnMap(Controls.Action.GAME_RESET, reset);
 
 		isInGameOver = true;
 	}
@@ -280,5 +281,10 @@ class Field {
 	function back(isDown:Bool, param:Int) {
 		if (!isDown) return;
 		Main.switchState(MAIN_MENU);
+	}
+
+	function reset(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		gameOver();
 	}
 }
