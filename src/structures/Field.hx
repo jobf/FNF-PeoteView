@@ -177,6 +177,7 @@ class Field {
 	}
 
 	function addCallbacks() {
+		Main.current.controls.setActionOnMap(Controls.Action.GAME_RESET, reset);
 		parent.onNoteHit.add(hitNote);
 		parent.onNoteMiss.add(missNote);
 		parent.onSustainComplete.add(completeSustain);
@@ -184,6 +185,7 @@ class Field {
 	}
 
 	function removeCallbacks() {
+		Main.current.controls.setActionOnMap(Controls.Action.GAME_RESET, () -> {});
 		parent.onNoteHit.remove(hitNote);
 		parent.onNoteMiss.remove(missNote);
 		parent.onSustainComplete.remove(completeSustain);
@@ -248,7 +250,6 @@ class Field {
 
 		Main.current.controls.setActionOnMap(Controls.Action.UI_ACCEPT, accept);
 		Main.current.controls.setActionOnMap(Controls.Action.UI_BACK, back);
-		Main.current.controls.setActionOnMap(Controls.Action.GAME_RESET, reset);
 
 		isInGameOver = true;
 	}
