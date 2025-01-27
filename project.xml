@@ -24,6 +24,9 @@
 	<!-- Allow intergration to miniaudio -->
 	<haxelib name="miniaudio" />
 
+	<!-- Allow intergration to input2action -->
+	<haxelib name="input2action" />
+
 	<!-- Enable full dce (originally to only prevent JIT ERROR 0 on jit.c line 541) -->
 	<haxeflag name="-dce" value="full" />
 

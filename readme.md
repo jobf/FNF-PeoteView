@@ -20,6 +20,8 @@ Format - ``haxelib install format`` (This one is also used in peote-view for `Te
 
 Miniaudio - ``haxelib git miniaudio https://github.com/alchemy-haxe/genkit_miniaudio.git``
 
+Input2Action - ``haxelib install input2action`` (will install 2 dependencies)
+
 After that, make sure that you are on this screen:
 
 ![img](repo_assets/image-1.png)

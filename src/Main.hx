@@ -4,6 +4,7 @@ import haxe.CallStack;
 import lime.app.Application;
 import lime.ui.Window;
 import lime.ui.KeyCode;
+import lime.ui.Gamepad;
 
 @:publicFields
 @:access(structures.PauseScreen)
@@ -58,6 +59,10 @@ class Main extends Application
 	// OPTIONS MENU
 	var optionsMenu(default, null):OptionsMenu;
 
+	// CONTROLS
+	var controls(default, null):Controls;
+	var gamepad(default, null):Gamepad;
+
 	public function startSample(window:Window)
 	{
 		window.opacity = 0;
@@ -68,8 +73,12 @@ class Main extends Application
 
 		Sound.init();
 
-		Controls.pressed = new Controls();
-		Controls.released = new Controls();
+		Gamepad.onConnect.add((gamepad:Gamepad) -> {
+			trace('Gamepad ${gamepad.name} connected');
+		});
+
+		gamepad = new Gamepad(0);
+		controls = new Controls();
 
 		UISprite.healthBarProperties = Tools.parseHealthBarConfig('assets/ui');
 		UISprite.timeBarProperties = Tools.parseTimeBarConfig('assets/ui');

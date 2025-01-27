@@ -122,12 +122,12 @@ class SaveData_Controls {
 @:structInit
 @:publicFields
 class Controls_UI {
-	var left:KeyCode;
-	var down:KeyCode;
-	var up:KeyCode;
-	var right:KeyCode;
-	var accept:Array<KeyCode>;
-	var back:Array<KeyCode>;
+	var left:Int;
+	var down:Int;
+	var up:Int;
+	var right:Int;
+	var accept:Array<Int>;
+	var back:Array<Int>;
 }
 
 /**
@@ -136,10 +136,10 @@ class Controls_UI {
 @:structInit
 @:publicFields
 class Controls_Game {
-	var keybindArray:Array<Array<Array<KeyCode>>>;
-	var pause:KeyCode;
-	var reset:KeyCode;
-	var debug:KeyCode;
+	var keybindArray:Array<Array<Array<Int>>>;
+	var pause:Int;
+	var reset:Int;
+	var debug:Int;
 }
 
 

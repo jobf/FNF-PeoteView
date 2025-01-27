@@ -4,6 +4,8 @@ import lime.ui.KeyCode;
 import lime.ui.ScanCode;
 import lime.ui.KeyModifier;
 import lime.app.Event;
+import input2action.*;
+import input2action.util.NestedArray;
 
 /**
 	The controls of the fnf engine.
@@ -11,46 +13,111 @@ import lime.app.Event;
 **/
 @:publicFields
 class Controls {
-	var keycodeToUIKeybind:Map<KeyCode, ControlsKeybind> = [];
-	var keycodeToGameplayKeybind:Map<KeyCode, ControlsKeybind> = [];
+	var handle:ControlsHandle;
+	var config:ActionConfig;
+	var map:ActionMap = new ActionMap();
 
-	static var pressed:Controls;
-	static var released:Controls;
+	function setActionOnMap(action:Action, func:ActionFunction, up:Bool = true) {
+		for (key => value in map) {
+			if (key == action) {
+				var untypedMap = untyped map;
+				if (!untypedMap.exists(key)) {
+					untypedMap.set(key, {action: func, up: up});
+				} else {
+					untypedMap.get(key).action = func;
+				}
+				break;
+			}
+		}
+	}
 
 	function new() {
 		reload();
 	}
 
 	function reload() {
-		keycodeToUIKeybind.clear();
-		keycodeToGameplayKeybind.clear();
-
 		var controls = SaveData.state.controls;
 
-		keycodeToUIKeybind[controls.ui.left] = UI_LEFT;
-		keycodeToUIKeybind[controls.ui.down] = UI_DOWN;
-		keycodeToUIKeybind[controls.ui.up] = UI_UP;
-		keycodeToUIKeybind[controls.ui.right] = UI_RIGHT;
-		keycodeToUIKeybind[controls.ui.accept[0]] = UI_ACCEPT;
-		keycodeToUIKeybind[controls.ui.accept[1]] = UI_ACCEPT;
-		keycodeToUIKeybind[controls.ui.back[0]] = UI_BACK;
-		keycodeToUIKeybind[controls.ui.back[1]] = UI_BACK;
-		keycodeToGameplayKeybind[controls.game.pause] = GAME_PAUSE;
-		keycodeToGameplayKeybind[controls.game.reset] = GAME_RESET;
-		keycodeToGameplayKeybind[controls.game.debug] = GAME_DEBUG;
+		config = [
+			{
+				action: Action.UI_LEFT,
+				keyboard: NestedArray.fromNestedArrayItem(controls.ui.left),
+				gamepad: NestedArray.fromNestedArrayItem(controls.ui.left)
+			},
+			{
+				action: Action.UI_DOWN,
+				keyboard: NestedArray.fromNestedArrayItem(controls.ui.down),
+				gamepad: NestedArray.fromNestedArrayItem(controls.ui.up)
+			},
+			{
+				action: Action.UI_UP,
+				keyboard: NestedArray.fromNestedArrayItem(controls.ui.up),
+				gamepad: NestedArray.fromNestedArrayItem(controls.ui.up)
+			},
+			{
+				action: Action.UI_RIGHT,
+				keyboard: NestedArray.fromNestedArrayItem(controls.ui.right),
+				gamepad: NestedArray.fromNestedArrayItem(controls.ui.right)
+			},
+			{
+				action: Action.UI_ACCEPT,
+				keyboard: cast NestedArray.fromNestedArrayItem(controls.ui.accept),
+				gamepad: cast NestedArray.fromNestedArrayItem(controls.ui.accept)
+			},
+			{
+				action: Action.UI_BACK,
+				keyboard: cast NestedArray.fromNestedArrayItem(controls.ui.back),
+				gamepad: cast NestedArray.fromNestedArrayItem(controls.ui.back)
+			},
+			{
+				action: Action.GAME_PAUSE,
+				keyboard: NestedArray.fromNestedArrayItem(controls.game.pause),
+				gamepad: NestedArray.fromNestedArrayItem(controls.game.pause)
+			},
+			{
+				action: Action.GAME_RESET,
+				keyboard: NestedArray.fromNestedArrayItem(controls.game.reset),
+				gamepad: NestedArray.fromNestedArrayItem(controls.game.reset)
+			},
+			{
+				action: Action.GAME_DEBUG,
+				keyboard: NestedArray.fromNestedArrayItem(controls.game.debug),
+				gamepad: NestedArray.fromNestedArrayItem(controls.game.debug)
+			}
+		];
+
+		handle = new ControlsHandle(config, map);
 	}
 }
 
-enum abstract ControlsKeybind(Int) {
-	var NONE;
-	var UI_LEFT;
-	var UI_DOWN;
-	var UI_UP;
-	var UI_RIGHT;
-	var UI_ACCEPT;
-	var UI_BACK;
-	var GAME_ARRAY;
-	var GAME_PAUSE;
-	var GAME_RESET;
-	var GAME_DEBUG;
+@:publicFields
+class ControlsHandle {
+	var i2a:Input2Action;
+	var kb:KeyboardAction;
+	var gp:GamepadAction;
+
+	function new(config:ActionConfig, map:ActionMap) {
+		reload(config, map);
+	}
+
+	function reload(config:ActionConfig, map:ActionMap) {
+		i2a = new Input2Action();
+		i2a.registerKeyboardEvents(lime.app.Application.current.window);
+		kb = new KeyboardAction(config, map);
+		i2a.addKeyboard(kb);
+		//gp = new GamepadAction(config, map);
+		//i2a.addGamepad(Main.current.gamepad, gp);
+	}
+}
+
+enum abstract Action(String) to String {
+	var UI_LEFT = "L";
+	var UI_DOWN =  "D";
+	var UI_UP = "U";
+	var UI_RIGHT = "R";
+	var UI_ACCEPT = "A";
+	var UI_BACK = "B";
+	var GAME_PAUSE = "P";
+	var GAME_RESET = "X";
+	var GAME_DEBUG = "C";
 }

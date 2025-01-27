@@ -82,41 +82,51 @@ class PauseScreen {
 		pauseBuf.updateElement(diffText);
 	}
 
-	function keyPress(code:KeyCode, mod:KeyModifier) {
-		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
-		switch (keybind) {
-			case UI_BACK:
-				Main.current.playField.resume();
-			case UI_DOWN:
-				pauseOptionSelected++;
-				if (pauseOptionSelected >= pauseOptions.length) {
-					pauseOptionSelected = 0;
-				}
-			case UI_UP:
-				pauseOptionSelected--;
-				if (pauseOptionSelected < 0) {
-					pauseOptionSelected = pauseOptions.length - 1;
-				}
-			case UI_ACCEPT:
-				switch (pauseOptionSelected) {
-					case 0: // RESUME
-						Main.current.playField.resume();
-					case 1: // RESTART
-						Main.switchState(GAMEPLAY);
-					case 2: // OPTIONS
-						Main.current.optionsMenu.open();
-						atOptionsMenu = true;
-						removeEvent();
-					case 3: // EXIT
-						Main.switchState(MAIN_MENU);
-				}
-			default:
+	function down(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		pauseOptionSelected++;
+		if (pauseOptionSelected >= pauseOptions.length) {
+			pauseOptionSelected = 0;
+		}
+	}
+
+	function up(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		pauseOptionSelected--;
+		if (pauseOptionSelected < 0) {
+			pauseOptionSelected = pauseOptions.length - 1;
+		}
+	}
+
+	function accept(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		doIt();
+	}
+
+	function back(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		Main.current.playField.resume();
+	}
+
+	function doIt() {
+		switch (pauseOptionSelected) {
+			case 0: // RESUME
+				back(true, 0);
+			case 1: // RESTART
+				Main.switchState(GAMEPLAY);
+			case 2: // OPTIONS
+				Main.current.optionsMenu.open();
+				atOptionsMenu = true;
+				removeEvents();
+			case 3: // EXIT
+				Main.switchState(MAIN_MENU);
 		}
 	}
 
 	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {
 		if (!Main.current.fakeWindow.isMouseInsideApp()) return;
-		keyPress(button == LEFT ? KeyCode.RETURN : KeyCode.BACKSPACE, -1);
+		if (button == LEFT) doIt();
+		else back(true, 0);
 	}
 
 	function moveOption_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
@@ -146,29 +156,32 @@ class PauseScreen {
 			pauseBuf.addElement(diffText);
 		} catch (e) {}
 
-		haxe.Timer.delay(addEvent, 1);
+		haxe.Timer.delay(addEvents, 1);
 
 		if (!pauseProg.isIn(display)) {
 			display.addProgram(pauseProg);
 		}
 	}
 
-	function addEvent() {
+	function addEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(keyPress);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_UP, up);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_DOWN, down);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_ACCEPT, accept);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_BACK, back);
 		window.onMouseDown.add(mousePress);
 		window.onMouseWheel.add(moveOption_mouse);
 	}
 
-	function removeEvent() {
+	function removeEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(keyPress);
+		Main.current.controls.map.clear();
 		window.onMouseDown.remove(mousePress);
 		window.onMouseWheel.remove(moveOption_mouse);
 	}
 
 	function close() {
-		removeEvent();
+		removeEvents();
 
 		opened = false;
 	}

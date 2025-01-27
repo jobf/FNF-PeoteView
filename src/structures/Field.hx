@@ -121,7 +121,7 @@ class Field {
 					Main.conductor.time = gameOverMusic.time;
 				}
 				if (gameOverMusic.finished) {
-					handleGameOver(KeyCode.RETURN, -1);
+					accept(true, 0);
 				}
 			}
 	
@@ -246,42 +246,39 @@ class Field {
 		actorOnGameOver.playAnimation("firstDeath");
 		actorOnGameOver.finishCallback = gameOverMusic.play;
 
-		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(handleGameOver);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_ACCEPT, accept);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_BACK, back);
 
 		isInGameOver = true;
 	}
 
-	function handleGameOver(code:KeyCode, mod:KeyModifier) {
-		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
+	function accept(isDown:Bool, param:Int) {
+		if (!isDown) return;
 
-		switch (keybind) {
-			case UI_ACCEPT:
-				if (gameOverMusic != null) {
-					gameOverMusic.stop();
-					gameOverMusic = null;
-				}
-
-				var gameOverMeta = parent.chart.header.gameOver;
-				var theme = gameOverMeta.theme;
-
-				if (!gameOverSounds[theme].exists("confirm")) {
-					var conf = gameOverSounds[theme]["confirm"] = new Sound();
-					conf.fromFile('assets/death/fnf_loss_end-${theme}.flac');
-				}
-
-				gameOverConfirm = gameOverSounds[theme]["confirm"];
-				gameOverConfirm.play();
-
-				actorOnGameOver.finishAnim = "";
-				actorOnGameOver.playAnimation("deathConfirm");
-			case UI_BACK:
-				Main.switchState(MAIN_MENU);
-			default:
-				return;
+		if (gameOverMusic != null) {
+			gameOverMusic.stop();
+			gameOverMusic = null;
 		}
 
-		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(handleGameOver);
+		var gameOverMeta = parent.chart.header.gameOver;
+		var theme = gameOverMeta.theme;
+
+		if (!gameOverSounds[theme].exists("confirm")) {
+			var conf = gameOverSounds[theme]["confirm"] = new Sound();
+			conf.fromFile('assets/death/fnf_loss_end-${theme}.flac');
+		}
+
+		gameOverConfirm = gameOverSounds[theme]["confirm"];
+		gameOverConfirm.play();
+
+		actorOnGameOver.finishAnim = "";
+		actorOnGameOver.playAnimation("deathConfirm");
+
+		Main.current.controls.map.clear();
+	}
+
+	function back(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		Main.switchState(MAIN_MENU);
 	}
 }

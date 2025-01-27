@@ -95,7 +95,11 @@ class OptionsMenu {
 
 		haxe.Timer.delay(() -> {
 			var window = lime.app.Application.current.window;
-			window.onKeyDown.add(keyPress);
+			Main.current.controls.setActionOnMap(Controls.Action.UI_LEFT, left);
+			Main.current.controls.setActionOnMap(Controls.Action.UI_RIGHT, right);
+			Main.current.controls.setActionOnMap(Controls.Action.UI_UP, up);
+			Main.current.controls.setActionOnMap(Controls.Action.UI_DOWN, down);
+			//Main.current.controls.setActionOnMap(Controls.Action.UI_ACCEPT, accept);
 			window.onMouseDown.add(mousePress);
 			window.onMouseWheel.add(moveCategory_mouse);
 		}, 200);
@@ -115,47 +119,54 @@ class OptionsMenu {
 		} else if (pf != null) {
 			var pauseScreen = pf.pauseScreen;
 			pauseScreen.atOptionsMenu = false;
-			pauseScreen.addEvent();
+			pauseScreen.addEvents();
 		}
 
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(keyPress);
+		Main.current.controls.map.clear();
 		window.onMouseDown.remove(mousePress);
 		window.onMouseWheel.remove(moveCategory_mouse);
 
 		opened = false;
 	}
 
-	function keyPress(code:KeyCode, mod:KeyModifier) {
-		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
-		switch (keybind) {
-			case UI_BACK:
-				close();
-			case UI_DOWN:
-				optionSelected++;
-				if (optionSelected >= optionsDisplay.options.length) {
-					optionSelected = 0;
-				}
-			case UI_UP:
-				optionSelected--;
-				if (optionSelected < 0) {
-					optionSelected = optionsDisplay.options.length - 1;
-				}
-			case UI_RIGHT:
-				categorySelected++;
-				if (categorySelected >= categorySprites.length) {
-					categorySelected = 0;
-				}
-				optionsDisplay.reload(cast categorySelected);
-			case UI_LEFT:
-				categorySelected--;
-				if (categorySelected < 0) {
-					categorySelected = categorySprites.length - 1;
-				}
-				optionsDisplay.reload(cast categorySelected);
-			default:
-				return;
+	function back(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		close();
+	}
+
+	function down(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		optionSelected++;
+		if (optionSelected >= optionsDisplay.options.length) {
+			optionSelected = 0;
 		}
+	}
+
+	function up(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		optionSelected--;
+		if (optionSelected < 0) {
+			optionSelected = optionsDisplay.options.length - 1;
+		}
+	}
+
+	function left(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		categorySelected--;
+		if (categorySelected < 0) {
+			categorySelected = categorySprites.length - 1;
+		}
+		optionsDisplay.reload(cast categorySelected);
+	}
+
+	function right(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		categorySelected++;
+		if (categorySelected >= categorySprites.length) {
+			categorySelected = 0;
+		}
+		optionsDisplay.reload(cast categorySelected);
 	}
 
 	function mousePress(x:Float = 0.0, y:Float = 0.0, button:MouseButton) {

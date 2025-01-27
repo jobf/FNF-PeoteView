@@ -123,31 +123,39 @@ class MainMenu implements State {
 		}
 	}
 
-	function updateMenuOptions_keyboard(code:KeyCode, _:KeyModifier) {
-		var keybind:Controls.ControlsKeybind = Controls.pressed.keycodeToUIKeybind[code];
-
-		switch (keybind) {
-			case UI_DOWN:
-				optionSelected++;
-				if (optionSelected >= optionBuf.length) {
-					optionSelected = 0;
-				}
-			case UI_UP:
-				optionSelected--;
-				if (optionSelected < 0) {
-					optionSelected = optionBuf.length - 1;
-				}
-			case UI_LEFT:
-				optionSelected = optionBuf.length - 1;
-			case UI_RIGHT:
-				optionSelected = optionBuf.length - 2;
-				case UI_ACCEPT:
-					doIt();
-			default:
-				return;
+	function up(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		optionSelected++;
+		if (optionSelected >= optionBuf.length) {
+			optionSelected = 0;
 		}
-
 		updateMenuOptions();
+	}
+
+	function down(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		optionSelected--;
+		if (optionSelected < 0) {
+			optionSelected = optionBuf.length - 1;
+		}
+		updateMenuOptions();
+	}
+
+	function left(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		optionSelected = optionBuf.length - 1;
+		updateMenuOptions();
+	}
+
+	function right(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		optionSelected = optionBuf.length - 2;
+		updateMenuOptions();
+	}
+
+	function accept(isDown:Bool, param:Int) {
+		if (!isDown) return;
+		doIt();
 	}
 
 	function updateMenuOptions_mouse(x:Float, y:Float, mouseWheelMode:MouseWheelMode) {
@@ -192,14 +200,18 @@ class MainMenu implements State {
 
 	function addEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.add(updateMenuOptions_keyboard);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_LEFT, left);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_RIGHT, right);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_UP, up);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_DOWN, down);
+		Main.current.controls.setActionOnMap(Controls.Action.UI_ACCEPT, accept);
 		window.onMouseWheel.add(updateMenuOptions_mouse);
 		window.onMouseDown.add(doIt_mouse);
 	}
 
 	function removeEvents() {
 		var window = lime.app.Application.current.window;
-		window.onKeyDown.remove(updateMenuOptions_keyboard);
+		Main.current.controls.map.clear();
 		window.onMouseWheel.remove(updateMenuOptions_mouse);
 		window.onMouseDown.remove(doIt_mouse);
 	}
